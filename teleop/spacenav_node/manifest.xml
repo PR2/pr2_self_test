@@ -1,0 +1,15 @@
+<package>
+  <description brief="Spacenav Node">
+    A node for publishing the state of the Space Navigator
+  </description>
+  <author>Stuart Glaser sglaser@willowgarage.com</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <depend package="roscpp" />
+  <depend package="robot_msgs" />
+  <depend package="spacenav" />
+  <depend package="joy" />
+  <url>http://pr.willowgarage.com</url>
+  <export>
+  </export>
+</package>

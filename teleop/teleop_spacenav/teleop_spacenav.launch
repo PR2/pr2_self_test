@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="mechanism_control" type="spawner.py"
+        args="$(find teleop_spacenav)/controllers.xml" />
+  <node pkg="spacenav_node" type="spacenav_node" />
+  <node pkg="teleop_spacenav" type="spacenav_teleop.py" args="hand_velocity" />
+</launch>

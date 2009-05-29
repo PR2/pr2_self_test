@@ -1,0 +1,7 @@
+<controllers>
+  <controller type="CartesianVelocityControllerNode"
+              name="hand_velocity" topic="hand_velocity">
+    <chain root="torso_lift_link" tip="r_wrist_roll_link" offset="0.20 0 0" />
+    <pid p="17.0" i="1.0" d="0" iClamp="7.0" />
+  </controller>
+</controllers>

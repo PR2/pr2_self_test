@@ -1,0 +1,16 @@
+<package>
+  <description brief="Single Joint Teleop">
+    Use input from a joystick to tele-operate a single joint in effort mode
+  </description>
+  <author>Eric Berger berger@willowgarage.com</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <depend package="rospy" />
+  <depend package="std_msgs" />
+  <depend package="robot_mechanism_controllers" />
+  <depend package="mechanism_control" />
+  <depend package="joy" />
+  <url>http://pr.willowgarage.com</url>
+  <export>
+  </export>
+</package>
