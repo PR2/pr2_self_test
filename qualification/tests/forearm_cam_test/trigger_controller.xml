@@ -1,0 +1,4 @@
+<controller name="trig_controller" type="TriggerControllerNode"> 
+    <actuator name="fl_caster_l_wheel_motor" />
+    <waveform rep_rate="1" active_low="0" phase="0" duty_cycle=".5" running="0" pulsed="1" />
+</controller>    

@@ -1,0 +1,24 @@
+<launch>
+  <!-- Trigger controller -->
+  <node pkg="mechanism_control" type="spawner.py" args="$(find qualification)/tests/forearm_cam_test/trigger_controller.xml" />
+  
+  <!-- Camera -->
+  <group ns="forearm_cam">
+    <param name="if_name" type="str" value="eth2"/>
+    <param name="ip_address" type="str" value="192.168.202.2"/>
+    <param name="serial_number" type="int" value="7"/>
+    <param name="video_mode" type="str" value="320x240x30"/>
+    <param name="ext_trigger" type="bool" value="True"/>
+    <param name="trigger_controller" type="string" value="trig_controller"/>
+    <param name="trigger_rate" type="double" value="10"/>
+    <param name="trigger_phase" type="double" value="0"/>
+  </group>
+  <node name="forearm_cam" pkg="forearm_cam" type="forearm_node" respawn="false" output="screen"/>
+
+  <!-- Self Test -->
+  <node pkg="qualification" type="run_selftest.py">
+        <remap from="node_name" to="forearm_cam"/>
+  </node>
+
+</launch>
+
