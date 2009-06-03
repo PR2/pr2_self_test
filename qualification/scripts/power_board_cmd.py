@@ -84,7 +84,7 @@ def main():
       is_first = False
       for j in range(0, 3):
         # Call power command service
-        resp = control_proxy(j, power_cmd, 0)
+        resp = control_proxy(0, j, power_cmd, 0)  # serial number of zero not valid, power_node must be started with specific serial number
 
         rospy.logout('CMD: %s %s. Received return code %d' % 
                      (j, power_cmd, resp.retval))
