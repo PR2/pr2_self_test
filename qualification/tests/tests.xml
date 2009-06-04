@@ -41,7 +41,11 @@
 	file="gripper_test/test.xml" descrip="Gripper Test" />
   <!--test serial="upperfl" 
       file="upperarm_flex_only_test/test.xml"/-->
-  
+
+  <!-- Forearm camera tests -->
+  <test serial="6805018"
+  file="forearm_cam_test/test.xml" descrip="Forearm Camera Test" />
+
   <!-- Special tests -->
   <test serial="faketes" 
 	file="simple_example/test.xml" descrip="Simple Example" />

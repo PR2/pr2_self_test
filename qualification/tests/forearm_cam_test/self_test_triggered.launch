@@ -1,4 +1,6 @@
 <launch>
+  <include file="$(find qualification)/tests/init.machine" />
+  
   <!-- Trigger controller -->
   <node pkg="mechanism_control" type="spawner.py" args="$(find qualification)/tests/forearm_cam_test/trigger_controller.xml" />
   
@@ -12,8 +14,9 @@
     <param name="trigger_controller" type="string" value="trig_controller"/>
     <param name="trigger_rate" type="double" value="10"/>
     <param name="trigger_phase" type="double" value="0"/>
+    <param name="exit_on_fault" type="bool" value="true"/>
   </group>
-  <node name="forearm_cam" pkg="forearm_cam" type="forearm_node" respawn="false" output="screen"/>
+  <node machine="realtime" name="forearm_cam" pkg="forearm_cam" type="forearm_node" respawn="false" output="screen"/>
 
   <!-- Self Test -->
   <node pkg="qualification" type="run_selftest.py">

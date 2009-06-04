@@ -7,6 +7,7 @@
     <param name="serial_number" type="int" value="7"/>
     <param name="video_mode" type="str" value="320x240x30"/>
     <param name="ext_trigger" type="bool" value="False"/>
+    <param name="exit_on_fault" type="bool" value="true"/>
   </group>
   <node name="forearm_cam" pkg="forearm_cam" type="forearm_node" respawn="false" output="screen"/>
 
