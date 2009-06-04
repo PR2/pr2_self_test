@@ -90,7 +90,7 @@ try:
             html += "<tr><b><td>Label</td><td>Value</td></b></tr>\n"
             for val in stat.values:
                 html += "<tr><td>%s</td><td>%f</td></tr>\n" % (val.label, val.value)
-                html += "</table>\n"
+            html += "</table>\n"
         
         if len(stat.strings) > 0:
             html += "Diagnostic Strings<br>\n"
@@ -98,7 +98,7 @@ try:
             html += "<tr><b><td>Label</td><td>Value</td></b></tr>\n"
             for val in stat.values:
                 html += "<tr><td>%s</td><td>%s</td></tr>\n" % (val.label, val.value)
-                html += "</table>\n"
+            html += "</table>\n"
 
         html += "<hr size=\"2\">\n"
         
