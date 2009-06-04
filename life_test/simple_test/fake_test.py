@@ -57,7 +57,7 @@ class FakeTestFrame(wx.Frame):
         self._diag_timer = wx.Timer(self, 1)
         self.Bind(wx.EVT_TIMER, self.on_timer, self._diag_timer)
         self._last_publish = rospy.get_time()
-        self._diag_timer.Start(500, True)
+        self._diag_timer.Start(250, True)
         
         # Load XRC
         xrc_path = os.path.join(roslib.packages.get_pkg_dir('life_test'), 'xrc/gui.xrc')

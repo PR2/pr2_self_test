@@ -86,6 +86,7 @@ class TestRecord:
         self._test_name = test._name
 
         self._log = {}
+        self._last_log_time = self._last_update_time
 
         csv_name = strftime("%m%d%Y_%H%M%S", localtime(self._start_time)) + '_' + str(self._serial) + '_' + self._test_name + '.csv'
         csv_name = csv_name.replace(' ', '_').replace('/', '__')
@@ -169,9 +170,10 @@ class TestRecord:
         self._was_launched = launched
         self._last_update_time = rospy.get_time()
 
-        if alert or note != '':
+        if alert or note != '' or  (running and self._last_log_time - rospy.get_time() > 7200):
             self.write_csv_row(self._last_update_time, state, msg, note)
             self._log[rospy.get_time()] = msg + ' ' + note
+            self._last_log_time = self._last_update_time
 
         return alert, msg
 
@@ -284,17 +286,18 @@ class TestMonitorPanel(wx.Panel):
         self._test_complete = False
 
         # Timeout for etherCAT diagnostics
-        self.timer = wx.Timer(self, 1)
+        self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
         self.last_message_time = rospy.get_time()
-        self.timeout_interval = 2.0
+        self.timeout_interval = 5.0
         self._is_stale = True
 
         # Timer for invent logging
-        self.invent_timer = wx.Timer(self, 2)
+        self.invent_timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_invent_timer, self.invent_timer)
         self._last_invent_time = rospy.get_time()
         self.invent_timeout = 600
+        self.invent_timer.Start(self.invent_timeout * 500)
         self._is_invent_stale = True
         self._invent_note_id = None
  
@@ -311,6 +314,10 @@ class TestMonitorPanel(wx.Panel):
         # Somehow calling log function in destructor
         print 'Stopping launches'
         self.stop_test()
+
+        if self._diag_sub:
+            print 'Unregistering from diagnostics'
+            self._diag_sub.unregister()
         
     def is_launched(self):
         return self._test_launcher is not None
@@ -382,7 +389,8 @@ class TestMonitorPanel(wx.Panel):
             self._current_log[rospy.get_time()] = msg
             self._manager.log_test_entry(self._test._name, self._machine, msg)
             
-            wx.CallAfter(self.display_logs)
+            #self._log_ctrl.AppendText(
+            self.display_logs()
             self.notify_operator(alert, msg)
 
 
@@ -414,14 +422,14 @@ class TestMonitorPanel(wx.Panel):
         if rospy.get_time() - self._last_invent_time > self.invent_timeout and self.is_launched():
             self.update_invent()
         
-        self.invent_timer.Start(self.invent_timeout * 500, True)
+        #self.invent_timer.Start(self.invent_timeout * 500, True)
 
 
     def update_invent(self):
-        # rospy.logerr('Updating invent')
+        rospy.logerr('Updating invent')
 
         # Reset timer, last time
-        self.invent_timer.Start(self.invent_timeout * 500, True)
+        #self.invent_timer.Start(self.invent_timeout * 500, True)
         self._last_invent_time = rospy.get_time()
 
         # Don't log anything if we haven't launched
@@ -465,7 +473,7 @@ class TestMonitorPanel(wx.Panel):
                                                 
         
     def start_timer(self):
-        self.timer.Start(1000, True)
+        self.timer.Start(1000 * self.timeout_interval, True)
         
     def on_timer(self, event):
         self._mutex.acquire()
@@ -481,11 +489,11 @@ class TestMonitorPanel(wx.Panel):
             self.stop_if_done()
             self.update_controls(3)
         else:
-            self.start_timer()
+            #self.start_timer()
             self._is_stale = False
             
         self._mutex.release()
-        self.Refresh()
+        #self.Refresh()
 
     def update_controls(self, level = 3, msg = 'None'):
         # Assumes it has the lock
@@ -560,10 +568,12 @@ class TestMonitorPanel(wx.Panel):
             self._test_launcher.stop()
             self._manager.test_stop(self._machine)
             self.log('Stopping test launch')
+            self._test_launcher = None            
 
+        if self._diag_sub:
+            self._diag_sub.unregister()
         self._diag_sub = None
 
-        self._test_launcher = None
         self._is_running = False
         
         if event is not None: # In GUI thread
@@ -575,25 +585,23 @@ class TestMonitorPanel(wx.Panel):
         self._current_log[rospy.get_time()] = msg
         self._manager.log_test_entry(self._test._name, self._machine, msg)
 
-        wx.CallAfter(self.display_logs)
+        #wx.CallAfter(self.display_logs)
 
     def display_logs(self):
-        # Make them bottom of log visible...
-        try:
-            self._mutex.acquire()
-        except:
-            return
+        #try:
+        #    self._mutex.acquire()
+        #except:
+        #    rospy.logerr('Error attempting to acquire mutex!')
+        #    return
       
         self._log_ctrl.AppendText(self.print_cur_log())
-        self._log_ctrl.Refresh()
-        self._log_ctrl.Update()
+        #self._log_ctrl.Refresh()
+        #self._log_ctrl.Update()
         self._current_log = {}
-        self._mutex.release()
+        #self._mutex.release()
 
     def diag_callback(self, message):
-        #print 'Acquiring mutex for diagnostic callback'
         self._mutex.acquire()
-        #print 'Diagnostic mutex acquired'
         self._diags.append(message)
         self._mutex.release()
         wx.CallAfter(self.new_msg)
@@ -623,12 +631,14 @@ class TestMonitorPanel(wx.Panel):
             rospy.logerr('Caught exception processing diagnostic msg.\nEx: %s' % traceback.format_exc())
           
         self._mutex.release()
-        self.Refresh()
+        #self.Refresh()
     
     
     def make_launch_script(self):
         launch = '<launch>\n'
         launch += '<group ns="%s">' % self._machine
+
+        # Remap
         launch += '<remap from="/diagnostics" to="/%s/diagnostics" />' % self._machine
         # Init machine
         launch += '<machine name="test_host_root" user="root" address="%s" ' % self._machine

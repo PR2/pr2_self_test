@@ -9,6 +9,13 @@
 	rate="3" script="wrist_test/test_gui.launch" 
 	type="Life Test" />
 
+  <test serial="6804213" name="Fixed Wrist Test" 
+	desc="Test of wrist attached to a bar, jerking around."
+	rate="3" script="wrist_test/test_gui_bar.launch" 
+	type="Life Test" />
+
+
+
   <test serial="6804040" name="Head Life Test"
 	desc="Tests head on test cart, moving between [-0.4, 1.4] tilt, [-2.7, 2.7] pan."
 	rate="2.0" script="head_test/life_test/test_gui.launch"

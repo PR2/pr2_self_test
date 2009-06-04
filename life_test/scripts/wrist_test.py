@@ -114,9 +114,16 @@ def main():
     else:
         print "Spawned grip controller successfully"
 
+    if fixed_to_bar:
+        effort_flex = 1000
+        effort_roll = 1000
+    else:
+        effort_flex = 6
+        effort_roll = 3 # Turn down effort roll to make wrist flex up and down
+
+
+
     effort_grip = -100 
-    effort_flex = 4
-    effort_roll = 4
         
     try:
         while not rospy.is_shutdown():
@@ -128,7 +135,12 @@ def main():
                 
             pub_grip.publish(Float64(effort_grip))
             pub_flex.publish(Float64(effort_flex))
-            pub_roll.publish(Float64(effort_roll))
+
+            if fixed_to_bar and random.randint(0, 5) == 1:
+                pub_roll.publish(Float64(0))
+            else:
+                pub_roll.publish(Float64(effort_roll))
+
 
             sleep(0.3)
 

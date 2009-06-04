@@ -34,8 +34,7 @@ import rospy
 from std_msgs.msg import *
 from robot_msgs.msg import *
 
-pub = rospy.Publisher('/r_arm_cartesian_pose_controller/command', PoseStamped)
-#pub = rospy.Publisher('/cartesian_trajectory_right/command', PoseStamped)
+pub = rospy.Publisher('r_arm_cartesian_pose_controller/command', PoseStamped)
 
 
 def p(x, y, z, rx, ry, rz, w):

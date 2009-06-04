@@ -48,6 +48,8 @@ import datetime
 import glob
 import wx
 import time
+import traceback
+import threading
 from wx import xrc
 from wx import html
 
@@ -58,13 +60,9 @@ from xml.dom import minidom
 from cStringIO import StringIO
 import struct
 
-import traceback
-
 from invent_client.invent_client import Invent
 
 from life_test import *
-
-import threading
 
 class TestManagerFrame(wx.Frame):
     def __init__(self, parent):
@@ -139,6 +137,7 @@ class TestManagerFrame(wx.Frame):
         if self._tab_ctrl.DeletePage(idx + 1):
             del self._test_monitors[serial]
             del self._active_serials[idx]
+            #print 'Active serials after deletion', self._active_serials
         
     def test_start_check(self, machine):
         if machine in self._active_machines:
@@ -151,6 +150,7 @@ class TestManagerFrame(wx.Frame):
         if machine in self._active_machines:
             idx = self._active_machines.index(machine)
             del self._active_machines[idx]
+            #print 'Active machines after delete:', self._active_machines
 
     def load_invent_client(self):
         # Loads invent client. Singleton, doesn't construct unless valid login

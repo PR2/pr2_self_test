@@ -88,9 +88,9 @@ def main():
         while not rospy.is_shutdown():
             if roll:
                 fore_roll.publish(Float64(1.0))
-            arm_pos.publish(Float64(0.0))
+            arm_pos.publish(Float64(-0.05))
             sleep(0.5)
-            arm_pos.publish(Float64(-2.05))
+            arm_pos.publish(Float64(-2.00))
             sleep(0.5)
     except Exception, e:
         print "Caught exception!"
