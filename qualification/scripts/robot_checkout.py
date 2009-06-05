@@ -239,7 +239,7 @@ class RobotCheckout:
                 summary = 'No diagnostics received! '
                 self._is_ok = False
             else:
-                summary = 'Diagnostics FAIL: %s errors, %s warnings, %s stale item. ' % (stat_count[2], stat_count[1], stat_count[3])
+                summary = 'Diagnostics FAIL: %s errors, %s warnings, %s stale items. ' % (stat_count[2], stat_count[1], stat_count[3])
                 self._is_ok = False
         
         html = '<p><b>Diagnostic Data</b></p><p>%s</p><br>\n' % summary 
@@ -342,8 +342,10 @@ class RobotCheckout:
                     cal = '<div class=\"pass\">Wheel</div>'
                 elif name == 'base_joint':
                     cal = '<div class=\"pass\">Base</div>'
+                elif name.find('finger') > 0:
+                    cal = '<div class=\"pass\">Finger</div>'
                 else:
-                    cal = '<div class=\"warn\">NO</div>'
+                    cal = '<div class=\"warn\"><b>NO</b></div>'
                     self._joints_ok = False
                     self._calibrated = False
                     

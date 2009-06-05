@@ -95,40 +95,42 @@ def hold_arm(side, pan_angle, holding):
         set_controller("%s_wrist_roll_hold" % side, float(0.0))
         
     if hold_joint("%s_wrist_flex" % side, 12, 3, 1, 1, holding):
-        set_controller("%s_wrist_flex_hold" % side, float(1.0))
+        set_controller("%s_wrist_flex_hold" % side, float(0.0))
 
     if hold_joint("%s_forearm_roll" % side, 20, 5, 2, 2, holding):
         set_controller("%s_forearm_roll_hold" % side, float(0.0))
 
     if hold_joint("%s_elbow_flex" % side, 35, 10, 2, 2, holding):
-        set_controller("%s_elbow_flex_hold" % side, float(-0.5))
+        set_controller("%s_elbow_flex_hold" % side, float(0.0))
 
     if hold_joint("%s_upper_arm_roll" % side, 20, 2, 1.0, 1.0, holding):
         set_controller("%s_upper_arm_roll_hold" % side, float(0.0))
 
     if hold_joint("%s_shoulder_lift" % side, 40, 7, 2, 4, holding):
-        set_controller("%s_shoulder_lift_hold" % side, float(0.5))
+        set_controller("%s_shoulder_lift_hold" % side, float(0.0))
 
     if hold_joint("%s_shoulder_pan" % side, 50, 6, 8, 4, holding):
         set_controller("%s_shoulder_pan_hold" % side, float(pan_angle))
 
 def main():
-    if len(sys.argv) < 3:
-        print "Can't load arm, need <joint> <controller_path>"
-        sys.exit(1)
+    if len(sys.argv) < 2:
+        print "Can't load arm, need <controller_path>"
+        sys.exit(3)
 
     # Pull side (l or r) from param server
     side = rospy.get_param("full_arm_test/side")
 
-    rospy.init_node('arm_test_spawner_' + side, anonymous=True)
+    rospy.init_node('cb_test_spawner_' + side, anonymous=True)
     
     try:
-        joint = side + sys.argv[1]
-        controller_file = open(sys.argv[2])
+        #joint = side + sys.argv[1]
+        controller_file = open(sys.argv[1])
         # Put side in to controller xml string
-        controller_xml = controller_file.read() % side 
+        controller_xml = controller_file.read() % (side, side)
         controller_file.close()
         
+        print controller_xml
+
         holding = []
     
         rospy.wait_for_service('spawn_controller')
@@ -142,12 +144,19 @@ def main():
         hold_arm('r', -1.2, holding)
         hold_arm('l', 1.2, holding)
         
-        print 'Killing joint controller %s_hold' % joint
+        print 'Killing joint controllers'
         # Kill controller for given joint
-        kill_controller(joint + '_hold')
+        kill_controller(side + '_elbow_flex_hold')
+        kill_controller(side + '_shoulder_lift_hold')
+        
 
-        if joint + '_hold' in holding:
-            holding.remove(joint + '_hold')
+        if side + '_elbow_flex_hold' in holding:
+            holding.remove(side + '_elbow_flex_hold')
+        else:
+            print 'Joint %s is not being held' % joint
+
+        if side + '_shoulder_lift_hold' in holding:
+            holding.remove(side + '_shoulder_lift_hold')
         else:
             print 'Joint %s is not being held' % joint
         
@@ -160,8 +169,10 @@ def main():
         if len(resp.ok) != 1 or resp.ok[0] != chr(1):
             rospy.logerr('Failed to spawn test controller')
             rospy.logerr('Controller XML: %s' % controller_xml)
+            rospy.logerr('Spawner error: %s' % resp.error)
             sys.exit(2)
 
+        print 'Test controller spawned'
         holding.append(resp.name[0])
         
         print 'Test controller is up, running test'

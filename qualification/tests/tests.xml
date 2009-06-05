@@ -2,9 +2,6 @@
   <!-- Base and Spine -->
   <test serial="6804108" 
 	file="caster_test/test.xml" descrip="Caster Alpha 1.0"/>
-
-  <test serial="6804108" 
-	file="simple_example/test.xml" descrip="Simple Example"/>
   <test serial="6804108" 
 	file="caster_test/test_alpha2.xml" descrip="Caster Alpha 2.0" />
   <test serial="torsoli" 
@@ -22,25 +19,27 @@
 
   <!-- Laser tilt sled -->
   <test serial="6804001" 
-	file="laser_tilt_test/test.xml" descrip="Laser Tilt Test" />  
+	file="laser_tilt_test/test.xml" descrip="Laser Tilt Alpha 1" />  
   <test serial="6804001" 
-	file="laser_tilt_test/test_alpha2.xml" descrip="Laser Tilt Alpha2" />  
+	file="laser_tilt_test/test_alpha2.xml" descrip="Laser Tilt Alpha 2" />  
 
   <!-- Arm Tests -->
+  <test serial="counter"
+	file="full_arm_test/test_cb.xml" descrip="Counterbalance Test" />
+
   <test serial="6804178" 
 	file="full_arm_test/test.xml" descrip="Full Arm Test" />
   <test serial="6804204" 
 	file="shoulder_test/test.xml" descrip="Shoulder Test" />
   <test serial="6804139" 
 	file="upperarm_test/test.xml" descrip="Upperarm Test" />
-  <test serial="6804139" 
-	file="upperarm_flex_only_test/test.xml" descrip="Upperarm Test - Flex Jnt Ony" />
+  <!--test serial="6804139" 
+	file="upperarm_flex_only_test/test.xml" descrip="Upperarm Test - Flex Jnt Ony" /-->
   <test serial="6804213" 
 	file="wrist_test/test.xml" descrip="Wrist Test" />
   <test serial="6804015" 
 	file="gripper_test/test.xml" descrip="Gripper Test" />
-  <!--test serial="upperfl" 
-      file="upperarm_flex_only_test/test.xml"/-->
+ 
 
   <!-- Forearm camera tests -->
   <test serial="6805018"
@@ -50,7 +49,7 @@
   <test serial="faketes" 
 	file="simple_example/test.xml" descrip="Simple Example" />
 
-
+  <!-- Instruments and devices -->
   <test serial="6801024" 
 	file="hokuyo_test/test.xml" descrip="Hokuyo Test" />
   <test serial="6801050" 

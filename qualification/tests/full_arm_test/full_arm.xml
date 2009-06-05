@@ -24,14 +24,14 @@
   <include filename="$(find pr2_defs)/defs/gazebo_defs.xml" />
   <include filename="$(find pr2_defs)/robots/r_arm_groups.xml" />
 
-  <pr2_arm side="r" reflect="-1" parent="torso_lift_link">
-    <origin xyz="0.0 0.0 1.0" rpy="0 0 0" />
+  <pr2_arm side="r" reflect="-1" parent="base_link">
+    <origin xyz="0.0 0.0 0.01" rpy="0 0 0" />
   </pr2_arm>
   <pr2_gripper side="r" parent="r_wrist_roll_link" />
 
   <!-- Solid Base -->
   <joint name="base_joint" type="planar" />
-  <link name="torso_lift_link"><!-- link specifying the base of the robot -->
+  <link name="base_link"><!-- link specifying the base of the robot -->
     <parent name="world" />
     <origin xyz="0 0 0.0" rpy=" 0 0 0" />
     <joint name="base_joint" />

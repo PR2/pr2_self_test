@@ -53,6 +53,7 @@ from cStringIO import StringIO
 import wx
 
 import tarfile
+import socket
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -65,12 +66,17 @@ RESULTS_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'result
 TEMP_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results/temp/')
 
 
+ResultType = { 0: "Fail", 1: "Pass", 2: "Manual Failure", 3: "Manual Pass", 4: "Retry", 5: "Error" , 6: "Operator needed" }
+
+
 class SubTestResult:
     def __init__(self, test_name, msg):
         self._name = test_name
-        self._result = False
+        self._result = 0
         if msg.result == TestResultRequest.RESULT_PASS:
-            self._result = True
+            self._result = 1
+        elif msg.result == TestResultRequest.RESULT_HUMAN_REQUIRED:
+            self._result = 6
 
         self._text_result = msg.html_result
         if msg.text_summary is not None:
@@ -100,22 +106,25 @@ class SubTestResult:
     def set_note(self, txt):
         self._subresult_note = txt
 
+    def filename_base(self):
+        return self._name.replace(' ', '_').replace('/', '__')
+
     def filename(self):
-        return self._name.replace(' ', '_').replace('/', '__') + '.html'
+        return self.filename_base() + '.html'
 
     def write_images(self, path):
         for plot in self._plots:
             stream = StringIO(plot.image)
             im  = Image.open(stream)
             
-            img_file = path + plot.title + '.' + plot.image_format
+            img_file = path + self.filename_base() + '_' + plot.title + '.' + plot.image_format
             im.save(img_file)
 
     def html_image_result(self, img_path):
         html = '<H5 ALIGN=CENTER>Result Details</H5>'
         
         # Put '<img src=\"IMG_PATH/%s.png\" /> % image_title' in html_result
-        html += self._text_result.replace('IMG_PATH/', img_path)
+        html += self._text_result.replace('IMG_PATH/', img_path + self.filename_base() + '_')
 
         return html
 
@@ -129,8 +138,9 @@ class SubTestResult:
         html = "<html><head><title>Qualification Test Results: %s</title>\
 <style type=\"text/css\">\
 body { color: black; background: white; }\
-div.warn { background: red; padding: 0.5em; border: none; }\
 div.pass { background: green; padding: 0.5em; border: none; }\
+div.warn { background: yellow; padding: 0.5em; border: none; }\
+div.error { background: red; padding: 0.5em; border: none; }\
 strong { font-weight: bold; color: red; }\
 em { font-style:normal; font-weight: bold; }\
 </style>\
@@ -165,9 +175,17 @@ em { font-style:normal; font-weight: bold; }\
     def html_header(self):
         html = '<H4 ALIGN=CENTER>Results of %s</H4>\n' % self._name
         
-        status_html = '<p>Status: <strong>FAIL</strong></p>\n'
-        if (self._msg.result == TestResultRequest.RESULT_PASS):
-            status_html = '<p>Status: <em>OK</em></p>\n'
+        #status_html = '<p>Status: <strong>FAIL</strong></p>\n'
+        #if (self._msg.result == TestResultRequest.RESULT_PASS):
+        #    status_html = '<p>Status: <em>OK</em></p>\n'
+
+        status_html ='<p>Status: <div class="error">%s</div></p>\n' % ResultType[self.get_passfail()]
+        if self._result == 0 or self._result == 3:
+            status_html ='<p>Status: <div class="pass">%s</div></p>\n' % ResultType[self.get_passfail()]
+        if self._result == 4 or self._result == 3:
+            status_html = '<p>Status: <div class="warn">%s</div></p>\n' % ResultType[self.get_passfail()]
+            
+
         html += status_html
 
         if self._summary != '':
@@ -179,11 +197,12 @@ em { font-style:normal; font-weight: bold; }\
 
         return html
 
-    # Moved to subresult class?
     def make_index_line(self, link, link_dir):
-        result = '<div class="warn">FAIL</div>'
-        if self.get_passfail():
-            result = '<div class="pass">OK</div>'
+        result = '<div class="error">%s</div>'  % ResultType[self.get_passfail()]
+        if self.get_passfail() == 0:
+            result = '<div class="pass">%s</div>' % ResultType[self.get_passfail()]
+        elif self.get_passfail() == 3 or self.get_passfail() == 4:
+            result = '<div class="warn">%s</div>' % ResultType[self.get_passfail()]
         
         path = link_dir + self.filename()
         if link:
@@ -255,6 +274,33 @@ class QualTestResult:
         self._subresults_by_index[index] = sub
         return sub
 
+    def retry_subresult(self, index):
+        sub = self.get_subresult(index)
+        sub.set_passfail(4)
+
+        if not sub:
+            return
+
+        name = sub.get_name()
+        
+        del self._subresults[name]
+        del self._subresults_by_index[index]
+
+        index += 10000 # Retried subtest start at 10,000
+        retry_count = 1
+        while self._subresults_by_index.has_key(index):
+            index += 0.001
+            retry_count += 1
+
+        name += "_retry%d" % retry_count
+        
+        sub._name = name
+
+        sub.write_images(TEMP_DIR) # Rewrite images for display
+        self._subresults[name] = sub
+        self._subresults_by_index[index] = sub
+
+
     # Come up with better enforcement of get functions
     def get_subresult(self, index):
         if not self._subresults_by_index.has_key(index):
@@ -264,16 +310,27 @@ class QualTestResult:
 
     def test_result(self):
         if len(self.get_subresults()) == 0:
-            return False
+            return 0
 
         if self.canceled or self.has_error_no_invent:
-            return False
+            return 5
 
+        result = 1
         for res in self.get_subresults():
-            if not res.get_passfail():
-                return False
+            if res.get_passfail() == 0: # Fail
+                return 0
+            if res.get_passfail() == 2: # Operator fail
+                return 2
+            if res.get_passfail() == 6: # Operator needed
+                return 6
+            if res.get_passfail() == 4: # Retry
+                continue
 
-        return True
+            # Compares pass, human_pass, human_fail
+            result = max(res.get_passfail(), result)
+
+        return result
+
 
     def test_status_str(self):
         if self.test_result():
@@ -286,8 +343,9 @@ class QualTestResult:
         html += "<title>Qualification Test Result Summary for %s: %s</title>\n" % (self._serial, self._start_time_name)
         html += "<style type=\"text/css\">\
 body { color: black; background: white; }\
-div.warn { background: red; padding: 0.5em; border: none; }\
 div.pass { background: green; padding: 0.5em; border: none; }\
+div.warn { background: yellow; padding: 0.5em; border: none; }\
+div.error { background: red; padding: 0.5em; border: none; }\
 strong { font-weight: bold; color: red; }\
 em { font-style: normal; font-weight: bold; }\
 </style>\
@@ -303,9 +361,13 @@ em { font-style: normal; font-weight: bold; }\
             return html
 
         result = '<H3>Test Result: <strong>FAIL</strong></H3>\n' 
-        if self.test_result():
+        if self.test_result() == 1:
             result = '<H3>Test Result: <em>PASS</em></H3>\n'
-        
+        elif self.test_result() == 3:
+            result = '<H3>Test Result: <em>Operator Passed</em></H3>\n'
+        elif self.test_result() == 5:
+            result = '<H3>Test Result: <strong>Canceled.</strong></H3>\n'
+
         html += result
         html += '<HR size="2">'
 
@@ -481,7 +543,7 @@ em { font-style: normal; font-weight: bold; }\
         invent.add_attachment(reference, prefix + "summary.html", "text/html", self.make_summary_page(False))
         
         # Use add attachment...
-        if 0:
+        if True:
             try:
                 # Need to get tar to bit stream
                 f = open(self._tar_filename, "rb")
@@ -499,7 +561,7 @@ em { font-style: normal; font-weight: bold; }\
                 print 'Caught exception uploading tar file. %s' % str(e)
                 return False, 'Caught exception loading tar file to inventory. %s' % str(e)
 
-        if 1:
+        else:
             _path = os.path.join(roslib.packages.get_pkg_dir("qualification"), "src", "qualification", "add_attachment.py")
             print "_path", _path
             cmd = [_path, "--username=" + invent.username, "--password=" + invent.password, reference, self._tar_filename]
@@ -509,10 +571,13 @@ em { font-style: normal; font-weight: bold; }\
 
             if retcode == 0:
                 return True, 'Wrote tar file, uploaded to inventory system.'
-            return False, 'Received retcode %s from add_attachment, unable to upload to inventory system.' % retcode
+            return False, 'Received retcode %s from invent.add_attachment, unable to upload to inventory system.' % retcode
 
     def get_qual_team(self):
-        return string.join(self.dev_team, ", ")
+        if socket.gethostname() == 'nsf':
+            return 'watts@willowgarage.com'
+
+        return 'qualdevteam@lists.willowgarage.com'
 
     # Email qualification team results as HTML summary and tar file
     def email_qual_team(self):

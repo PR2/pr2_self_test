@@ -4,14 +4,13 @@
   <include filename="$(find pr2_defs)/defs/arm_defs.xml" />
   <include filename="$(find pr2_defs)/defs/gazebo_defs.xml" />
 
-  <pr2_forearm side="r" reflect="1" parent="world" /> <!-- base_link -->
+  <pr2_forearm side="r" reflect="1" parent="base_link" /> <!-- base_link -->
 
  <!-- Solid Base -->
   <joint name="base_joint" type="planar" />
 
-  <link name="base_link"><!-- link specifying the base of the robot -->
+  <link name="base_link">
     <parent name=" world" />
-    <!-- rotation of a local coordinate frame attached to the link with respect to a global coordinate frame -->
     <origin xyz=" 0 0 1.002 " rpy=" 0 0 0" /> <!-- position of a local coordinate frame attached to the link with respect to the parent link's coordinate frame -->
     <joint name="base_joint" />
     <inertial>

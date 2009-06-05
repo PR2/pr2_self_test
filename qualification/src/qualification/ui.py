@@ -63,7 +63,8 @@ from cStringIO import StringIO
 import struct
 
 import traceback
-from invent_client import Invent
+from invent_client.invent_client import Invent
+
 
 import runtime_monitor
 from runtime_monitor.monitor_panel import MonitorPanel
@@ -325,7 +326,7 @@ class PlotsPanel(wx.Panel):
 
     # Make runtime monitor panel
     self._notebook = xrc.XRCCTRL(self._panel, 'results_notebook')
-    wx.CallAfter(self.create_monitor)
+    self.create_monitor()
 
   def create_monitor(self):
     print 'Creating runtime monitor...'
@@ -355,18 +356,19 @@ class PlotsPanel(wx.Panel):
   def on_pass(self, event):
     notes =  self._notes_text.GetValue()
     self._notes_text.Clear()
-    self._manager.subtest_result(True, notes)
+    self._manager.subtest_result(3, notes)
 
   
   def on_fail(self, event):
     notes =  self._notes_text.GetValue()
     self._notes_text.Clear()
-    self._manager.subtest_result(False, notes)
+    self._manager.subtest_result(2, notes)
 
   
   def on_retry(self, event):
     # Will pass notes to subtest result eventually
     
+
     self._notes_text.Clear()
     self._manager.retry_subtest()
 
@@ -524,7 +526,7 @@ class QualificationFrame(wx.Frame):
     
     self._startup_launch = None
     self._shutdown_launch = None
-    self._core_launch = None
+    #self._core_launch = None
     self._subtest_launch = None
     self._prestartup_launch = None
     self._current_test = None
@@ -597,14 +599,14 @@ class QualificationFrame(wx.Frame):
     self._log.Refresh()
     self._log.Update()
     
-  def set_top_panel(self, panel): # , delete_window = True):
+  def set_top_panel(self, panel):
     if self._current_panel == panel:
       #print 'Not changing top panel'
       return
     
     #print 'Changing top panel'
     self._current_panel = panel
-    self._top_sizer.Clear(True) # self._delete_window_on_clear)
+    self._top_sizer.Clear(True)
     self._top_sizer.Add(self._current_panel, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL)
     self._top_panel.Layout()
     #self._delete_window_on_clear = delete_window
@@ -782,7 +784,9 @@ class QualificationFrame(wx.Frame):
   # Launches program for either onboard, component conf or test cart tests
   def start_qualification(self, config_only = False, name = ''):
     self._tests_start_date = datetime.now()
-  
+ 
+    #self._core_launch = self.launch_core()
+ 
     self._results = QualTestResult(self._current_serial, self._tests_start_date)
     self._plots_panel = PlotsPanel(self._top_panel, self._res, self)
     self._subtest = None
@@ -794,9 +798,7 @@ class QualificationFrame(wx.Frame):
     if (len(self._current_test.subtests) == 0):
       wx.MessageBox('Test selected has no subtests defined', 'No tests', wx.OK|wx.ICON_ERROR, self)
       return
-    
-    self._core_launch = self.launch_core()
-    
+        
     if (self._result_service != None):
       self._result_service.shutdown()
       self._result_service = None
@@ -831,7 +833,7 @@ class QualificationFrame(wx.Frame):
     self.prestartup_call()
 
   def prestartup_done_callback(self, srv):
-    self.prestartup_finished(srv) 
+    wx.CallAfter(self.prestartup_finished, srv)
       
     return ScriptDoneResponse()
 
@@ -852,25 +854,24 @@ class QualificationFrame(wx.Frame):
           self._prestartup_done_srv.shutdown()
           self._prestartup_done_srv = None
 
-        wx.CallAfter(self.test_startup) # Done with prestartups
+        #wx.CallAfter(self.test_startup) # Done with prestartups
+        self.test_startup()
       else:
-        wx.CallAfter(self.prestartup_call)
+        #wx.CallAfter(self.prestartup_call)
+        self.prestartup_call()
     else:
       if (self._prestartup_done_srv != None):
         self._prestartup_done_srv.shutdown()
         self._prestartup_done_srv = None
 
-      wx.CallAfter(self.prestartup_failed, srv)
+      #wx.CallAfter(self.prestartup_failed, srv)
+      self.prestartup_failed(srv)
       
   def prestartup_call(self):
     script = self._current_test.pre_startup_scripts[self._prestartup_index]
     # update script label in waiting panel
     log_message = 'Running pre_startup script [%s]...'%(script)
     self.log(log_message)
-
-    # Set waiting panel stuff
-    #panel = WaitingPanel(self._top_panel, self._res, self)
-    #panel.set_progress_label(log_message)
 
     wait_html = '<html><H2 align=center>Prestartup Scripts Running</H2>\n'
     wait_html += '<H3 align=center>Script: %s</H3>\n</html>' % script
@@ -930,12 +931,6 @@ class QualificationFrame(wx.Frame):
   def start_subtest(self, index):
     self._subtest_index = index
     self._subtest = self._current_test.subtests[index]
-    
-    # Change label to make it cooler
-    #panel = WaitingPanel(self._top_panel, self._res, self)
-    #panel.set_progress_label_waiting(self._subtest.get_name(), index + 1, len(self._current_test.subtests))
-
-    #self.set_top_panel(panel)
 
     self._plots_panel.show_waiting(self.make_html_waiting_page(self._subtest.get_name(), index, len(self._current_test.subtests)))
     self.set_top_panel(self._plots_panel)
@@ -961,10 +956,7 @@ class QualificationFrame(wx.Frame):
       self.reset()
 
   def show_plots(self, sub_result):
-    #panel = PlotsPanel(self._top_panel, self._res, self, self._subtest._test_script)
-    #self.set_top_panel(panel)
-    #panel.show_plots(sub_result.make_result_page())
-    
+   
     self._plots_panel.show_plots(sub_result.make_result_page())
     self.set_top_panel(self._plots_panel)
 
@@ -1080,12 +1072,15 @@ class QualificationFrame(wx.Frame):
       else:
         post_launcher.spin() 
   
-  def subtest_result(self, passfail, operator_notes):
-    str_result = "OK"
-    if not passfail:
-      str_result = "FAIL"
+  def retry_subtest(self):
+    self.log('Retrying subtest "%s"'%(self._subtest.get_name()))
+    self._results.retry_subresult(self._subtest_index)
+    self.start_subtest(self._subtest_index)
     
-    self.log('Subtest "%s" result: %s'%(self._subtest.get_name(), str_result))
+
+  def subtest_result(self, passfail, operator_notes):
+    
+    self.log('Subtest "%s" result: %s'%(self._subtest.get_name(), ResultType[passfail]))
     
     sub_result = self._results.get_subresult(self._subtest_index)
     sub_result.set_note(operator_notes)
@@ -1093,13 +1088,16 @@ class QualificationFrame(wx.Frame):
 
     self.launch_post_subtest()
     
-    if not passfail:
-      self.test_finished() # Terminate rest of test
-      #self.show_results()
-    else:
+    if passfail == 1 or passfail == 3:
       self.next_subtest()
+    else:
+      self.test_finished() # Terminate rest of test
+
+      
     
   def subtest_finished(self, msg):
+    # TODO: if subtest_launch is None, cancel
+
     #self.log('Subtest "%s" finished'%(self._subtest.get_name()))
     self._subtest_launch.stop()
     self._subtest_launch = None
@@ -1121,21 +1119,19 @@ class QualificationFrame(wx.Frame):
     wx.CallAfter(self.subtest_finished, msg)
     return TestResultResponse()
     
-  def retry_subtest(self):
-    self.log('Retrying subtest "%s"'%(self._subtest.get_name()))
-    self.start_subtest(self._subtest_index)
+
     
-  def launch_core(self):
-    self.log('Launching ROS master.')
+    #def launch_core(self):
+    #self.log('Launching ROS master.')
     
-    # Create a roslauncher
-    config = roslaunch.ROSLaunchConfig()
-    config.master.auto = config.master.AUTO_RESTART
+    ## Create a roslauncher
+    #config = roslaunch.ROSLaunchConfig()
+    #config.master.auto = config.master.AUTO_RESTART
     
-    launcher = roslaunch.ROSLaunchRunner(config)
-    launcher.launch()
+    #launcher = roslaunch.ROSLaunchRunner(config)
+    #launcher.launch()
     
-    return launcher
+    #return launcher
     
   def launch_script(self, script, process_listener_object):
     self.log('Launching roslaunch file %s'%(script))
@@ -1172,9 +1168,10 @@ class QualificationFrame(wx.Frame):
       
     if (self._prestartup_launch != None):
       self._prestartup_launch.spin_once()
-      
-    if (self._core_launch != None):
-      self._core_launch.spin_once()
+     
+    # Need to replace this functionality...
+    #if (self._core_launch != None):
+    #  self._core_launch.spin_once()
     
   def stop_launches(self):
     self.log('Stopping launches')
@@ -1190,46 +1187,44 @@ class QualificationFrame(wx.Frame):
     if (self._prestartup_launch != None):
       self._prestartup_launch.stop()
       
-    if (self._core_launch != None):
-      self._core_launch.stop()
+    #if (self._core_launch != None):
+    #  self._core_launch.stop()
       
     self._startup_launch = None
     self._shutdown_launch = None
-    self._core_launch = None
+    #self._core_launch = None
     self._prestartup_launch = None
     self._subtest_launch = None
+    rospy.set_param('/', {})
     self.log('Launches stopped.')
     
-  #def shutdown_test(self):
-  #  if (self._current_test.getShutdownScript() != None):
-  #    self.log('Running shutdown script...')
+  def test_finished(self):
+    if (self._current_test is not None and self._current_test.getShutdownScript() != None):
+      self.log('Running shutdown script...')
       
-  #    if (self._shutdown_done_srv != None):
-  #      self._shutdown_done_srv.shutdown()
-  #      self._shutdown_done_srv = None
+      if (self._shutdown_done_srv != None):
+        self._shutdown_done_srv.shutdown()
+        self._shutdown_done_srv = None
       
-  #    self._shutdown_done_srv = rospy.Service('shutdown_done', ScriptDone, self.shutdown_callback)
+      self._shutdown_done_srv = rospy.Service('shutdown_done', ScriptDone, self.shutdown_callback)
 
-      # Set waiting panel stuff
-      #panel = WaitingPanel(self._top_panel, self._res, self)
-      #panel.set_progress_label("Shut down in progress.\nRunning %s..." % self._current_test.getShutdownScript())
+      html = '<html><H2 align=center>Shutting down test and stopping launches</H2></html>'
       
-      #self.set_top_panel(panel)
+      self._plots_panel.show_waiting(html, False)
+      self.set_top_panel(self._plots_panel)
 
-
-
-    #  # Launch given shutdown script
-    #  self._shutdown_launch = self.launch_script(os.path.join(self._test_dir, self._current_test.getShutdownScript()), None)
-
-#      if (self._shutdown_launch == None):
-#        s = 'Could not load roslaunch shutdown script "%s". SHUTDOWN POWER BOARD MANUALLY!'%(self._current_test.getShutdownScript())
-#        wx.MessageBox(s, 'Invalid shutdown script!', wx.OK|wx.ICON_ERROR, self)
-#        self.log('No shutdown script: %s' % (s))
-#        self.log('SHUT DOWN POWER BOARD MANUALLY!')
-#        #self.reset()
-#        return
-#    else:
-#      self.log('No shutdown script')
+      # Launch given shutdown script
+      self._shutdown_launch = self.launch_script(os.path.join(self._test_dir, self._current_test.getShutdownScript()), None)
+      if (self._shutdown_launch == None):
+        s = 'Could not load roslaunch shutdown script "%s". SHUTDOWN POWER BOARD MANUALLY!'%(self._current_test.getShutdownScript())
+        wx.MessageBox(s, 'Invalid shutdown script!', wx.OK|wx.ICON_ERROR, self)
+        self.log('No shutdown script: %s' % (s))
+        self.log('SHUT DOWN POWER BOARD MANUALLY')
+        #self.reset()
+        return
+    else:
+      self.log('No shutdown script')
+      self.test_cleanup()
 
   def shutdown_callback(self, srv):
     self.log('Shutdown finished')
@@ -1250,43 +1245,8 @@ class QualificationFrame(wx.Frame):
       wx.MessageBox(fail_msg + '\n' + srv.failure_msg, fail_msg, wx.OK|wx.ICON_ERROR, self)
       self.log('Shutdown failed for: %s' % srv.failure_msg)
 
-    # TODO: See if we need a callafter here...
-    wx.CallAfter(self.test_cleanup)
+    self.test_cleanup()
 
-  def test_finished(self):
-    if (self._current_test is not None and self._current_test.getShutdownScript() != None):
-      self.log('Running shutdown script...')
-      
-      if (self._shutdown_done_srv != None):
-        self._shutdown_done_srv.shutdown()
-        self._shutdown_done_srv = None
-      
-      self._shutdown_done_srv = rospy.Service('shutdown_done', ScriptDone, self.shutdown_callback)
-
-      # Set waiting panel stuff
-      #panel = WaitingPanel(self._top_panel, self._res, self, False)
-      #panel.set_progress_label("Running shutdown script %s..." % self._current_test.getShutdownScript())
-      
-      #self.set_top_panel(panel)
-
-      html = '<html><H2 align=center>Shutting down test and stopping launches</H2></html>'
-      
-      self._plots_panel.show_waiting(html, False)
-      self.set_top_panel(self._plots_panel)
-
-      # Launch given shutdown script
-      self._shutdown_launch = self.launch_script(os.path.join(self._test_dir, self._current_test.getShutdownScript()), None)
-      if (self._shutdown_launch == None):
-        s = 'Could not load roslaunch shutdown script "%s". SHUTDOWN POWER BOARD MANUALLY!'%(self._current_test.getShutdownScript())
-        wx.MessageBox(s, 'Invalid shutdown script!', wx.OK|wx.ICON_ERROR, self)
-        self.log('No shutdown script: %s' % (s))
-        self.log('SHUT DOWN POWER BOARD MANUALLY')
-        #self.reset()
-        return
-    else:
-      self.log('No shutdown script')
-      self.test_cleanup()
-      
 
   def test_cleanup(self):
     self.stop_launches()
@@ -1297,7 +1257,6 @@ class QualificationFrame(wx.Frame):
 
     if self._results is not None:
       self._results._test_log = self._test_log
-    self._test_log = {}
     
     self.show_results()
 
@@ -1318,7 +1277,14 @@ class QualificationFrame(wx.Frame):
 
 class QualificationApp(wx.App):
   def OnInit(self):
-    rospy.init_node("Qualifier", anonymous=True, disable_rostime=True)
+    # Start up master
+    config = roslaunch.ROSLaunchConfig()
+    config.master.auto = config.master.AUTO_RESTART
+
+    self._core_launcher = roslaunch.ROSLaunchRunner(config)
+    self._core_launcher.launch()
+
+    rospy.init_node("Qualifier")
     
     self._frame = QualificationFrame(None)
     self._frame.SetSize(wx.Size(700,1000))
@@ -1327,6 +1293,9 @@ class QualificationApp(wx.App):
     self._frame.Show(True)
     
     return True
+
+  def OnExit(self):
+    self._core_launcher.stop()
 
 if __name__ == '__main__':
   try:

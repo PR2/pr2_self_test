@@ -43,6 +43,8 @@ from time import sleep
 
 import traceback
 
+import numpy
+import math
 import matplotlib
 import matplotlib.pyplot as plot
 from StringIO import StringIO
@@ -57,183 +59,197 @@ from joint_qualification_controllers.srv import *
 class CounterBalanceAnalysis:
     def __init__(self):
         rospy.init_node('cb_analysis')
-        self.data_topic = rospy.Service('hold_set_data', HoldSetData, self.hold_callback)
+        rospy.logerr('Initing node')
+        self.data_topic = rospy.Service('hold_set_data', HoldSetData, self.data_callback)
         self.result_service = rospy.ServiceProxy('test_result', TestResult)
         
-        self._joints = []
-        self._joints_to_path = {}
-
-        for arg in sys.argv[1:]:
-            joint, sep, path = arg.split(',')
-            self._joints_to_path[joint] = path
-            
-        self._joint_index = 0
-        self.hold_results = {}
-
-        self._timeout = 120
-
-        self._test_launcher = None
         self._sent_results = False
 
         self._hold_data_srvs = []
 
-        r = TestResultRequest()
-        r.html_result = '<p>Test Failed.</p>'
-        r.text_summary = 'Failure.'
-        r.plots = []
-        r.result = TestResultRequest.RESULT_FAIL
-
-        # Roslaunch spawner for lift, after callback launch for flex
-        print 'Num joints', len(self._joints)
-        print 'Joints: %s' % string.join(self._joints, ', ')
-
-        sleep(1.0)
-        self.wait_for_analysis()
-
-    def wait_for_analysis(self):
-        self._waiting = False
-        self._wait_time = rospy.get_time()
-
-        try:
-            while not rospy.is_shutdown():
-                if self._waiting and rospy.get_time() - self._wait_time < self._timeout:
-                    sleep(1.0)
-                    continue
-
-                elif self._waiting:
-                    rospy.logerr('Reached timeout, killing launch')
-                    # Stop launch
-                    self._test_launcher.stop()
-                    self._waiting = False
-
-                if not self._waiting:
-                    if self._joint_index < len(self._joints):
-                        self.launch_joint()
-                    elif not self._sent_results:
-                        self.send_results()
-                    else:
-                        sleep(1.0)
-        except Exception, e:
-            self.test_failed_service_call(traceback.format_exc())
-                    
-    def send_results(self):
-        html = '<p>Counterbalance Analysis</p>\n'
-
-        for srv in self._hold_data_srvs:
-            html += '<hr size="2">\n'
-            html += self.hold_analysis(srv)
-
-        r.html_result = html
-        r.text_summary = 'Analysis performed. Joints: %s' % string.join(self._joints, ', ')
-        r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
-
-        if not self._sent_results:
-            self.result_service.call(r)
-        self._sent_results = True
-            
+        self.r = TestResultRequest()
+        self.r.html_result = '<p>Test Failed.</p>'
+        self.r.text_summary = 'Failure.'
+        self.r.plots = []
+        self.r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
+        
+        rospy.spin()                    
+    
       
     def test_failed_service_call(self, except_str = ''):
         rospy.logerr(except_str)
-        r = TestResultRequest()
-        r.html_result = except_str
-        r.text_summary = 'Caught exception, automated test failure.'
-        r.plots = []
-        r.result = TestResultRequest.RESULT_FAIL
+        self.r.html_result = except_str
+        self.r.text_summary = 'Caught exception, automated test failure.'
+        self.r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
         if not self._sent_results:
-            self.result_service.call(r)
+            self.result_service.call(self.r)
         self._sent_results = True
 
 
-    def launch_joint(self):
-        # Stop running in we're running
-        if self._test_launcher:
-            self._test_launcher.stop()
-
-        joint = self._joints[self._joint_index]
-        path = self._joints_to_path[joint]
-
-        launch_text = '<launch>\n<node pkg="qualification" type="full_arm_test_spawner.py" args="%s %s" />\n</launch>\n' % (joint, path)
-
-
-        self._joint_index += 1
-
-        rospy.logerr(launch_text)
-
-        config = roslaunch.ROSLaunchConfig()
-        try:
-            loader = roslaunch.XmlLoader()
-            loader.load_string(launch_text, config)
-            self._test_launcher = roslaunch.ROSLaunchRunner(config)
-            self._test_launcher.launch()
-            
-        except:
-            traceback.print_exc()
-            self.test_failed_service_call(traceback.format_exc())
-   
-
-    def hold_callback(self, srv):
-        self._hold_data_srvs.append(srv)
-        self._waiting = False
+    def data_callback(self, srv):
+        self.process_results(srv)
         return HoldSetDataResponse()
 
-    def hold_analysis(self, srv):
-        fig = plot.figure(1)
-        axes1 = fig.add_subplot(211)
-        axes2 = fig.add_subplot(212)
-        axes2.set_xlabel('Position')
-        axes1.set_ylabel('Effort')
-        axes2.set_ylabel('Effort SD')
-        fig.text(.35, 0.95, srv.joint_name)
+    def process_results(self, srv):
+        try:
+            html = '<p>Counterbalance Analysis</p>\n'
 
-        pos_avg = []
-        vel_sd = []
-        effort_avg = []
-        effort_sd = []
+            # Add counter plot of points
+            html += self.contour_plot(srv)
+            
+            html += '<p>Test Data</p>\n'
+            html += '<table border="1" cellpadding="2" cellspacing="0">\n'
+            html += '<tr><td><b>Joint</b></td><td><b>Dither Amplitude</b></td></tr>\n'
+            for i in range(0, len(srv.joint_names)):
+                html += '<tr><td>%s</td><td>%s</td></tr>\n' % (srv.joint_names[i], srv.dither_amps[i])
+            html += '</table>\n<hr size="2">\n'
+        
+            # Summarize all positions
+            html += '<p>Summary of all hold positions.</p>\n'
+            html += '<table  border="1" cellpadding="2" cellspacing="0">\n'
+            html += '<tr>'
+            for joint in srv.joint_names:
+                html += '<td><b>%s</b></td><td><b>Goal</b></td><td><b>Position</b></td><td><b>Vel. SD</b></td><td><b>Effort</b></td><td><b>Effort SD</b></td>' % joint
+                html += '</tr>\n'
+            for hold in srv.hold_data:
+                html += self.hold_summary(hold, srv.joint_names)
+            html += '</table><hr size="2" > \n'
+
+            self.r.html_result = html
+            self.r.text_summary = 'Analysis performed, got CB data for: %s' % (string.join(srv.joint_names, ', '))
+            self.r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
+            if not self._sent_results:
+                self.result_service.call(self.r)
+                self._sent_results = True
+        except Exception, e:
+            self.test_failed_service_call(traceback.format_exc());
+
+
+    def hold_summary(self, hold, joints):
+        html = '<tr>'
+
+        for i in range(0, len(hold.joint_data)):
+            jnt_data = hold.joint_data[i]
+
+            desire = jnt_data.desired
+            pos_avg = float(numpy.average(numpy.array(jnt_data.position)))
+            vel_sd = float(numpy.std(numpy.array(jnt_data.velocity)))
+            effort_avg = float(numpy.average(numpy.array(jnt_data.effort)))
+            effort_sd = float(numpy.std(numpy.array(jnt_data.effort)))
+
+            html += '<td>%s</td>' % joints[i]
+            html += '<td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td>' % (desire, pos_avg, vel_sd, effort_avg, effort_sd)
+        html += '</tr>\n'
+
+        return html
+    
+
+    def contour_plot(self, srv):
+        # Find shoulder lift, elbow flex joint indices
+        idx_flex = srv.joint_names.index('r_elbow_flex_joint')
+        idx_lift = srv.joint_names.index('r_shoulder_lift_joint')
+
+        flex_pos = []
+        flex_tau = []
+        lift_pos = []
+        lift_tau = []
+
+        # Two passes, one with lift = 1, other with flex = 0
+        flex_pass = []
+        lift_pass = []
+        lift_pass_eff = []
+        flex_pass_eff = []
+
 
         for hold in srv.hold_data:
-            pos_avg.append(numpy.average(hold.position))
-            vel_sd.append(numpy.std(hold.velocity))
-            effort_avg.append(numpy.average(hold.effort))
-            effort_sd.append(numpy.std(hold.effort))
+            lift_data = hold.joint_data[idx_lift]
+
+            lift_pos_avg = numpy.average(numpy.array(lift_data.position))
+            lift_eff_avg = numpy.average(numpy.array(lift_data.effort))
+
+            lift_pos.append(lift_pos_avg)
+            lift_tau.append(lift_eff_avg)
+
+            flex_data = hold.joint_data[idx_flex]
+
+            flex_pos_avg = numpy.average(numpy.array(flex_data.position))
+            flex_eff_avg = numpy.average(numpy.array(flex_data.effort))
+
+            flex_pos.append(flex_pos_avg)
+            flex_tau.append(flex_eff_avg)
+
+            if (abs(lift_data.desired) - 1.00) < 0.01:
+                flex_pass.append(lift_pos_avg)
+                flex_pass_eff.append(lift_eff_avg)
             
-        
-        axes1.plot(numpy.array(pos_avg), numpy.array(effort_avg))
-        axes2.plot(numpy.array(pos_avg), numpy.array(effort_sd))
+            if abs(flex_data.desired) < 0.01:
+                lift_pass.append(lift_pos_avg)
+                lift_pass_eff.append(lift_eff_avg)
+
+
+        fig = plot.figure(1)
+
+        #C_flex = plot.contour(numpy.array(lift_pos), numpy.array(flex_pos), numpy.array(flex_tau))
+        plot.plot(numpy.array(flex_pass), numpy.array(flex_pass_eff))
+        plot.title('Elbow Flex Effort, Lift = 1.00')
+        plot.axes()
+        plot.xlabel('Flex Position')
+        plot.ylabel('Torque')
 
         stream = StringIO()
         plot.savefig(stream, format = 'png')
         image = stream.getvalue()
         p = qualification.msg.Plot()
-        r.plots.append(p)
-        p.title = srv.joint_name + '_hold_data'
+        self.r.plots.append(p)
+        p.title = 'flex_pass'
         p.image = image
         p.image_format = 'png'
+        
+        plot.close()
 
-        # Make HTML table for each joint with all data
-        html = '<H4>%s</H4>\n' % srv.joint_name
-        html += '<img src="IMG_PATH/%s.png" width="640" height="480" /><br><br>\n' % p.title
-        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Goal</b></td><td><b>Position</b></td><td><b>Effort</b></td><td><b>Effort SD</b></td><td><b>Velocity SD</b></td></tr>\n'
-        for i in range(0, len(pos_avg)):
-            goal = srv.hold_data[i].desired
-            pos = numpy.average(srv.hold_data[i].position)
-            eff = numpy.average(srv.hold_data[i].effort) 
-            eff_sd = numpy.std(srv.hold_data[i].effort)
-            vel = numpy.std(srv.hold_data[i].velocity) 
+        fig = plot.figure(2)
+        plot.plot(numpy.array(lift_pass), numpy.array(lift_pass_eff))
+        #C_lift = plot.contour(numpy.array(lift_pos), numpy.array(flex_pos), numpy.array(lift_tau))
+        plot.title('Shoulder Lift Effort, Flex = 0.0')
+        plot.axes()
+        plot.xlabel('Lift Position')
+        plot.ylabel('Effort')
 
-            html += '<tr><td>%s</td><td>%.2f</td><td>%.3f</td><td>%.3f</td><td>%.3f</td></tr>\n' % (goal, pos, eff, eff_sd, vel)
+        stream = StringIO()
+        plot.savefig(stream, format = 'png')
+        image = stream.getvalue()
+        p = qualification.msg.Plot()
+        self.r.plots.append(p)
+        p.title = 'lift_pass'
+        p.image = image
+        p.image_format = 'png'
+ 
+        plot.close()
+        
+        html = '<p><b>Lift Pass Torque Data.</b></p>\n'
+        html += '<img src="IMG_PATH/lift_pass.png" width="640" height="480" /><br><br>\n'
 
-        html += '</table>'
+        html += '<p><b>Flex Pass Torque Data.</b></p>\n'
+        html += '<img src="IMG_PATH/flex_pass.png" width="640" height="480" /><br><br>\n'
+
 
         return html
-
-            
         
 
 
 if __name__ == '__main__':
     try:
+        print 'Making app'
         app = CounterBalanceAnalysis()
         rospy.spin()
     except Exception, e:
-        traceback.format_exc()
+        print 'Caught Exception in CB application'
+        traceback.print_exc()
+        result_service = rospy.ServiceProxy('test_result', TestResult)        
+        
+        r = TestResultRequest()
+        r.html_result = traceback.format_exc()
+        r.text_summary = 'Caught exception, automated test failure.'
+        r.plots = []
+        r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
+        result_service.call(r)

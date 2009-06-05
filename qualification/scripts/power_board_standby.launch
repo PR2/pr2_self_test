@@ -1,5 +1,5 @@
 <launch>
-<node pkg="pr2_power_board" type="power_node" />
+<node pkg="pr2_power_board" type="power_node" args="--serial=1001" />
 <!-- Reset from disable if in disable -->
 <node pkg="qualification" type="power_board_cmd.py" args="--cmd=reset --cmd=stop" />
 
