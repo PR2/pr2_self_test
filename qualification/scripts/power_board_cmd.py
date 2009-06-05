@@ -41,6 +41,10 @@ from optparse import OptionParser
 from qualification.srv import *
 from pr2_power_board.srv import *
 import traceback
+import socket
+
+
+board_map = { 'testi' : 1001, 'tc11' : 1009, 'tc6' : 1011, 'tc5' : 1002 }
 
 def main():
   parser = OptionParser()
@@ -72,9 +76,15 @@ def main():
 
   control_proxy = rospy.ServiceProxy('power_board_control', PowerBoardCommand)
   
+  # Get serial
+    
+
+
   is_first = True
 
   try:
+    serial = board_map[socket.gethostname()]
+
     for power_cmd in options.commands:
       
       # Wait for previous power cmd to take effect
@@ -85,7 +95,7 @@ def main():
       for j in range(0, 3):
         # Call power command service
         # Need to set serial correctly... (pull from hostname?)
-        resp = control_proxy(1001, j, power_cmd, 0)  # serial number of zero not valid, power_node must be started with specific serial number
+        resp = control_proxy(serial, j, power_cmd, 0)  # serial number of zero not valid, power_node must be started with specific serial number
 
         rospy.logout('CMD: %s %s. Received return code %d' % 
                      (j, power_cmd, resp.retval))
