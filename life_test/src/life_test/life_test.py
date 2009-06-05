@@ -727,7 +727,7 @@ class TestMonitorPanel(wx.Panel):
         if os.environ['USER'] == 'watts' and gethostname() == 'nsf':
             return 'watts@willowgarage.com'
 
-        return string.join(self._test_team, ",")
+        return 'test.team@lists.willowgarage.com'
 
     def line_summary(self, msg):
         machine_str = self._machine
