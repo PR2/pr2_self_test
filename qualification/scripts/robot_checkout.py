@@ -43,7 +43,7 @@ from datetime import datetime
 
 import wx
 
-from robot_msgs.msg import DiagnosticMessage
+from diagnostic_msgs.msg import DiagnosticMessage
 from qualification.msg import Plot
 from qualification.srv import *
 

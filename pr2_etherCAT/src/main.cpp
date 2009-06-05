@@ -104,17 +104,17 @@ static struct
   int secondary;
 } g_stats;
 
-static void publishDiagnostics(realtime_tools::RealtimePublisher<robot_msgs::DiagnosticMessage> &publisher)
+static void publishDiagnostics(realtime_tools::RealtimePublisher<diagnostic_msgs::DiagnosticMessage> &publisher)
 {
   if (publisher.trylock())
   {
     accumulator_set<double, stats<tag::max, tag::mean> > zero;
-    vector<robot_msgs::DiagnosticStatus> statuses;
-    vector<robot_msgs::DiagnosticValue> values;
-    vector<robot_msgs::DiagnosticString> strings;
-    robot_msgs::DiagnosticStatus status;
-    robot_msgs::DiagnosticValue v;
-    robot_msgs::DiagnosticString s;
+    vector<diagnostic_msgs::DiagnosticStatus> statuses;
+    vector<diagnostic_msgs::DiagnosticValue> values;
+    vector<diagnostic_msgs::DiagnosticString> strings;
+    diagnostic_msgs::DiagnosticStatus status;
+    diagnostic_msgs::DiagnosticValue v;
+    diagnostic_msgs::DiagnosticString s;
 
     static double max_ec = 0, max_mc = 0;
     double avg_ec, avg_mc;
@@ -169,7 +169,7 @@ static inline double now()
 
 void *controlLoop(void *)
 {
-  realtime_tools::RealtimePublisher<robot_msgs::DiagnosticMessage> publisher("/diagnostics", 2);
+  realtime_tools::RealtimePublisher<diagnostic_msgs::DiagnosticMessage> publisher("/diagnostics", 2);
   realtime_tools::RealtimePublisher<pr2_etherCAT::RealtimeStats> *rtpublisher = 0;
   accumulator_set<double, stats<tag::max, tag::mean> > acc;
 

@@ -30,4 +30,5 @@ When launching on robot, part must be calibrated with power on.
   <depend package="mechanism_bringup" />
   <depend package="runtime_monitor" />
   <depend package="invent_client" />
+  <depend package="diagnostic_msgs" />
 </package>

@@ -51,7 +51,7 @@ from wx import xrc
 
 import rospy, roslaunch
 from std_srvs.srv import *
-from robot_msgs.msg import *
+from diagnostic_msgs.msg import DiagnosticMessage, DiagnosticStatus, DiagnosticValue, DiagnosticString
 import runtime_monitor
 from runtime_monitor.monitor_panel import MonitorPanel
 
