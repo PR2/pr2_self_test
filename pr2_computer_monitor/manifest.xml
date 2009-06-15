@@ -1,0 +1,18 @@
+<package>
+  <description brief='Monitors computers on PR2 for temp, etc'>
+  </description>
+  <author>Kevin Watts (watts@willowgarage.com)</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <depend package="diagnostic_msgs" />
+  <depend package="rospy" />
+  <url></url>
+  <sysdepend os="ubuntu" version="7.04-feisty" package="python-wxgtk2.8"/>
+  <sysdepend os="ubuntu" version="8.04-hardy" package="python-wxgtk2.8"/>
+  <sysdepend os="ubuntu" version="7.04-feisty" package="libwxgtk2.8-dev"/>
+  <sysdepend os="ubuntu" version="8.04-hardy" package="libwxgtk2.8-dev"/>
+  <sysdepend os="ubuntu" version="7.04-feisty" package="ipmitool"/>
+  <sysdepend os="ubuntu" version="8.04-hardy" package="ipmitool"/>
+  <sysdepend os="ubuntu" version="7.04-feisty" package="hddtemp" />
+  <sysdepend os="ubuntu" version="8.04-hardy" package="hddtemp" />
+</package>
