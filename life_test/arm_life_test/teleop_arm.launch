@@ -2,7 +2,7 @@
 
 <!-- Twist controller -->
 
-<include file="$(find arm_life_test)/controller_cartesian_twist.launch" />
+<include file="$(find life_test)/arm_life_test/controller_cartesian_twist.launch" />
 
 <!-- Gripper controller -->
   <param name="joint" value="r_gripper_l_finger_joint"/>
