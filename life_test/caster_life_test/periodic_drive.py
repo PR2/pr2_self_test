@@ -33,7 +33,7 @@ import roslib
 roslib.load_manifest('caster_life_test')
 import rospy
 from std_msgs.msg import Float64
-from robot_msgs.msg import MechanismState
+from mechanism_msgs.msg import MechanismState
 
 STRAIGHT = 0.82
 ROTATION_JOINT = 'fl_caster_rotation_joint'
@@ -90,7 +90,7 @@ def main():
             if(random.random() > 0.05):
                 pub_drive.publish(Float64(speed))
                 time.sleep(0.75)
-                speed *= -1                
+                speed *= -1
                 if angle > 3.314:
                     angle -= 3.314
                 else:

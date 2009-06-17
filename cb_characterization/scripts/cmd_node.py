@@ -9,6 +9,7 @@ from std_msgs.msg import Empty
 from pr2_mechanism_controllers.srv import *
 from pr2_mechanism_controllers.msg import *
 from robot_msgs.msg import *
+from mechanism_msgs.msg import MechanismState
 
 from auto_arm_commander.settler import *
 from auto_arm_commander.arm_commander import ArmCommander
@@ -48,7 +49,7 @@ for k in range(0,num_cmds) :
             arm_settled = arm_settled and (x < .00000001)
         time.sleep(.25)
         print "    [" + ', '.join( ['%.6f'%x for x in arm_stats.ranges] ) + "]"
-    print "   Arm is settled!"        
+    print "   Arm is settled!"
 
         # Grab a stereotypical MechanismState that's close to the middle of the interval
     cur_mech_state = arm_stats.seg[len(arm_stats.seg)/2]

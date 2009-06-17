@@ -14,6 +14,7 @@
 
   <depend package="std_msgs"/>
   <depend package="robot_msgs"/>
+  <depend package="mechanism_msgs" />
   <depend package="motion_planning_msgs"/>
 
   <export>
