@@ -1,2 +1,3 @@
 <launch>
+  <node pkg="qualification" type="load_firmware.py" args="$(find qualification)/tests/forearm_cam/impact"/>
 </launch>
