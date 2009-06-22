@@ -3,3 +3,5 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 rospack(qualification)
 genmsg()
 gensrv()
+
+rospack_add_executable(tests/forearm_cam_test/led_flash_test tests/forearm_cam_test/led_flash_test.cpp)
