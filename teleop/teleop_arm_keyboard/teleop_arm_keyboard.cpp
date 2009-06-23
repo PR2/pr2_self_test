@@ -1,18 +1,17 @@
 /*
- * Copyright (c) 2008, Willow Garage, Inc.
- * All rights reserved.
+ * Copyright (c) 2008, Willow Garage, Inc.  All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * 
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Willow Garage, Inc. nor the names of its
- *       contributors may be used to endorse or promote products derived from
- *       this software without specific prior written permission.
+ *     * Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.  * Redistributions
+ *     in binary form must reproduce the above copyright notice, this list of
+ *     conditions and the following disclaimer in the documentation and/or
+ *     other materials provided with the distribution.  * Neither the name of
+ *     the Willow Garage, Inc. nor the names of its contributors may be used to
+ *     endorse or promote products derived from this software without specific
+ *     prior written permission.
  * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -231,6 +230,7 @@ class TeleopArmKeyboardNode : public ros::Node
 
     void keyboardLoop();
     void changeJointAngle(std::string joint_name, double direction);
+    void changeJointStepSize(std::string joint_name, double direction);
     void openGripper(std::string joint_name);
     void closeGripper(std::string joint_name);
 
@@ -318,6 +318,44 @@ void TeleopArmKeyboardNode::changeJointAngle(std::string joint_name, double dire
       this->rArmCmd[7].data += direction * this->rArmCmdStep[7];
 }
 
+void TeleopArmKeyboardNode::changeJointStepSize(std::string joint_name, double direction)
+{
+  if (joint_name == L_CONTROLLER_NAME_0)
+      this->lArmCmdStep[0] *= direction;
+  if (joint_name == L_CONTROLLER_NAME_1)
+      this->lArmCmdStep[1] *= direction;
+  if (joint_name == L_CONTROLLER_NAME_2)
+      this->lArmCmdStep[2] *= direction;
+  if (joint_name == L_CONTROLLER_NAME_3)
+      this->lArmCmdStep[3] *= direction;
+  if (joint_name == L_CONTROLLER_NAME_4)
+      this->lArmCmdStep[4] *= direction;
+  if (joint_name == L_CONTROLLER_NAME_5)
+      this->lArmCmdStep[5] *= direction;
+  if (joint_name == L_CONTROLLER_NAME_6)
+      this->lArmCmdStep[6] *= direction;
+  if (joint_name == L_CONTROLLER_NAME_7)
+      this->lArmCmdStep[7] *= direction;
+
+  if (joint_name == R_CONTROLLER_NAME_0)
+      this->rArmCmdStep[0] *= direction;
+  if (joint_name == R_CONTROLLER_NAME_1)
+      this->rArmCmdStep[1] *= direction;
+  if (joint_name == R_CONTROLLER_NAME_2)
+      this->rArmCmdStep[2] *= direction;
+  if (joint_name == R_CONTROLLER_NAME_3)
+      this->rArmCmdStep[3] *= direction;
+  if (joint_name == R_CONTROLLER_NAME_4)
+      this->rArmCmdStep[4] *= direction;
+  if (joint_name == R_CONTROLLER_NAME_5)
+      this->rArmCmdStep[5] *= direction;
+  if (joint_name == R_CONTROLLER_NAME_6)
+      this->rArmCmdStep[6] *= direction;
+  if (joint_name == R_CONTROLLER_NAME_7)
+      this->rArmCmdStep[7] *= direction;
+}
+
+
 
 void TeleopArmKeyboardNode::keyboardLoop()
 {
@@ -363,6 +401,16 @@ void TeleopArmKeyboardNode::keyboardLoop()
       case 'R':
         right_arm = true;
         printf("Actuating right arm.\n");
+        break;
+      case 'a':
+      case 'A':
+        changeJointStepSize(current_joint_name,2.0);
+        printf("increase step size.\n");
+        break;
+      case 'z':
+      case 'Z':
+        changeJointStepSize(current_joint_name,0.5);
+        printf("decrease step size.\n");
         break;
       case '+':
       case '=':
@@ -475,27 +523,24 @@ void TeleopArmKeyboardNode::keyboardLoop()
       }
     }
 
-    if (dirty == true) {
-      dirty=false; // Sending the command only once for each key press.
-      if(!right_arm) {
-        publish(L_COMMAND_TOPIC_0,lArmCmd[0]);
-        publish(L_COMMAND_TOPIC_1,lArmCmd[1]);
-        publish(L_COMMAND_TOPIC_2,lArmCmd[2]);
-        publish(L_COMMAND_TOPIC_3,lArmCmd[3]);
-        publish(L_COMMAND_TOPIC_4,lArmCmd[4]);
-        publish(L_COMMAND_TOPIC_5,lArmCmd[5]);
-        publish(L_COMMAND_TOPIC_6,lArmCmd[6]);
-        publish(L_COMMAND_TOPIC_7,lArmCmd[7]);
-      } else {
-        publish(R_COMMAND_TOPIC_0,rArmCmd[0]);
-        publish(R_COMMAND_TOPIC_1,rArmCmd[1]);
-        publish(R_COMMAND_TOPIC_2,rArmCmd[2]);
-        publish(R_COMMAND_TOPIC_3,rArmCmd[3]);
-        publish(R_COMMAND_TOPIC_4,rArmCmd[4]);
-        publish(R_COMMAND_TOPIC_5,rArmCmd[5]);
-        publish(R_COMMAND_TOPIC_6,rArmCmd[6]);
-        publish(R_COMMAND_TOPIC_7,rArmCmd[7]);
-      }
+    if(!right_arm) {
+      publish(L_COMMAND_TOPIC_0,lArmCmd[0]);
+      publish(L_COMMAND_TOPIC_1,lArmCmd[1]);
+      publish(L_COMMAND_TOPIC_2,lArmCmd[2]);
+      publish(L_COMMAND_TOPIC_3,lArmCmd[3]);
+      publish(L_COMMAND_TOPIC_4,lArmCmd[4]);
+      publish(L_COMMAND_TOPIC_5,lArmCmd[5]);
+      publish(L_COMMAND_TOPIC_6,lArmCmd[6]);
+      publish(L_COMMAND_TOPIC_7,lArmCmd[7]);
+    } else {
+      publish(R_COMMAND_TOPIC_0,rArmCmd[0]);
+      publish(R_COMMAND_TOPIC_1,rArmCmd[1]);
+      publish(R_COMMAND_TOPIC_2,rArmCmd[2]);
+      publish(R_COMMAND_TOPIC_3,rArmCmd[3]);
+      publish(R_COMMAND_TOPIC_4,rArmCmd[4]);
+      publish(R_COMMAND_TOPIC_5,rArmCmd[5]);
+      publish(R_COMMAND_TOPIC_6,rArmCmd[6]);
+      publish(R_COMMAND_TOPIC_7,rArmCmd[7]);
     }
   }
 }
