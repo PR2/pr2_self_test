@@ -34,7 +34,7 @@
 
 #include "ros/node.h"
 #include "image_msgs/Image.h"
-#include "image_msgs/CvBridge.h"
+#include "opencv_latest/CvBridge.h"
 #include <stdio.h>
 #include <signal.h>
 #include <robot_mechanism_controllers/SetWaveform.h>
