@@ -70,7 +70,7 @@ def xml_for_hold(name, p, i, d, iClamp):
 
 def hold_joint(name, p, i, d, iClamp, holding):
     try:
-        resp = spawn_controller(xml_for_hold(name, p, i, d, iClamp))
+        resp = spawn_controller(xml_for_hold(name, p, i, d, iClamp),1)
         if ord(resp.ok[0]) != 0:
             holding.append(resp.name[0])
             return True
@@ -164,7 +164,7 @@ def main():
         
         print 'Spawning test controller'
         # Spawn test controller and run test
-        resp = spawn_controller(controller_xml)
+        resp = spawn_controller(controller_xml,1)
         
         if len(resp.ok) != 1 or resp.ok[0] != chr(1):
             rospy.logerr('Failed to spawn test controller')

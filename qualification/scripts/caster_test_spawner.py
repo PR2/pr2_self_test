@@ -61,7 +61,7 @@ def main():
 
         controller_file.close()
 
-        resp = spawn_controller(controller_xml)
+        resp = spawn_controller(controller_xml,1)
         
         if len(resp.ok) != 1 or resp.ok[0] != chr(1):
             rospy.logerr('Failed to spawn test controller')
