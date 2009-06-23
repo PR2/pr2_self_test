@@ -15,4 +15,8 @@
   <sysdepend os="ubuntu" version="8.04-hardy" package="ipmitool"/>
   <sysdepend os="ubuntu" version="7.04-feisty" package="hddtemp" />
   <sysdepend os="ubuntu" version="8.04-hardy" package="hddtemp" />
+  <rosdep name="wxwidgets"/>
+  <rosdep name="wxpython"/>
+  <rosdep name="ipmitool"/>
+  <rosdep name="hddtemp"/>
 </package>

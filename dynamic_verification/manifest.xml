@@ -25,4 +25,7 @@
   <sysdepend os="ubuntu" version="8.04-hardy" package="libwxgtk2.8-dev"/>
   <sysdepend os="ubuntu" version="7.04-feisty" package="python-numpy"/>
   <sysdepend os="ubuntu" version="8.04-hardy" package="python-numpy"/>
+  <rosdep name="wxwidgets"/>
+  <rosdep name="wxpython"/>
+  <rosdep name="python-numpy"/>
 </package>
