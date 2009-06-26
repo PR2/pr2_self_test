@@ -141,16 +141,6 @@ class TeleopBase : public Node
 	//Record this message reciept
 	last_recieved_joy_message_time_ = ros::Time::now();
 
-         /*
-           printf("axes: ");
-           for(int i=0;i<joy.get_axes_size();i++)
-           printf("%.3f ", joy.axes[i]);
-           puts("");
-           printf("buttons: ");
-           for(int i=0;i<joy.get_buttons_size();i++)
-           printf("%d ", joy.buttons[i]);
-           puts("");
-         */
         bool cmd_head = (((unsigned int)head_button < joy.get_buttons_size()) && joy.buttons[head_button]);
 
         bool deadman = (((unsigned int)deadman_button < joy.get_buttons_size()) && joy.buttons[deadman_button]);

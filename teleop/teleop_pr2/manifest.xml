@@ -6,6 +6,8 @@
   <author>Kevin Watts</author>
   <license>BSD</license>
   <review status="na" notes="" />
+  <depend package="joy" />
+  <depend package="std_msgs" />
   <depend package="robot_msgs" />
   <depend package="pr2_default_controllers" />
   <depend package="roscpp" />
