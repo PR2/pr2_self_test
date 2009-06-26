@@ -50,7 +50,7 @@ Key mappings are printed to screen on startup.
 
 @section topic ROS topics
 
-Subscribes to (name/type):
+Subscribes to (name / type):
 - None
 
 Publishes to (name / type):
@@ -79,12 +79,12 @@ Publishes to (name / type):
 #define KEYCODE_S 0x73
 #define KEYCODE_W 0x77 
 
-// should we continuously send commands?
-bool always_command = false;
+#define KEYCODE_A_CAP 0x41
+#define KEYCODE_D_CAP 0x44
+#define KEYCODE_S_CAP 0x53
+#define KEYCODE_W_CAP 0x57
 
-
-
-class THK_Node
+class TeleopHeadKeyboard
 {
   private:
   double req_tilt, req_pan;
@@ -105,15 +105,15 @@ class THK_Node
     n_.param("max_tilt", max_tilt, 1.4);
     n_.param("min_tilt", min_tilt, -0.4);
     n_.param("tilt_step", tilt_step, 0.02);
-    n_.param("pan_step", pan_step, 0.02);
+    n_.param("pan_step", pan_step, 0.03);
     }
   
-  ~THK_Node()   { }
+  ~TeleopHeadKeyboard()   { }
   void keyboardLoop();
 
 };
 
-THK_Node* thk;
+//THK_Node* thk;
 int kfd = 0;
 struct termios cooked, raw;
 
@@ -127,9 +127,8 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "head_keyboard");
 
-  THK_Node thk;
+  TeleopHeadKeyboard thk;
   thk.init();
-  //thk = new THK_Node();
 
   signal(SIGINT,quit);
 
@@ -138,7 +137,7 @@ int main(int argc, char** argv)
   return(0);
 }
 
-void THK_Node::keyboardLoop()
+void TeleopHeadKeyboard::keyboardLoop()
 {
   char c;
   bool dirty=false;
@@ -155,6 +154,7 @@ void THK_Node::keyboardLoop()
   puts("Reading from keyboard");
   puts("---------------------------");
   puts("Use 'WASD' to pan and tilt");
+  puts("Press 'Shift' to move faster");
 
 
   for(;;)
@@ -182,6 +182,22 @@ void THK_Node::keyboardLoop()
       break;
     case KEYCODE_D:
       req_pan -= pan_step;
+      dirty = true;
+      break;
+    case KEYCODE_W_CAP:
+      req_tilt += tilt_step * 3;
+      dirty = true;
+      break;
+    case KEYCODE_S_CAP:
+      req_tilt -= tilt_step * 3;
+      dirty = true;
+      break;
+    case KEYCODE_A_CAP:
+      req_pan += pan_step * 3;
+      dirty = true;
+      break;
+    case KEYCODE_D_CAP:
+      req_pan -= pan_step * 3;
       dirty = true;
       break;
     }
