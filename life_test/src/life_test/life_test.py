@@ -38,20 +38,24 @@ import roslib
 roslib.load_manifest('life_test')
 
 import sys, os, math, string
-from datetime import datetime
 import csv
 import traceback
-from time import sleep, mktime, strftime, localtime
+from time import sleep, strftime, localtime
 import threading
 from socket import gethostname
 
 import wx
-import wx.aui
 from wx import xrc
 
-import rospy, roslaunch
+import rospy
 from std_srvs.srv import *
 from diagnostic_msgs.msg import DiagnosticMessage, DiagnosticStatus, DiagnosticValue, DiagnosticString
+
+# Stuff from life_test package
+from msg import TestStatus
+from test_param import TestParam, LifeTest
+from test_record import TestRecord
+
 import runtime_monitor
 from runtime_monitor.monitor_panel import MonitorPanel
 
@@ -61,136 +65,7 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import Encoders
 
-
-class LifeTest:
-    def __init__(self, short_serial, test_name, desc, cycle_rate, test_type, launch_file):
-        self._short_serial = short_serial
-        self._name = test_name
-        self._desc = desc
-        self._cycle_rate = cycle_rate
-        self._launch_script = launch_file
-        self._test_type = test_type
-
-class TestRecord:
-    def __init__(self, test, serial):
-        self._start_time = rospy.get_time()
-        self._cum_seconds = 0
-        self._last_update_time = rospy.get_time()
-        self._was_running = False
-        self._was_launched = False
-        self._num_alerts = 0
-        self._num_halts = 0
-
-        self._rate = test._cycle_rate
-        self._serial = serial
-        self._test_name = test._name
-
-        self._log = {}
-        self._last_log_time = self._last_update_time
-
-        csv_name = strftime("%m%d%Y_%H%M%S", localtime(self._start_time)) + '_' + str(self._serial) + '_' + self._test_name + '.csv'
-        csv_name = csv_name.replace(' ', '_').replace('/', '__')
-        self.log_file = os.path.join(roslib.packages.get_pkg_dir('life_test'), 'logs/%s' % csv_name)
-
-        
-        log_csv = csv.writer(open(self.log_file, 'wb'))
-        log_csv.writerow(['Time', 'Status', 
-                               'Elapsed (s)', 'Active (s)', 
-                               'Cycles', 'Cycle Rate', 'Notes'])
-
-    def get_elapsed(self):
-        elapsed = rospy.get_time() - self._start_time
-        return elapsed
-
-    def get_cum_time(self):
-        return self._cum_seconds
-
-    def get_duration_str(self, duration):
-        hrs = max(math.floor(duration / 3600), 0)
-        min = max(math.floor(duration / 6), 0) / 10 - hrs * 60
-
-        return "%dhr, %.1fm" % (hrs, min)
-
-    def get_active_str(self):
-        return self.get_duration_str(self._cum_seconds)
-
-    def get_elapsed_str(self):
-         return self.get_duration_str(self.get_elapsed())
-
-    def get_cycles(self):
-        cycles = self._rate * self._cum_seconds
-        return cycles
-            
-    def update(self, launched, running, stale, note):
-        if running and not launched:
-            rospy.logerr('Reported impossible state of running and not launched')
-            return 0, ''
-
-        if stale and running:
-            rospy.logerr('Reported impossible state of running and stale')
-            return 0, ''
-        
-        if self._was_running and running:
-            self._cum_seconds = rospy.get_time() - self._last_update_time + self._cum_seconds
-
-        alert = 0 # 0 - None, 1 - Notify, 2 - alert
-        msg = ''
-        state = 'Running'
-
-        if launched and (not running) and stale:
-            state = 'Halted, stale'
-        elif launched and (not running):
-            state = 'Halted'
-        elif not launched:
-            state = 'Stopped'
-
-        if (not self._was_launched) and launched:
-            alert = 1
-            msg = "Test launched."
-        elif self._was_launched and (not launched):
-            alert = 1
-            msg = "Test shut down."
-
-        elif self._was_running and (not running):
-            alert = 2
-            if stale:
-                msg = "Test has gone stale!"
-            else:
-                msg = "Test has stopped running!"
-        elif (not self._was_running) and running:
-            alert = 1
-            msg = "Test has restarted and is running."
-
-            self._num_halts += 1
-
-        if alert:
-            self._num_alerts += 1
-
-        self._was_running = running
-        self._was_launched = launched
-        self._last_update_time = rospy.get_time()
-
-        if alert or note != '' or  (running and self._last_log_time - rospy.get_time() > 7200):
-            self.write_csv_row(self._last_update_time, state, msg, note)
-            self._log[rospy.get_time()] = msg + ' ' + note
-            self._last_log_time = self._last_update_time
-
-        return alert, msg
-
-    def write_csv_row(self, update_time, state, msg, note):
-        log_msg = msg + ' ' + note
-        log_msg = log_msg.replace(',', ';')
-
-        time_str = strftime("%m/%d/%Y %H:%M:%S", localtime(update_time))
-
-        log_csv = csv.writer(open(self.log_file, 'ab'))
-        log_csv.writerow([time_str, state, 
-                               self.get_elapsed(), self.get_cum_time(), 
-                               self.get_cycles(), self._rate, 
-                               log_msg])
-      
-    def csv_filename(self):
-        return self.log_file
+import wg_hardware_roslaunch.roslaunch_caller as roslaunch_caller
         
 
 class TestMonitorPanel(wx.Panel):
@@ -201,8 +76,7 @@ class TestMonitorPanel(wx.Panel):
 
         self._mutex = threading.Lock()
 
-
-        self._diag_sub = None
+        self._status_sub = None
         self._diags = []
         
         # Set up test and loggers
@@ -250,7 +124,6 @@ class TestMonitorPanel(wx.Panel):
         self._user_submit.Bind(wx.EVT_BUTTON, self.on_user_entry)
 
         self._done_time_ctrl = xrc.XRCCTRL(self._panel, 'done_time_ctrl')
-        self._total_cycles_ctrl = xrc.XRCCTRL(self._panel, 'total_cycles_ctrl')
         
         self._elapsed_time_ctrl = xrc.XRCCTRL(self._panel, 'elapsed_time_ctrl')
         self._active_time_ctrl = xrc.XRCCTRL(self._panel, 'active_time_ctrl')
@@ -261,8 +134,7 @@ class TestMonitorPanel(wx.Panel):
         self._send_log_button = xrc.XRCCTRL(self._panel, 'send_test_log_button')
         self._send_log_button.Bind(wx.EVT_BUTTON, self.on_send_test_log)
 
-        
-        # Add runtime to the pane...
+        # Add runtime to the panel...
         self._notebook = xrc.XRCCTRL(self._panel, 'test_data_notebook')
         wx.CallAfter(self.create_monitor)
 
@@ -270,8 +142,6 @@ class TestMonitorPanel(wx.Panel):
         self._sizer.Add(self._panel, 1, wx.EXPAND)
         self.SetSizer(self._sizer)
         self.Layout()
-
-        self._test_team = [ "watts@willowgarage.com", "stanford@willowgarage.com" ]
         
         self._machine = None
         self._current_log = {}
@@ -286,6 +156,7 @@ class TestMonitorPanel(wx.Panel):
         self._test_complete = False
 
         # Timeout for etherCAT diagnostics
+        # Don't start it here, wait until test is launched
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
         self.last_message_time = rospy.get_time()
@@ -312,18 +183,15 @@ class TestMonitorPanel(wx.Panel):
         
     def __del__(self):
         # Somehow calling log function in destructor
-        print 'Stopping launches'
         self.stop_test()
 
-        if self._diag_sub:
-            print 'Unregistering from diagnostics'
-            self._diag_sub.unregister()
+        if self._status_sub:
+            self._status_sub.unregister()
         
     def is_launched(self):
         return self._test_launcher is not None
 
     def on_end_choice(self, event = None):
-        #self._mutex.acquire()
         choice = self._end_cond_type.GetStringSelection()
 
         # Set test_duration_ctrl units also
@@ -336,8 +204,7 @@ class TestMonitorPanel(wx.Panel):
         self._test_duration_ctrl.SetValue(0)
         active_time = self._record.get_cum_time()
 
-        cycles = self._record.get_cycles()
-
+        # Should probably add cycles back in somehow
         if choice == 'Hours':
             hrs = math.ceil((active_time / 3600))
             self._test_duration_ctrl.SetRange(hrs, 168) # Week
@@ -346,20 +213,14 @@ class TestMonitorPanel(wx.Panel):
             min = math.ceil((active_time / 60))
             self._test_duration_ctrl.SetRange(min, 600) # 10 Hrs
             self._test_duration_ctrl.SetValue(min + 10)
-        elif choice == 'Cycles':
-            cycle_val = cycles + math.ceil(self._test._cycle_rate * 300) # 5 min
-            self._test_duration_ctrl.SetRange(cycles, 100000) # Long time
-            self._test_duration_ctrl.SetValue(cycle_val)
         else:
             self._test_duration_ctrl.SetRange(0, 0) # Can't change limits
             self._test_duration_ctrl.SetValue(0)
 
-        #self._mutex.release()
-
     def on_user_entry(self, event):
         entry = self._user_log.GetValue()
         msg = 'OPERATOR: ' + entry
-        self.log(msg)
+        self.update_test_record(msg)
         self._user_log.Clear()
         self._user_log.SetFocus()
 
@@ -371,26 +232,28 @@ class TestMonitorPanel(wx.Panel):
             if name.find('@') < 0:
                 name = name + '@willowgarage.com'
 
-        self.notify_operator(3, 'Test log requested by operator.', string.join(names, ','))
+        self.notify_operator(3, 'Log Requested.', string.join(names, ','))
 
     def on_close(self, event):
-        #self.stop_test()
-        self.log('Closing down test.')
+        self.update_test_record('Closing down test.')
         self.update_invent()
         self.record_test_log()
-        self.notify_operator(1, 'Test closing.')
+        self.notify_operator(1, 'Closing.')
         self._manager.close_tab(self._serial)
 
 
     def update_test_record(self, note = ''):
         alert, msg = self._record.update(self.is_launched(), self._is_running, self._is_stale, note)
-        if alert > 0:
-            #self.log(msg)
-            self._current_log[rospy.get_time()] = msg
-            self._manager.log_test_entry(self._test._name, self._machine, msg)
-            
-            #self._log_ctrl.AppendText(
+
+        lst = [msg, note]
+        message = string.join(lst, ' ')
+
+        if alert > 0 or note != '':
+            self._current_log[rospy.get_time()] = message
+            self._manager.log_test_entry(self._test._name, self._machine, message)
             self.display_logs()
+
+        if alert > 0:
             self.notify_operator(alert, msg)
 
 
@@ -405,11 +268,8 @@ class TestMonitorPanel(wx.Panel):
             return duration * 60
         if end_condition == 'Seconds':
             return duration
-        if end_condition == 'Cycles':
-            return duration / self._test._cycle_rate
-
         else: #if end_condition == 'Continuous':
-            return 10**9 # Roughly 30 years
+            return 10**10 # Roughly 300 years
 
     def calc_remaining(self):
         total_sec = self.calc_run_time()
@@ -422,47 +282,36 @@ class TestMonitorPanel(wx.Panel):
         if rospy.get_time() - self._last_invent_time > self.invent_timeout and self.is_launched():
             self.update_invent()
         
-        #self.invent_timer.Start(self.invent_timeout * 500, True)
-
-
     def update_invent(self):
-        rospy.logerr('Updating invent')
-
-        # Reset timer, last time
-        #self.invent_timer.Start(self.invent_timeout * 500, True)
         self._last_invent_time = rospy.get_time()
 
         # Don't log anything if we haven't launched
         if not self.is_launched() and not self._invent_note_id:
             return
 
-        hrs_str = self._record.get_elapsed_str()
-        cycles = self._record.get_cycles()
+        hrs_str = self._record.get_active_str()
 
-        stats = "Stats: Total cycles %.1f, elapsed time %s." % (cycles, hrs_str)
+        stats = "Stats: Total active time %s." % (hrs_str)
         
         if self.is_launched() and self._is_running:
-            note = "Test running %s at %s Hz. " % (self._test._name, self._test._cycle_rate)
+            note = "Test running %s. " % (self._test._name)
         elif self.is_launched() and not self._is_running:
             note = "Test %s is halted. " % self._test._name
         else:
             note = "Test %s finished. CSV name: %s. " % (self._test._name, os.path.basename(self._record.csv_filename()))
 
-        # rospy.logerr('Updated note successfully')
         self._invent_note_id = self._manager._invent_client.setNote(self._serial, note + stats, self._invent_note_id)
-        #print 'Logging in invent for reference %s: %s' % (self._serial, note + stats)
 
+    # Should also be in notifier class
     def record_test_log(self):
         try:
             # Adds log csv to invent
             if self._record.get_cum_time() == 0:
                 return # Don't log test that hasn't run
-            
-            # rospy.logerr('Writing CSV file')
-            
+                        
             f = open(self._record.csv_filename(), 'rb')
-            csv = f.read()
-            self._manager._invent_client.add_attachment(self._serial, os.path.basename(self._record.csv_filename()), 'text/csv', csv)
+            csv_file = f.read()
+            self._manager._invent_client.add_attachment(self._serial, os.path.basename(self._record.csv_filename()), 'text/csv', csv_file)
             f.close()
             # print 'Wrote CSV of test log to invent'
             
@@ -476,26 +325,25 @@ class TestMonitorPanel(wx.Panel):
         self.timer.Start(1000 * self.timeout_interval, True)
         
     def on_timer(self, event):
+        # Need the mutex?
         self._mutex.acquire()
         
         interval = rospy.get_time() - self.last_message_time
         
-        if interval > self.timeout_interval or interval < 0:
+        if interval > self.timeout_interval: #  or interval < 0:
             # Make EtherCAT status stale
             self._is_running = False
             self._is_stale = True
 
             self.update_test_record()
             self.stop_if_done()
-            self.update_controls(3)
+            self.update_controls(4)
         else:
-            #self.start_timer()
             self._is_stale = False
             
         self._mutex.release()
-        #self.Refresh()
 
-    def update_controls(self, level = 3, msg = 'None'):
+    def update_controls(self, level = 4, msg = 'None'):
         # Assumes it has the lock
         if not self.is_launched():
             self._status_bar.SetValue("Launch to display status")
@@ -507,11 +355,14 @@ class TestMonitorPanel(wx.Panel):
             self._status_bar.SetValue("Test Warning! Warning: %s" % msg)
             self._status_bar.SetBackgroundColour("Orange")
         elif level == 2:
-            self._status_bar.SetValue("Error in EtherCAT Master: %s" % msg)
+            self._status_bar.SetValue("Error in Test Monitor: %s" % msg)
             self._status_bar.SetBackgroundColour("Red")
+        elif level == 3:
+            self._status_bar.SetValue("Test Monitor reports stale: %s" % msg)
+            self._status_bar.SetBackgroundColour("Light Blue")
         else:
             self._status_bar.SetBackgroundColour("White")
-            self._status_bar.SetValue("EtherCAT Master Stale!")
+            self._status_bar.SetValue("Test Monitor Stale")
         
         self._reset_button.Enable(self.is_launched())
         self._halt_button.Enable(self.is_launched())
@@ -523,9 +374,6 @@ class TestMonitorPanel(wx.Panel):
         if remaining < 10**6:
             remain_str = self._record.get_duration_str(remaining)
         self._done_time_ctrl.SetValue(remain_str)
-
-        cycles = "%.1f" % self._record.get_cycles()
-        self._total_cycles_ctrl.SetValue(cycles)
 
         self._test_log_window.Freeze()
         (x, y) = self._test_log_window.GetViewStart()
@@ -558,21 +406,20 @@ class TestMonitorPanel(wx.Panel):
         # negative time before we shutdown
         # Can this be part of test record?
         if remain < 0:
-            self.notify_operator(1, 'Test complete!')
             self._test_complete = True
             self.stop_test()
         
     def stop_test(self, event = None):
         if self.is_launched():
             self.on_halt_motors(None)
-            self._test_launcher.stop()
+            self._test_launcher.shutdown()
             self._manager.test_stop(self._machine)
-            self.log('Stopping test launch')
+            self.update_test_record('Stopping test launch')
             self._test_launcher = None            
 
-        if self._diag_sub:
-            self._diag_sub.unregister()
-        self._diag_sub = None
+        if self._status_sub:
+            self._status_sub.unregister()
+        self._status_sub = None
 
         self._is_running = False
         
@@ -580,73 +427,53 @@ class TestMonitorPanel(wx.Panel):
             self.update_controls()
 
 
-    def log(self, msg):
-        self.update_test_record(msg)
-        self._current_log[rospy.get_time()] = msg
-        self._manager.log_test_entry(self._test._name, self._machine, msg)
-
-        #wx.CallAfter(self.display_logs)
-
     def display_logs(self):
-        #try:
-        #    self._mutex.acquire()
-        #except:
-        #    rospy.logerr('Error attempting to acquire mutex!')
-        #    return
-      
+   
         self._log_ctrl.AppendText(self.print_cur_log())
-        #self._log_ctrl.Refresh()
-        #self._log_ctrl.Update()
         self._current_log = {}
-        #self._mutex.release()
-
-    def diag_callback(self, message):
+    
+    def status_callback(self, msg):
         self._mutex.acquire()
-        self._diags.append(message)
+        self._status_msg = msg
         self._mutex.release()
         wx.CallAfter(self.new_msg)
-    
+
     def new_msg(self):
         self._mutex.acquire()
 
-        # Simple and hopefully effective way to see if test is still running
-        etherCAT_master_name = 'EtherCAT Master'
-        level_dict = { 0: 'OK', 1: 'Warn', 2: 'Error' }
-        try:
-            for msg in self._diags:
-                for stat in msg.status:
-                    if stat.name == etherCAT_master_name:
-                        self.last_message_time = rospy.get_time()
-                        self.start_timer()
+        level_dict = { 0: 'OK', 1: 'Warn', 2: 'Error', 3: 'Stale' }
 
-                        self._is_running = (stat.level == 0)
-                        self._is_stale = False
-                        self.update_test_record()
-                        self.stop_if_done()
-                        self.update_controls(stat.level, stat.message)
+        self._is_running = (self._status_msg.test_ok == 0)
+        self._is_stale = False
+        self.start_timer()
+        self.update_test_record()
+        self.stop_if_done()
+        self.update_controls(self._status_msg.test_ok, self._status_msg.message)
 
-            self._diags = []
-
-        except Exception, e:
-            rospy.logerr('Caught exception processing diagnostic msg.\nEx: %s' % traceback.format_exc())
-          
+         
         self._mutex.release()
-        #self.Refresh()
+     
     
-    
-    def make_launch_script(self):
+    def make_launch_script(self, local_diag_topic):
         launch = '<launch>\n'
         launch += '<group ns="%s">' % self._machine
 
         # Remap
-        launch += '<remap from="/diagnostics" to="/%s/diagnostics" />' % self._machine
+        launch += '<remap from="/diagnostics" to="%s" />' % local_diag_topic
         # Init machine
         launch += '<machine name="test_host_root" user="root" address="%s" ' % self._machine
         launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="never"/>'
         launch += '<machine name="test_host" address="%s" ' % self._machine
         launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)"  />'
 
+        # Include our launch file
         launch += '<include file="$(find life_test)/%s" />' % self._test._launch_script
+
+        # TODO: Check bag, make sure it's on the right topic
+        # Record our diagnostics remaped back to local diagnostics
+        launch += '<remap from="%s" to="/diagnostics" />' % local_diag_topic
+        launch += ' <node pkg="rosrecord" type="rosrecord" args="-f /hwlog/test_runtime_automatic %s" />' % local_diag_topic
+        
         launch += '</group>\n</launch>'
 
         return launch
@@ -656,11 +483,9 @@ class TestMonitorPanel(wx.Panel):
     # Add subscriber to diagnostics
     # Launch file, subscribe diagnostics
     def launch_test(self, event):
-        # Prompt ARE YOU SURE
         dialog = wx.MessageDialog(self, 'Are you sure you want to launch?', 'Confirm Launch', wx.OK|wx.CANCEL)
         if dialog.ShowModal() != wx.ID_OK:
             return
-
 
         # Get machine, end condition, etc
         machine = self._test_machine_ctrl.GetStringSelection()
@@ -669,42 +494,42 @@ class TestMonitorPanel(wx.Panel):
             wx.MessageBox('Machine in use, select again!', 'Machine in use', wx.OK|wx.ICON_ERROR, self)
             return
         
-        
         self._machine = machine
+        local_diag = '/' + self._machine + '/diagnostics'
 
-        self.log('Launching test %s on machine %s.' % (self._test._name, self._machine))
+        self.update_test_record('Launching test %s on machine %s.' % (self._test._name, self._machine))
 
-        config = roslaunch.ROSLaunchConfig()
+        self._test.set_params(self._machine)
+        self._test_launcher = roslaunch_caller.ScriptRoslaunch(
+            self.make_launch_script(local_diag))
         try:
-            loader = roslaunch.XmlLoader()
-            loader.load_string(self.make_launch_script(), config)
-            self._test_launcher = roslaunch.ROSLaunchRunner(config)
-            self._test_launcher.launch()
+            self._test_launcher.start()
         except roslaunch.RLException, e:
-            self.log('Failed to launch script')
-            self.log(traceback.format_exc())
+            traceback.print_exc()
             self._manager.test_stop(self._machine)
             self._machine = None
-            return 
+            self.update_test_record('Failed to launch script')
+            self.update_test_record(traceback.format_exc())
+            self._test_launcher.shutdown()
+            self._test_launcher = None
+            return None
 
-
-        local_diagnostics = '/' + self._machine + '/diagnostics'
+        local_status = '/' + self._machine + '/test_status'
         self._is_running = True
         self.update_invent()
-        self._monitor_panel.change_diagnostic_topic(local_diagnostics)
+        self._monitor_panel.change_diagnostic_topic(local_diag)
 
-        self._mutex.acquire()
         self.update_controls()
-        self._mutex.release()
+        #self._diag_sub = rospy.Subscriber(local_diagnostics, DiagnosticMessage, self.diag_callback)
 
-        self._diag_sub = rospy.Subscriber(local_diagnostics, DiagnosticMessage, self.diag_callback)
+        self._status_sub = rospy.Subscriber(local_status, TestStatus, self.status_callback)
 
-
+    # Changed from halt_motors to halt_test for test monitor
     def on_halt_motors(self, event = None):
         try:
-            self.log('Halting motors.')
+            self.update_test_record('Halting motors.')
             # Call halt motors service on NAME_SPACE/pr2_etherCAT
-            halt_srv = rospy.ServiceProxy(self._machine + '/halt_motors', Empty)
+            halt_srv = rospy.ServiceProxy(self._machine + '/halt_test', Empty)
             halt_srv()
 
         except Exception, e:
@@ -712,15 +537,16 @@ class TestMonitorPanel(wx.Panel):
 
     def on_reset_motors(self, event = None):
          try:
-             self.log('Reseting motors')
-             reset = rospy.ServiceProxy(self._machine + '/reset_motors', Empty)
+             self.update_test_record('Reseting motors')
+             reset = rospy.ServiceProxy(self._machine + '/reset_test', Empty)
              reset()
 
          except:
             rospy.logerr('Exception on reset motors. %s' % traceback.format_exc())
       
     # 
-    # Loggers and data processing -> Move to record class or elsewhere
+    # Loggers and data processing -> Move to notifier class or elsewhere
+    # Notifier class needs test record, that's it
     # 
     def get_test_team(self):
         # Don't email everyone it's debugging on NSF
@@ -733,7 +559,7 @@ class TestMonitorPanel(wx.Panel):
         machine_str = self._machine
         if not self._machine:
             machine_str = 'NONE'
-        return "%s Test %s on machine %s of %s" % (msg, self._test._name, machine_str, self._serial)
+        return "Test %s on machine %s. MSG: %s" % (self._test.get_title(self._serial), machine_str, msg)
 
     def notify_operator(self, level, alert_msg, recipient = None):
         # Don't notify if we haven't done anything
@@ -741,20 +567,17 @@ class TestMonitorPanel(wx.Panel):
             return
 
         sender = 'test.notify@willowgarage.com'
-        header = '--Test Notify--'
         if level == 2:
             sender = 'test.alerts@willowgarage.com'
-            header = '--Test Alert--'
         elif level == 3:
             sender = 'test.reports@willowgarage.com'
-            header = '--Test Report--'
         
         try:
             if not recipient:
                 recipient = self.get_test_team()
 
             msg = MIMEMultipart('alternative')
-            msg['Subject'] = header + self.line_summary(alert_msg)
+            msg['Subject'] = self.line_summary(alert_msg)
             msg['From'] = sender
             msg['To'] = recipient
 
@@ -779,7 +602,7 @@ class TestMonitorPanel(wx.Panel):
             return True
         except Exception, e:
             rospy.logerr('Unable to send mail! %s' % traceback.format_exc())
-            self.log('Unable to send mail! %s' % traceback.format_exc())
+            self.update_test_record('Unable to send mail! %s' % traceback.format_exc())
             return False
 
 
@@ -826,7 +649,7 @@ em { font-style:normal; font-weight: bold; }\
             html += '<H3>Alert: %s</H3><br>\n' % alert_msg
 
         if self._test_complete:
-            html += '<H3>Test Completed Successfully</H3>\n'
+            html += '<H3>Test Complete</H3>\n'
         else:
             if self.is_launched() and not self._is_running:
                 html += '<H3>Test Status: Launched, Halted</H3>\n'
@@ -835,14 +658,20 @@ em { font-style:normal; font-weight: bold; }\
             else:
                 html += '<H3>Test Status: Shutdown</H3>\n'
 
+        # Table of test machine, etc
+        html += '<hr size="3">\n'
         html += '<H4>Test Info</H4>\n'
         html += '<p>Description: %s</p>\n<br>' % self._test._desc
         html += self.make_test_info_table()
 
+        # Parameter table
+        html += '<hr size="3">\n'
+        html += '<H4>Test Parameters</H4>\n'
+        html += self.make_test_param_table()
+
         # Make results table
         html += '<hr size="3">\n'
         html += '<H4>Test Results</H4>\n'
-        
         html += self.make_record_table()
         
 
@@ -857,17 +686,41 @@ em { font-style:normal; font-weight: bold; }\
 
     def make_test_info_table(self):
         html = '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += self.make_table_row('Test Name', self._test._name)
-        html += self.make_table_row('Serial', self._serial)
-        html += self.make_table_row('Cycle Rate', self._test._cycle_rate)
-        html += self.make_table_row('Test Type', self._test._test_type)
+        html += self.make_table_row(['Test Name', self._test._name])
+        if self._machine:
+            html += self.make_table_row(['Machine', self._machine])
+        
+        html += self.make_table_row(['Serial', self._serial])
+        html += self.make_table_row(['Test Type', self._test._test_type])
+        html += self.make_table_row(['Launch File', self._test._launch_script])
+        html += self.make_table_row(['Trac Ticket', self._test._trac])
+        html += '</table>\n'
+
+        return html
+
+    def make_test_param_table(self):
+        if len(self._test._params) == 0:
+            return '<p>No test parameters defined.</p>\n'
+
+        html = '<table border="1" cellpadding="2" cellspacing="0">\n'
+        html += self.make_table_row(['Name', 'Value', 'Key', 'Description'], True)
+        for param in self._test._params:
+            html += self.make_table_row([param._name, param._value, param._param_name, param._desc])
         html += '</table>\n'
 
         return html
 
 
-    def make_table_row(self, label, value):
-        return '<tr><td><b>%s</b></td><td>%s</td></tr>\n' % (label, value)
+    def make_table_row(self, lst, bold = False):
+        html = '<tr>'
+        for val in lst:
+            if bold:
+                html += '<td><b>%s</b></td>' % val
+            else:
+                html += '<td>%s</td>' % val
+        html += '</tr>\n'
+        return html
+    
 
     def make_record_table(self):
         if not self._record:
@@ -875,27 +728,33 @@ em { font-style:normal; font-weight: bold; }\
             
         html = '<table border="1" cellpadding="2" cellspacing="0">\n'
         time_str = strftime("%m/%d/%Y %H:%M:%S", localtime(self._record._start_time))
-        html += self.make_table_row('Start Time', time_str)
-        html += self.make_table_row('Elapsed Time', self._record.get_elapsed_str())
-        cycle_str = "%.1f" % self._record.get_cycles()
-        html += self.make_table_row('Total Cycles', cycle_str)
-        html += self.make_table_row('Active Time', self._record.get_active_str())
-        
+        html += self.make_table_row(['Start Time', time_str])
+        html += self.make_table_row(['Elapsed Time', self._record.get_elapsed_str()])
+        html += self.make_table_row(['Active Time', self._record.get_active_str()])
+        for ky in self._record.get_cum_data().keys():
+            cum_name = "Cum. %s" % ky
+            html += self.make_table_row([cum_name, self._record.get_cum_data()[ky]])        
+
+        html += self.make_table_row(['Num Halts', self._record._num_halts])
+        html += self.make_table_row(['Num Alerts', self._record._num_events])
         html += '</table>\n'
+
         return html
 
     def make_log_table(self):
         if self._record._log is None or len(dict.keys(self._record._log)) == 0:
             return '<p>No test log!</p>\n'
 
-        html = '<table border="1" cellpadding="2" cellspacing="0">\n'
+        html = '<p>CSV location: %s on machine %s.</p>\n' % (self._record.csv_filename(), gethostname())
+
+        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
         html += '<tr><td><b>Time</b></td><td><b>Entry</b></td></tr>\n'
         
         kys = dict.keys(self._record._log)
         kys.sort()
         for ky in kys:
             time_str = strftime("%m/%d/%Y %H:%M:%S", localtime(ky))
-            html += self.make_table_row(time_str, self._record._log[ky])
+            html += self.make_table_row([time_str, self._record._log[ky]])
             
         html += '</table>\n'
 

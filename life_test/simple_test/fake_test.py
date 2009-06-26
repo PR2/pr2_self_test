@@ -32,6 +32,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# Author: Kevin Watts
+
 import roslib
 roslib.load_manifest('life_test')
 import wx
@@ -39,6 +41,7 @@ import sys
 
 from diagnostic_msgs.msg import DiagnosticMessage, DiagnosticStatus, DiagnosticValue, DiagnosticString
 from std_srvs.srv import *
+from mechanism_msgs.msg import MechanismState, JointState, ActuatorState
 
 import os
 import time
@@ -48,16 +51,24 @@ import rospy
 import threading
 from wx import xrc
 
+import math
+
 class FakeTestFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, wx.ID_ANY, 'Fake Test')
         
-        self.diag_pub = rospy.Publisher('diagnostics', DiagnosticMessage)
+        self.diag_pub = rospy.Publisher('/diagnostics', DiagnosticMessage)
+        self.mech_pub = rospy.Publisher('mechanism_state', MechanismState)
+
+        self._mech_timer = wx.Timer(self, 2)
+        self.Bind(wx.EVT_TIMER, self.on_mech_timer, self._mech_timer)
+        self._last_mech_pub = rospy.get_time()
+        self._mech_timer.Start(50, True)
 
         self._diag_timer = wx.Timer(self, 1)
         self.Bind(wx.EVT_TIMER, self.on_timer, self._diag_timer)
         self._last_publish = rospy.get_time()
-        self._diag_timer.Start(250, True)
+        self._diag_timer.Start(500, True)
         
         # Load XRC
         xrc_path = os.path.join(roslib.packages.get_pkg_dir('life_test'), 'xrc/gui.xrc')
@@ -65,10 +76,78 @@ class FakeTestFrame(wx.Frame):
         self._panel = xrc.XmlResource(xrc_path).LoadPanel(self, 'fake_panel')
         self._pub_check_box = xrc.XRCCTRL(self._panel, 'publish_check_box')
         self._level_choice = xrc.XRCCTRL(self._panel, 'level_choice')
+
+        self.enum_param_ctrl = xrc.XRCCTRL(self._panel, 'enum_param_ctrl')
+        self.range_param_ctrl = xrc.XRCCTRL(self._panel, 'range_param_ctrl')
+
+        self._cal_box = xrc.XRCCTRL(self._panel, 'calibration_box')
         
         self._reset_srv = rospy.Service('reset_motors', Empty, self.on_reset)
         self._halt_srv = rospy.Service('halt_motors', Empty, self.on_halt)
+
+        self._start_time = rospy.get_time()
         
+    def on_mech_timer(self, event = None):
+        self._mech_timer.Start(10, True)
+        
+        # Joint state is a sine, period 1s, Amplitude 2,
+        trig_arg = rospy.get_time() - self._start_time
+
+        sine = math.sin(trig_arg)
+        cosine = math.cos(trig_arg)
+
+        # Stop joint at zero if not running
+        level =  self._level_choice.GetSelection()
+        if level != 0:
+            sine = 0
+            cosine = 0
+
+        jnt_st = JointState()
+        jnt_st.name = 'fake_joint'
+        jnt_st.position = float(2 * sine)
+        jnt_st.velocity = float(2 * cosine)
+        jnt_st.applied_effort = float(-2 * sine)
+        jnt_st.commanded_effort = float(-2 * sine)
+        jnt_st.is_calibrated = 1
+        
+        # Use same position as above, with 100:1 reduction -> Ampltitude 200
+        act_st = ActuatorState()
+        act_st.name = 'fake_motor'
+        act_st.device_id = 0
+        act_st.encoder_count = 200 * int(sine) + 1134 
+        act_st.position = float(200 * sine)
+        act_st.timestamp = float(rospy.get_time())
+        act_st.encoder_velocity = float(200 * sine)
+        act_st.velocity = float(200 * cosine)
+        
+        # Only one that makes a difference
+        act_st.calibration_reading = 14
+        if sine > 0.0 and self._cal_box.IsChecked():
+            act_st.calibration_reading = 13
+
+        act_st.calibration_rising_edge_valid = 1
+        act_st.calibration_falling_edge_valid = 1
+        act_st.last_calibration_rising_edge = float(0.0)
+        act_st.last_calibration_falling_edge = float(0.0)
+        act_st.is_enabled = 1
+        act_st.run_stop_hit = 0
+        act_st.last_requested_current = float(0.0)
+        act_st.last_commanded_current = float(0.0)
+        act_st.last_measured_current = float(0.0)
+        act_st.last_requested_effort = float(0.0)
+        act_st.last_commanded_effort = float(0.0)
+        act_st.last_measured_effort = float(0.0)
+        act_st.motor_voltage = float(0.0)
+        act_st.num_encoder_errors = 0
+
+        mech_st = MechanismState()
+        mech_st.time = rospy.get_time()
+        mech_st.actuator_states = [ act_st ]
+        mech_st.joint_states = [ jnt_st ]
+
+        self.mech_pub.publish(mech_st)
+  
+
     def on_halt(self, srv):
         print 'Halting'
         wx.CallAfter(self.set_level, 2)
@@ -79,21 +158,29 @@ class FakeTestFrame(wx.Frame):
         return EmptyResponse()
 
     def set_level(self, val):
-        print 'Setting level'
         self._level_choice.SetSelection(val)
+
+    def set_enum_ctrl(self):
+        enum_param = rospy.get_param('test_choice')
+        self.enum_param_ctrl.SetValue(enum_param)
+
+    def set_range_ctrl(self):
+        range_param = rospy.get_param('cycle_rate')
+        self.range_param_ctrl.SetValue(range_param)
 
     def on_timer(self, event = None):
         print 'Making message'
-        self._diag_timer.Start(500, True)
+        self._diag_timer.Start(1000, True)
 
         level_dict = { "OK": 0, "Warn": 1, "Error": 2 }
 
         level =  self._level_choice.GetSelection()
-        # level_dict[self._level_choice.GetStringSelection()]
-        print 'Level %s' % level
+
         choice = self._level_choice.GetStringSelection()
-        print 'Choice %s' % choice
      
+        self.set_enum_ctrl()
+        self.set_range_ctrl()
+
         if self._pub_check_box.IsChecked():
             self.publish_diag(level, str(choice))
 
@@ -105,15 +192,15 @@ class FakeTestFrame(wx.Frame):
 
         stat.level = level
         stat.name = 'EtherCAT Master' # So ghetto
-        stat.message = choice #'OK'
+        stat.message = choice 
      
         self.diag_pub.publish(msg)
 
 class FakeTestApp(wx.App):
     def OnInit(self):
-        rospy.init_node("fake_test")
+        rospy.init_node("fake_test_node")
         self._frame = FakeTestFrame(None)
-        self._frame.SetSize(wx.Size(200, 100))
+        self._frame.SetSize(wx.Size(224, 230))
         self._frame.Layout()
         self._frame.Centre()
         self._frame.Show(True)

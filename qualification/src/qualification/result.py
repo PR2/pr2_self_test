@@ -274,9 +274,10 @@ class QualTestResult:
         self._subresults_by_index[index] = sub
         return sub
 
-    def retry_subresult(self, index):
+    def retry_subresult(self, index, notes):
         sub = self.get_subresult(index)
         sub.set_passfail(4)
+        sub.set_note(notes)
 
         if not sub:
             return
@@ -333,10 +334,15 @@ class QualTestResult:
 
 
     def test_status_str(self):
-        if self.test_result():
-            return 'PASS'
-        else:
-            return 'FAIL'
+        result = "FAIL"
+        if self.test_result() == 1:
+            result = "PASS"
+        elif self.test_result() == 3:
+            result = 'Manual Pass'
+        elif self.test_result() == 5:
+            result = 'Canceled'
+
+        return result
 
     def make_summary_page(self, link = True, link_dir = TEMP_DIR):
         html = "<html><head>\n"
@@ -408,9 +414,7 @@ em { font-style: normal; font-weight: bold; }\
         return html
 
     def line_summary(self):
-        result = "FAIL"
-        if self.test_result():
-            result = "PASS"
+        result = self.test_status_str()
 
         if self.config_only and self.test_result():
             sum = "Reconfigured %s as %s." % (self._serial, self._conf_name)
@@ -574,7 +578,7 @@ em { font-style: normal; font-weight: bold; }\
             return False, 'Received retcode %s from invent.add_attachment, unable to upload to inventory system.' % retcode
 
     def get_qual_team(self):
-        if socket.gethostname() == 'nsf':
+        if socket.gethostname() == 'nsf': # Debug on NSF
             return 'watts@willowgarage.com'
 
         return 'qualdevteam@lists.willowgarage.com'

@@ -19,4 +19,5 @@
   <rosdep name="wxpython"/>
   <rosdep name="ipmitool"/>
   <rosdep name="hddtemp"/>
+  <rosdep name="sysstat" />
 </package>

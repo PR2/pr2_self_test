@@ -91,19 +91,24 @@ def main():
                 if len(lst) > 2:
                     dev_id = lst[1]
                     tmp = lst[2].strip()[:2] # Temp shows up as ' 40dC'
-                    rospy.logerr(lst[2])
-                    rospy.logerr(tmp)
-                    print tmp
+                    #rospy.logerr(lst[2])
+                    #rospy.logerr(tmp)
+                    #print tmp
                     if unicode(tmp).isnumeric():
                         temp = float(tmp)
+                        if temp > 45:
+                            stat.level = 1
+                        if temp > 50:
+                            stat.level = 2
                     else:
                         temp = float(0.0)
-                    rospy.logerr(temp)
-                    print temp
+                        stat.level = 2
+                    #rospy.logerr(temp)
+                    #print temp
                 else:
                     dev_id = 'ERROR'
-                    temp = 'ERROR'
-                    
+                    temp = 0.0
+                    stat.level = 2
                     
                 stat.strings.append(DiagnosticString(label = 'HW addr', value = hd))
                 stat.strings.append(DiagnosticString(label = 'Device ID', value = dev_id))

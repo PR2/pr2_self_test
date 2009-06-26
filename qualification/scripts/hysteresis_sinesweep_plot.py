@@ -226,7 +226,7 @@ class App:
         r.text_summary = 'Hysteresis result: OK'
         r.result = TestResultRequest.RESULT_PASS
       else:
-        r.text_summary = 'FAIL. ' + range_sum + ' ' + effort_sum
+        r.text_summary = 'Hysteresis result: FAIL. ' + range_sum + ' ' + effort_sum
         r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
 
       # Can move to separate plotting function
@@ -345,11 +345,17 @@ class App:
       max_ok = False
       max_status = fail
 
-    if (max_ok and min_ok):
+    result = min_ok and max_ok
+
+    summary = 'Range: FAIL.'
+    if result:
+      summary = 'Range: OK.'
+
+    if result:
       html = '<p>Range of motion: OK.</p>\n'
-    if max_ok and not min_ok:
+    elif max_ok and not min_ok:
       html = "<p>Mechanism did not reach expected minimum range.</p>\n"
-    if min_ok and not max_ok:
+    elif min_ok and not max_ok:
       html = "<p>Mechanism did not reach expected maximum range.</p>\n"
     else:
       html = "<p>Mechanism did not reach expected minimum or maximum range.</p>\n"
@@ -362,12 +368,7 @@ class App:
 
     html += table
 
-    result = min_ok and max_ok
 
-    if result:
-      summary = 'Range: OK.'
-    else:
-      summary = 'Range: FAIL.'
 
     return html, summary, result
 

@@ -66,9 +66,9 @@ class MotorConfFrame(wx.Frame):
 
         # Robots with ethercat files
         self._robots = {
-            'PRE' : 'pre.launch',
-            'PRF' : 'prf.launch',
-            'PRG' : 'prg.launch' }
+            'PRE' : 'pre_ethercat_reset.launch',
+            'PRF' : 'prf_ethercat_reset.launch',
+            'PRG' : 'prg_ethercat_reset.launch' }
 
         # Load robot selection dialog
         dialog = resource.LoadDialog(None, 'robot_select_dialog')
@@ -126,8 +126,10 @@ class MotorConfFrame(wx.Frame):
             self.Fit()
 
             # Launch roscore
+            self._last_msg_time = 0
+
             self._core_launcher = self.launch_core()
-            rospy.init_node("motorconf_GUI", anonymous = True)
+            rospy.init_node("motorconf_GUI", anonymous = True)            
             self.start_pr2_etherCAT()
             rospy.Subscriber("/mechanism_state", MechanismState, self.on_mech_state_msg)
 
@@ -157,7 +159,7 @@ class MotorConfFrame(wx.Frame):
         return launcher
 
     def log(self, msg):
-        print msg # To command line
+        rospy.logout(msg)  # To command line
         self._log.AppendText(datetime.datetime.now().strftime("%m/%d/%Y %I:%M:%S: ") + msg + "\n")
         self._log.Refresh()
         self._log.Update()
@@ -363,6 +365,17 @@ class MotorConfFrame(wx.Frame):
     # Set detect window with mechanism states
     def on_mech_state_msg(self, data):
         try:
+            if self._last_msg_time == 0:
+                self._last_msg_time = data.header.stamp
+
+            time_diff = float(str(data.header.stamp - self._last_msg_time)) / 1000000000
+            if time_diff < 0.25:
+                return # Only process msgs at 4 Hz
+            
+            self._last_msg_time = data.header.stamp
+
+            rospy.logout('Displaying mechanism state msg in window')
+
             mech_data = [(data.actuator_states[x].device_id, data.actuator_states[x].encoder_count, data.actuator_states[x].encoder_velocity, data.actuator_states[x].name) for x in xrange(len(data.actuator_states))]
             sorted_mech = list(mech_data)
             sorted_mech.sort(self.vel_cmp)

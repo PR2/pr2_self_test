@@ -1,47 +1,88 @@
+<!-- Stores key data on every test that can run through the test manager -->
 <tests>
   <test serial="faketes" name="Simple Test" 
+	short="Fake" trac="007"
 	desc="Test to test life GUI"
-	rate="1.05" script="simple_test/test.launch" 
-	type="Life Test" />
+	script="simple_test/test.launch" 
+	type="Life Test" >
+
+    <!-- Load test parameters -->
+    <param name="Rate" param_name="cycle_rate" 
+	   desc="Changes the frequency of the test" 
+	   rate="1" val="1.0" />
+
+    <param name="Choice Param" param_name="test_choice"
+	   desc="Chooses between a few choices" 
+	   val="A" rate="0" />
+  </test>
 
   <test serial="6804213" name="Free Wrist Test" 
+	short="Wrist" trac="401"
 	desc="Test of wrist holding weight."
-	rate="3" script="wrist_test/test_gui.launch" 
-	type="Life Test" />
+	script="wrist_test/test_gui.launch" 
+	type="Life Test" >
+    <param name="Rate" param_name="cycle_rate"
+	   desc="Frequency of commands"
+	   val="3.0" rate="1" />
+    <param name="Flex Effort" param_name="flex_effort"
+	   desc="Wrist Flex Effort"
+	   val="4.0" rate="0" />
+    <param name="Roll Effort" param_name="roll_effort"
+	   desc="Wrist Roll Effort"
+	   val="3.0" rate="0" />
+  </test>
 
   <test serial="6804213" name="Fixed Wrist Test" 
+	short="Wrist" trac="438"
 	desc="Test of wrist attached to a bar, jerking around."
 	rate="3" script="wrist_test/test_gui_bar.launch" 
-	type="Life Test" />
+	type="Life Test" >
+    <param name="Rate" param_name="cycle_rate"
+	   desc="Frequency of commands"
+	   val="3.0" rate="1" />
+    <param name="Flex Effort" param_name="flex_effort"
+	   desc="Wrist Flex Effort"
+	   val="4.0" rate="0" />
+    <param name="Roll Effort" param_name="roll_effort"
+	   desc="Wrist Roll Effort"
+	   val="3.0" rate="0" />
+  </test>
+	
 
 
-
-  <test serial="6804040" name="Head Life Test"
+  <test serial="6804040" name="Head Life Test" 
+	short="Head" trac="289"
 	desc="Tests head on test cart, moving between [-0.4, 1.4] tilt, [-2.7, 2.7] pan."
 	rate="2.0" script="head_test/life_test/test_gui.launch"
 	type="Life Test" />
   
-  <test serial="6804040" name="Head Impact Test"
+  <test serial="6804040" name="Head Impact Test" 
+	short="Head" trac="288"
 	desc="Impacts head, pan and tilt"
 	rate="0.25" script="head_test/impact_test/test_gui.launch"
 	type="Impact Test" />
 
   <test serial="6804139" name="Arm Cable Wrap Test"
+	short="Cable" trac="320/400"
 	desc="Tests arm cables."
 	rate="1.0" script="arm_life_test/test_gui.launch"
 	type="Life Test" />
 
+<!-- Add forearm roll cycle rate values -->
   <test serial="6804139" name="Arm Cable Wrap Test - With Roll"
+	short="Cable" trac="320/400"
 	desc="Tests arm cables."
 	rate="1.0" script="arm_life_test/test_roll_gui.launch"
 	type="Life Test" />
 
   <test serial="6804178" name="Full Arm Counterbalance Test"
+	short="Full CB" trac="402"
 	desc="Moves arm up and down for full counterbalance workout."
 	rate="0.5" script="arm_life_test/test_gui_cb.launch"
 	type="Life Test" />
 
   <test serial="6804178" name="Full Arm CB Test - Dummy Forearm"
+	short="Dummy CB" trac="402"
 	desc="Moves arm up and down for full counterbalance workout."
 	rate="0.5" script="arm_life_test/test_gui_cb_forearm.launch"
 	type="Life Test" />

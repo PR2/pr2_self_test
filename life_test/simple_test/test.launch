@@ -1,3 +1,5 @@
 <launch>
   <node pkg="life_test" type="fake_test.py" />
+
+  <node pkg="life_test" type="ethercat_test_monitor.py" args="$(find life_test)/simple_test/fake_trans.csv" />
 </launch>

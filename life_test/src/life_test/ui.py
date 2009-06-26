@@ -63,6 +63,9 @@ import struct
 from invent_client.invent_client import Invent
 
 from life_test import *
+from test_param import *
+
+import wg_hardware_roslaunch.roslaunch_caller as roslaunch_caller
 
 class TestManagerFrame(wx.Frame):
     def __init__(self, parent):
@@ -100,7 +103,7 @@ class TestManagerFrame(wx.Frame):
         self._serial_text.SetFocus()
         
         # Start panel...
-        self._test_monitors = {}
+        self._test_panels = {}
         self._active_serials = []
 
         self._current_log = []
@@ -111,11 +114,10 @@ class TestManagerFrame(wx.Frame):
         # Make notebook page for panel
         # Add panel to notebook
         panel = wx.Panel(self._tab_ctrl, wx.ID_ANY)
-        tab_name = test._name + ' ' + serial
 
         index = len(self._active_serials) + 1
 
-        self._tab_ctrl.AddPage(panel, tab_name, True)
+        self._tab_ctrl.AddPage(panel, test.get_title(serial), True)
 
         test_panel = TestMonitorPanel(panel, self, test, serial)
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -124,7 +126,7 @@ class TestManagerFrame(wx.Frame):
         panel.Fit()
         panel.Layout()
         
-        self._test_monitors[serial] = test_panel        
+        self._test_panels[serial] = test_panel        
         self._active_serials.append(serial)
 
     def close_tab(self, serial):
@@ -135,9 +137,8 @@ class TestManagerFrame(wx.Frame):
         idx = self._active_serials.index(serial)
 
         if self._tab_ctrl.DeletePage(idx + 1):
-            del self._test_monitors[serial]
+            del self._test_panels[serial]
             del self._active_serials[idx]
-            #print 'Active serials after deletion', self._active_serials
         
     def test_start_check(self, machine):
         if machine in self._active_machines:
@@ -150,10 +151,10 @@ class TestManagerFrame(wx.Frame):
         if machine in self._active_machines:
             idx = self._active_machines.index(machine)
             del self._active_machines[idx]
-            #print 'Active machines after delete:', self._active_machines
 
     def load_invent_client(self):
-        # Loads invent client. Singleton, doesn't construct unless valid login
+        # Loads invent client. 
+        # Like singleton, doesn't construct unless valid login
         if self._invent_client:
             return True
 
@@ -208,8 +209,10 @@ class TestManagerFrame(wx.Frame):
         self._serial_text.Clear()
         self.log('Starting test %s' % test._name)
 
-        wx.CallAfter(self.load_test, test, serial)
+        self.load_test(test, serial)
+        #wx.CallAfter(self.load_test, test, serial)
 
+    # Loads tests from XML file
     def load_tests_from_file(self):
         test_xml_path = os.path.join(roslib.packages.get_pkg_dir('life_test'), 'tests.xml')
         self._tests = {}
@@ -219,19 +222,46 @@ class TestManagerFrame(wx.Frame):
             rospy.logerr('Could not load tests from %s' % test_xml_path)
             sys.exit()
 
-        tests = doc.getElementsByTagName('test')
-        for test in tests:
-            serial = test.attributes['serial'].value
-            name = test.attributes['name'].value
-            desc = test.attributes['desc'].value
-            cycle_rate = float(test.attributes['rate'].value)
-            script = test.attributes['script'].value
-            type = test.attributes['type'].value
+        try:
+            tests = doc.getElementsByTagName('test')
+            for test in tests:
+                serial = test.attributes['serial'].value # Short serial only
+                name = test.attributes['name'].value
+                desc = test.attributes['desc'].value
+                script = test.attributes['script'].value
+                type = test.attributes['type'].value
+                trac = test.attributes['trac'].value
+                short = test.attributes['short'].value
+                
+                # Add test parameters
+                # Make param from XML element
+                # Append to list, add to test
+                test_params = []
+                params_xml = test.getElementsByTagName('param')
+                for param_xml in params_xml:
+                    p_name = param_xml.attributes['name'].value
+                    p_param_name = param_xml.attributes['param_name'].value
+                    p_desc = param_xml.attributes['desc'].value
+                    p_val = param_xml.attributes['val'].value
+                    
+                    p_rate = int(param_xml.attributes['rate'].value) == 1
 
-            if self._tests.has_key(serial):
-                self._tests[serial].append(LifeTest(serial, name, desc, cycle_rate, type, script))
-            else:
-                self._tests[serial] = [ LifeTest(serial, name, desc, cycle_rate, type, script) ]
+
+                    test_params.append(TestParam(p_name, p_param_name, 
+                                                 p_desc, p_val, p_rate))
+
+                        
+                life_test = LifeTest(serial, name, short, trac, 
+                                     desc, type, script, test_params)
+
+                if self._tests.has_key(serial):
+                    self._tests[serial].append(life_test)
+                else:
+                    self._tests[serial] = [ life_test ]
+                    
+        except:
+            traceback.print_exc()
+            rospy.logerr('Caught exception parsing test XML.')
 
     def select_string_from_list(self, msg, lst):
         # Load robot selection dialog
@@ -282,7 +312,8 @@ class TestManagerFrame(wx.Frame):
         time_str = strftime("%m/%d/%Y %H:%M:%S: ", localtime(rospy.get_time()))
 
         self._current_log.append(time_str + msg)
-        wx.CallAfter(self.update_log_display)
+        #wx.CallAfter(self.update_log_display)
+        self.update_log_display()
 
     def log_test_entry(self, test_name, machine, message):
         if not machine:
@@ -293,14 +324,15 @@ class TestManagerFrame(wx.Frame):
         log_msg = time_str + 'Machine %s, Test %s. Message: %s' % (machine, test_name, message)
 
         self._current_log.append(log_msg)
-        wx.CallAfter(self.update_log_display)
+        #wx.CallAfter(self.update_log_display)
+        self.update_log_display()
 
     def update_log_display(self):
-        self._mutex.acquire()
+        #self._mutex.acquire()
         for log in self._current_log:
             self._log_text.AppendText(log + '\n')
         self._current_log = []
-        self._mutex.release()
+        #self._mutex.release()
 
     def on_close(self, event):
         # Would try/catch here work?
@@ -309,7 +341,7 @@ class TestManagerFrame(wx.Frame):
         # Maybe make it so all tests have to be stopped to close...
 
         # Could just delete monitors
-        for value in dict.values(self._test_monitors):
+        for value in dict.values(self._test_panels):
             value.on_close(None)
 
         self.Destroy()
@@ -339,8 +371,9 @@ class TestManagerApp(wx.App):
         config = roslaunch.ROSLaunchConfig()
         config.master.auto = config.master.AUTO_RESTART
         
-        self._core_launcher = roslaunch.ROSLaunchRunner(config)
-        self._core_launcher.launch()
+
+        self._core_launcher = roslaunch_caller.launch_core()
+
 
         rospy.init_node("life_test_manager")
         self._frame = TestManagerFrame(None)
@@ -361,3 +394,4 @@ if __name__ == '__main__':
     except Exception, e:
         print 'Caught exception in TestManagerMainLoop'
         traceback.print_exc()
+        sys.exit(1)
