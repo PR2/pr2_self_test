@@ -48,83 +48,161 @@ import socket
 
 from diagnostic_msgs.msg import * 
 
+low_hd_level = 5
+critical_hd_level = 1
+
+stat_dict = { 0: 'OK', 1: 'Warning', 2: 'Error' }
+
+def check_hd_temp(hostname, hds):
+    stat = DiagnosticStatus()
+    stat.level = 0
+    stat.name = "%s HD Temps" % hostname
+    stat.strings = []
+    stat.values = []
+
+    for index, hd in enumerate(hds):
+        stat.strings.append(DiagnosticString(label = 'Disk %d HW addr' % index, value = hd))
+        try:
+            p = subprocess.Popen('hddtemp %s' % hd, 
+                                 stdout = subprocess.PIPE,
+                                 stderr = subprocess.PIPE, shell = True)
+            stdout, stderr = p.communicate()
+            retcode = p.returncode
+            
+            stdout = stdout.replace('\n', '')
+            stderr = stderr.replace('\n', '')
+            
+            temp_level = retcode
+            
+            if retcode == 0:
+                temp_level = 0
+            else:
+                temp_level = 2
+                    
+            # Parse STDOUT for temp, device ID
+            lst = stdout.split(':')
+            if len(lst) > 2:
+                dev_id = lst[1]
+                tmp = lst[2].strip()[:2] # Temp shows up as ' 40dC'
+                
+                if unicode(tmp).isnumeric():
+                    temp = float(tmp)
+                    if temp > 45:
+                        temp_level = 1
+                    if temp > 50:
+                        temp_level = 2
+                else:
+                    temp = float(0.0)
+                    temp_level = 2
+                    
+            else:
+                dev_id = 'ERROR'
+                temp = 0.0
+                temp_level = 2
+            
+
+            stat.strings.append(DiagnosticString(label = 'Disk %d Device ID' % index, value = dev_id))
+            stat.values.append(DiagnosticValue(label = 'Disk %d Temp' % index, value = temp))
+            stat.strings.append(DiagnosticString(label = 'Disk %d Temp Status' % index, value = stat_dict[temp_level]))
+
+            stat.level = max(stat.level, temp_level)
+                
+        except:
+            traceback.print_exc()
+            stat.values.append(DiagnosticValue(label = 'Disk %d Temp' % index, value = 0))
+            stat.strings.append(DiagnosticString(label = 'Disk %d Temp Status' % index, value = stat_dict[2]))
+            stat.strings.append(DiagnosticString(label = 'Disk %d Device ID' % index, value = 'No ID'))
+            stat.level = 2
+            stat.message = stat_dict[2]
+
+        stat.message = stat_dict[stat.level]
+        return stat
+
+# Should get the HOME environment variable and stuff
+# Could put this into separate status for each disk
+def check_disk_usage(hostname, home_dir):
+    stat = DiagnosticStatus()
+    stat.level = 0
+    stat.name = "%s HD Disk Usage" % hostname
+    stat.strings = []
+    stat.values = []
+
+    try:
+        p = subprocess.Popen(["df", "-P", "--block-size=1G", home_dir], 
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+        retcode = p.returncode
+
+        if (retcode == 0):
+            stat.strings.append(DiagnosticString(label = 'Disk Space Reading', value = 'OK'))
+            row_count = 0
+            for row in stdout.split('\n'):
+                if len(row.split()) < 2:
+                    continue
+                if not unicode(row.split()[1]).isnumeric() or float(row.split()[1]) < 10: # Ignore small drives
+                    continue
+                
+                row_count += 1
+                g_available = float(row.split()[-3])
+                name = row.split()[0]
+                size = float(row.split()[1])
+                mount_pt = row.split()[-1]
+                
+                if (g_available > low_hd_level):
+                    level = 0
+                elif (g_available > critical_hd_level):
+                    level = 1
+                else:
+                    level = 2
+        
+                stat.strings.append(DiagnosticString(label = 'Disk %d Name' % row_count, value = name))
+                stat.values.append(DiagnosticString(label = 'Disk %d Available' % row_count, value = g_available))
+                stat.values.append(DiagnosticString(label = 'Disk %d Size' % row_count, value = size))
+                stat.strings.append(DiagnosticString(label = 'Disk %d Status' % row_count, value = stat_dict[level]))
+                stat.strings.append(DiagnosticString(label = 'Disk %d Mount Point' % row_count, value = mount_pt))
+                
+                stat.level = max(level, stat.level)
+                
+        else:
+            stat.strings.append(DiagnosticString(label = 'Disk Space Reading', value = 'Failed'))
+            stat.level = 2
+            
+
+    except:
+        traceback.print_exc()
+        stat.strings.append(DiagnosticString(label = 'Disk Space Reading', value = 'Exception'))
+        stat.level = 2
+
+    stat.message = stat_dict[stat.level]
+    return stat
+
+        
+# Need to check HD input/output too using iostat
+
 def main():
     hds = []
+
+
+    hostname = socket.gethostname()
     
     rospy.init_node('hd_monitor', anonymous = True)
     
     pub = rospy.Publisher('/diagnostics', DiagnosticMessage)
 
-    hds = rospy.myargv()[1:]
+    home_dir = rospy.myargv()[1]
+    hds = rospy.myargv()[2:]
 
     while not rospy.is_shutdown():
         msg = DiagnosticMessage()
         msg.status = []
-        for index, hd in enumerate(hds):
-            stat = DiagnosticStatus()
-            stat.strings = []
-            stat.values = []
-
-            try:
-                p = subprocess.Popen('hddtemp %s' % hd, 
-                                     stdout = subprocess.PIPE,
-                                     stderr = subprocess.PIPE, shell = True)
-                stdout, stderr = p.communicate()
-                retcode = p.returncode
-
-                stdout = stdout.replace('\n', '')
-                stderr = stderr.replace('\n', '')
-                
-                stat.level = retcode
-
-                if retcode == 0:
-                    stat.level = 0
-                    stat.message = 'OK'
-                else:
-                    stat.level = 2
-                    stat.message = stderr.replace('\n', '')
-
-                stat.name = '%s HD %d:' % (socket.gethostname(), index)
-
-                # Parse STDOUT for temp, device ID
-                lst = stdout.split(':')
-                if len(lst) > 2:
-                    dev_id = lst[1]
-                    tmp = lst[2].strip()[:2] # Temp shows up as ' 40dC'
-                    #rospy.logerr(lst[2])
-                    #rospy.logerr(tmp)
-                    #print tmp
-                    if unicode(tmp).isnumeric():
-                        temp = float(tmp)
-                        if temp > 45:
-                            stat.level = 1
-                        if temp > 50:
-                            stat.level = 2
-                    else:
-                        temp = float(0.0)
-                        stat.level = 2
-                    #rospy.logerr(temp)
-                    #print temp
-                else:
-                    dev_id = 'ERROR'
-                    temp = 0.0
-                    stat.level = 2
-                    
-                stat.strings.append(DiagnosticString(label = 'HW addr', value = hd))
-                stat.strings.append(DiagnosticString(label = 'Device ID', value = dev_id))
-                stat.values.append(DiagnosticValue(label = 'Temp', value = temp))
-
-            except Exception, e:
-                traceback.print_exc()
-
-                stat.level = 2
-                stat.name = 'HD %d:' % index
-                stat.message = 'Exception in %s' % hd
-                stat.strings.append(DiagnosticString(label = 'Exception', value = str(e)))
-
-            msg.status.append(stat)
         
-        rospy.logerr('Publishing')
+        # Temperature
+        msg.status.append(check_hd_temp(hostname, hds))
+                           
+        # Check disk usage
+        msg.status.append(check_disk_usage(hostname, home_dir))
+
+        #rospy.logerr('Publishing')
         pub.publish(msg)
         time.sleep(1.0)
 
@@ -133,8 +211,3 @@ def main():
 if __name__ == '__main__':
     main()
             
-        
-        
-# Timer checks temp and publishes every 30sec
-        
-        # Probably don't need a class or anything

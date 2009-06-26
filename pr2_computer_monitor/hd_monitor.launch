@@ -3,5 +3,5 @@
  <machine name="local_root" user="root" address="nsf" ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="never"/> 
 
  <!-- Set machine to robot machine in final version -->
-  <node machine="local_root" pkg="pr2_computer_monitor" type="hd_monitor.py" args="/dev/sda /dev/sdb" />
+  <node machine="local_root" pkg="pr2_computer_monitor" type="hd_monitor.py" args="$(optenv HOME /home) /dev/sda /dev/sdb" />
 </launch>

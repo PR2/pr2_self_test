@@ -7,17 +7,7 @@
   <depend package="diagnostic_msgs" />
   <depend package="rospy" />
   <url></url>
-  <sysdepend os="ubuntu" version="7.04-feisty" package="python-wxgtk2.8"/>
-  <sysdepend os="ubuntu" version="8.04-hardy" package="python-wxgtk2.8"/>
-  <sysdepend os="ubuntu" version="7.04-feisty" package="libwxgtk2.8-dev"/>
-  <sysdepend os="ubuntu" version="8.04-hardy" package="libwxgtk2.8-dev"/>
-  <sysdepend os="ubuntu" version="7.04-feisty" package="ipmitool"/>
-  <sysdepend os="ubuntu" version="8.04-hardy" package="ipmitool"/>
-  <sysdepend os="ubuntu" version="7.04-feisty" package="hddtemp" />
-  <sysdepend os="ubuntu" version="8.04-hardy" package="hddtemp" />
-  <rosdep name="wxwidgets"/>
-  <rosdep name="wxpython"/>
-  <rosdep name="ipmitool"/>
-  <rosdep name="hddtemp"/>
+  <rosdep name="ipmitool" />
+  <rosdep name="hddtemp" />
   <rosdep name="sysstat" />
 </package>
