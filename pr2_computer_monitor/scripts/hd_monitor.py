@@ -115,8 +115,8 @@ def check_hd_temp(hostname, hds):
             stat.level = 2
             stat.message = stat_dict[2]
 
-        stat.message = stat_dict[stat.level]
-        return stat
+    stat.message = stat_dict[stat.level]
+    return stat
 
 # Should get the HOME environment variable and stuff
 # Could put this into separate status for each disk
