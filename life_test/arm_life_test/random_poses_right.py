@@ -28,15 +28,13 @@
 
 
 import roslib; roslib.load_manifest('life_test')
-roslib.load_manifest('rospy')
 
 import random, time
 import rospy
-from std_msgs.msg import *
-from robot_msgs.msg import *
+from robot_msgs.msg import PoseStamped
 
-#pub = rospy.Publisher('/cartesian_pose_right/command', PoseStamped)
-pub = rospy.Publisher('/r_arm_cartesian_trajectory_controller/command', PoseStamped)
+#pub = rospy.Publisher('cartesian_pose_right/command', PoseStamped)
+pub = rospy.Publisher('r_arm_cartesian_trajectory_controller/command', PoseStamped)
 
 
 def p(x, y, z, rx, ry, rz, w):

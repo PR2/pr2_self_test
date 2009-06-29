@@ -33,9 +33,8 @@
 import roslib
 roslib.load_manifest('life_test')
 import rospy
-from std_msgs.msg import *
-from joy.msg import Joy
 from mechanism_control import mechanism
+from std_msgs.msg import Float64
 from robot_srvs.srv import SpawnController, KillController
 
 import random
@@ -51,6 +50,7 @@ def xml_for(control_name, joint):
 
 def main():
     joint = sys.argv[1]
+
     control_name = joint + '_controller'
 
     rospy.init_node('gripper_life_' + control_name, anonymous=True)
@@ -61,20 +61,24 @@ def main():
     eff = 100
 
     try:
-        print "Spawning effort controller %s"%joint
-        resp = spawn_controller(xml_for(control_name, joint))
+        resp = spawn_controller(xml_for(control_name, joint), 1)
         if len(resp.ok) < 1 or not resp.ok[0]:
-            print "Failed to spawn effort controller %s"%joint
+            rospy.logerr("Failed to spawn effort controller %s" % joint)
+            rospy.logerr(resp.error[0])
             sys.exit(1)
 
-        control_topic = '/%s/command/' % control_name
+        control_topic = '%s/command/' % control_name
         pub = rospy.Publisher(control_topic, Float64)
 
         while not rospy.is_shutdown():
             time.sleep(random.uniform(0.5, 2.0))
             m = Float64(eff)
+            
             eff = eff * -1
             pub.publish(m)
+    except:
+        import traceback
+        traceback.print_exc()
     finally:
         kill_controller(control_name)
 

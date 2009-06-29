@@ -27,16 +27,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 
-import roslib; roslib.load_manifest('arm_life_test')
-roslib.load_manifest('rospy')
+import roslib; roslib.load_manifest('life_test')
 
 import random, time
 import rospy
-from std_msgs.msg import *
-from robot_msgs.msg import *
+from robot_msgs.msg import PoseStamped
 
-#pub = rospy.Publisher('/cartesian_pose/command', PoseStamped)
-pub = rospy.Publisher('/cartesian_trajectory_left/command', PoseStamped)
+#pub = rospy.Publisher('cartesian_pose/command', PoseStamped)
+pub = rospy.Publisher('cartesian_trajectory_left/command', PoseStamped)
 
 
 def p(x, y, z, rx, ry, rz, w):

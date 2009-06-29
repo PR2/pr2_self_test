@@ -1,7 +1,7 @@
 <launch>
   <!-- Launches all files needed for hot box tests -->
   <include file="$(find life_test)/arm_life_test/arm_life_test.launch" />
-  <node pkg="life_test" type="run_torso_lift_test.py" args="-l" />
+  <node pkg="life_test" type="torso_life_test.py" args="-l" />
 
   <include file="$(find life_test)/head_test/life_test/life_test.launch" />
 <include file="$(find life_test)/gripper_test/life_test.launch" />

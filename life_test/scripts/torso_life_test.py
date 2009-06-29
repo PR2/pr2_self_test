@@ -33,14 +33,12 @@ PKG = "life_test"
 import roslib; roslib.load_manifest(PKG)
 
 import sys
-import os
 import rospy
-import random
 
 from time import sleep
-from std_msgs.msg import *
+from std_msgs.msg import Float64
 from mechanism_control import mechanism
-from robot_srvs.srv import SpawnController
+from robot_srvs.srv import SpawnController, KillController
 
 from optparse import OptionParser
 
@@ -48,12 +46,11 @@ def xml_for():
     return "\
 <controller name=\"torso_lift_controller\" type=\"JointPositionControllerNode\">\
   <joint name=\"torso_lift_joint\" >\
-    <pid p=\"100000\" d=\"0.0\" i=\"10000\" iClamp=\"1000000\" \>\
+    <pid p=\"1000000\" d=\"0.0\" i=\"10000\" iClamp=\"1000000\" \>\
   </joint>\
 </controller>" 
 
   
-
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-l", "--low", dest="low_only", 
@@ -65,8 +62,10 @@ if __name__ == "__main__":
     rospy.init_node('torso_life_test')
     rospy.wait_for_service('spawn_controller')
     spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
+    kill_controller = rospy.ServiceProxy('kill_controller', KillController)
 
-    resp = spawn_controller(xml_for())
+
+    resp = spawn_controller(xml_for(), 1)
     if len(resp.ok) < 1 or not resp.ok[0]:
         print "Failed to spawn controller"
         sys.exit(1)
@@ -89,7 +88,7 @@ if __name__ == "__main__":
     finally:
         for i in range(1,3):
             try:
-                mechanism.kill_controller('torso_lift_controller')
+                kill_controller('torso_lift_controller')
                 break
             except:
                 pass

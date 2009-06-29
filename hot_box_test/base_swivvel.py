@@ -34,22 +34,19 @@
 
 # Author: Kevin Watts                                                           
 
-# Moves base side to side using velocity controller
+# Swivvels base back and forth using base controller
 
 import roslib
-import copy
-import threading
+roslib.load_manifest('hot_box_test')
+import traceback
 import sys, os
 from time import sleep
 
 # Loads interface with the robot.
-roslib.load_manifest('hot_box_test')
+
 import rospy
-from std_msgs.msg import *
 from robot_msgs.msg import PoseDot
 
-from robot_mechanism_controllers.srv import *
-from robot_mechanism_controllers import controllers
 from mechanism_control import mechanism
 
 def main():
@@ -66,13 +63,12 @@ def main():
     path = roslib.packages.get_pkg_dir("pr2_default_controllers")
     xml_for_base = open(path + "/base_controller.xml")
 
-    mechanism.spawn_controller(xml_for_base.read())
+    mechanism.spawn_controller(xml_for_base.read(), 1)
 
     # Publishes velocity every 0.05s, calculates number of publishes
     num_publishes = int(distance * 20 * 2)
     
     cmd_vel = PoseDot()
-    # Change to 0 for a controller with no bkwd bias
     cmd_vel.vel.vx = float(0) 
     cmd_vel.vel.vy = float(0)
     cmd_vel.vel.vz = float(0)
