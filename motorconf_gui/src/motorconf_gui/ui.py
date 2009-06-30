@@ -50,7 +50,7 @@ from wx import html
 
 from std_msgs.msg import *
 from mechanism_control import mechanism
-from robot_srvs.srv import SpawnController, KillController
+from mechanism_msgs.srv import SpawnController, KillController
 
 from mechanism_msgs.msg import MechanismState
 
@@ -129,7 +129,7 @@ class MotorConfFrame(wx.Frame):
             self._last_msg_time = 0
 
             self._core_launcher = self.launch_core()
-            rospy.init_node("motorconf_GUI", anonymous = True)            
+            rospy.init_node("motorconf_GUI", anonymous = True)
             self.start_pr2_etherCAT()
             rospy.Subscriber("/mechanism_state", MechanismState, self.on_mech_state_msg)
 
@@ -371,7 +371,7 @@ class MotorConfFrame(wx.Frame):
             time_diff = float(str(data.header.stamp - self._last_msg_time)) / 1000000000
             if time_diff < 0.25:
                 return # Only process msgs at 4 Hz
-            
+
             self._last_msg_time = data.header.stamp
 
             rospy.logout('Displaying mechanism state msg in window')

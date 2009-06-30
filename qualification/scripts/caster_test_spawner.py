@@ -38,7 +38,7 @@ import roslib
 roslib.load_manifest('qualification')
 import rospy, sys, time
 
-from robot_srvs.srv import SpawnController, KillController
+from mechanism_msgs.srv import SpawnController, KillController
 
 from mechanism_control import mechanism
 
@@ -54,7 +54,7 @@ def main():
     try:
         rospy.wait_for_service('spawn_controller')
         spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
-        kill_controller = rospy.ServiceProxy('kill_controller', KillController) 
+        kill_controller = rospy.ServiceProxy('kill_controller', KillController)
 
         controller_file = open(sys.argv[1])
         controller_xml = controller_file.read() % side
@@ -62,7 +62,7 @@ def main():
         controller_file.close()
 
         resp = spawn_controller(controller_xml,1)
-        
+
         if len(resp.ok) != 1 or resp.ok[0] != chr(1):
             rospy.logerr('Failed to spawn test controller')
             rospy.logerr('Controller XML: %s' % controller_xml)
