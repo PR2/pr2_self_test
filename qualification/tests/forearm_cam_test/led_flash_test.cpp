@@ -33,7 +33,7 @@
 *********************************************************************/
 
 #include "ros/node.h"
-#include "image_msgs/Image.h"
+#include "sensor_msgs/Image.h"
 #include "opencv_latest/CvBridge.h"
 #include <stdio.h>
 #include <signal.h>
@@ -46,8 +46,8 @@
 class LedFlashTest
 {
 private:
-  image_msgs::Image img_msg_;
-  image_msgs::CvBridge img_bridge_;
+  sensor_msgs::Image img_msg_;
+  sensor_msgs::CvBridge img_bridge_;
   std::string window_name_;
   ros::Node &node_;
   double rate_;
