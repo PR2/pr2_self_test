@@ -36,8 +36,9 @@ import roslib
 roslib.load_manifest('qualification')
 
 import rospy
-from qualification.srv import *
-from robot_srvs.srv import *
+from qualification.srv import TestResult,TestResultRequest
+#from robot_srvs.srv import *
+from diagnostic_msgs.srv import SelfTest,SelfTestRequest
 
 import sys
 from time import sleep
