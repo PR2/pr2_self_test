@@ -1,4 +1,10 @@
+<controllers>
 <controller name="trig_controller" type="TriggerControllerNode"> 
-    <actuator name="fl_caster_l_wheel_motor" />
+    <actuator name="forearm_cam_qual_trig" />
     <waveform rep_rate="1" active_low="0" phase="0" duty_cycle=".5" running="0" pulsed="1" />
 </controller>    
+<controller name="led_controller" type="TriggerControllerNode"> 
+    <actuator name="forearm_cam_qual_led" />
+    <waveform rep_rate="1" active_low="0" phase="0" duty_cycle=".5" running="0" pulsed="1" />
+</controller>    
+</controllers>

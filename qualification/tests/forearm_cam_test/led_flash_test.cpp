@@ -42,6 +42,7 @@
 #include <robot_mechanism_controllers/trigger_controller.h>
 #include <algorithm>
 #include <qualification/TestResult.h>
+#include <boost/format.hpp>
 
 class LedFlashTest
 {
@@ -161,6 +162,7 @@ public:
       
       //ROS_INFO("high: %f low: %f frame: %i size: %i", thresh_high; thresh_low, );
 
+      std::string report = str(boost::format("<p>Maximum intensity: %i</p><p>Minimum intensity: %i</p>")%max_i%min_i);
       bool fail = false;
       int nomatch = 0;
       for (int i = 0; i < keep_frames_; i++)
@@ -174,6 +176,7 @@ public:
           {
             ROS_ERROR("Frame %i: Not high intensity at %f, between %f and %f.", i, delta, min_high, max_high);
             fail = true;
+      	    report += str(boost::format("<p>Frame %i: Not high intensity at %f, between %f and %f.</p>")%i%delta%min_high%max_high);
           }
         }
         if (delta <= max_low && delta >= min_low)
@@ -183,6 +186,7 @@ public:
           {
             ROS_ERROR("Frame %i: Not low intensity at %f between %f and %f.", i, delta, min_low, max_low);
             fail = true;
+      	    report += str(boost::format("<p>Frame %i: Not low intensity at %f, between %f and %f.</p>")%i%delta%min_low%max_low);
           }
         }
 
@@ -194,18 +198,24 @@ public:
       }
     
       if (nomatch > keep_frames_ / 3)
+      {
         ROS_ERROR("More than a third of the frames did not match a rule.");
-
-      node_.shutdown();
-    
-      qualification::TestResult::Response result;
+      	report += "<p>More than a third of the frames did not match a rule.</p>";
+      }
+      
+      qualification::TestResult::Request result;
+      result.html_result = report;
       if (fail)
       {
-        ROS_ERROR("LED test failed.");
+        ROS_INFO("LED test failed.");
+        result.text_summary = "Test failed.";
+        result.result = qualification::TestResult::Request::RESULT_FAIL;
       }
       else
       {
         ROS_INFO("LED test passed.");
+      	result.text_summary = "Test passed.";
+        result.result = qualification::TestResult::Request::RESULT_PASS;
       }
 
       qualification::TestResult::Response dummy_response;
@@ -213,6 +223,8 @@ public:
       {
         ROS_ERROR("Error sending test result message.");
       }
+      
+      node_.shutdown();
     }
   }                 
 };

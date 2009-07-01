@@ -45,35 +45,70 @@ import rospy
 import subprocess
 import os
 import os.path
+import wx
+
+def check_programmed(iface):
+    args = ['rosrun', 'forearm_cam', 'discover']
+    if iface != None:
+        args.append(iface)
+    p = subprocess.Popen(args, stdout=subprocess.PIPE)
+    impactout = p.communicate()[0]
+    return 'Found camera' in impactout
 
 rospy.init_node("load_firmware", anonymous=True)
 
 r = TestResultRequest()
 r.plots = []
 
-if (len(sys.argv) != 2):
-    print >> sys.stderr, 'must specify impact directory';
+try:
+    iface=rospy.get_param("~cam_interface")
+except:
+    iface=None
+
+try:
+    impactdir=rospy.get_param("~impactdir")
+except:
+    import traceback
+    traceback.print_exc()
+#if (len(sys.argv) != 2):
+    #print >> sys.stderr, 'must specify impact directory (%i) args given'%len(sys.argv);
+    print >> sys.stderr, 'impactdir option must indicate impact project directory';
     r.html_result = "<p>Bad arguments to load_firmware.py.</p>"
     r.text_summary = "Error in test."
     r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
     print "error"
 else:
-    os.chdir(sys.argv[1]);
-    p = subprocess.Popen(['./startimpact', '-batch', 'load_firmware.cmd'], stderr=subprocess.PIPE)
-    impactout = p.communicate()[1]
+    os.chdir(impactdir);
+    reprogram = True
+    if check_programmed(iface):
+        app = wx.PySimpleApp()
+	ret = wx.MessageBox("The device is already programmed. Skip reprogramming?", "Device Programmed", wx.YES|wx.NO)
+	if ret == wx.YES:
+	    reprogram = False
+    if reprogram:
+        p = subprocess.Popen(['./startimpact', '-batch', 'load_firmware.cmd'], stderr=subprocess.PIPE)
+        impactout = p.communicate()[1]
 
-    if '''INFO:iMPACT - '1': Flash was programmed successfully.''' in impactout:
-        r.html_result = "<p>Firmware download succeeded.</p>"
-        r.text_summary = "<p>Test passed.</p><p>"+impactout+"</p>" 
+        if '''INFO:iMPACT - '1': Flash was programmed successfully.''' in impactout:
+            r.text_summary = "Firmware download succeeded."
+            r.html_result = "<p>Test passed.</p><p>"+impactout+"</p>" 
+            r.result = TestResultRequest.RESULT_PASS
+            print "pass"
+        else:
+            r.text_summary = "Firmware download failed."
+            r.result = TestResultRequest.RESULT_FAIL
+            r.html_result = "<p>Test Failed.</p><p>"+impactout+"</p>"
+            print "fail"
+            print impactout
+    else: 
+        r.html_result = "<p>Firmware was already programmed.</p>"
+        r.text_summary = "Firmware already programmed (Pass)." 
         r.result = TestResultRequest.RESULT_PASS
         print "pass"
-    else:
-        r.html_result = "<p>Test failed.</p>"
-        r.result = TestResultRequest.RESULT_FAIL
-        r.text_summary = "<p>Test Failed.</p><p>"+impactout+"</p>"
-        print "fail"
-        print impactout
+
     
+result_service = rospy.ServiceProxy('test_result', TestResult)
+
 # block until the test_result service is available
 rospy.wait_for_service('test_result')
 result_service.call(r)

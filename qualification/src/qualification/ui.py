@@ -65,7 +65,7 @@ import struct
 import traceback
 
 import invent_client
-from invent_client import Invent
+from invent_client.invent_client import Invent
 
 import runtime_monitor
 from runtime_monitor.monitor_panel import MonitorPanel

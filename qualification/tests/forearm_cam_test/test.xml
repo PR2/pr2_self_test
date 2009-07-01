@@ -1,9 +1,9 @@
 <test>
   <instructions>instructions.html</instructions>
   <startup>ethercat.launch</startup>
-  <pretest>program_firmware.launch</pretest>
+  <subtest>program_firmware.launch</subtest>
   <subtest>self_test_untriggered.launch</subtest>
   <subtest>self_test_triggered.launch</subtest>
-  <pretest>led_test.launch</pretest>
+  <subtest>led_flash_test.launch</subtest>
   <shutdown>shutdown.launch</shutdown>
 </test>

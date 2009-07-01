@@ -1,8 +1,8 @@
 <launch>
   <!--node machine="xenomai_root" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i eth0 -x /robotdesc/pr2"/-->
-  <node pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i eth0 -x $(find camera_trigger_test)/test_configuration.xml" output="screen"/>
+  <!--node pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i eth0 -x $(find camera_trigger_test)/test_configuration.xml" output="screen"/-->
   
-  <node pkg="mechanism_control" type="spawner.py" args="$(find camera_trigger_test)/test_controllers2.xml" />
+  <!--node pkg="mechanism_control" type="spawner.py" args="$(find camera_trigger_test)/test_controllers2.xml" /-->
 
   <group ns="forearm">
     <param name="if_name" type="str" value="eth2"/>
@@ -19,18 +19,8 @@
     <param name="exposure" type="double" value="0.010" />
   </group>
   <node name="forearm" pkg="forearm_cam" type="forearm_node" respawn="false" output="screen"/>
-  <!--node name="forearm_proc" pkg="stereo_image_proc" type="imageproc" respawn="false" output="screen">
-    <remap from="camera" to="forearm"/>
-  </node-->
   
-  <group ns="forearm_view">
-    <param name="window_name" type="str" value="Forearm camera"/>
-  </group>
-  <!--node name="forearm_view" pkg="image_view" type="image_view" respawn="false">
-    <remap from="image" to="/forearm/image_color"/>
-  </node-->
-	
-  <node name="led_flash_test" pkg="camera_trigger_test" type="led_flash_test" respawn="false" output="screen">
+  <node name="led_flash_test" pkg="qualification" type="led_flash_test" respawn="false" output="screen">
     <param name="rate" type="double" value="40.13"/>
     <param name="min_low" type="double" value="-0.030"/>
     <param name="max_low" type="double" value="-0.013"/>
