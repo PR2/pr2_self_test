@@ -96,7 +96,7 @@ else:
             print "pass"
         else:
             r.text_summary = "Firmware download failed."
-            r.result = TestResultRequest.RESULT_FAIL
+            r.result = TestResultRequest.RESULT_RESULT_HUMAN_REQUIRED	
             r.html_result = "<p>Test Failed.</p><p>"+impactout+"</p>"
             print "fail"
             print impactout
