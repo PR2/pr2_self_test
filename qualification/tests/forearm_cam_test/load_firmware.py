@@ -89,6 +89,8 @@ else:
         p = subprocess.Popen(['./startimpact', '-batch', 'load_firmware.cmd'], stderr=subprocess.PIPE)
         impactout = p.communicate()[1]
 
+        impactout = impactout.replace('\n','<br>')
+
         if '''INFO:iMPACT - '1': Flash was programmed successfully.''' in impactout:
             r.text_summary = "Firmware download succeeded."
             r.html_result = "<p>Test passed.</p><p>"+impactout+"</p>" 
