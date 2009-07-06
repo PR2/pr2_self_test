@@ -7,6 +7,4 @@ Description of invent client.
   <review status="na" notes=""/>
   <license>BSD</license>
   <url>http://pr.willowgarage.com/wiki/Invent_Client</url>
-
-  <depend package="pr2_defs" />
 </package>
