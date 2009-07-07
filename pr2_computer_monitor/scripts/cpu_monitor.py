@@ -302,18 +302,18 @@ def main():
 
     hostname = socket.gethostname()
     
-    rospy.init_node('cpu_monitor', anonymous = True)
+    rospy.init_node('cpu_monitor_%s' % hostname, anonymous = True)
     
     pub = rospy.Publisher('/diagnostics', DiagnosticMessage)
 
-    cpu_temp = len(rospy.myargv()) < 2 and rospy.myargv()[1] != '--no_cpu_temp'
+    no_cpu_temp = rospy.get_param('no_cpu_temp', False)
 
     while not rospy.is_shutdown():
         msg = DiagnosticMessage()
         msg.status = []
          
         # Temperature, don't check if user says not to
-        if cpu_temp:
+        if not no_cpu_temp:
             msg.status.append(check_cpu_temp(hostname))
         
         # Usage, memory, and load average

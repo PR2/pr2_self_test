@@ -2,6 +2,8 @@
  <!-- Should make this be localhost or whatever -->
  <machine name="local_root" user="root" address="nsf" ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="never"/> 
 
+  <param name="no_cpu_temp" value="True" />
+
  <!-- Set machine to robot machine in final version -->
-  <node machine="local_root" pkg="pr2_computer_monitor" type="cpu_monitor.py"  args="--no_cpu_temp" />
+  <node machine="local_root" pkg="pr2_computer_monitor" type="cpu_monitor.py"  />
 </launch>

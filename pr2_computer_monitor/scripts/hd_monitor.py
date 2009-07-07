@@ -53,7 +53,7 @@ critical_hd_level = 1
 
 stat_dict = { 0: 'OK', 1: 'Warning', 2: 'Error' }
 
-def check_hd_temp(hostname, hds):
+def check_hd_temp(hostname, hds, no_temp_warn):
     stat = DiagnosticStatus()
     stat.level = 0
     stat.name = "%s HD Temps" % hostname
@@ -100,11 +100,16 @@ def check_hd_temp(hostname, hds):
                 temp = 0.0
                 temp_level = 2
             
+            temp_status = stat_dict[temp_level]
+            if no_temp_warn and temp_level > 0:
+                temp_level = 0
+                temp_status = 'Warning Disabled'
 
+
+            stat.strings.append(DiagnosticString(label = 'Disk %d Temp Status' % index, value = temp_status))
             stat.strings.append(DiagnosticString(label = 'Disk %d Device ID' % index, value = dev_id))
             stat.values.append(DiagnosticValue(label = 'Disk %d Temp' % index, value = temp))
-            stat.strings.append(DiagnosticString(label = 'Disk %d Temp Status' % index, value = stat_dict[temp_level]))
-
+            
             stat.level = max(stat.level, temp_level)
                 
         except:
@@ -118,8 +123,6 @@ def check_hd_temp(hostname, hds):
     stat.message = stat_dict[stat.level]
     return stat
 
-# Should get the HOME environment variable and stuff
-# Could put this into separate status for each disk
 def check_disk_usage(hostname, home_dir):
     stat = DiagnosticStatus()
     stat.level = 0
@@ -177,26 +180,28 @@ def check_disk_usage(hostname, home_dir):
     return stat
 
         
-# Need to check HD input/output too using iostat
+# TODO: Need to check HD input/output too using iostat
 
 def main():
     hds = []
 
     hostname = socket.gethostname()
     
-    rospy.init_node('hd_monitor', anonymous = True)
+    rospy.init_node('hd_monitor_%s' % hostname, anonymous = True)
     
     pub = rospy.Publisher('/diagnostics', DiagnosticMessage)
 
     home_dir = rospy.myargv()[1]
     hds = rospy.myargv()[2:]
 
+    no_temp_warn = rospy.get_param('no_hd_temp_warn', False)
+
     while not rospy.is_shutdown():
         msg = DiagnosticMessage()
         msg.status = []
         
         # Temperature
-        msg.status.append(check_hd_temp(hostname, hds))
+        msg.status.append(check_hd_temp(hostname, hds, no_temp_warn))
                            
         # Check disk usage
         msg.status.append(check_disk_usage(hostname, home_dir))
