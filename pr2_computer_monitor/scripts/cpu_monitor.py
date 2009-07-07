@@ -75,7 +75,6 @@ def check_cpu_temp(hostname):
                 
                         
         # Parse STDOUT for temp, device ID
-        rospy.logerr(stdout)
         lines = stdout.split('\n')
         if len(lines) < 2:
             stat.strings.append(DiagnosticString(label = 'ipmitool status', value = 'No output'))
@@ -85,10 +84,8 @@ def check_cpu_temp(hostname):
             
             lst = ln.split('|')
             if lst[-1].endswith('degrees C'):
-                rospy.logerr(lst[-1])
                 tmp = lst[-1].rstrip('degrees C').lstrip()
                 if unicode(tmp).isnumeric():
-                    rospy.logerr('temp %s' % tmp)
                     stat.values.append(DiagnosticValue(label = lst[0], value = float(tmp)))
             else:
                 stat.strings.append(DiagnosticString(label = lst[0], value = lst[-1]))

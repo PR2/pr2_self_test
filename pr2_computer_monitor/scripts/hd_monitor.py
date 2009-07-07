@@ -206,7 +206,6 @@ def main():
         # Check disk usage
         msg.status.append(check_disk_usage(hostname, home_dir))
 
-        #rospy.logerr('Publishing')
         pub.publish(msg)
         time.sleep(1.0)
 
