@@ -182,7 +182,6 @@ def check_disk_usage(hostname, home_dir):
 def main():
     hds = []
 
-
     hostname = socket.gethostname()
     
     rospy.init_node('hd_monitor', anonymous = True)

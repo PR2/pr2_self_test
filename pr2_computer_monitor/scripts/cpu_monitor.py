@@ -306,15 +306,19 @@ def main():
     
     pub = rospy.Publisher('/diagnostics', DiagnosticMessage)
 
+    cpu_temp = len(rospy.myargv()) < 2 and rospy.myargv()[1] != '--no_cpu_temp'
 
     while not rospy.is_shutdown():
         msg = DiagnosticMessage()
         msg.status = []
          
-        # Temperature
-        msg.status.append(check_cpu_temp(hostname))
+        # Temperature, don't check if user says not to
+        if cpu_temp:
+            msg.status.append(check_cpu_temp(hostname))
+        
         # Usage, memory, and load average
         msg.status.append(check_usage(hostname))
+
         # NFS status
         msg.status.append(check_nfs_stat(hostname))
         
