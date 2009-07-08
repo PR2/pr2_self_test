@@ -35,7 +35,7 @@ roslib.load_manifest('life_test')
 import rospy
 from mechanism_control import mechanism
 from std_msgs.msg import Float64
-from robot_srvs.srv import SpawnController, KillController
+from mechanism_msgs.srv import SpawnController, KillController
 
 import random
 import sys

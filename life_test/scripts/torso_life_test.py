@@ -37,8 +37,7 @@ import rospy
 
 from time import sleep
 from std_msgs.msg import Float64
-from mechanism_control import mechanism
-from robot_srvs.srv import SpawnController, KillController
+from mechanism_msgs.srv import SpawnController, KillController
 
 from optparse import OptionParser
 

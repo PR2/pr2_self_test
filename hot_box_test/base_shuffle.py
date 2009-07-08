@@ -47,7 +47,10 @@ from time import sleep
 
 import rospy
 from robot_msgs.msg import PoseDot
-from mechanism_control import mechanism
+from mechanism_msgs.srv import SpawnController, KillController
+
+spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
+kill_controller = rospy.ServiceProxy('kill_controller', KillController)
 
 def main():
     usage = "base_shuffle.py <dist>;  Moves base in y dir side to side."
@@ -62,7 +65,7 @@ def main():
     path = roslib.packages.get_pkg_dir("pr2_default_controllers")
     xml_for_base = open(path + "/base_controller.xml")
 
-    mechanism.spawn_controller(xml_for_base.read(), 1)
+    spawn_controller(xml_for_base.read(), 1)
 
     # Publishes velocity every 0.05s, calculates number of publishes
     num_publishes = int(distance * 20 * 2)
@@ -105,7 +108,7 @@ def main():
         # Set velocity = 0
         cmd_vel.vel.vy = float(0)
         base_vel.publish(cmd_vel)
-        mechanism.kill_controller('base_controller')
+        kill_controller('base_controller')
         
 if __name__ == '__main__':
     main()
