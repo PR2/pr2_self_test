@@ -57,7 +57,7 @@ def check_cpu_temp(hostname):
     stat.values = []
 
     try:
-        p = subprocess.Popen('ipmitool sdr type Temperature', 
+        p = subprocess.Popen('sudo ipmitool sdr type Temperature', 
                              stdout = subprocess.PIPE,
                              stderr = subprocess.PIPE, shell = True)
         stdout, stderr = p.communicate()
