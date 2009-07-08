@@ -51,6 +51,9 @@ from diagnostic_msgs.msg import *
 low_hd_level = 5
 critical_hd_level = 1
 
+hd_temp_warn = 50
+hd_temp_error = 55
+
 stat_dict = { 0: 'OK', 1: 'Warning', 2: 'Error' }
 
 def check_hd_temp(hostname, hds, no_temp_warn):
@@ -87,9 +90,9 @@ def check_hd_temp(hostname, hds, no_temp_warn):
                 
                 if unicode(tmp).isnumeric():
                     temp = float(tmp)
-                    if temp > 45:
+                    if temp > hd_temp_warn:
                         temp_level = 1
-                    if temp > 50:
+                    if temp > hd_temp_error:
                         temp_level = 2
                 else:
                     temp = float(0.0)
