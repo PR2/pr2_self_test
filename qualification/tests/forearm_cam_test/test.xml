@@ -1,6 +1,6 @@
 <test>
   <instructions>instructions.html</instructions>
-  <startup>ethercat.launch</startup>
+  <!--startup>ethercat.launch</startup-->
   <subtest>program_firmware.launch</subtest>
   <subtest>self_test_untriggered.launch</subtest>
   <subtest>self_test_triggered.launch</subtest>
