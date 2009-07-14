@@ -46,6 +46,8 @@
 import os, sys, string, time, getopt, re
 
 import urllib2, cookielib
+import neo_cgi, neo_util
+import simple_hdfhelp as hdfhelp
 
 import mimetypes
 import mimetools
@@ -85,6 +87,48 @@ class Invent:
 
     self.loggedin = True
     return True
+
+  def getItemReferences(self, key):
+    if self.loggedin == False:
+      self.login()
+
+    key = key.strip()
+
+    url = self.site + "invent/api.py?Action.getItemReferences=1&key=%s" % (key,)
+    fp = self.opener.open(url)
+    body = fp.read()
+    fp.close()
+
+    hdf = neo_util.HDF()
+    hdf.readString(body)
+
+    ret = {}
+    for k,o in hdfhelp.hdf_ko_iterator(hdf.getObj("CGI.cur.refs")):
+      ret[o.getValue("name", "")] = o.getValue("reference", "")
+    
+    return ret
+
+  def addItemReference(self, key, name, reference):
+    if self.loggedin == False:
+      self.login()
+
+    key = key.strip()
+
+    url = self.site + "invent/api.py?Action.addItemReference=1&key=%s&name=%s&reference=%s" % (key,urllib2.quote(name),urllib2.quote(reference))
+    fp = self.opener.open(url)
+    body = fp.read()
+    fp.close()
+
+  def generateWGMacaddr(self, key, name):
+    if self.loggedin == False:
+      self.login()
+
+    key = key.strip()
+
+    url = self.site + "invent/api.py?Action.generateWGMacaddr=1&key=%s&name=%s" % (key,urllib2.quote(name))
+    fp = self.opener.open(url)
+    body = fp.read()
+    fp.close()
 
   def setNote(self, reference, note, noteid=None):
     if self.loggedin == False:
