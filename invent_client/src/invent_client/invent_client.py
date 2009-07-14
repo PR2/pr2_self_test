@@ -46,7 +46,6 @@
 import os, sys, string, time, getopt, re
 
 import urllib2, cookielib
-import simple_hdfhelp as hdfhelp
 
 import mimetypes
 import mimetools
@@ -99,6 +98,7 @@ class Invent:
     fp.close()
 
     import neo_cgi, neo_util
+    import simple_hdfhelp as hdfhelp
     hdf = neo_util.HDF()
     hdf.readString(body)
 
