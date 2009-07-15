@@ -4,11 +4,13 @@
 #include "ros/node.h"
 #include "joy/Joy.h"
 #include "robot_msgs/PoseDot.h"
-#include "robot_msgs/JointCmd.h"
+#include "mechanism_msgs/JointState.h"
+#include "mechanism_msgs/JointStates.h"
+
 #include "std_msgs/Float64.h"
 
 #define TORSO_TOPIC "/torso_lift_controller/set_command"
-#define HEAD_TOPIC "/head_controller/set_command_array"
+#define HEAD_TOPIC "/head_controller/command"
 
 using namespace ros;
 
@@ -115,7 +117,7 @@ class TeleopBase : public Node
         if (torso_dn_button != 0)
           advertise<std_msgs::Float64>(TORSO_TOPIC, 1);
         if (head_button != 0)
-          advertise<robot_msgs::JointCmd>(HEAD_TOPIC, 1);
+          advertise<mechanism_msgs::JointStates>(HEAD_TOPIC, 1);
 
         advertise<robot_msgs::PoseDot>("cmd_vel", 1);
         subscribe("joy", joy, &TeleopBase::joy_cb, 1);
@@ -230,15 +232,17 @@ class TeleopBase : public Node
             // Head
             if (head_button != 0)
             {
-              robot_msgs::JointCmd joint_cmds ;
-              joint_cmds.positions.push_back(req_pan);
-              joint_cmds.positions.push_back(req_tilt);
-              joint_cmds.velocity.push_back(0.0);
-              joint_cmds.velocity.push_back(0.0);
-              joint_cmds.acc.push_back(0.0);
-              joint_cmds.acc.push_back(0.0);
-              joint_cmds.names.push_back("head_pan_joint");
-              joint_cmds.names.push_back("head_tilt_joint");
+
+	      mechanism_msgs::JointState joint_cmd ;
+	      mechanism_msgs::JointStates joint_cmds;
+
+	      joint_cmd.name ="head_pan_joint";
+	      joint_cmd.position = req_pan;
+	      joint_cmds.joints.push_back(joint_cmd);
+	      joint_cmd.name="head_tilt_joint";
+	      joint_cmd.position = req_tilt;
+	      joint_cmds.joints.push_back(joint_cmd);
+
               publish(HEAD_TOPIC, joint_cmds);
             }
 
@@ -260,15 +264,17 @@ class TeleopBase : public Node
              // Publish head
              if (head_button != 0)
              {
-               robot_msgs::JointCmd joint_cmds ;
-               joint_cmds.positions.push_back(req_pan);
-               joint_cmds.positions.push_back(req_tilt);
-               joint_cmds.velocity.push_back(0.0);
-               joint_cmds.velocity.push_back(0.0);
-               joint_cmds.acc.push_back(0.0);
-               joint_cmds.acc.push_back(0.0);
-               joint_cmds.names.push_back("head_pan_joint");
-               joint_cmds.names.push_back("head_tilt_joint");
+	       mechanism_msgs::JointState joint_cmd ;
+	       mechanism_msgs::JointStates joint_cmds;
+
+	       joint_cmd.name ="head_pan_joint";
+	       joint_cmd.position = req_pan;
+	       joint_cmds.joints.push_back(joint_cmd);
+	       joint_cmd.name="head_tilt_joint";
+	       joint_cmd.position = req_tilt;
+	       joint_cmds.joints.push_back(joint_cmd);
+
+
                publish(HEAD_TOPIC, joint_cmds);
              }
              
