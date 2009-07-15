@@ -39,7 +39,7 @@ from time import sleep
 import random
 import rospy
 from std_msgs import *
-from robot_msgs.msg import JointCmd
+
 from pr2_mechanism_controllers.srv import *
 
 from mechanism_control import mechanism
