@@ -70,9 +70,11 @@ Publishes to (name / type):
 #include <stdlib.h>
 
 #include <ros/ros.h>
-#include <robot_msgs/JointCmd.h>
 
-#define HEAD_TOPIC "/head_controller/set_command_array"
+#include <mechanism_msgs/JointState.h>
+#include <mechanism_msgs/JointStates.h>
+
+#define HEAD_TOPIC "/head_controller/command"
 
 #define KEYCODE_A 0x61
 #define KEYCODE_D 0x64
@@ -99,7 +101,7 @@ class TeleopHeadKeyboard
     req_tilt = 0.0;
     req_pan = 0.0;
  
-    head_pub_ = n_.advertise<robot_msgs::JointCmd>(HEAD_TOPIC, 1);
+    head_pub_ = n_.advertise<mechanism_msgs::JointStates>(HEAD_TOPIC, 1);
     
     n_.param("max_pan", max_pan, 2.7);
     n_.param("max_tilt", max_tilt, 1.4);
@@ -207,17 +209,20 @@ void TeleopHeadKeyboard::keyboardLoop()
 
     if (dirty == true)
     {
-      robot_msgs::JointCmd joint_cmds ;
-      joint_cmds.positions.push_back(req_pan);
-      joint_cmds.positions.push_back(req_tilt);
-      joint_cmds.velocity.push_back(0.0);
-      joint_cmds.velocity.push_back(0.0);
-      joint_cmds.acc.push_back(0.0);
-      joint_cmds.acc.push_back(0.0);
-      joint_cmds.names.push_back("head_pan_joint");
-      joint_cmds.names.push_back("head_tilt_joint");
       
-      head_pub_.publish(joint_cmds);
+      mechanism_msgs::JointState joint_cmd ;
+      mechanism_msgs::JointStates joint_cmds;
+       
+      joint_cmd.name ="head_pan_joint";
+      joint_cmd.position = req_pan;
+      joint_cmds.joints.push_back(joint_cmd);
+      joint_cmd.name="head_tilt_joint";
+      joint_cmd.position = req_tilt;
+      joint_cmds.joints.push_back(joint_cmd);
+
+      head_pub_.publish(joint_cmds) ;
+
+
     }
   }
 }
