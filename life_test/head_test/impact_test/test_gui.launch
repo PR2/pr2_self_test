@@ -1,4 +1,4 @@
-l<launch>
+<launch>
   <param name="robotdesc/pr2" command="$(find xacro)/xacro.py '$(find life_test)/head_test/impact_test/head.xml'" />
 
 
