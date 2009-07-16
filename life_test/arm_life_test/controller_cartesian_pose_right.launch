@@ -34,5 +34,5 @@
   <param name="r_arm_cartesian_pose_controller/d" value="0.0" />
   <param name="r_arm_cartesian_pose_controller/i_clamp" value="0.5" />
 
-  <node pkg="mechanism_control" type="spawner.py" args="$(find pr2_default_controllers)/r_arm_cartesian_wrench_controller.xml $(find pr2_default_controllers)/r_arm_cartesian_twist_controller.xml $(find pr2_default_controllers)/r_arm_cartesian_pose_controller.xml" />
+  <node pkg="mechanism_control" type="spawner.py" args="$(find pr2_default_controllers)/r_arm_cartesian_wrench_controller.xml $(find pr2_default_controllers)/r_arm_cartesian_twist_controller.xml $(find pr2_default_controllers)/r_arm_cartesian_pose_controller.xml" output="screen" />
 </launch>
