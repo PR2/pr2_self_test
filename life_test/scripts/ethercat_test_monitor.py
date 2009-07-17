@@ -137,9 +137,10 @@ class EtherCATTestMonitorNode():
 
         self.diag_pub.publish(status = self._trans_status)
 
+        # DISABLE FOR TESTING
         # Halt the test if we have a bad transmission
-        if self._ethercat_ok and not self._transmissions_ok:
-            self.halt_motors()
+        #if self._ethercat_ok and not self._transmissions_ok:
+        #    self.halt_motors()
 
         if not rospy.is_shutdown():
             timer = threading.Timer(0.5, self.publish_status)

@@ -38,21 +38,15 @@
 # Part of packet drop test.
 
 import roslib
-import copy
-import threading
+roslib.load_manifest('life_test')
+
 import sys, os
 from time import sleep
 
-# Loads interface with the robot.                                               
-roslib.load_manifest('mechanism_bringup')
-roslib.load_manifest('mechanism_control')
 import rospy
-from std_msgs.msg import *
-from robot_msgs.msg import PoseDot
+from std_msgs.msg import Float64
+from robot_srvs.srv import SpawnController, KillController
 
-from robot_mechanism_controllers.srv import *
-from robot_mechanism_controllers import controllers
-from mechanism_control import mechanism
 
 def xml_for():
     return "\
@@ -68,18 +62,20 @@ def xml_for_roll():
   <joint name=\"r_forearm_roll_joint\" />\
 </controller>"
 
+spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
+kill_controller = rospy.ServiceProxy('kill_controller', KillController)
+
+
 def main():
     rospy.wait_for_service('spawn_controller')
     rospy.init_node('ua_life_test', anonymous=True)
 
-    # Should probably update to option parser... at some point
     roll = False
-    # Should be rospy.myargv!!!
-    if len(sys.argv) > 1 and sys.argv[1] == 'roll':
+    if rospy.get_param('forearm_roll') == 'true':
         roll = True
-        mechanism.spawn_controller(xml_for_roll())
+        mechanism.spawn_controller(xml_for_roll(), 1)
     
-    mechanism.spawn_controller(xml_for())
+    spawn_controller(xml_for(), 1)
 
     arm_pos = rospy.Publisher('upperarm_life_controller/set_command', Float64)
     fore_roll = rospy.Publisher('forearm_roll_controller/command', Float64)
@@ -94,12 +90,16 @@ def main():
             sleep(0.5)
     except Exception, e:
         print "Caught exception!"
-        print e
-        e
+        import traceback
+        traceback.print_exc()
     finally:
-        fore_roll.publish(Float64(0.0))
+        if roll:
+            fore_roll.publish(Float64(0.0))
+            kill_controller('forearm_roll_controller')
+
         arm_pos.publish(Float64(0))
-        mechanism.kill_controller('upperarm_life_controller')
-        
+        kill_controller('upperarm_life_controller')
+
+
 if __name__ == '__main__':
     main()
