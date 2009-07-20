@@ -38,8 +38,14 @@ import roslib; roslib.load_manifest('qualification')
 import rospy
 from forearm_cam.srv import BoardConfig
 from invent_client.invent_client import Invent;
+import sys
 
-barcode = "6805018000xx"
+print "WARNING! This script can only be run once per camera."
+print "Make sure you enter the right barcode!"
+print
+print "Enter barcode:"
+barcode = raw_input()
+print "Preparing to configure forearm camera",barcode
 
 # Parse barcode to get serial number.
 if len(barcode) != 12 or not barcode.isdigit():
