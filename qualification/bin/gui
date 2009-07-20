@@ -35,11 +35,8 @@
 import roslib
 roslib.load_manifest('qualification')
 
-import wx
-
 import qualification.ui
 
-import traceback
 
 if __name__ == '__main__':
   try:
@@ -47,5 +44,5 @@ if __name__ == '__main__':
     app.MainLoop()
   except Exception, e:
     print "Caught exception in Qualification App Main Loop"
-    print e
+    import traceback
     traceback.print_exc()

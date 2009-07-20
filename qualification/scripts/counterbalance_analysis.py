@@ -49,8 +49,6 @@ import matplotlib
 import matplotlib.pyplot as plot
 from StringIO import StringIO
 
-import roslaunch
-
 from qualification.msg import Plot
 from qualification.srv import *
 

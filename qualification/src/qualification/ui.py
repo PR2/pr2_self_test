@@ -55,24 +55,23 @@ import thread
 from xml.dom import minidom
 
 from qualification.msg import *
-from srv import *
-from test import *
-from result import *
+from qualification.srv import *
+from qualification.test import *
+from qualification.result import *
 
 from cStringIO import StringIO
 import struct
 
 import traceback
 
-import invent_client
+import invent_client.invent_client
 from invent_client.invent_client import Invent
 
 import runtime_monitor
 from runtime_monitor.monitor_panel import MonitorPanel
 
-# Change launch_script to use this
 import wg_hardware_roslaunch.roslaunch_caller as roslaunch_caller
-#from wg_hardware_roslaunch.roslaunch_caller import ScriptRoslaunch, launch_core
+
 
 TESTS_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'tests')
 RESULTS_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results')
@@ -129,7 +128,7 @@ class SerialPanel(wx.Panel):
     self._show_results_box = xrc.XRCCTRL(self._panel, 'show_results_checkbox')
 
     self._panel.Bind(wx.EVT_CHAR, self.on_char)
-    self._panel.SetFocus()
+    self._serial_text.SetFocus()
 
   def on_config(self, event):
     # Get selected launch file

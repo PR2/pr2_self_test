@@ -116,14 +116,11 @@ class RobotCheckout:
         self._timeout = True
         self._check_time = 0
         
-        sleep(1)
-        self.wait_for_data()
-
 
 
     def send_failure_call(self, caller = 'No caller', except_str = ''):
         if self.has_sent_result:
-            rospy.logerr('Wanted to send failure call after result sent')
+            rospy.logerr('Wanted to send failure call after result sent. Caller: %s. Exception:\n%s' % (caller, except_str))
             return
 
         r = TestResultRequest()
@@ -149,13 +146,13 @@ class RobotCheckout:
                     
             rospy.logout('Waiting for joint calibration')
             # Now start checking for robot data, done if we have it
-            while True:
-                if not rospy.is_shutdown():
-                    if self._has_robot_data and self._has_visual_check:
-                        self.checkout_robot()
-                    sleep(0.5)
+            while not rospy.is_shutdown():
+                if self._has_robot_data and self._has_visual_check:
+                    self.checkout_robot()
+                sleep(0.5)
                         
-            #self.checkout_robot()
+            if not rospy.is_shutdown():
+                self.checkout_robot()
         except Exception, e:
             self.send_failure_call('wait_for_data', traceback.format_exc())
 
@@ -248,6 +245,9 @@ class RobotCheckout:
         return summary, html
 
     def checkout_robot(self):
+        if self._has_sent_result:
+            return
+
         try:
             html = '<p><b>Robot Checkout Test</b></p><br>\n'
                         
@@ -265,7 +265,6 @@ class RobotCheckout:
                 html += '<p>Time to complete check: %.3fs.</p>\n' % self._check_time
             summary += 'Data: ' + self._visual_sum + self._joint_sum + self._act_sum + diag_sum
 
-            #html += '<hr size="2"><br>\n' 
             html += self._visual_html + '<hr size="2">\n'
             html += self._joint_html + '<hr size="2">\n'
             html += self._act_html + '<hr size="2">\n'
@@ -335,7 +334,7 @@ class RobotCheckout:
                 id = jnt_data.index
                 name = jnt_data.name
                 type = jnt_data.type
-                #print 'Cal %s' % jnt_data.is_cal
+
                 if jnt_data.is_cal == 1:
                     cal = '<div class=\"pass\">OK</div>'
                 elif name.endswith('wheel_joint'):
@@ -382,9 +381,11 @@ class RobotCheckout:
 if __name__ == '__main__':
     try:
         checkout = RobotCheckout()
-        rospy.spin()
+        sleep(1)
+        print "rospy", rospy
+        checkout.wait_for_data()
     except Exception, e:
-        print 'Caught exception in robot checkout'
-        traceback.print_exc()
+        print 'Caught exception in robot checkout.\n%s' % traceback.format_exc()
+        rospy.logerr('Robot checkout exception.\n%s' % traceback.format_exc())
 
     print 'Quitting robot checkout'

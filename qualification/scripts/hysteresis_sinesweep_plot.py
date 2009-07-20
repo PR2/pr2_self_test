@@ -384,8 +384,10 @@ class App:
     min_sd = numpy.std(min_array)
 
     # Should have these be parameters instead of magic
-    tolerance = (max_exp - min_exp) * 0.15
-    sd_max = (max_avg - min_avg) * 0.20
+    tolerance = abs(max_exp - min_exp) * 0.15
+
+    sd_denominator = max_avg - min_avg
+    sd_max = sd_denominator * 0.20
     
     max_ok = True
     min_ok = True
@@ -417,11 +419,15 @@ class App:
       html = '<p>Efforts are outside acceptable parameters. See graphs.</p>\n'
       
     # Standard deviations in percent of value
-    sd_min_percent = abs(min_sd / min_avg) * 100
-    sd_max_percent = abs(max_sd / max_avg) * 100
+    sd_min_percent = abs(min_sd / sd_denominator) * 100
+    sd_max_percent = abs(max_sd / sd_denominator) * 100
 
     positive_msg = '<div class="error">FAIL</div>'
     negative_msg = '<div class="error">FAIL</div>'
+    if not max_even and max_ok:
+      positive_msg = '<div class="warning">UNEVEN</div>'
+    if not min_even and min_ok:
+      negative_msg = '<div class="warning">UNEVEN</div>'
     if max_ok and max_even:
       positive_msg = '<div class="pass">OK</div>'
     if max_ok and max_even:
