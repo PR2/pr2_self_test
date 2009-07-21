@@ -12,4 +12,7 @@
   
   <include file="$(find life_test)/arm_life_test/run_random_poses_cb_forearm.launch" />
 
+  <node pkg="life_test" type="forearm_effort_controller.py"
+  	   args="r_forearm_roll_joint" />
+
 </launch>

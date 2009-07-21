@@ -60,8 +60,10 @@ class EtherCATTestMonitorNode():
     def __init__(self):
         rospy.init_node('test_monitor', anonymous = True)
 
-        csv_filename = rospy.myargv()[1] # CSV of device data
-        self.create_trans_monitors(csv_filename)
+        self._trans_monitors = []
+        if len(rospy.myargv()) > 1:
+            csv_filename = rospy.myargv()[1] # CSV of device data
+            self.create_trans_monitors(csv_filename)
 
         self._mutex = threading.Lock()
 
@@ -100,7 +102,7 @@ class EtherCATTestMonitorNode():
         
 
     def create_trans_monitors(self, csv_filename):
-        self._trans_monitors = []
+
         trans_csv = csv.reader(open(csv_filename, 'rb'))
         for row in trans_csv:
             actuator = row[0].lstrip().rstrip()
@@ -120,9 +122,12 @@ class EtherCATTestMonitorNode():
 
         status = TestStatus()
       
-        if rospy.get_time() - self._ethercat_update_time > 3 or rospy.get_time() - self._mech_update_time > 1:        
+        if rospy.get_time() - self._ethercat_update_time > 3:
             status.test_ok = TestStatus.TEST_STALE
             status.message = 'EtherCAT Master Stale'
+        elif rospy.get_time() - self._mech_update_time > 1:
+            status.message = 'Mechanism state stale'
+            status.test_ok = TestStatus.TEST_STALE
         elif self._ethercat_ok and self._transmissions_ok:
             status.test_ok = TestStatus.TEST_RUNNING
             status.message = 'OK'

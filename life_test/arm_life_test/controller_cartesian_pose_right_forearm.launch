@@ -2,12 +2,12 @@
 
 <!-- Cartesian wrench controller -->
   <param name="r_arm_cartesian_wrench_controller/root_name" type="string" value="torso_lift_link" />
-  <param name="r_arm_cartesian_wrench_controller/tip_name" type="string" value="r_forearm_roll_link" />
-<!-- Change above to forearm roll when fixed -->
+  <param name="r_arm_cartesian_wrench_controller/tip_name" type="string" value="r_elbow_flex_link" />
+
 
 <!-- Cartesian twist controller -->
   <param name="r_arm_cartesian_twist_controller/root_name" type="string" value="torso_lift_link" />
-  <param name="r_arm_cartesian_twist_controller/tip_name" type="string" value="r_forearm_roll_link" />
+  <param name="r_arm_cartesian_twist_controller/tip_name" type="string" value="r_elbow_flex_link" />
   <param name="r_arm_cartesian_twist_controller/output" type="string" value="r_arm_cartesian_wrench_controller" />
 
   <param name="r_arm_cartesian_twist_controller/ff_trans" value="0.0" />
@@ -26,7 +26,7 @@
 
 <!-- Cartesian pose controller -->
   <param name="r_arm_cartesian_pose_controller/root_name" type="string" value="torso_lift_link" />
-  <param name="r_arm_cartesian_pose_controller/tip_name" type="string" value="r_forearm_roll_link" />
+  <param name="r_arm_cartesian_pose_controller/tip_name" type="string" value="r_elbow_flex_link" />
   <param name="r_arm_cartesian_pose_controller/output" type="string" value="r_arm_cartesian_twist_controller" />
 
   <param name="r_arm_cartesian_pose_controller/p" value="20.0" />

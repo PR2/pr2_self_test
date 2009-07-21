@@ -52,15 +52,12 @@ roslib.load_manifest('life_test')
 import rospy
 from std_msgs.msg import *
 from mechanism_control import mechanism
-from robot_srvs.srv import SpawnController, KillController
+from mechanism_msgs.srv import SpawnController, KillController
 from time import sleep
 
-spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
-kill_controller = rospy.ServiceProxy('kill_controller', KillController)
 
-pub_flex = rospy.Publisher("wrist_flex_effort/command", Float64)
-pub_grip = rospy.Publisher("grip_effort/command", Float64)
-pub_roll = rospy.Publisher("wrist_roll_effort/command", Float64)
+
+
 
 ## Create XML code for controller on the fly
 def xml_for_flex():
@@ -81,25 +78,29 @@ def xml_for_grip():
   <joint name=\"r_gripper_joint\" />\
 </controller>" 
 
-
-
-
 def main():
     rospy.init_node('wrist_test', anonymous=True)
     
     rospy.wait_for_service('spawn_controller')
+
+    spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
+    kill_controller = rospy.ServiceProxy('kill_controller', KillController)
+
+    pub_grip = rospy.Publisher("grip_effort/command", Float64)
+    pub_flex = rospy.Publisher("wrist_flex_effort/command", Float64)
+    pub_roll = rospy.Publisher("wrist_roll_effort/command", Float64)
     
-    resp = spawn_controller(xml_for_flex())
-    if len(resp.ok) < 1 or not ord(resp.ok[0]):
-        rospy.logerr("Failed to spawn effort controller")
+    resp = spawn_controller(xml_for_flex(), 1)
+    if len(resp.ok) < 1 or not resp.ok[0] == 1:
+        rospy.logerr("Failed to spawn effort controller, resp: %d" % resp.ok[0])
         print xml_for_flex()
         sys.exit(100)
     else:
         print "Spawned flex controller successfully"
 
 
-    resp = spawn_controller(xml_for_roll())
-    if len(resp.ok) < 1 or not ord(resp.ok[0]):
+    resp = spawn_controller(xml_for_roll(), 1)
+    if len(resp.ok) < 1 or not resp.ok[0] == 1:
         rospy.logerr("Failed to spawn effort controller roll")
         print xml_for_roll()
         sys.exit(101)
@@ -107,23 +108,24 @@ def main():
         print "Spawned flex controller successfully"
 
 
-    resp = spawn_controller(xml_for_grip())
-    if len(resp.ok) < 1 or not ord(resp.ok[0]):
+    resp = spawn_controller(xml_for_grip(), 1)
+    if len(resp.ok) < 1 or not resp.ok[0] == 1:
         rospy.logerr("Failed to spawn effort controller roll")
         print xml_for_grip()
         sys.exit(102)
     else:
         print "Spawned grip controller successfully"
 
-    effort_flex = rospy.get_param('flex_effort')
-    effort_roll = rospy.get_param('roll_effort')
-    
+    print 'Getting parameters'
+    effort_flex = float(rospy.get_param('flex_effort'))
+    effort_roll = float(rospy.get_param('roll_effort'))
     effort_grip = -100 
     
-    freq = rospy.get_param('cycle_rate')
+    freq = float(rospy.get_param('cycle_rate'))
     
     try:
         while not rospy.is_shutdown():
+            print 'Publishing commands'
             if random.randint(0, 1) == 1:
                 effort_flex = effort_flex * -1
 
@@ -133,7 +135,6 @@ def main():
             pub_grip.publish(Float64(effort_grip))
             pub_flex.publish(Float64(effort_flex))
             pub_roll.publish(Float64(effort_roll))
-
 
             sleep(1.0 / freq)
 

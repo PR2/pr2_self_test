@@ -411,6 +411,7 @@ class TestMonitorPanel(wx.Panel):
         
     def stop_test(self, event = None):
         if self.is_launched():
+            print 'Shutting down test'
             self.on_halt_motors(None)
             self._test_launcher.shutdown()
             self._manager.test_stop(self._machine)
@@ -454,6 +455,7 @@ class TestMonitorPanel(wx.Panel):
 
         # Remap
         launch += '<remap from="/diagnostics" to="%s" />' % local_diag_topic
+         
         # Init machine
         launch += '<machine name="test_host_root" user="root" address="%s" ' % self._machine
         launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="never"/>'

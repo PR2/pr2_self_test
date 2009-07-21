@@ -56,10 +56,9 @@ roslib.load_manifest('life_test')
 import rospy
 from std_msgs.msg import *
 from mechanism_control import mechanism
-from robot_srvs.srv import SpawnController, KillController
+from mechanism_msgs.srv import SpawnController, KillController
 from time import sleep
 
-## Create XML code for controller on the fly
 def xml_for(controller, joint):
     return  '''\
 <controller name=\"%s\" type=\"JointEffortControllerNode\">\
@@ -77,13 +76,14 @@ def main():
         spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
         kill_controller = rospy.ServiceProxy('kill_controller', KillController)
     
-        resp = spawn_controller(xml_for(controller, joint))
-        if len(resp.ok) < 1 or not ord(resp.ok[0]):
+        resp = spawn_controller(xml_for(controller, joint),1)
+        if len(resp.ok) < 1 or not resp.ok[0] == 1:
             print "Failed to spawn effort controller"
+            sys.exit(100)
         else:
             print "Spawned controller %s successfully" % controller
 
-            pub = rospy.Publisher("/%s/command" % controller, Float64)
+            pub = rospy.Publisher("%s/command" % controller, Float64)
 
             try:
                 for i in range(0, 500):
@@ -99,7 +99,7 @@ def main():
             finally:
                 kill_controller(controller)
                 sleep(5)
-                sys.exit(0)
+                #sys.exit(0)
     
 if __name__ == '__main__':
     main()

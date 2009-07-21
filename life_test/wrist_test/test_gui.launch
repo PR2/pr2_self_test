@@ -5,10 +5,11 @@
 
 
   <!-- Calibration -->
+  <!--
   <node pkg="mechanism_bringup" type="calibrate.py"
         args="$(find life_test)/wrist_test/wrist_cal.xml"
         output="screen" />
-
+-->	
   <node pkg="life_test" type="wrist_test.py" />
 
   <node pkg="life_test" type="ethercat_test_monitor.py" />
