@@ -58,6 +58,7 @@ hd_temp_error = 55
 stat_dict = { 0: 'OK', 1: 'Warning', 2: 'Error' }
 temp_dict = { 0: 'OK', 1: 'Warm', 2: 'Hot' }
 
+## Deprecated. Use socket to hddtemp daemon instead
 def get_hddtemp_data():
     hds = ['/dev/sda', '/dev/sdb']
 
@@ -96,18 +97,21 @@ def get_hddtemp_data():
         
     return drives, makes, temps
 
+## Connects to hddtemp daemon to get temp, HD make.
 def get_hddtemp_data_socket(hostname = 'localhost', port = 7634):
     try:
-        # Retry, see if we get some data
-        for i in range(0, 5):
-            hd_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            hd_sock.connect((hostname, port))
-            sock_data = hd_sock.recv(1024)
-            hd_sock.close()
-            
-            sock_vals = sock_data.split('|')
-            if len(sock_vals) > 1:
+        hd_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        hd_sock.connect((hostname, port))
+        sock_data = ''
+        while True:
+            newdat = hd_sock.recv(1024)
+            if len(newdat) == 0:
                 break
+            sock_data = sock_data + newdat
+        hd_sock.close()
+        
+        sock_vals = sock_data.split('|')
+
 
         idx = 0
         
@@ -126,8 +130,6 @@ def get_hddtemp_data_socket(hostname = 'localhost', port = 7634):
     except:
         rospy.logerr(traceback.format_exc())
         return [], [], []
-
-
 
 def update_status_stale(stat, last_update_time):
     time_since_update = rospy.get_time() - last_update_time
@@ -207,7 +209,7 @@ class hdMonitor():
         diag_level = 0
         
         
-        drives, makes, temps = get_hddtemp_data()
+        drives, makes, temps = get_hddtemp_data_socket()
         if len(drives) == 0:
             diag_strs.append(DiagnosticString(label = 'Disk Temp Data', value = 'No hddtemp data'))
             diag_level = 2

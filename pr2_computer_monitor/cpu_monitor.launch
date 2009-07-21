@@ -4,7 +4,9 @@
 
  <!-- Set machine to robot machine in final version -->
     <param name="check_ipmi_tool" value="False" />	
-  <node machine="local_root" pkg="pr2_computer_monitor" type="cpu_monitor.py"  />
+    <param name="enforce_clock_speed" value="False" />    
+
+  <node pkg="pr2_computer_monitor" type="cpu_monitor.py"  />
 
 
 </launch>
