@@ -43,6 +43,7 @@ import traceback
 import threading
 from threading import Timer
 import sys, os, time
+from time import sleep
 import subprocess
 import string
 
@@ -473,8 +474,8 @@ class CPUMonitor():
         self.check_nfs_stat()
         self.check_usage()
 
-        self._publish_timer = threading.Timer(1.0, self.publish_stats)
-        self._publish_timer.start()
+        #self._publish_timer = threading.Timer(1.0, self.publish_stats)
+        #self._publish_timer.start()
 
     ## Must have the lock to cancel everything
     def cancel_timers(self):
@@ -486,9 +487,6 @@ class CPUMonitor():
 
         if self._usage_timer:
             self._usage_timer.cancel()
-
-        if self._publish_timer:
-            self._publish_timer.cancel()
 
     def check_nfs_stat(self):
         if rospy.is_shutdown():
@@ -680,19 +678,21 @@ class CPUMonitor():
             self._diag_pub.publish(msg)
             self._last_publish_time = rospy.get_time()
 
-        if not rospy.is_shutdown():
-            self._publish_timer = threading.Timer(1.0, self.publish_stats)
-            self._publish_timer.start()
-        else:
-            self.cancel_timers()
-
         self._mutex.release()
 
 if __name__ == '__main__':
     hostname = socket.gethostname()
 
     cpu_node = CPUMonitor(hostname)
+    try:
+        while not rospy.is_shutdown():
+            sleep(1.0)
+            cpu_node.publish_stats()
 
+    finally:
+        cpu_node.cancel_timers()
+        sys.exit(0)
+    
 
 
     

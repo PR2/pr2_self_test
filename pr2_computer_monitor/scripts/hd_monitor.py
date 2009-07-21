@@ -43,6 +43,7 @@ import traceback
 import threading
 from threading import Timer
 import sys, os, time
+from time import sleep
 import subprocess
 
 import socket
@@ -76,8 +77,6 @@ def get_hddtemp_data():
             
             stdout = stdout.replace('\n', '')
             stderr = stderr.replace('\n', '')
-
-            rospy.logerr('Hddtemp output: %s\n%s' % (stdout, stderr))
 
             lst = stdout.split(':')
             if len(lst) > 2:
@@ -129,7 +128,7 @@ def get_hddtemp_data_socket(hostname = 'localhost', port = 7634):
         return drives, makes, temps
     except:
         rospy.logerr(traceback.format_exc())
-        return [], [], []
+        return [ 'Exception' ], [ traceback.format_exc() ], [ 100 ]
 
 def update_status_stale(stat, last_update_time):
     time_since_update = rospy.get_time() - last_update_time
@@ -175,6 +174,9 @@ class hdMonitor():
             self._usage_stat.values = [ DiagnosticValue(label = 'Time Since Last Update', value = 100000) ]
             self.check_disk_usage()
 
+        
+
+
         self._last_temp_time = 0
         self._last_usage_time = 0
         self._last_publish_time = 0
@@ -183,19 +185,18 @@ class hdMonitor():
 
         self._temp_timer = None
         self._usage_timer = None
-        self._publish_timer = threading.Timer(1.0, self.publish_stats)
-        self._publish_timer.start()
+        #self._publish_timer = threading.Timer(1.0, self.publish_stats)
+        #self._publish_timer.start()
         
-        ## Must have the lock to cancel everything
+    ## Must have the lock to cancel everything
     def cancel_timers(self):
         if self._temp_timer:
             self._temp_timer.cancel()
+            self._temp_timer = None
  
         if self._usage_timer:
             self._usage_timer.cancel()
-
-        if self._publish_timer:
-            self._publish_timer.cancel()
+            self._usage_timer = None
 
     def check_temps(self):
         if rospy.is_shutdown():
@@ -207,8 +208,7 @@ class hdMonitor():
         diag_strs = [ DiagnosticString(label = 'Update Status', value = 'OK' ) ]
         diag_vals = [ DiagnosticValue(label = 'Time Since Last Update', value = 0 ) ]
         diag_level = 0
-        
-        
+                
         drives, makes, temps = get_hddtemp_data_socket()
         if len(drives) == 0:
             diag_strs.append(DiagnosticString(label = 'Disk Temp Data', value = 'No hddtemp data'))
@@ -254,6 +254,12 @@ class hdMonitor():
         self._mutex.release()
         
     def check_disk_usage(self):
+        if rospy.is_shutdown():
+            self._mutex.acquire()
+            self.cancel_timers()
+            self._mutex.release()
+            return
+
         diag_strs = [ DiagnosticString(label = 'Update Status', value = 'OK' ) ]
         diag_vals = [ DiagnosticValue(label = 'Time Since Last Update', value = 0 ) ]
         diag_level = 0
@@ -307,6 +313,7 @@ class hdMonitor():
                     
         except:
             rospy.logerr(traceback.format_exc())
+            
             diag_strs.append(DiagnosticString(label = 'Disk Space Reading', value = 'Exception'))
             diag_strs.append(DiagnosticString(label = 'Disk Space Ex', value = traceback.format_exc()))
 
@@ -345,13 +352,7 @@ class hdMonitor():
         if rospy.get_time() - self._last_publish_time > 0.5:
             self._diag_pub.publish(msg)
             self._last_publish_time = rospy.get_time()
-
-        if not rospy.is_shutdown():
-            self._publish_timer = threading.Timer(1.0, self.publish_stats)
-            self._publish_timer.start()
-        else:
-            self.cancel_timers()
-
+            
         self._mutex.release()
 
 
@@ -365,7 +366,15 @@ if __name__ == '__main__':
     if len(rospy.myargv()) > 1:
         home_dir = rospy.myargv()[1]
 
+        
     hd_monitor = hdMonitor(hostname, home_dir)
+    try:
+        while not rospy.is_shutdown():
+            sleep(1.0)
+            hd_monitor.publish_stats()
+    finally:
+        hd_monitor.cancel_timers()
+        sys.exit(0)
     
 
             
