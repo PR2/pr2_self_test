@@ -60,6 +60,8 @@ class TransmissionMonitor():
         self._num_errors = 0
         self._num_errors_since_reset = 0
         self._rx_count = 0
+        self._max_position = -1000000
+        self._min_position = 10000000
 
     def reset(self):
         self._ok = True
@@ -72,7 +74,7 @@ class TransmissionMonitor():
             return True # Don't bother with uncalibrated joints
 
         if self._continuous: # Reset position to home value
-            normalized = position % (2*math.pi) - math.pi # Between -pi, pi
+            position = position % (2*math.pi) - math.pi # Between -pi, pi
 
         # Reverse for joints that have negative search velocities
         cal_bool = cal_reading % 2 == 0
@@ -97,8 +99,8 @@ class TransmissionMonitor():
  
         diag.strings.append(DiagnosticString(value=self._joint, label="Joint"))
         diag.strings.append(DiagnosticString(value=self._actuator, label="Actuator"))
-        diag.values.append(DiagnosticString(value=self._positive, label="Positive Joint"))
-        diag.values.append(DiagnosticString(value=self._continuous, label="Continuous Joint"))
+        diag.strings.append(DiagnosticString(value=str(self._positive), label="Positive Joint"))
+        diag.strings.append(DiagnosticString(value=str(self._continuous), label="Continuous Joint"))
         diag.values.append(DiagnosticValue(value=float(self._ref_position), label="Reference Position"))
         diag.values.append(DiagnosticValue(value=float(self._deadband), label="Deadband"))
         diag.values.append(DiagnosticValue(value=float(self._rx_count), label="Mech State RX Count"))
@@ -122,6 +124,8 @@ class TransmissionMonitor():
 
         diag.strings.append(DiagnosticString(value=str(act_exists), label='Actuator Exists'))
         diag.strings.append(DiagnosticString(value=str(joint_exists), label='Joint Exists'))
+
+
 
         # First check existance of joint, actuator
         if not (act_exists and joint_exists):
@@ -151,6 +155,12 @@ class TransmissionMonitor():
         
         diag.values.append(DiagnosticValue(value=self._num_errors, label='Total Errors'))
         diag.values.append(DiagnosticValue(value=self._num_errors_since_reset, label='Errors Since Reset'))
+
+        self._max_position = max(self._max_position, position)
+        diag.values.append(DiagnosticValue(value = self._max_position, label='Max Obs. Position'))
+
+        self._min_position = min(self._min_position, position)
+        diag.values.append(DiagnosticValue(value = self._min_position, label='Min Obs. Position'))
         
         return diag, self._ok
 

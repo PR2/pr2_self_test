@@ -88,7 +88,8 @@ class FakeTestFrame(wx.Frame):
         self._start_time = rospy.get_time()
         
     def on_mech_timer(self, event = None):
-        self._mech_timer.Start(10, True)
+        if not rospy.is_shutdown():
+            self._mech_timer.Start(10, True)
         
         # Joint state is a sine, period 1s, Amplitude 2,
         trig_arg = rospy.get_time() - self._start_time
@@ -169,8 +170,8 @@ class FakeTestFrame(wx.Frame):
         self.range_param_ctrl.SetValue(range_param)
 
     def on_timer(self, event = None):
-        print 'Making message'
-        self._diag_timer.Start(1000, True)
+        if not rospy.is_shutdown():
+            self._diag_timer.Start(1000, True)
 
         level_dict = { "OK": 0, "Warn": 1, "Error": 2 }
 

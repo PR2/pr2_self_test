@@ -244,7 +244,7 @@ class TestManagerFrame(wx.Frame):
                     p_desc = param_xml.attributes['desc'].value
                     p_val = param_xml.attributes['val'].value
                     
-                    p_rate = int(param_xml.attributes['rate'].value) == 1
+                    p_rate = param_xml.attributes['rate'].value == 'true'
 
 
                     test_params.append(TestParam(p_name, p_param_name, 

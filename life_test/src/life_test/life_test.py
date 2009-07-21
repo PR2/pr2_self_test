@@ -88,7 +88,6 @@ class TestMonitorPanel(wx.Panel):
         xrc_path = os.path.join(roslib.packages.get_pkg_dir('life_test'), 'xrc/gui.xrc')
 
         self._panel = xrc.XmlResource(xrc_path).LoadPanel(self, 'test_panel')
-        #self._test_data_panel = self._manager._xrc.LoadPanel(self, 'test_data')
         self._test_desc = xrc.XRCCTRL(self._panel, 'test_desc')
         self._test_desc.SetValue(self._test._desc)
 
@@ -388,7 +387,7 @@ class TestMonitorPanel(wx.Panel):
         self._launch_button.Enable(not self.is_launched())
         self._close_button.Enable(not self.is_launched())
         
-    def print_cur_log(self):
+    def display_logs(self):
         kys = dict.keys(self._current_log)
         kys.sort()
 
@@ -397,7 +396,8 @@ class TestMonitorPanel(wx.Panel):
             log_str += strftime("%m/%d/%Y %H:%M:%S: ", 
                                 localtime(ky)) + self._current_log[ky] + '\n'
 
-        return log_str
+        self._log_ctrl.AppendText(log_str)
+        self._current_log = {}
 
     def stop_if_done(self):
         remain = self.calc_remaining()
@@ -426,11 +426,6 @@ class TestMonitorPanel(wx.Panel):
         if event is not None: # In GUI thread
             self.update_controls()
 
-
-    def display_logs(self):
-   
-        self._log_ctrl.AppendText(self.print_cur_log())
-        self._current_log = {}
     
     def status_callback(self, msg):
         self._mutex.acquire()
@@ -450,7 +445,6 @@ class TestMonitorPanel(wx.Panel):
         self.stop_if_done()
         self.update_controls(self._status_msg.test_ok, self._status_msg.message)
 
-         
         self._mutex.release()
      
     
@@ -469,10 +463,7 @@ class TestMonitorPanel(wx.Panel):
         # Include our launch file
         launch += '<include file="$(find life_test)/%s" />' % self._test._launch_script
 
-        # TODO: Check bag, make sure it's on the right topic
-        # Record our diagnostics remaped back to local diagnostics
-        launch += '<remap from="%s" to="/diagnostics" />' % local_diag_topic
-        launch += ' <node pkg="rosrecord" type="rosrecord" args="-f /hwlog/test_runtime_automatic %s" />' % local_diag_topic
+        launch += ' <node pkg="rosrecord" type="rosrecord" args="-f /hwlog/test_runtime_automatic /diagnostics" />'
         
         launch += '</group>\n</launch>'
 
@@ -520,7 +511,6 @@ class TestMonitorPanel(wx.Panel):
         self._monitor_panel.change_diagnostic_topic(local_diag)
 
         self.update_controls()
-        #self._diag_sub = rospy.Subscriber(local_diagnostics, DiagnosticMessage, self.diag_callback)
 
         self._status_sub = rospy.Subscriber(local_status, TestStatus, self.status_callback)
 

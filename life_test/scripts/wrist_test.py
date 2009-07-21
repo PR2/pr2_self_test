@@ -86,8 +86,9 @@ def xml_for_grip():
 
 def main():
     rospy.init_node('wrist_test', anonymous=True)
+    
     rospy.wait_for_service('spawn_controller')
-             
+    
     resp = spawn_controller(xml_for_flex())
     if len(resp.ok) < 1 or not ord(resp.ok[0]):
         rospy.logerr("Failed to spawn effort controller")
@@ -114,17 +115,13 @@ def main():
     else:
         print "Spawned grip controller successfully"
 
-    if fixed_to_bar:
-        effort_flex = 1000
-        effort_roll = 1000
-    else:
-        effort_flex = 6
-        effort_roll = 3 # Turn down effort roll to make wrist flex up and down
-
-
-
+    effort_flex = rospy.get_param('flex_effort')
+    effort_roll = rospy.get_param('roll_effort')
+    
     effort_grip = -100 
-        
+    
+    freq = rospy.get_param('cycle_rate')
+    
     try:
         while not rospy.is_shutdown():
             if random.randint(0, 1) == 1:
@@ -135,14 +132,10 @@ def main():
                 
             pub_grip.publish(Float64(effort_grip))
             pub_flex.publish(Float64(effort_flex))
-
-            if fixed_to_bar and random.randint(0, 5) == 1:
-                pub_roll.publish(Float64(0))
-            else:
-                pub_roll.publish(Float64(effort_roll))
+            pub_roll.publish(Float64(effort_roll))
 
 
-            sleep(0.3)
+            sleep(1.0 / freq)
 
     finally:
         kill_controller('grip_effort')
