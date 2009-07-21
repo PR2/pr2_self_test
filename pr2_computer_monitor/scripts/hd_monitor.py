@@ -134,10 +134,10 @@ def update_status_stale(stat, last_update_time):
 
     level = stat.level
     stale_status = 'OK'
-    if time_since_update > 45:
+    if time_since_update > 20:
         stale_status = 'Lagging'
         level = max(level, 1)
-    if time_since_update > 90:
+    if time_since_update > 35:
         stale_status = 'Stale'
         level = max(level, 2)
         
@@ -207,7 +207,7 @@ class hdMonitor():
         diag_level = 0
         
         
-        drives, makes, temps = get_hddtemp_data_socket()
+        drives, makes, temps = get_hddtemp_data()
         if len(drives) == 0:
             diag_strs.append(DiagnosticString(label = 'Disk Temp Data', value = 'No hddtemp data'))
             diag_level = 2
@@ -244,7 +244,7 @@ class hdMonitor():
 
 
         if not rospy.is_shutdown():
-            self._temp_timer = threading.Timer(30.0, self.check_temps)
+            self._temp_timer = threading.Timer(10.0, self.check_temps)
             self._temp_timer.start()
         else:
             self.cancel_timers()
