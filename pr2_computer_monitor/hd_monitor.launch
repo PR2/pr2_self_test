@@ -5,5 +5,8 @@
   <param name="no_hd_temp_warn" value="True" />
 
  <!-- Set machine to robot machine in final version -->
-  <node machine="local_root" pkg="pr2_computer_monitor" type="hd_monitor.py" args="$(optenv HOME /home) /dev/sda /dev/sdb" />
+  <node machine="local_root" pkg="pr2_computer_monitor" type="hd_monitor.py" 
+  args="$(optenv HOME /home)" />
+
+
 </launch>
