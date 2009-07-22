@@ -14,7 +14,5 @@
    <depend package="mechanism_control" />
    <depend package="mechanism_bringup" />
    
-   <sysdepend os="ubuntu" version="7.04-feisty" package="python-wxgtk2.8"/>
-   <sysdepend os="ubuntu" version="8.04-hardy" package="python-wxgtk2.8"/>
   <rosdep name="wxpython"/>
 </package>
