@@ -1,5 +1,5 @@
 <launch>
-  <param name="robotdesc/pr2" command="$(find xacro)/xacro.py '$(find qualification)/tests/forearm_cam_test/test_configuration.xml'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find qualification)/tests/forearm_cam_test/test_configuration.xml'" />
   
   <!-- Spwns the controllers -->
   <node pkg="mechanism_control" type="spawner.py" args="$(find qualification)/tests/forearm_cam_test/test_controllers.xml" />

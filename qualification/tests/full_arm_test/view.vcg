@@ -22,7 +22,7 @@ Robot\:\ Robot\ Model\ Link\ r_wrist_roll_linkShow\ Trail=0
 Shoulder.Collision\ Enabled=0
 Shoulder.Enabled=1
 Shoulder.Mechanism\ Topic=mechanism_state
-Shoulder.Robot\ Description=robotdesc/pr2
+Shoulder.Robot\ Description=robot_description
 Shoulder.Update\ Rate=0.1
 Shoulder.Visual\ Enabled=1
 Property\ Grid\ State=selection=;expanded=.Global Options,.Time,Robot: Shoulder Link r_shoulder_pan_linkr_shoulder_pan_link,Robot: Shoulder Link r_upper_arm_roll_linkr_upper_arm_roll_link;scrollpos=0,0;splitterpos=146,292;ispageselected=1

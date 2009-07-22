@@ -1,6 +1,6 @@
 <launch>
 <!--
-  <param name="robotdesc/pr2" command="$(find xacro)/xacro.py '$(find qualification)/tests/shoulder_test/shoulder.xml'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find qualification)/tests/shoulder_test/shoulder.xml'" />
 
   <include file="$(find qualification)/tests/init.machine" />
 -->

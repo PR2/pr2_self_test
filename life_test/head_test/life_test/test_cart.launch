@@ -1,5 +1,5 @@
 <launch>
-  <param name="robotdesc/pr2" command="$(find xacro)/xacro.py '$(find life_test)/head_test/life_test/head.xml'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find life_test)/head_test/life_test/head.xml'" />
 
   <include file="$(find life_test)/init.machine" />
   <include file="$(find life_test)/pr2_etherCAT.launch" />

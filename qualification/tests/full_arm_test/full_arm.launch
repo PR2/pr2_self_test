@@ -1,5 +1,5 @@
 <launch>
-  <param name="robotdesc/pr2" command="$(find xacro)/xacro.py '$(find qualification)/tests/full_arm_test/full_arm.xml'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find qualification)/tests/full_arm_test/full_arm.xml'" />
 
   <param name="full_arm_test/side" value="r" type="str" />
 

@@ -1,16 +1,14 @@
 <launch>
-<!-- Pulls description from qualification system -->
- <param name="robotdesc/pr2" command="$(find xacro)/xacro.py '$(find pr2_defs)/robots/r_forearm_gripper.xacro.xml'" />
+   <!-- Pulls description from qualification system -->
+   <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_defs)/robots/r_forearm_gripper.xacro.xml'" />
 
-    <!-- -g flag runs gazebo in gui-less mode -->
-    <node pkg="gazebo" type="gazebo" args="-n $(find gazebo_robot_description)/gazebo_worlds/empty.world" respawn="false" output="screen">
-      <env name="LD_LIBRARY_PATH" value="$(find gazebo_plugin)/lib:$(find gazebo)/gazebo/lib:$(find Cg)/Cg/lib:$(optenv LD_LIBRARY_PATH)" />
-      <env name="GAZEBO_RESOURCE_PATH" value="$(find gazebo_robot_description)/world" />
-      <env name="OGRE_RESOURCE_PATH" value="$(find ogre)/ogre/lib/OGRE" />
-      <env name="MC_RESOURCE_PATH" value="$(find gazebo_robot_description)/world" />
-    </node>
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+  <node pkg="gazebo_plugin" type="urdf2factory" args="robot_description" respawn="false" output="screen"/>
 
-    <!-- push robotdesc/pr2 to factory and spawn robot in gazebo -->
-    <node pkg="gazebo_plugin" type="urdf2factory" args="robotdesc/pr2" respawn="false" output="screen"/>
+  <!-- Robot state publisher -->
+  <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher" output="screen">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <param name="tf_prefix" type="string" value="" />
+  </node>
 
 </launch>

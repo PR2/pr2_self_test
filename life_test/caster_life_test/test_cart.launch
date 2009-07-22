@@ -1,5 +1,5 @@
 <launch>
-  <param name="robotdesc/pr2"
+  <param name="robot_description"
          command="$(find xacro)/xacro.py '$(find life_test)/caster_life_test/caster.xml'" /> 
  
   <include file="$(find life_test)/init.machine" />
