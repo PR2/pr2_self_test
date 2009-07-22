@@ -1,12 +1,6 @@
 <launch>
- <!-- Should make this be localhost or whatever -->
- <machine name="local_root" user="root" address="nsf" ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="never"/> 
-
- <!-- Set machine to robot machine in final version -->
-    <param name="check_ipmi_tool" value="False" />	
-    <param name="enforce_clock_speed" value="False" />    
+  <param name="check_ipmi_tool" value="False" />	
+  <param name="enforce_clock_speed" value="False" />    
 
   <node pkg="pr2_computer_monitor" type="cpu_monitor.py"  />
-
-
 </launch>
