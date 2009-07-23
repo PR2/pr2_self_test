@@ -322,9 +322,9 @@ def check_memory():
         values.append(DiagnosticValue(label = 'Free Memory', value = free_mem))
 
         level = 0
-        if free_mem < 250:
+        if free_mem < 10:
             level = 1
-        if free_mem < 100:
+        if free_mem < 5:
             level = 2
 
         str = DiagnosticString(label = 'Total Memory', value = stat_dict[level])
