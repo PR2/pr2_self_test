@@ -61,7 +61,7 @@ def check_ipmi():
     diag_level = 0
 
     try:
-        p = subprocess.Popen('ipmitool sdr',
+        p = subprocess.Popen('sudo ipmitool sdr',
                              stdout = subprocess.PIPE,
                              stderr = subprocess.PIPE, shell = True)
         stdout, stderr = p.communicate()
@@ -191,10 +191,10 @@ def check_core_temps(sys_temp_strings):
             temp = float(tmp) / 1000
             diag_vals.append(DiagnosticValue(label = 'Core %d Temp' % index, value = temp))
 
-            if temp >= 80 and temp < 85:
+            if temp >= 85 and temp < 90:
                 diag_level = max(diag_level, 1)
                 diag_msgs.append('Warm')
-            if temp >= 85:
+            if temp >= 90:
                 diag_level = max(diag_level, 2)
                 diag_msgs.append('Hot')
 
@@ -303,6 +303,10 @@ def check_memory():
     values = []
     str = DiagnosticString(label = 'Memory Status', value = 'Exception')
     level = 2
+    msg = ''
+
+
+    mem_dict = { 0: 'OK', 1: 'Low', 2: 'Very Low' }
 
     try:
         p = subprocess.Popen('free -m',
@@ -327,11 +331,13 @@ def check_memory():
         if free_mem < 5:
             level = 2
 
-        str = DiagnosticString(label = 'Total Memory', value = stat_dict[level])
-        
+        str = DiagnosticString(label = 'Total Memory', value = mem_dict[level])
+    
+        msg = mem_dict[level]
     except Exception, e:
         rospy.logerr(traceback.format_exc())
-        
+        msg = 'Memory Error'
+    
     return level, values, str
 
 # Use mpstat
@@ -340,6 +346,8 @@ def check_mpstat():
     vals = []
     mp_level = 0
     
+    load_dict = { 0: 'OK', 1: 'High Load', 2: 'Very High Load' }
+
     try:
         p = subprocess.Popen('mpstat -P ALL 1 1',
                              stdout = subprocess.PIPE,
@@ -355,7 +363,7 @@ def check_mpstat():
             if len(lst) < 10:
                 continue
 
-            if lst[0] == 'Average:':
+            if lst[0].startswith('Average'):
                 continue
 
             cpu_name = lst[2]
@@ -363,19 +371,23 @@ def check_mpstat():
                 cpu_name == 'ALL'
             idle = float(lst[-2])
             user = float(lst[3])
+            nice = float(lst[4])
             system = float(lst[5])
             
             vals.append(DiagnosticValue(label = 'CPU %s User' % cpu_name, value = user))
+            vals.append(DiagnosticValue(label = 'CPU %s Nice' % cpu_name, value = nice))
             vals.append(DiagnosticValue(label = 'CPU %s System' % cpu_name, value = system))
             vals.append(DiagnosticValue(label = 'CPU %s Idle' % cpu_name, value = idle))
 
-            if user > 75.0:
-                mp_level = 1
-            if user > 90.0:
-                mp_level = 2
+            core_level = 0
+            if user + nice > 75.0:
+                core_level = 1
+            if user + nice> 90.0:
+                core_level = 2
 
-            strs.append(DiagnosticString(label = 'CPU %s Status' % cpu_name, value = stat_dict[mp_level]))
-
+            strs.append(DiagnosticString(label = 'CPU %s Status' % cpu_name, value = load_dict[core_level]))
+            mp_level = max(mp_level, core_level)
+            
     except Exception, e:
         mp_level = 2
         strs.append(DiagnosticString(label = 'mpstat Exception', value = str(e)))
@@ -387,7 +399,7 @@ def check_mpstat():
 def get_core_temp_names():
     temp_vals = []
     try:
-        p = subprocess.Popen('find /sys -name temp1_input', 
+        p = subprocess.Popen('find /sys/devices -name temp1_input', 
                              stdout = subprocess.PIPE,
                              stderr = subprocess.PIPE, shell = True)
         stdout, stderr = p.communicate()
