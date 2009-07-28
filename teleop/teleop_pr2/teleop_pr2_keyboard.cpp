@@ -1,5 +1,5 @@
 /*
- * teleop_head_keyboard
+ * teleop_pr2_keyboard
  * Copyright (c) 2008, Willow Garage, Inc.
  * All rights reserved.
  * 
@@ -29,40 +29,6 @@
  */
 
 // Author: Kevin Watts
-
-/**
-
-@mainpage
-
-@b teleop_pr2_keyboard teleoperates a PR-2 base using keyboard commands. 
-WASD controls X/Y, QE controls yaw. Shift to go faster.
-
-<hr>
-
-@section usage Usage
-@verbatim
-$ teleop_head_keyboard [standard ROS args]
-@endverbatim
-
-Key mappings are printed to screen on startup. 
-
-<hr>
-
-@section topic ROS topics
-
-Subscribes to (name / type):
-- None
-
-Publishes to (name / type):
-- @b "cmd_vel/PoseDot" : velocity to the pr2 base; sent on every keypress.
-
-<hr>
-
-@section parameters ROS parameters
-
-- None
-
- **/
 
 #include <termios.h>
 #include <signal.h>
