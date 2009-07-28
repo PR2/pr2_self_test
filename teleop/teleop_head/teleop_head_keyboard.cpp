@@ -30,40 +30,6 @@
 
 // Author: Kevin Watts
 
-/**
-
-@mainpage
-
-@b teleop_head_keyboard teleoperates a PR-2 head using keyboard commands. 
-WASD pans and tilts the head.
-
-<hr>
-
-@section usage Usage
-@verbatim
-$ teleop_head_keyboard [standard ROS args]
-@endverbatim
-
-Key mappings are printed to screen on startup. 
-
-<hr>
-
-@section topic ROS topics
-
-Subscribes to (name / type):
-- None
-
-Publishes to (name / type):
-- @b "head_controller/set_command_array"/JointCmd : velocity to the robot; sent on every keypress.
-
-<hr>
-
-@section parameters ROS parameters
-
-- None
-
- **/
-
 #include <termios.h>
 #include <signal.h>
 #include <math.h>

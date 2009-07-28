@@ -163,10 +163,13 @@ class TeleopPR2
   {
     //Record this message reciept
     last_recieved_joy_message_time_ = ros::Time::now();
+
+    deadman_ = (((unsigned int)deadman_button < joy_msg->get_buttons_size()) && joy_msg->buttons[deadman_button]);
+
+    if (!deadman_)
+      return;
     
     bool cmd_head = (((unsigned int)head_button < joy_msg->get_buttons_size()) && joy_msg->buttons[head_button]);
-    
-    deadman_ = (((unsigned int)deadman_button < joy_msg->get_buttons_size()) && joy_msg->buttons[deadman_button]);
     
     // Base
     bool running = (((unsigned int)run_button < joy_msg->get_buttons_size()) && joy_msg->buttons[run_button]);
@@ -218,14 +221,10 @@ class TeleopPR2
   
   void send_cmd_vel()
   {
-    //joy.lock();
-
-    // Need to lock shared data...
-    // share cmd_vel, joint_cmd, torso_vel, lock those
-
     if(deadman_  &&
        last_recieved_joy_message_time_ + joy_msg_timeout_ > ros::Time::now())
     { 
+      // Base
       cmd.vel.vx = req_vx;
       cmd.vel.vy = req_vy;
       cmd.ang_vel.vz = req_vw;
@@ -253,9 +252,9 @@ class TeleopPR2
       }
       
       if (req_torso != 0)
-        fprintf(stderr,"teleop_base:: %f, %f, %f. Head:: %f, %f. Torso cmd: %f.\n", cmd.vel.vx, cmd.vel.vy, cmd.ang_vel.vz, req_pan, req_tilt, torso_vel.data);
+        fprintf(stdout,"teleop_base:: %f, %f, %f. Head:: %f, %f. Torso cmd: %f.\n", cmd.vel.vx, cmd.vel.vy, cmd.ang_vel.vz, req_pan, req_tilt, torso_vel.data);
       else
-        fprintf(stderr,"teleop_base:: %f, %f, %f. Head:: %f, %f\n", cmd.vel.vx ,cmd.vel.vy, cmd.ang_vel.vz, req_pan, req_tilt);
+        fprintf(stdout,"teleop_base:: %f, %f, %f. Head:: %f, %f\n", cmd.vel.vx ,cmd.vel.vy, cmd.ang_vel.vz, req_pan, req_tilt);
     }
     else
     {
@@ -264,7 +263,10 @@ class TeleopPR2
       torso_vel.data = 0;
       if (!deadman_no_publish_)
       {
-        vel_pub_.publish(cmd);//Only publish if deadman_no_publish is enabled
+        // Base
+        vel_pub_.publish(cmd);
+
+        // Torso
         if (torso_dn_button != 0)
           torso_pub_.publish(torso_vel);
         
@@ -286,36 +288,34 @@ class TeleopPR2
         
       }
     }
-    //joy.unlock();
   }
 };
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "teleop_pr2");
-   const char* opt_no_publish    = "--deadman_no_publish";
-
-   bool no_publish = false;
-   for(int i=1;i<argc;i++)
-   {
-     if(!strncmp(argv[i], opt_no_publish, strlen(opt_no_publish)))
-       no_publish = true;
-   }
-
-   TeleopPR2 teleop_pr2(no_publish);
-   teleop_pr2.init();
-   
-   ros::Rate pub_rate(20);
-
-   while (teleop_pr2.n_.ok())
-   {
-     ros::spinOnce(); 
-     teleop_pr2.send_cmd_vel();
-     pub_rate.sleep();
-   }
-   
-
-   exit(0);
-   return 0;
+  const char* opt_no_publish    = "--deadman_no_publish";
+  
+  bool no_publish = false;
+  for(int i=1;i<argc;i++)
+  {
+    if(!strncmp(argv[i], opt_no_publish, strlen(opt_no_publish)))
+      no_publish = true;
+  }
+  
+  TeleopPR2 teleop_pr2(no_publish);
+  teleop_pr2.init();
+  
+  ros::Rate pub_rate(20);
+  
+  while (teleop_pr2.n_.ok())
+  {
+    ros::spinOnce(); 
+    teleop_pr2.send_cmd_vel();
+    pub_rate.sleep();
+  }
+  
+  exit(0);
+  return 0;
 }
 
