@@ -1,5 +1,4 @@
 <package>
-
   <description brief="Interfaces with WG inventory system" >
 Description of invent client.    
   </description>
@@ -7,4 +6,5 @@ Description of invent client.
   <review status="na" notes=""/>
   <license>BSD</license>
   <url>http://pr.willowgarage.com/wiki/Invent_Client</url>
+  <depend package="rospy" />
 </package>
