@@ -54,7 +54,7 @@ class TeleopBase : public Node
           ROS_WARN("maximum pan not set. Assuming 0.6");
         if (!hasParam("max_tilt") || !getParam("max_tilt", max_tilt))
           ROS_WARN("maximum tilt not set. Assuming 1.4");
-        if (!hasParam("min_tilt") || !getParam("min_tilt", max_tilt))
+        if (!hasParam("min_tilt") || !getParam("min_tilt", min_tilt))
           ROS_WARN("maximum tilt not set. Assuming -0.4");
 
         if (!hasParam("tilt_step") || !getParam("tilt_step", tilt_step))
