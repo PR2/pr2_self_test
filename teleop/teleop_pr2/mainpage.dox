@@ -1,8 +1,9 @@
-@mainpage
+/**
+\mainpage
 
-@htmlinclude manifest.html
+\htmlinclude manifest.html
 
-@b teleop_pr2 teleoperation of a PR2 from keyboard and joystick. Teleops base, head, spine. No arm teleoperation currently.
+\b teleop_pr2 teleoperation of a PR2 from keyboard and joystick. Teleops base, head, spine. No arm teleoperation currently.
 
 Both nodes, teleop_pr2 and teleop_pr2_keyboard, are designed for limited control of a PR-2, like moving it from place to place and transport. This is not designed for immersive control of a PR-2.
 
@@ -10,8 +11,9 @@ Both nodes, teleop_pr2 and teleop_pr2_keyboard, are designed for limited control
 
 The two nodes, teleop_pr2 and teleop_pr2_keyboard, are designed primarily to drive the base of the PR-2. Teleop_pr2 can also able to drive the spine and head.
 
-\b teleop_pr2
-\b teleop_pr2_keyboard
+List of nodes:
+- \b teleop_pr2
+- \b teleop_pr2_keyboard
 
 <hr>
 
@@ -65,7 +67,7 @@ Subscribes to (name / type):
 - \b "joy/Joy" : ROS joystick topic
 
 Publishes to (name / type):
-- \b "cmd_vel/PoseDot" : velocity to the pr2 base; sent on every keypress.
+- \b "cmd_vel/PoseDot" : velocity to the pr2 base, sent on every keypress.
 - \b "torso_lift_controller/set_command / Float64" : Velocity to PR2 torso (publishes only if torso_button param set)
 - \b "head_controller/command / JointStates" : Position commands to PR-2 head (publishes only if head_button param set)
 
@@ -86,7 +88,9 @@ Publishes to (name / type):
 - \b "pan_step" : \b double Head pan command increment. Position command is pan_step * pan_axis
 
 - \b "deadman_button" : \b int Button that enables joystick commands. No commands will work without deadman button depressed
-- \b "run_button" : \b int Base moves at maximum of "run" velocities.
+- \b "run_button" : \b int Base moves at maximum of "run" velocities when depressed.
 - \b "torso_dn_button" : \b int Depress to command torso down
 - \b "torso_up_button" : \b int Depress to command torso up
 - \b "head_button" : \b int Depress to command head
+
+*/

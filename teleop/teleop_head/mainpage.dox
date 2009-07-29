@@ -1,3 +1,4 @@
+/**
 @mainpage
 
 @htmlinclude manifest.html
@@ -8,15 +9,16 @@
 
 The two nodes, teleop_head and teleop_head_keyboard, are designed primarily to drive the base of the PR-2. Teleop_pr2 can also able to drive the spine and head.
 
-\b teleop_head
-\b teleop_head_keyboard
+List of nodes:
+- \b teleop_head
+- \b teleop_head_keyboard
 
 <hr>
 
 \subsection teleop_head_keyboard teleop_head_keyboard
 
-\b teleop_head_keyboard teleoperates a PR-2 base using keyboard commands. 
-WASD controls X/Y, QE controls yaw. Shift to go faster.
+\b teleop_head_keyboard teleoperates a PR-2 head using keyboard commands. 
+WASD controls pan and tilt. Shift to go faster.
 
 \subsubsection usage Usage
 \verbatim
@@ -41,7 +43,7 @@ Publishes to (name / type):
 
 \subsection teleop_head teleop_head
 
-\b teleop_head teleoperate a PR-2 using a joystick. 
+\b teleop_head teleoperate a PR-2 head using a joystick. 
 
 Right stick tilts, left pans.
 
@@ -70,3 +72,4 @@ Publishes to (name / type):
 
 - \b "deadman_button" : \b int Button that enables joystick commands. 
 
+*/
