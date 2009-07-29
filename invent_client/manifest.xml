@@ -7,4 +7,5 @@ Description of invent client.
   <license>BSD</license>
   <url>http://pr.willowgarage.com/wiki/Invent_Client</url>
   <depend package="rospy" />
+  <rosdep name="python-clearsilver" />
 </package>
