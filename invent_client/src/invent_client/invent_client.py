@@ -196,7 +196,6 @@ class Invent:
 
     theURL = self.site + "invent/api.py"
 
-
     fields = []
     fields.append(('Action.addAttachment', "1"))
     fields.append(('reference', reference))

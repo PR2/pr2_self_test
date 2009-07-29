@@ -17,7 +17,7 @@
   </test>
 
   <test serial="6804213" name="Free Wrist Test" 
-	short="Wrist" trac="401"
+	short="Wrist" trac="438"
 	desc="Test of wrist holding weight."
 	script="wrist_test/test_gui.launch" 
 	type="Life Test" >
@@ -33,7 +33,7 @@
   </test>
 
   <test serial="6804213" name="Fixed Wrist Test" 
-	short="Wrist" trac="438"
+	short="Wrist" trac="401"
 	desc="Test of wrist attached to a bar, jerking around."
 	rate="3" script="wrist_test/test_gui.launch" 
 	type="Life Test" >
