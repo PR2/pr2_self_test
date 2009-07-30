@@ -50,6 +50,7 @@ from mechanism_control import mechanism
 
 spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
 kill_controller = rospy.ServiceProxy('kill_controller', KillController)
+switch_controller = rospy.ServiceProxy('switch_controller', SwitchController)
 
 class SendMessageOnSubscribe(rospy.SubscribeListener):
     def __init__(self, msg):
@@ -61,27 +62,32 @@ class SendMessageOnSubscribe(rospy.SubscribeListener):
         time.sleep(0.1)
 
 
-def xml_for_hold(name, p, i, d, iClamp):
-    return """
-<controller name="%s_hold" type="JointPositionControllerNode">
-  <joint name="%s_joint">
-  <pid p="%d" i="%d" d="%d" iClamp="%d" />
-</controller>""" % (name, name, p, i, d, iClamp)
+def load_joint_config(name,p,i,d,iClamp):
+    rospy.set_param(name+'/type', 'JointPositionController')
+    rospy.set_param(name+'/joint', name)
+    rospy.set_param(name+'/pid/p', p)
+    rospy.set_param(name+'/pid/i', i)
+    rospy.set_param(name+'/pid/d', d)
+    rospy.set_param(name+'/pid/iClamp', iClamp)
+
 
 def hold_joint(name, p, i, d, iClamp, holding):
     try:
-        resp = spawn_controller(xml_for_hold(name, p, i, d, iClamp),1)
-        if ord(resp.ok[0]) != 0:
-            holding.append(resp.name[0])
-            return True
-        else:
+        load_joint_config(name, p, i,d, iClamp)
+        resp = spawn_controller(name)
+        if not resp.ok:
             rospy.logerr('Failed to spawn controller %s' % resp.name)
-            rospy.logerr('Spawner error: %s' % resp.error)
+            return False
+        resp = start_controller([name],[],2)        
+        if not resp.ok:
+            rospy.logerr('Failed to start controller %s' % resp.name)
+            return False
+        holding.append(resp.name[0])
+        return True
     except Exception, e:
         print "Failed to spawn holding controller %s" % name
-        print xml_for_hold(name, p, i, d, iClamp)
+    return True
 
-    return False
 
 def set_controller(controller, command):
     pub = rospy.Publisher(controller + '/set_command', Float64,
