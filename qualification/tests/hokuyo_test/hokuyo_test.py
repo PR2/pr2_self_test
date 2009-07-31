@@ -48,8 +48,8 @@ class TestParams:
         self.ok_maxerr    = .025
         self.tgt_a        = 0
         self.ok_a         = numpy.tan(5 * numpy.pi / 180) # was 0.1
-        self.tgt_b        = .275
-        self.ok_b         = .01 
+        self.tgt_b        = .28
+        self.ok_b         = .015 
         self.min_ang      = -55 * numpy.pi / 180
         self.max_ang      = 55 * numpy.pi / 180
         self.ok_noise     = 0.006
