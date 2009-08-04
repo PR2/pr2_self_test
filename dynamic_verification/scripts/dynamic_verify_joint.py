@@ -34,7 +34,7 @@ import roslib; roslib.load_manifest(PKG)
 
 import numpy
 import math
-from robot_srvs.srv import DynamicResponseData
+from dynamic_verification_controllers.srv import DynamicResponseData
 
 import sys
 import os

@@ -37,8 +37,6 @@
 PKG = 'dynamic_verification'
 import roslib
 roslib.load_manifest(PKG)
-roslib.load_manifest('mechanism_control')
-roslib.load_manifest('mechanism_bringup')
 
 import rospy
 import sys
@@ -60,9 +58,6 @@ class SendMessageOnSubscribe(rospy.SubscribeListener):
     def peer_subscribe(self, topic_name, topic_publish, peer_publish):
         peer_publish(self.msg)
         sleep(0.1)
-
-#spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
-#kill_controller = rospy.ServiceProxy('kill_controller', KillController)
 
 def xml_for_hold(name, p, i, d, iClamp):
     return """                                                                 
