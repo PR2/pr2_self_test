@@ -72,7 +72,7 @@ try:
     if (result.passed):
         r.result = r.RESULT_PASS
     else:
-        r.result = r.RESULT_HUMAN_REQUIRED #RESULT_FAIL
+        r.result = r.RESULT_FAIL
 
     passfail = 'PASS'
     i = 1
