@@ -452,6 +452,7 @@ class CPUMonitor():
         self._temp_stat = DiagnosticStatus()
         self._temp_stat.name = '%s CPU Temperature' % hostname
         self._temp_stat.level = 2
+        self._temp_stat.hardware_id = hostname
         self._temp_stat.message = 'No Data'
         self._temp_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
         self._temp_stat.values = [ DiagnosticValue(label = 'Time Since Last Update', value = 100000 )]
@@ -459,6 +460,7 @@ class CPUMonitor():
         self._usage_stat = DiagnosticStatus()
         self._usage_stat.name = '%s CPU Usage' % hostname
         self._usage_stat.level = 2
+        self._usage_stat.hardware_id = hostname
         self._usage_stat.message = 'No Data'
         self._usage_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
         self._usage_stat.values = [ DiagnosticValue(label = 'Time Since Last Update', value = 100000 )]
@@ -466,6 +468,7 @@ class CPUMonitor():
         self._nfs_stat = DiagnosticStatus()
         self._nfs_stat.name = '%s NFS I/O' % hostname
         self._nfs_stat.level = 2
+        self._nfs_stat.hardware_id = hostname
         self._nfs_stat.message = 'No Data'
         self._nfs_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
         self._nfs_stat.values = [ DiagnosticValue(label = 'Time Since Last Update', value = 100000 )]
@@ -479,15 +482,12 @@ class CPUMonitor():
         self._usage_timer = None
         self._nfs_timer = None
         self._publish_timer = None
-        ##@TODO Need wireless stuff, at some point, put NFS in usage status
+        ##@todo Need wireless stuff, at some point, put NFS in usage status
         
         # Start checking everything
         self.check_temps()
         self.check_nfs_stat()
         self.check_usage()
-
-        #self._publish_timer = threading.Timer(1.0, self.publish_stats)
-        #self._publish_timer.start()
 
     ## Must have the lock to cancel everything
     def cancel_timers(self):

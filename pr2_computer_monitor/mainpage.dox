@@ -1,0 +1,112 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\b pr2_computer_monitor monitors the state of computers on the PR2, publishes data to the diagnostics and alerts operators to any problem. It is designed specifically to work with the PR2, and may not work with other machines. 
+
+\section rosapi ROS API
+
+The three nodes in pr2_computer_monitor are cpu_monitor, hd_monitor and ntp_monitor. All three are 
+
+List of nodes:
+- \b cpu_monitor.py
+- \b hd_monitor.py
+- \b ntp_monitor.py
+
+<!-- CPU Monitor -->
+
+<hr>
+
+\subsection cpu_monitor cpu_monitor 
+
+cpu_monitor monitors the temperature, usage (load) and NFS status of the host. 
+
+To run cpu_monitor, the command "ipmitool sdr" must be configured to allow all users to run it, unless the "check_ipmi_tool" parameter is set to "false". 
+\verbatim
+sudo ipmitool sdr
+\endverbatim
+The above must work without a password. This can be enabled by editing the sudoers file on the host.
+
+\subsubsection Usage
+\verbatim
+$ cpu_monitor.py
+\endverbatim
+
+\subsubsection topics ROS topics
+
+Subscribes to:
+- \b None
+
+Publishes to:
+- \b "/diagnostics/DiagnosticMessage" : Publishes CPU diagnostics
+
+\subsubsection parameters ROS parameters
+
+Reads the following parameters from the parameter server
+
+- \b "check_ipmi_tool" : \b [bool] Uses ipmi_tool, which only works on some machines
+- \b "enforce_clock_speed" : \b [bool] If clock speed below 2150 MHz and this is engaged, gives warning
+
+<!-- HD Monitor -->
+
+\subsection hd_monitor hd_monitor 
+
+hd_monitor monitors the temperature and remaining available space of the the hosts' hard drive.
+
+
+\subsubsection Usage
+\verbatim
+$ hd_monitor.py [ home_directory ]
+\endverbatim
+If the "home_directory" argument is given, checks users home directory for disk usage. Default is "/home", but can be set in roslaunch file to "$(optenv HOME /home)" to check a user's drive.
+
+\subsubsection topics ROS topics
+
+Subscribes to:
+- \b None
+
+Publishes to:
+- \b "/diagnostics/DiagnosticMessage" : Publishes disk diagnostics
+
+\subsubsection parameters ROS parameters
+
+Reads the following parameters from the parameter server
+
+- \b "no_hd_temp_warn" : \b [bool] Don't warn if hard drive temp is too hot.
+
+<!-- NTP Monitor -->
+
+\subsection ntp_monitor ntp_monitor 
+
+ntp_monitor checks the time offset between the host and the NTP (Network Time Protocol) host. 
+
+
+\subsubsection Usage
+\verbatim
+$ ntp_monitor.py ntp-hostname [offset-tolerance]
+\endverbatim
+"offset-tolerance" is in microseconds.
+
+\subsubsection topics ROS topics
+
+Subscribes to:
+- \b None
+
+Publishes to:
+- \b "/diagnostics/DiagnosticMessage" : Publishes disk diagnostics
+
+\subsubsection parameters ROS parameters
+
+- None
+
+\section test Test
+
+To test these tools on a local machine, use
+- \b test/cpu_monitor.launch
+- \b test/hd_monitor.launch
+
+Both tools launch cpu and hd_monitor on the local machine. 
+
+The test file for cpu_monitor doesn't use ipmitool (sets param in the launch file). To run cpu_monitor on a local machine and check ipmitool, ipmitool must be configured as above.
+
+*/

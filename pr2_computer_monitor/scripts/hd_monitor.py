@@ -59,43 +59,6 @@ hd_temp_error = 55
 stat_dict = { 0: 'OK', 1: 'Warning', 2: 'Error' }
 temp_dict = { 0: 'OK', 1: 'Warm', 2: 'Hot' }
 
-## Deprecated. Use socket to hddtemp daemon instead
-def get_hddtemp_data():
-    hds = ['/dev/sda', '/dev/sdb']
-
-    drives = []
-    makes = []
-    temps = []
-
-    try:
-        for hd in hds:
-            p = subprocess.Popen('hddtemp %s' % hd,
-                                 stdout = subprocess.PIPE,
-                                 stderr = subprocess.PIPE, shell = True)
-            stdout, stderr = p.communicate()
-            retcode = p.returncode
-            
-            stdout = stdout.replace('\n', '')
-            stderr = stderr.replace('\n', '')
-
-            lst = stdout.split(':')
-            if len(lst) > 2:
-                dev_id = lst[1]
-                tmp = lst[2].strip()[:2] # Temp shows up as ' 40dC'
-                
-                if unicode(tmp).isnumeric():
-                    temp = float(tmp)
-                     
-                    drives.append(hd)
-                    makes.append(dev_id)
-                    temps.append(temp)
-
-                
-    except:
-        rospy.logerr(traceback.format_exc())
-        
-    return drives, makes, temps
-
 ## Connects to hddtemp daemon to get temp, HD make.
 def get_hddtemp_data_socket(hostname = 'localhost', port = 7634):
     try:
@@ -162,6 +125,7 @@ class hdMonitor():
         self._temp_stat = DiagnosticStatus()
         self._temp_stat.name = "%s HD Temperature" % hostname
         self._temp_stat.level = 2
+        self._temp_stat.hardware_id = hostname
         self._temp_stat.message = 'No Data'
         self._temp_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
         self._temp_stat.values = [ DiagnosticValue(label = 'Time Since Last Update', value = 100000 )]
@@ -169,13 +133,11 @@ class hdMonitor():
         if self._home_dir != '':
             self._usage_stat = DiagnosticStatus()
             self._usage_stat.level = 2
+            self._usage_stat.hardware_id = hostname
             self._usage_stat.name = '%s HD Usage' % hostname
             self._usage_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
             self._usage_stat.values = [ DiagnosticValue(label = 'Time Since Last Update', value = 100000) ]
             self.check_disk_usage()
-
-        
-
 
         self._last_temp_time = 0
         self._last_usage_time = 0

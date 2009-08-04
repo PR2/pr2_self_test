@@ -52,6 +52,15 @@ def ntp_monitor(ntp_hostname, offset=500):
 
     hostname = socket.gethostbyaddr(socket.gethostname())[0]
 
+    stat = DiagnosticStatus()
+    stat.level = 0
+    stat.name = "NTP offset from: "+ hostname + " to: " +ntp_hostname
+    stat.message = "Acceptable synchronization"
+    stat.hardware_id = hostname
+    stat.values = []
+    stat.values = []
+    stat.strings = []
+    
     while not rospy.is_shutdown():
         try:
             p = Popen(["ntpdate", "-q", ntp_hostname], stdout=PIPE, stdin=PIPE, stderr=PIPE)
@@ -64,13 +73,20 @@ def ntp_monitor(ntp_hostname, offset=500):
                 raise
         if (res == 0):
             measured_offset = float(re.search("offset (.*),", o).group(1))*1000000
-            if (abs(measured_offset) < offset):
-                stat = DiagnosticStatus(0,"NTP offset from: "+ hostname + " to: " +ntp_hostname, "Acceptable synchronization", [DiagnosticValue(measured_offset,"offset (us)")],[])
-                print measured_offset
-            else:
-                stat = DiagnosticStatus(2,"NTP offset from: "+ hostname + " to: " +ntp_hostname, "Offset too great", [DiagnosticValue(measured_offset,"offset (us)")],[])
+
+            stat.level = 0
+            stat.message = "Acceptable synchronization"
+            stat.strings = [ DiagnosticString(str(measured_offset),
+                                              "offset (us)") ]
+            
+            if (abs(measured_offset) > offset):
+                stat.level = 2
+                stat.message = "Offset too great"
+                                
         else:
-            stat = DiagnosticStatus(2,"NTP offset from: "+ hostname + " to: " +ntp_hostname, "Failure to run ntpdate -q", [],[])
+            stat.level = 2
+            stat.message = "Error running ntpupdate"
+            stat.strings = [ DiagnosticString("N/A","offset (us)") ] 
 
         pub.publish(DiagnosticMessage(None, [stat]))
         time.sleep(1)
