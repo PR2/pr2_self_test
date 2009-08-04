@@ -2,7 +2,15 @@
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find qualification)/tests/forearm_cam_test/test_configuration.xml'" />
   
   <!-- Spwns the controllers -->
-  <node pkg="mechanism_control" type="spawner.py" args="$(find qualification)/tests/forearm_cam_test/test_controllers.xml" />
+  <node pkg="mechanism_control" type="spawner.py" output="screen" args="trig_controller led_controller" />
+  <group ns="trig_controller">
+    <param name="type" type="string" value="TriggerControllerNode" />
+    <param name="actuator" type="string" value="forearm_cam_qual_trig" />
+  </group>
+  <group ns="led_controller">
+    <param name="type" type="string" value="TriggerControllerNode" />
+    <param name="actuator" type="string" value="forearm_cam_qual_led" />
+  </group>
   
   <!-- Loads realtime machine and PR2_etherCAT -->
   <include file="$(find qualification)/tests/init.machine" />

@@ -111,7 +111,7 @@ else:
     
 result_service = rospy.ServiceProxy('test_result', TestResult)
 
-sleep(5);
+rospy.sleep(5);
 
 # block until the test_result service is available
 rospy.wait_for_service('test_result')

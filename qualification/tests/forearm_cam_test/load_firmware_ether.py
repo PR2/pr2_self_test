@@ -45,45 +45,51 @@ import rospy
 import subprocess
 import os
 import os.path
-import wx
 
-rospy.init_node("load_firmware_ram", anonymous=True)
+rospy.init_node("load_firmware", anonymous=True)
 
 r = TestResultRequest()
 r.plots = []
 
 try:
     impactdir=rospy.get_param("~impactdir")
+    url=rospy.get_param("~url")
 except:
     import traceback
     traceback.print_exc()
+#if (len(sys.argv) != 2):
+    #print >> sys.stderr, 'must specify impact directory (%i) args given'%len(sys.argv);
     print >> sys.stderr, 'impactdir option must indicate impact project directory';
+    print >> sys.stderr, 'url option must indicate camera url';
     r.html_result = "<p>Bad arguments to load_firmware.py.</p>"
     r.text_summary = "Error in test."
-    r.result = TestResultRequest.RESULT_FAIL
+    r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
     print "error"
 else:
-    os.chdir(impactdir);
-    p = subprocess.Popen(['./startimpact', '-batch', 'load_firmware_ram.cmd'], stderr=subprocess.PIPE)
-    impactout = p.communicate()[1]
+    try:
+        os.chdir(impactdir);
+        p = subprocess.Popen(['rosrun', 'forearm_cam', 'upload_mcs', 'default.mcs', url], stdout=subprocess.PIPE)
+        upload_mcs_out = p.communicate()[0]
+    except Exception, e:
+        upload_mcs_out = str(e)
+   
+    upload_mcs_out = upload_mcs_out.replace('\n','<br>')
 
-    impactout = impactout.replace('\n','<br>')
-
-    if '''INFO:iMPACT - '1': Programing completed successfully.''' in impactout:
-	r.text_summary = "Firmware download succeeded."
-        r.html_result = "<p>Test passed.</p><p>"+impactout+"</p>" 
+    if '''Success!''' in upload_mcs_out:
+        r.text_summary = "Firmware download succeeded."
+        r.html_result = "<p>Test passed.</p><p>"+upload_mcs_out+"</p>" 
         r.result = TestResultRequest.RESULT_PASS
         print "pass"
     else:
         r.text_summary = "Firmware download failed."
         r.result = TestResultRequest.RESULT_FAIL
-        r.html_result = "<p>Test Failed.</p><p>"+impactout+"</p>"
+        r.html_result = "<p>Test Failed.</p><p>"+upload_mcs_out+"</p>"
         print "fail"
-        print impactout
+        print upload_mcs_out
     
 result_service = rospy.ServiceProxy('test_result', TestResult)
 
-rospy.sleep(2);
+rospy.sleep(5);
 
 # block until the test_result service is available
 rospy.wait_for_service('test_result')
