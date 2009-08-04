@@ -5,6 +5,7 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <depend package="rospy" />
+  <depend package="roscpp" />
   <depend package="std_msgs" />
   <depend package="robot_msgs" />
   <depend package="diagnostic_msgs" />

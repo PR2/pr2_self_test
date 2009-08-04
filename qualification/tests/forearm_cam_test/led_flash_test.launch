@@ -24,6 +24,7 @@
     <param name="min_high" type="double" value="-0.009"/>
     <param name="max_high" type="double" value="-0.004"/>
     <param name="skip" type="int" value="10"/>
+    <param name="tolerance" type="int" value="1" />
     <param name="frames" type="int" value="300"/>
     <remap from="image" to="/forearm/image_raw"/>
   </node>

@@ -32,7 +32,7 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *********************************************************************/
 
-#include "ros/node.h"
+#include "ros/node_handle.h"
 #include "sensor_msgs/Image.h"
 #include "opencv_latest/CvBridge.h"
 #include <stdio.h>
@@ -47,10 +47,9 @@
 class LedFlashTest
 {
 private:
-  sensor_msgs::Image img_msg_;
   sensor_msgs::CvBridge img_bridge_;
   std::string window_name_;
-  ros::Node &node_;
+  ros::NodeHandle &node_handle_;
   double rate_;
   std::string led_set_waveform_;
   controller::trigger_configuration led_config_;
@@ -61,9 +60,11 @@ private:
   int frame_;
   int skip_frames_;
   int keep_frames_;
+  int tolerance_;
+  ros::Subscriber img_sub_;
 
 public:
-  LedFlashTest(ros::Node &node) : node_(node)
+  LedFlashTest(ros::NodeHandle &n) : node_handle_(n)
   {
     // Open the output file.
 
@@ -71,12 +72,12 @@ public:
   
     sleep(5); // Otherwise the others aren't ready. Plus let some frames go by...
 
-    node_.param("led_controller", led_set_waveform_, (std::string) "led_controller");    
+    node_handle_.param("led_controller", led_set_waveform_, (std::string) "led_controller");    
     led_set_waveform_ += "/set_waveform";
 
     // Initialize waveform generators.
     
-    node_.param("~rate", rate_, 0.);
+    node_handle_.param("~rate", rate_, 0.);
     
     led_config_.running = 1;
     led_config_.rep_rate = rate_;
@@ -88,12 +89,11 @@ public:
     SetWaveform(led_set_waveform_, led_config_);
 
     // Subscribe to image stream.
-
-    node_.subscribe("image", img_msg_, &LedFlashTest::image_cb, this, 1);
+    img_sub_ = node_handle_.subscribe("image", 10, &LedFlashTest::image_cb, this);
   
     // Other parameters.
-    node_.param("~skip", skip_frames_, 10);
-    node_.param("~frames", keep_frames_, 100);
+    node_handle_.param("~skip", skip_frames_, 10);
+    node_handle_.param("~frames", keep_frames_, 100);
     frame_ = 0;
   }
 
@@ -107,27 +107,28 @@ public:
     if (!ros::service::call(s, req, dummy_resp_))
     {
       ROS_FATAL("Error calling \"%s\"", s.c_str());
-      node_.shutdown();
+      node_handle_.shutdown();
     }
   }
 
-  void image_cb()
+  void image_cb(const sensor_msgs::Image::ConstPtr &img_msg_orig)
   {
+    sensor_msgs::Image img_msg = *img_msg_orig; // Because we will be changing the encoding.
     frame_++;
     if (frame_ <= skip_frames_)
       return;
     
     // Compute image intensity.
 
-    if (img_msg_.encoding.find("bayer") != std::string::npos)
-      img_msg_.encoding = "mono";
+    if (img_msg.encoding.find("bayer") != std::string::npos)
+      img_msg.encoding = "mono";
     
     long long sum = 0;
     
-    if (img_bridge_.fromImage(img_msg_, "mono"))
+    if (img_bridge_.fromImage(img_msg, "mono"))
     {
-      std::vector<unsigned char> data = img_msg_.uint8_data.data;
-      int pixels = img_msg_.uint8_data.layout.dim[0].size * img_msg_.uint8_data.layout.dim[1].size;
+      std::vector<unsigned char> data = img_msg.uint8_data.data;
+      int pixels = img_msg.uint8_data.layout.dim[0].size * img_msg.uint8_data.layout.dim[1].size;
 
       for (int i = 0; i < pixels; i++)
       {
@@ -141,7 +142,7 @@ public:
 
     // Control logic
     
-    double exp_time = img_msg_.header.stamp.toSec();
+    double exp_time = img_msg.header.stamp.toSec();
     exp_time_.push_back(exp_time);
     led_time_.push_back(controller::TriggerController::getTickStartTimeSec(exp_time, led_config_));
     intensities_.push_back(intensity);
@@ -155,15 +156,16 @@ public:
       double thresh_high = (2 * max_i + min_i) / 3;
       double thresh_low = (max_i + 2 * min_i) / 3;
       double max_high, min_high, max_low, min_low;
-      node_.param("~max_high", max_high, 0.);
-      node_.param("~min_high", min_high, 0.);
-      node_.param("~max_low", max_low, 0.);
-      node_.param("~min_low", min_low, 0.);
+      node_handle_.param("~max_high", max_high, 0.);
+      node_handle_.param("~min_high", min_high, 0.);
+      node_handle_.param("~max_low", max_low, 0.);
+      node_handle_.param("~min_low", min_low, 0.);
+      node_handle_.param("~tolerance", tolerance_, 0);
       
       //ROS_INFO("high: %f low: %f frame: %i size: %i", thresh_high; thresh_low, );
 
       std::string report = str(boost::format("<p>Maximum intensity: %i</p><p>Minimum intensity: %i</p>")%max_i%min_i);
-      bool fail = false;
+      int fail = 0;
       int nomatch = 0;
       for (int i = 0; i < keep_frames_; i++)
       {
@@ -175,7 +177,7 @@ public:
           if (intensities_[i] <= thresh_high)
           {
             ROS_ERROR("Frame %i: Not high intensity at %f, between %f and %f.", i, delta, min_high, max_high);
-            fail = true;
+            fail++;
       	    report += str(boost::format("<p>Frame %i: Not high intensity at %f, between %f and %f.</p>")%i%delta%min_high%max_high);
           }
         }
@@ -185,7 +187,7 @@ public:
           if (intensities_[i] >= thresh_low)
           {
             ROS_ERROR("Frame %i: Not low intensity at %f between %f and %f.", i, delta, min_low, max_low);
-            fail = true;
+            fail++;
       	    report += str(boost::format("<p>Frame %i: Not low intensity at %f, between %f and %f.</p>")%i%delta%min_low%max_low);
           }
         }
@@ -205,7 +207,7 @@ public:
       
       qualification::TestResult::Request result;
       result.html_result = report;
-      if (fail)
+      if (fail > tolerance_)
       {
         ROS_INFO("LED test failed.");
         result.text_summary = "Test failed.";
@@ -224,17 +226,17 @@ public:
         ROS_ERROR("Error sending test result message.");
       }
       
-      node_.shutdown();
+      node_handle_.shutdown();
     }
   }                 
 };
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv);
-  ros::Node n("timestamp_test");
+  ros::init(argc, argv, "timestamp_test");
+  ros::NodeHandle n;
   LedFlashTest tt(n);
-  n.spin();
+  ros::spin();
   
   return 0;
 }
