@@ -47,6 +47,7 @@ rospy.init_node("run_selftest", anonymous=True)
 
 node_name = 'node'
 node_id = 'NONE'
+extramsg = ""
 
 try:
     node_name = rospy.resolve_name('node_name')
@@ -59,8 +60,12 @@ try:
     rospy.wait_for_service(selftestname)
     sleep(5)
 
-
-    result = test_service.call(SelfTestRequest(), 90)
+    try:
+    	result = test_service.call(SelfTestRequest(), 90)
+    except: 
+        extramsg = "<p>Self test exited with an exception. It probably failed to run.</p>"
+	raise
+	
     rospy.logout('Received self test service.')
     
     r = TestResultRequest()
@@ -113,8 +118,12 @@ except Exception, e:
     rospy.wait_for_service('test_result', 10)
     r = TestResultRequest()
     r.plots = []
-    r.html_result = '<p>%s</p><p><b>Exception:</b><br>%s</p>' % (msg, str(e))
-    r.text_summary = msg
+    r.html_result = '%s<p>%s</p><p><b>Exception:</b><br>%s</p>' % (extramsg, msg, str(e))
+    if extramsg != "":
+        r.text_summary = extramsg
+    else:
+        r.text_summary = msg
+	
     r.result = r.RESULT_FAIL
     result_service.call(r)
     sys.exit(255)
