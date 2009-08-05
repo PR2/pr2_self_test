@@ -90,10 +90,10 @@ def get_hddtemp_data_socket(hostname = 'localhost', port = 7634):
                         
             idx = idx + 5
 
-        return drives, makes, temps
+        return True, drives, makes, temps
     except:
         rospy.logerr(traceback.format_exc())
-        return [ 'Exception' ], [ traceback.format_exc() ], [ 100 ]
+        return False, [ 'Exception' ], [ traceback.format_exc() ], [ 100 ]
 
 def update_status_stale(stat, last_update_time):
     time_since_update = rospy.get_time() - last_update_time
@@ -172,11 +172,9 @@ class hdMonitor():
         diag_strs = [ DiagnosticString(label = 'Update Status', value = 'OK' ) ]
         diag_vals = [ DiagnosticValue(label = 'Time Since Last Update', value = 0 ) ]
         diag_level = 0
+        diag_message = 'OK'
                 
-        drives, makes, temps = get_hddtemp_data_socket()
-        if len(drives) == 0:
-            diag_strs.append(DiagnosticString(label = 'Disk Temp Data', value = 'No hddtemp data'))
-            diag_level = 2
+        temp_ok, drives, makes, temps = get_hddtemp_data_socket()
 
         for index in range(0, len(drives)):
             temp = temps[index]
@@ -192,6 +190,9 @@ class hdMonitor():
             diag_strs.append(DiagnosticString(label = 'Disk %d Device ID' % index, value = makes[index]))
             diag_vals.append(DiagnosticValue(label = 'Disk %d Temp' % index, value = temp))
         
+        if not temp_ok:
+            diag_level = 2
+
         self._mutex.acquire()
         self._last_temp_time = rospy.get_time()
 
@@ -200,12 +201,15 @@ class hdMonitor():
 
         self._temp_stat.level = diag_level
 
+        # Set HW ID to makes
+        self._temp_stat.hardware_id = makes[0]
+
         # Give No Data message if we have no reading
         self._temp_stat.message = temp_dict[diag_level]
-        if len(self._temp_stat.values) == 1: 
-            self._temp_stat.message = 'No Data'
+        if not temp_ok:
+            self._temp_stat.message = 'Error'
 
-        if self._no_temp_warn and self._temp_stat.message != 'No Data':
+        if self._no_temp_warn and temp_ok:
             self._temp_stat.level = 0
 
 
