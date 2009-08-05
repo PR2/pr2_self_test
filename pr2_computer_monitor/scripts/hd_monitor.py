@@ -58,6 +58,8 @@ hd_temp_error = 55
 
 stat_dict = { 0: 'OK', 1: 'Warning', 2: 'Error' }
 temp_dict = { 0: 'OK', 1: 'Warm', 2: 'Hot' }
+usage_dict = { 0: 'OK', 1: 'Low Disk Space', 2: 'Very Low Disk Space' }
+
 
 ## Connects to hddtemp daemon to get temp, HD make.
 def get_hddtemp_data_socket(hostname = 'localhost', port = 7634):
@@ -225,6 +227,7 @@ class hdMonitor():
         diag_strs = [ DiagnosticString(label = 'Update Status', value = 'OK' ) ]
         diag_vals = [ DiagnosticValue(label = 'Time Since Last Update', value = 0 ) ]
         diag_level = 0
+        diag_message = 'OK'
         
         try:
             p = subprocess.Popen(["df", "-P", "--block-size=1G", self._home_dir], 
@@ -267,10 +270,12 @@ class hdMonitor():
                             label = 'Disk %d Mount Point' % row_count, value = mount_pt))
                     
                     diag_level = max(diag_level, level)
-                
+                    diag_message = usage_dict[diag_level]
+
             else:
                 diag_strs.append(DiagnosticString(label = 'Disk Space Reading', value = 'Failed'))
                 diag_level = 2
+                diag_message = stat_dict[diag_level]
             
                     
         except:
@@ -280,8 +285,9 @@ class hdMonitor():
             diag_strs.append(DiagnosticString(label = 'Disk Space Ex', value = traceback.format_exc()))
 
             diag_level = 2
+            diag_message = stat_dict[diag_level]
             
-            stat.message = stat_dict[stat.level]
+
 
         # Update status
         self._mutex.acquire()
@@ -289,8 +295,7 @@ class hdMonitor():
         self._usage_stat.level = diag_level
         self._usage_stat.values = diag_vals
         self._usage_stat.strings = diag_strs
-        
-        self._usage_stat.message = stat_dict[diag_level]
+        self._usage_stat.message = diag_message
 
         if not rospy.is_shutdown():
             self._usage_timer = threading.Timer(5.0, self.check_disk_usage)
