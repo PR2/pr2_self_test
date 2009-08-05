@@ -1,4 +1,3 @@
-<!--controllers-->
   <controller name="test_controller" type="HysteresisControllerNode">
     <joint name="r_wrist_flex_joint">
       <pid p="2" d="0" i="10" iClamp="0.1" />
@@ -6,9 +5,4 @@
     </joint>
   </controller>
 
-  <!--controller name="wrist_roll_controller" type="JointPositionControllerNode">
-      <joint name="r_wrist_roll_joint">
-      <pid p="4" i="0.5" d="0" iClamp="1.0" />
-    </joint>
-  </controller>
-</controllers-->
+
