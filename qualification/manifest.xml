@@ -12,7 +12,6 @@
   <depend package="std_msgs" />
   <depend package="robot_msgs" />
   <depend package="diagnostic_msgs" />
-  <depend package="robot_srvs" />
   <depend package="hokuyo_node" />
   <depend package="imu_node" />
   <depend package="robot_mechanism_controllers" />
