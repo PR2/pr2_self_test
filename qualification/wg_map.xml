@@ -1,0 +1,11 @@
+<map>
+  <station gui="testi" host="testi" powerboard="1001" breaker0="True"
+	   breaker1="True" breaker2="True" />
+
+    <station gui="tc5" host="testc" powerboard="1011" breaker0="False"
+	   breaker1="True" breaker2="False" />
+
+  <station gui="nsf" host="nsf" powerboard="1001" breaker0="True"
+	   breaker1="True" breaker2="True" />
+
+</map>
