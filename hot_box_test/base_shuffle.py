@@ -46,7 +46,7 @@ from time import sleep
 # Loads interface with the robot.
 
 import rospy
-from robot_msgs.msg import PoseDot
+from geometry_msgs.msg import Twist,Vector3
 from mechanism_msgs.srv import SpawnController, KillController
 
 spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
@@ -70,21 +70,21 @@ def main():
     # Publishes velocity every 0.05s, calculates number of publishes
     num_publishes = int(distance * 20 * 2)
     
-    cmd_vel = PoseDot()
+    cmd_vel = Twist()
     # Change to 0 for a controller with no bkwd bias
-    cmd_vel.vel.vx = float(-0.01) 
-    cmd_vel.vel.vy = float(0)
-    cmd_vel.vel.vz = float(0)
-    cmd_vel.ang_vel.vx = float(0)
-    cmd_vel.ang_vel.vy = float(0)
-    cmd_vel.ang_vel.vz = float(0)
+    cmd_vel.linear.x = float(-0.01) 
+    cmd_vel.linear.y = float(0)
+    cmd_vel.linear.z = float(0)
+    cmd_vel.angular.x = float(0)
+    cmd_vel.angular.y = float(0)
+    cmd_vel.angular.z = float(0)
 
-    base_vel = rospy.Publisher('cmd_vel', PoseDot)
+    base_vel = rospy.Publisher('cmd_vel', Twist)
 
     try:
         while not rospy.is_shutdown():
             # Set velocity 
-            cmd_vel.vel.vy = float(0.4)
+            cmd_vel.linear.y = float(0.4)
             # Extra iteration adds a negative bias in controller
             for i in range(0, num_publishes - 1): 
                 base_vel.publish(cmd_vel)
@@ -95,7 +95,7 @@ def main():
             if rospy.is_shutdown():
                 break
 
-            cmd_vel.vel.vy = float(-0.4)
+            cmd_vel.linear.y = float(-0.4)
             for i in range(0, num_publishes):
                 base_vel.publish(cmd_vel)
                 if rospy.is_shutdown():
@@ -106,7 +106,7 @@ def main():
         traceback.print_exc()
     finally:
         # Set velocity = 0
-        cmd_vel.vel.vy = float(0)
+        cmd_vel.linear.y = float(0)
         base_vel.publish(cmd_vel)
         kill_controller('base_controller')
         

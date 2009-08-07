@@ -45,7 +45,7 @@ from time import sleep
 # Loads interface with the robot.
 
 import rospy
-from robot_msgs.msg import PoseDot
+from geometry_msgs.msg import Twist,Vector3
 
 from mechanism_control import mechanism
 
@@ -68,15 +68,15 @@ def main():
     # Publishes velocity every 0.05s, calculates number of publishes
     num_publishes = int(distance * 20 * 2)
     
-    cmd_vel = PoseDot()
-    cmd_vel.vel.vx = float(0) 
-    cmd_vel.vel.vy = float(0)
-    cmd_vel.vel.vz = float(0)
-    cmd_vel.ang_vel.vx = float(0)
-    cmd_vel.ang_vel.vy = float(0)
-    cmd_vel.ang_vel.vz = float(0)
+    cmd_vel = Twist()
+    cmd_vel.linear.x = float(0) 
+    cmd_vel.linear.y = float(0)
+    cmd_vel.linear.z = float(0)
+    cmd_vel.angular.x = float(0)
+    cmd_vel.angular.y = float(0)
+    cmd_vel.angular.z = float(0)
 
-    base_vel = rospy.Publisher('cmd_vel', PoseDot)
+    base_vel = rospy.Publisher('cmd_vel', Twist)
 
     try:
         while not rospy.is_shutdown():
