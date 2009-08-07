@@ -50,6 +50,7 @@ print "Preparing to configure forearm camera",barcode
 # Parse barcode to get serial number.
 if len(barcode) != 12 or not barcode.isdigit():
     print "The item id", barcode, "should be 12 numeric digits."
+    exit(-1)
 if barcode[0:7] != "6805018":
     print "Item", barcode, "is not a forearm camera."
     exit(-1)
