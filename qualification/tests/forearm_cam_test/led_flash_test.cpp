@@ -38,7 +38,6 @@
 #include <stdio.h>
 #include <signal.h>
 #include <robot_mechanism_controllers/SetWaveform.h>
-#include <realtime_tools/realtime_tools.h>
 #include <robot_mechanism_controllers/trigger_controller.h>
 #include <algorithm>
 #include <qualification/TestResult.h>
@@ -119,13 +118,13 @@ public:
     
     // Compute image intensity.
 
-    img_bridge_.fromImage(img_msg);
+    img_bridge_.fromImage(*img_msg);
     CvScalar mean = cvAvg(img_bridge_.toIpl());
     double intensity = mean.val[0];
 
     // Control logic
     
-    double exp_time = img_msg.header.stamp.toSec();
+    double exp_time = img_msg->header.stamp.toSec();
     exp_time_.push_back(exp_time);
     led_time_.push_back(controller::TriggerController::getTickStartTimeSec(exp_time, led_config_));
     intensities_.push_back(intensity);
