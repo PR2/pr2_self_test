@@ -36,7 +36,7 @@
 #include <stdlib.h>
 
 #include <ros/ros.h>
-#include <robot_msgs/PoseDot.h>
+#include <geometry_msgs/Twist.h>
 
 #define KEYCODE_A 0x61
 #define KEYCODE_D 0x64
@@ -56,7 +56,7 @@ class TeleopPR2Keyboard
 {
   private:
   double walk_vel, run_vel, yaw_rate, yaw_rate_run;
-  robot_msgs::PoseDot cmd;
+  geometry_msgs::Twist cmd;
 
   ros::NodeHandle n_;
   ros::Publisher vel_pub_;
@@ -64,9 +64,9 @@ class TeleopPR2Keyboard
   public:
   void init()
   { 
-    cmd.vel.vx = cmd.vel.vy = cmd.ang_vel.vz = 0;
+    cmd.linear.x = cmd.linear.y = cmd.angular.z = 0;
 
-    vel_pub_ = n_.advertise<robot_msgs::PoseDot>("cmd_vel", 1);
+    vel_pub_ = n_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
     
     n_.param("walk_vel", walk_vel, 0.5);
     n_.param("run_vel", run_vel, 1.0);
@@ -133,59 +133,59 @@ void TeleopPR2Keyboard::keyboardLoop()
       exit(-1);
     }
 
-    cmd.vel.vx = cmd.vel.vy = cmd.ang_vel.vz = 0;
+    cmd.linear.x = cmd.linear.y = cmd.angular.z = 0;
 
     switch(c)
     {
       // Walking
     case KEYCODE_W:
-      cmd.vel.vx = walk_vel;
+      cmd.linear.x = walk_vel;
       dirty = true;
       break;
     case KEYCODE_S:
-      cmd.vel.vx = - walk_vel;
+      cmd.linear.x = - walk_vel;
       dirty = true;
       break;
     case KEYCODE_A:
-      cmd.vel.vy = walk_vel;
+      cmd.linear.y = walk_vel;
       dirty = true;
       break;
     case KEYCODE_D:
-      cmd.vel.vy = - walk_vel;
+      cmd.linear.y = - walk_vel;
       dirty = true;
       break;
     case KEYCODE_Q:
-      cmd.ang_vel.vz = yaw_rate;
+      cmd.angular.z = yaw_rate;
       dirty = true;
       break;
     case KEYCODE_E:
-      cmd.ang_vel.vz = - yaw_rate;
+      cmd.angular.z = - yaw_rate;
       dirty = true;
       break;
 
       // Running 
     case KEYCODE_W_CAP:
-      cmd.vel.vx = run_vel;
+      cmd.linear.x = run_vel;
       dirty = true;
       break;
     case KEYCODE_S_CAP:
-      cmd.vel.vx = - run_vel;
+      cmd.linear.x = - run_vel;
       dirty = true;
       break;
     case KEYCODE_A_CAP:
-      cmd.vel.vy = run_vel;
+      cmd.linear.y = run_vel;
       dirty = true;
       break;
     case KEYCODE_D_CAP:
-      cmd.vel.vy = - run_vel;
+      cmd.linear.y = - run_vel;
       dirty = true;
       break;
     case KEYCODE_Q_CAP:
-      cmd.ang_vel.vz = yaw_rate_run;
+      cmd.angular.z = yaw_rate_run;
       dirty = true;
       break;
     case KEYCODE_E_CAP:
-      cmd.ang_vel.vz = - yaw_rate_run;
+      cmd.angular.z = - yaw_rate_run;
       dirty = true;
       break;
     }

@@ -35,7 +35,7 @@ Subscribes to (name / type):
 - None
 
 Publishes to (name / type):
-- \b "cmd_vel/PoseDot" : velocity to the pr2 base; sent on every keypress.
+- \b "cmd_vel/Twist" : velocity to the pr2 base; sent on every keypress.
 
 \subsubsection parameters ROS parameters
 
@@ -67,7 +67,7 @@ Subscribes to (name / type):
 - \b "joy/Joy" : ROS joystick topic
 
 Publishes to (name / type):
-- \b "cmd_vel/PoseDot" : velocity to the pr2 base, sent on every keypress.
+- \b "cmd_vel/Twist" : velocity to the pr2 base, sent on every keypress.
 - \b "torso_lift_controller/set_command / Float64" : Velocity to PR2 torso (publishes only if torso_button param set)
 - \b "head_controller/command / JointStates" : Position commands to PR-2 head (publishes only if head_button param set)
 

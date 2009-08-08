@@ -36,7 +36,7 @@
 #include <fcntl.h>
 #include "ros/ros.h"
 #include "joy/Joy.h"
-#include "robot_msgs/PoseDot.h"
+#include "geometry_msgs/Twist.h"
 #include "mechanism_msgs/JointState.h"
 #include "mechanism_msgs/JointStates.h"
 
@@ -48,7 +48,7 @@
 class TeleopPR2 
 {
    public:
-  robot_msgs::PoseDot cmd;
+  geometry_msgs::Twist cmd;
   std_msgs::Float64 torso_vel;
   //joy::Joy joy;
   double req_vx, req_vy, req_vw, req_torso, req_pan, req_tilt;
@@ -75,7 +75,7 @@ class TeleopPR2
   void init()
   {
         torso_vel.data = 0;
-        cmd.vel.vx = cmd.vel.vy = cmd.ang_vel.vz = 0;
+        cmd.linear.x = cmd.linear.y = cmd.angular.z = 0;
         req_pan = req_tilt = 0;
         n_.param("max_vx", max_vx, max_vx);
         n_.param("max_vy", max_vy, max_vy);
@@ -150,7 +150,7 @@ class TeleopPR2
         if (head_button != 0)
           head_pub_ = n_.advertise<mechanism_msgs::JointStates>(HEAD_TOPIC, 1);
 
-        vel_pub_ = n_.advertise<robot_msgs::PoseDot>("cmd_vel", 1);
+        vel_pub_ = n_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
         joy_sub_ = n_.subscribe("joy", 10, &TeleopPR2::joy_cb, this);
       }
@@ -225,9 +225,9 @@ class TeleopPR2
        last_recieved_joy_message_time_ + joy_msg_timeout_ > ros::Time::now())
     { 
       // Base
-      cmd.vel.vx = req_vx;
-      cmd.vel.vy = req_vy;
-      cmd.ang_vel.vz = req_vw;
+      cmd.linear.x = req_vx;
+      cmd.linear.y = req_vy;
+      cmd.angular.z = req_vw;
       vel_pub_.publish(cmd);
       
       // Torso
@@ -252,14 +252,14 @@ class TeleopPR2
       }
       
       if (req_torso != 0)
-        fprintf(stdout,"teleop_base:: %f, %f, %f. Head:: %f, %f. Torso cmd: %f.\n", cmd.vel.vx, cmd.vel.vy, cmd.ang_vel.vz, req_pan, req_tilt, torso_vel.data);
+        fprintf(stdout,"teleop_base:: %f, %f, %f. Head:: %f, %f. Torso cmd: %f.\n", cmd.linear.x, cmd.linear.y, cmd.angular.z, req_pan, req_tilt, torso_vel.data);
       else
-        fprintf(stdout,"teleop_base:: %f, %f, %f. Head:: %f, %f\n", cmd.vel.vx ,cmd.vel.vy, cmd.ang_vel.vz, req_pan, req_tilt);
+        fprintf(stdout,"teleop_base:: %f, %f, %f. Head:: %f, %f\n", cmd.linear.x ,cmd.linear.y, cmd.angular.z, req_pan, req_tilt);
     }
     else
     {
       // Publish zero commands iff deadman_no_publish is false
-      cmd.vel.vx = cmd.vel.vy = cmd.ang_vel.vz = 0;
+      cmd.linear.x = cmd.linear.y = cmd.angular.z = 0;
       torso_vel.data = 0;
       if (!deadman_no_publish_)
       {
