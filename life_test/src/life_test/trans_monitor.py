@@ -97,10 +97,10 @@ class TransmissionMonitor():
         diag.values = [ ]
         diag.strings = [ ]
  
-        diag.strings.append(DiagnosticString(value=self._joint, label="Joint"))
-        diag.strings.append(DiagnosticString(value=self._actuator, label="Actuator"))
-        diag.strings.append(DiagnosticString(value=str(self._positive), label="Positive Joint"))
-        diag.strings.append(DiagnosticString(value=str(self._continuous), label="Continuous Joint"))
+        diag.strings.append(KeyValue(value=self._joint, label="Joint"))
+        diag.strings.append(KeyValue(value=self._actuator, label="Actuator"))
+        diag.strings.append(KeyValue(value=str(self._positive), label="Positive Joint"))
+        diag.strings.append(KeyValue(value=str(self._continuous), label="Continuous Joint"))
         diag.values.append(KeyValue(value=float(self._ref_position), label="Reference Position"))
         diag.values.append(KeyValue(value=float(self._deadband), label="Deadband"))
         diag.values.append(KeyValue(value=float(self._rx_count), label="Mech State RX Count"))
@@ -122,8 +122,8 @@ class TransmissionMonitor():
             calibrated = (mech_state.joint_states[joint_names.index(self._joint)].is_calibrated == 1)
             
 
-        diag.strings.append(DiagnosticString(value=str(act_exists), label='Actuator Exists'))
-        diag.strings.append(DiagnosticString(value=str(joint_exists), label='Joint Exists'))
+        diag.strings.append(KeyValue(value=str(act_exists), label='Actuator Exists'))
+        diag.strings.append(KeyValue(value=str(joint_exists), label='Joint Exists'))
 
 
 
@@ -147,9 +147,9 @@ class TransmissionMonitor():
             diag.message = 'Broken'
             diag.level = 2
         
-        diag.strings.insert(0, DiagnosticString(value=diag.message, label='Transmission Status'))
-        diag.strings.insert(1, DiagnosticString(value=reading_msg, label='Current Reading'))
-        diag.strings.append(DiagnosticString(value=str(calibrated), label='Is Calibrated'))
+        diag.strings.insert(0, KeyValue(value=diag.message, label='Transmission Status'))
+        diag.strings.insert(1, KeyValue(value=reading_msg, label='Current Reading'))
+        diag.strings.append(KeyValue(value=str(calibrated), label='Is Calibrated'))
         diag.values.append(KeyValue(value=cal_reading, label='Calibration Reading'))
         diag.values.append(KeyValue(value=position, label='Joint Position'))
         

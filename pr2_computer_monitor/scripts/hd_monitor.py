@@ -48,7 +48,7 @@ import subprocess
 
 import socket
 
-from diagnostic_msgs.msg import * 
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
 low_hd_level = 5
 critical_hd_level = 1
@@ -109,7 +109,7 @@ def update_status_stale(stat, last_update_time):
         
     stat.strings.pop(0)
     stat.values.pop(0)
-    stat.strings.insert(0, DiagnosticString(label = 'Update Status', value = stale_status))
+    stat.strings.insert(0, KeyValue(label = 'Update Status', value = stale_status))
     stat.values.insert(0, KeyValue(label = 'Time Since Update', value = time_since_update))
 
 class hdMonitor():
@@ -129,7 +129,7 @@ class hdMonitor():
         self._temp_stat.level = 2
         self._temp_stat.hardware_id = hostname
         self._temp_stat.message = 'No Data'
-        self._temp_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
+        self._temp_stat.strings = [ KeyValue(label = 'Update Status', value = 'No Data' )]
         self._temp_stat.values = [ KeyValue(label = 'Time Since Last Update', value = 100000 )]
 
         if self._home_dir != '':
@@ -137,7 +137,7 @@ class hdMonitor():
             self._usage_stat.level = 2
             self._usage_stat.hardware_id = hostname
             self._usage_stat.name = '%s HD Usage' % hostname
-            self._usage_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
+            self._usage_stat.strings = [ KeyValue(label = 'Update Status', value = 'No Data' )]
             self._usage_stat.values = [ KeyValue(label = 'Time Since Last Update', value = 100000) ]
             self.check_disk_usage()
 
@@ -169,7 +169,7 @@ class hdMonitor():
             self._mutex.release()
             return
 
-        diag_strs = [ DiagnosticString(label = 'Update Status', value = 'OK' ) ]
+        diag_strs = [ KeyValue(label = 'Update Status', value = 'OK' ) ]
         diag_vals = [ KeyValue(label = 'Time Since Last Update', value = 0 ) ]
         diag_level = 0
         diag_message = 'OK'
@@ -185,9 +185,9 @@ class hdMonitor():
                 temp_level = 2
             diag_level = max(diag_level, temp_level)
 
-            diag_strs.append(DiagnosticString(label = 'Disk %d Temp Status' % index, value = temp_dict[temp_level]))
-            diag_strs.append(DiagnosticString(label = 'Disk %d Mount Pt.' % index, value = drives[index]))
-            diag_strs.append(DiagnosticString(label = 'Disk %d Device ID' % index, value = makes[index]))
+            diag_strs.append(KeyValue(label = 'Disk %d Temp Status' % index, value = temp_dict[temp_level]))
+            diag_strs.append(KeyValue(label = 'Disk %d Mount Pt.' % index, value = drives[index]))
+            diag_strs.append(KeyValue(label = 'Disk %d Device ID' % index, value = makes[index]))
             diag_vals.append(KeyValue(label = 'Disk %d Temp' % index, value = temp))
         
         if not temp_ok:
@@ -228,7 +228,7 @@ class hdMonitor():
             self._mutex.release()
             return
 
-        diag_strs = [ DiagnosticString(label = 'Update Status', value = 'OK' ) ]
+        diag_strs = [ KeyValue(label = 'Update Status', value = 'OK' ) ]
         diag_vals = [ KeyValue(label = 'Time Since Last Update', value = 0 ) ]
         diag_level = 0
         diag_message = 'OK'
@@ -241,7 +241,7 @@ class hdMonitor():
             
             if (retcode == 0):
                 
-                diag_strs.append(DiagnosticString(label = 'Disk Space Reading', value = 'OK'))
+                diag_strs.append(KeyValue(label = 'Disk Space Reading', value = 'OK'))
                 row_count = 0
                 for row in stdout.split('\n'):
                     if len(row.split()) < 2:
@@ -262,22 +262,22 @@ class hdMonitor():
                     else:
                         level = 2
                         
-                    diag_strs.append(DiagnosticString(
+                    diag_strs.append(KeyValue(
                             label = 'Disk %d Name' % row_count, value = name))
-                    diag_vals.append(DiagnosticString(
+                    diag_vals.append(KeyValue(
                             label = 'Disk %d Available' % row_count, value = g_available))
-                    diag_vals.append(DiagnosticString(
+                    diag_vals.append(KeyValue(
                             label = 'Disk %d Size' % row_count, value = size))
-                    diag_strs.append(DiagnosticString(
+                    diag_strs.append(KeyValue(
                             label = 'Disk %d Status' % row_count, value = stat_dict[level]))
-                    diag_strs.append(DiagnosticString(
+                    diag_strs.append(KeyValue(
                             label = 'Disk %d Mount Point' % row_count, value = mount_pt))
                     
                     diag_level = max(diag_level, level)
                     diag_message = usage_dict[diag_level]
 
             else:
-                diag_strs.append(DiagnosticString(label = 'Disk Space Reading', value = 'Failed'))
+                diag_strs.append(KeyValue(label = 'Disk Space Reading', value = 'Failed'))
                 diag_level = 2
                 diag_message = stat_dict[diag_level]
             
@@ -285,8 +285,8 @@ class hdMonitor():
         except:
             rospy.logerr(traceback.format_exc())
             
-            diag_strs.append(DiagnosticString(label = 'Disk Space Reading', value = 'Exception'))
-            diag_strs.append(DiagnosticString(label = 'Disk Space Ex', value = traceback.format_exc()))
+            diag_strs.append(KeyValue(label = 'Disk Space Reading', value = 'Exception'))
+            diag_strs.append(KeyValue(label = 'Disk Space Ex', value = traceback.format_exc()))
 
             diag_level = 2
             diag_message = stat_dict[diag_level]

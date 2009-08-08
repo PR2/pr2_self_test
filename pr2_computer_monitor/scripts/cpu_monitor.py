@@ -70,12 +70,12 @@ def check_ipmi():
         if retcode != 0:
             diag_level = 2
             diag_msg = [ 'ipmitool Error' ]
-            diag_strs = [ DiagnosticString(label = 'IPMI Error', value = stderr) ]
+            diag_strs = [ KeyValue(label = 'IPMI Error', value = stderr) ]
             return diag_strs, diag_vals, diag_msgs, diag_level
 
         lines = stdout.split('\n')
         if len(lines) < 2:
-            diag_strs = [ DiagnosticString(label = 'ipmitool status', value = 'No output') ]
+            diag_strs = [ KeyValue(label = 'ipmitool status', value = 'No output') ]
             diag_msgs = [ 'No response' ]
             diag_level = 2
             return diag_strs, diag_vals, diag_msgs, diag_level
@@ -112,7 +112,7 @@ def check_ipmi():
 
                             
                 else:
-                    diag_strs.append(DiagnosticString(label = name, value = words[1]))
+                    diag_strs.append(KeyValue(label = name, value = words[1]))
 
 
             # MP, BP, FP temps
@@ -132,7 +132,7 @@ def check_ipmi():
                             diag_msgs.append('%s Hot' % dev_name)
 
                 else:
-                    diag_strs.append(DiagnosticString(label = name, value = ipmi_val))
+                    diag_strs.append(KeyValue(label = name, value = ipmi_val))
         
             # CPU fan speeds
             if (name.startswith('CPU') and name.endswith('Fan')) or name == 'MB Fan':
@@ -142,19 +142,19 @@ def check_ipmi():
                         rpm = float(rpm)
                         diag_vals.append(KeyValue(label = name, value = rpm))
                     else:
-                        diag_strs.append(DiagnosticString(label = name, value = ipmi_val))
+                        diag_strs.append(KeyValue(label = name, value = ipmi_val))
 
             # If CPU is hot we get an alarm from ipmitool, report that too
             if name.startswith('CPU') and name.endswith('hot'):
                 if ipmi_val == '0x01':
-                    diag_strs.append(DiagnosticString(label = name, value = 'OK'))
+                    diag_strs.append(KeyValue(label = name, value = 'OK'))
                 else:
-                    diag_strs.append(DiagnosticString(label = name, value = 'Hot'))
+                    diag_strs.append(KeyValue(label = name, value = 'Hot'))
                     diag_level = max(diag_level, 2)
                     diag_msgs.append('CPU Hot Alarm')
 
     except Exception, e:
-        diag_strs.append(DiagnosticString(label = 'Exception', value = traceback.format_exc()))
+        diag_strs.append(KeyValue(label = 'Exception', value = traceback.format_exc()))
         diag_level = 2
         diag_msgs.append('Exception')
 
@@ -183,7 +183,7 @@ def check_core_temps(sys_temp_strings):
         if retcode != 0:
             diag_level = 2
             diag_msg = [ 'Core Temp Error' ]
-            diag_strs = [ DiagnosticString(label = 'Core Temp Error', value = stderr), DiagnosticString(label = 'Output', value = stdout) ]
+            diag_strs = [ KeyValue(label = 'Core Temp Error', value = stderr), KeyValue(label = 'Output', value = stdout) ]
             return diag_strs, diag_vals, diag_msgs, diag_level
   
         tmp = stdout.strip()
@@ -199,7 +199,7 @@ def check_core_temps(sys_temp_strings):
                 diag_msgs.append('Hot')
 
         else:
-            diag_strs.append(DiagnosticString(label = 'Core %s Temp' % index, value = tmp))
+            diag_strs.append(KeyValue(label = 'Core %s Temp' % index, value = tmp))
 
     return diag_strs, diag_vals, diag_msgs, diag_level
 
@@ -220,8 +220,8 @@ def check_clock_speed(enforce_speed):
         if retcode != 0:
             lvl = 2
             msgs = [ 'Clock speed error' ]
-            strs = [ DiagnosticString(label = 'Clock speed error', value = stderr), 
-                          DiagnosticString(label = 'Output', value = stdout) ]
+            strs = [ KeyValue(label = 'Clock speed error', value = stderr), 
+                          KeyValue(label = 'Output', value = stdout) ]
             
             return (strs, vals, msgs, lvl)
 
@@ -242,7 +242,7 @@ def check_clock_speed(enforce_speed):
 
             else:
                 lvl = max(lvl, 2)
-                strs.append(DiagnosticString(label = 'Core %d Speed' % index, value = speed))
+                strs.append(KeyValue(label = 'Core %d Speed' % index, value = speed))
 
         if not enforce_speed:
             lvl = 0
@@ -256,7 +256,7 @@ def check_clock_speed(enforce_speed):
         rospy.logerr(traceback.format_exc())
         lvl = 2
         msgs.append('Exception')
-        strs.append(DiagnosticString(label = 'Exception', value = traceback.format_exc()))
+        strs.append(KeyValue(label = 'Exception', value = traceback.format_exc()))
 
     return strs, vals, msgs, lvl
                     
@@ -265,7 +265,7 @@ def check_clock_speed(enforce_speed):
 def check_uptime():
     level = 0
     vals = []
-    str = DiagnosticString(label = 'Load Average Status', value = 'Error')
+    str = KeyValue(label = 'Load Average Status', value = 'Error')
     
     try:
         p = subprocess.Popen('uptime', stdout = subprocess.PIPE, 
@@ -289,19 +289,19 @@ def check_uptime():
         if load1 > 35 or load5 > 25 or load15 > 20:
             level = 2
 
-        str = DiagnosticString(label = 'Load Average Status', value = stat_dict[level])
+        str = KeyValue(label = 'Load Average Status', value = stat_dict[level])
 
     except Exception, e:
         rospy.logerr(traceback.format_exc())
         level = 2
-        str = DiagnosticString(label = 'Load Average Status', value = str(e))
+        str = KeyValue(label = 'Load Average Status', value = str(e))
         
     return level, vals, str
 
 # Add msgs output
 def check_memory():
     values = []
-    str = DiagnosticString(label = 'Memory Status', value = 'Exception')
+    str = KeyValue(label = 'Memory Status', value = 'Exception')
     level = 2
     msg = ''
 
@@ -331,7 +331,7 @@ def check_memory():
         if free_mem < 5:
             level = 2
 
-        str = DiagnosticString(label = 'Total Memory', value = mem_dict[level])
+        str = KeyValue(label = 'Total Memory', value = mem_dict[level])
     
         msg = mem_dict[level]
     except Exception, e:
@@ -385,12 +385,12 @@ def check_mpstat():
             if user + nice> 90.0:
                 core_level = 2
 
-            strs.append(DiagnosticString(label = 'CPU %s Status' % cpu_name, value = load_dict[core_level]))
+            strs.append(KeyValue(label = 'CPU %s Status' % cpu_name, value = load_dict[core_level]))
             mp_level = max(mp_level, core_level)
             
     except Exception, e:
         mp_level = 2
-        strs.append(DiagnosticString(label = 'mpstat Exception', value = str(e)))
+        strs.append(KeyValue(label = 'mpstat Exception', value = str(e)))
 
     return mp_level, vals, strs
 
@@ -431,7 +431,7 @@ def update_status_stale(stat, last_update_time):
         
     stat.strings.pop(0)
     stat.values.pop(0)
-    stat.strings.insert(0, DiagnosticString(label = 'Update Status', value = stale_status))
+    stat.strings.insert(0, KeyValue(label = 'Update Status', value = stale_status))
     stat.values.insert(0, KeyValue(label = 'Time Since Update', value = time_since_update))
 
 class CPUMonitor():
@@ -454,7 +454,7 @@ class CPUMonitor():
         self._temp_stat.level = 2
         self._temp_stat.hardware_id = hostname
         self._temp_stat.message = 'No Data'
-        self._temp_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
+        self._temp_stat.strings = [ KeyValue(label = 'Update Status', value = 'No Data' )]
         self._temp_stat.values = [ KeyValue(label = 'Time Since Last Update', value = 100000 )]
 
         self._usage_stat = DiagnosticStatus()
@@ -462,7 +462,7 @@ class CPUMonitor():
         self._usage_stat.level = 2
         self._usage_stat.hardware_id = hostname
         self._usage_stat.message = 'No Data'
-        self._usage_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
+        self._usage_stat.strings = [ KeyValue(label = 'Update Status', value = 'No Data' )]
         self._usage_stat.values = [ KeyValue(label = 'Time Since Last Update', value = 100000 )]
 
         self._nfs_stat = DiagnosticStatus()
@@ -470,7 +470,7 @@ class CPUMonitor():
         self._nfs_stat.level = 2
         self._nfs_stat.hardware_id = hostname
         self._nfs_stat.message = 'No Data'
-        self._nfs_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
+        self._nfs_stat.strings = [ KeyValue(label = 'Update Status', value = 'No Data' )]
         self._nfs_stat.values = [ KeyValue(label = 'Time Since Last Update', value = 100000 )]
 
         self._last_temp_time = 0
@@ -509,7 +509,7 @@ class CPUMonitor():
 
         nfs_level = 0
         msg = 'OK'
-        strs = [ DiagnosticString(label = 'Update Status', value = 'OK' )]
+        strs = [ KeyValue(label = 'Update Status', value = 'OK' )]
         vals = [ KeyValue(label = 'Time Since Last Update', value = 0 )]
 
         try:
@@ -552,7 +552,7 @@ class CPUMonitor():
             rospy.logerr(traceback.format_exc())
             nfs_level = 2
             msg = 'Exception'
-            strings.append(DiagnosticString(label = 'Exception', value = str(e)))
+            strings.append(KeyValue(label = 'Exception', value = str(e)))
             
         self._mutex.acquire()
         
@@ -579,7 +579,7 @@ class CPUMonitor():
             self._mutex.release()
             return
 
-        diag_strs = [ DiagnosticString(label = 'Update Status', value = 'OK' ) ]
+        diag_strs = [ KeyValue(label = 'Update Status', value = 'OK' ) ]
         diag_vals = [ KeyValue(label = 'Time Since Last Update', value = 0 ) ]
         diag_msgs = []
         diag_level = 0
@@ -633,7 +633,7 @@ class CPUMonitor():
             return 
 
         diag_level = 0
-        diag_strs = [ DiagnosticString(label = 'Update Status', value = 'OK' ) ]
+        diag_strs = [ KeyValue(label = 'Update Status', value = 'OK' ) ]
         diag_vals = [ KeyValue(label = 'Time Since Last Update', value = 0 )]
         
         # Check mpstat
