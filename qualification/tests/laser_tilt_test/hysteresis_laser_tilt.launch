@@ -1,4 +1,25 @@
-<launch> 
+<launch>
+  <group ns="test_controller" clear_params="true">
+    <param name="type" type="string" value="HysteresisController" />
+    
+    <param name="velocity" type="double" value="2.0" />
+    <param name="max_effort" type="double" value="0.3" />
+    <param name="max_expected" type="double" value="0.12" />
+    <param name="min_expected" type="double" value="-0.15" />
+    <param name="max_position" type="double" value="1.49" />
+    <param name="min_position" type="double" value="-0.74" />
+    <param name="timeout" type="double" value="20" />
+
+    <group ns="velocity_controller" clear_params="true">
+      <param name="type" type="string" value="JointVelocityController" />
+      <param name="joint" type="string" value="laser_tilt_mount_joint" />
+      <param name="pid/p" type="double" value="0.6" />
+      <param name="pid/i" type="double" value="0.25" />
+      <param name="pid/d" type="double" value="0.0" />
+      <param name="pid/i_clamp" type="double" value="0.15" />
+    </group>
+  </group>
+  
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
-  <node pkg="mechanism_control" type="spawner.py" args="$(find qualification)/tests/laser_tilt_test/hysteresis_laser_tilt.xml" />
+  <node pkg="mechanism_control" type="spawner.py" args="test_controller" />
 </launch>

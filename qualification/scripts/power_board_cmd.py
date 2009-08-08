@@ -32,6 +32,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# Author: Kevin Watts
 
 import roslib
 roslib.load_manifest('qualification')
@@ -39,12 +40,11 @@ import rospy, sys,time
 import subprocess
 from optparse import OptionParser
 from qualification.srv import *
-from pr2_power_board.srv import *
+from pr2_power_board.srv import PowerBoardCommand
 import traceback
 import socket
 
-
-board_map = { 'testi' : 1001, 'tc11' : 1009, 'tc6' : 1011, 'tc5' : 1002 }
+BOARD_NAMESPACE = '/qualification/powerboard'
 
 def main():
   parser = OptionParser()
@@ -58,7 +58,6 @@ def main():
   done_proxy = rospy.ServiceProxy(options.service, ScriptDone)
   done = ScriptDoneRequest()
   done.result = ScriptDoneRequest.RESULT_OK
-  done.script = 'power_board_commands'
   done.failure_msg = ''
 
   try:
@@ -74,31 +73,49 @@ def main():
     finally:
       time.sleep(2)
 
-  control_proxy = rospy.ServiceProxy('power_board_control', PowerBoardCommand)
   
-  # Get serial
-    
+  # Get powerboard serial from parameters
+  serial = int(rospy.get_param('%s/serial' % BOARD_NAMESPACE, 0))
 
+  if serial == 0:
+    done.result = ScriptDoneRequest.RESULT_ERROR
+    done.failure_msg = 'No power board serial. Parameter \"%s/serial\" was unassigned.' % BOARD_NAMESPACE
+    done_proxy.call(done)
+    time.sleep(2)
+
+  # Only call commands on specified breakers
+  breakers = {}
+  breakers[0] = rospy.get_param('%s/0' % BOARD_NAMESPACE, False)
+  breakers[1] = rospy.get_param('%s/1' % BOARD_NAMESPACE, False)
+  breakers[2] = rospy.get_param('%s/2' % BOARD_NAMESPACE, False)
+
+  brk_ok = False
+  for brk in breakers:
+    brk_ok = brk_ok or brk
+  if not brk_ok:
+    done.result = ScriptDoneRequest.RESULT_ERROR
+    done.failure_msg = 'No breakers enabled!'
+    done_proxy.call(done)
+    time.sleep(2)
+
+  control_proxy = rospy.ServiceProxy('power_board_control', PowerBoardCommand)
 
   is_first = True
-
   try:
-    serial = board_map[socket.gethostname()]
-
     for power_cmd in options.commands:
-      
       # Wait for previous power cmd to take effect
       if not is_first:
         time.sleep(1)
         
       is_first = False
-      for j in range(0, 3):
-        # Call power command service
-        # Need to set serial correctly... (pull from hostname?)
-        resp = control_proxy(serial, j, power_cmd, 0)  # serial number of zero not valid, power_node must be started with specific serial number
+      for num in breakers.keys():
+        if not breakers[num]:
+          continue
 
-        rospy.logout('CMD: %s %s. Received return code %d' % 
-                     (j, power_cmd, resp.retval))
+        resp = control_proxy(serial, num, power_cmd, 0)  
+
+        rospy.loginfo('CMD: %d %d %s. Received return code %d' % 
+                     (serial, num, power_cmd, resp.retval))
         if resp.retval != 0:
           details = 'Commanded power board, return code %s.\n\n' % resp.retval
           if resp.retval == -1:

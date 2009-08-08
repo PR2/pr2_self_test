@@ -6,8 +6,9 @@
   <include file="$(find qualification)/tests/init.machine" />
   <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
 
-  <!-- Gripper Calibration -->
-  <node pkg="mechanism_bringup" type="calibrate.py"
-        args="$(find qualification)/tests/gripper_test/gripper_cal.xml" />
+  <!-- Calibration -->
+  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
+  <node pkg="mechanism_bringup" type="calibrate.py" output="screen" 
+	args="cal_r_gripper" />
 
 </launch>

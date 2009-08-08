@@ -1,5 +1,28 @@
 <launch> 
-  <!-- Maybe holding the arm in place for this one is kinda overkill -->
-  <node pkg="qualification" type="full_arm_test_spawner.py" args="_gripper_l_finger $(find qualification)/onboard/full_arm_test/hysteresis_gripper.xml" />
+  <include file="$(find qualification)/onboard/full_arm_test/hold_arms.launch" />
+
+  <group ns="test_controller" clear_params="true">
+    <param name="type" type="string" value="HysteresisController" />
+    <param name="velocity" type="double" value="-0.01" />
+    <param name="max_effort" type="double" value="2.5" />
+    <param name="max_expected" type="double" value="0.9" />
+    <param name="min_expected" type="double" value="-0.9" />
+    <param name="max_position" type="double" value="0.078" />
+    <param name="min_position" type="double" value="0.001" />
+    <param name="timeout" type="double" value="30" />
+
+    <group ns="velocity_controller" clear_params="true">
+      <param name="type" type="string" value="JointVelocityController" />
+      <param name="joint" type="string" value="none" />
+      <param name="pid/p" type="double" value="400.0" />
+      <param name="pid/i" type="double" value="3.0" />
+      <param name="pid/d" type="double" value="0.0" />
+      <param name="pid/i_clamp" type="double" value="1.0" />
+    </group>
+  </group>
+
+  
+  <node pkg="qualification" type="full_arm_test_spawner.py" args="test_controller SIDE_gripper_joint test_controller/velocity_controller/joint" />
+  
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
 </launch>

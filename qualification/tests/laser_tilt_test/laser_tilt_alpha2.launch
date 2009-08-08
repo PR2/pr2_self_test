@@ -6,6 +6,7 @@
   <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
 
   <!-- Laser Tilt Calibration -->
-   <node pkg="mechanism_bringup" type="calibrate.py"
-         args="$(find qualification)/tests/laser_tilt_test/laser_tilt_cal.xml" />
+  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
+  <node pkg="mechanism_bringup" type="calibrate.py" output="screen" 
+	args="cal_laser_tilt" />
 </launch>

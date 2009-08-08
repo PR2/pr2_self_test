@@ -6,6 +6,7 @@
   <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
 
   <!-- Torso Calibration -->
-  <include file="$(find qualification)/tests/torso_lift_test/calibrate.launch" />
-
+  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
+  <node pkg="mechanism_bringup" type="calibrate.py" output="screen" 
+	args="cal_torso_lift" />
 </launch>

@@ -43,14 +43,13 @@ from datetime import datetime
 
 import wx
 
-from diagnostic_msgs.msg import DiagnosticMessage
+from diagnostic_msgs.msg import DiagnosticArray
 from qualification.msg import Plot
 from qualification.srv import *
 
 from joint_qualification_controllers.srv import *
 
 import traceback
-
 
 def level_cmp(a, b):
     if a._level == b._level:
@@ -81,11 +80,10 @@ class RobotCheckout:
         self.result_srv = rospy.ServiceProxy('test_result', TestResult)
         self.has_sent_result = False
 
-        self.diagnostics = rospy.Subscriber('diagnostics', DiagnosticMessage, self.on_diagnostic_msg)
+        self.diagnostics = rospy.Subscriber('diagnostics', DiagnosticArray, self.on_diagnostic_msg)
 
         self.visual_srv = rospy.Service('visual_check', ScriptDone, self.on_visual_check)
         
-
         rospy.logout('Subscribed to diagnostics, advertised robot data')
         
         self._calibrated = False
@@ -116,8 +114,6 @@ class RobotCheckout:
         self._timeout = True
         self._check_time = 0
         
-
-
     def send_failure_call(self, caller = 'No caller', except_str = ''):
         if self.has_sent_result:
             rospy.logerr('Wanted to send failure call after result sent. Caller: %s. Exception:\n%s' % (caller, except_str))
@@ -127,7 +123,7 @@ class RobotCheckout:
         r.html_result = '<p><b>Exception received during %s.</b></p>\n<p><b>Exception:</b> %s</p>\n' % (caller, except_str)
         r.text_summary = 'Exception during %s.' % caller
         r.plots = []
-        r.result = r.RESULT_HUMAN_REQUIRED # TODO r.RESULT_FAIL
+        r.result = r.RESULT_FAIL
         try:
             rospy.wait_for_service('test_result', 10)
             self.result_srv.call(r)
@@ -149,10 +145,12 @@ class RobotCheckout:
             while not rospy.is_shutdown():
                 if self._has_robot_data and self._has_visual_check:
                     self.checkout_robot()
+                    return
                 sleep(0.5)
                         
             if not rospy.is_shutdown():
                 self.checkout_robot()
+                return
         except Exception, e:
             self.send_failure_call('wait_for_data', traceback.format_exc())
 
@@ -169,7 +167,7 @@ class RobotCheckout:
             self.send_failure_call('on_diagnostic_msg', traceback.format_exc())
 
     def on_visual_check(self, srv):
-        rospy.logerr('Got visual check')
+        rospy.loginfo('Got visual check')
         self._has_visual_check = True
         
         if srv.result == ScriptDoneRequest.RESULT_OK:
@@ -192,7 +190,7 @@ class RobotCheckout:
             
 
     def on_robot_data(self, srv):
-        rospy.logerr('Got robot data service')
+        rospy.loginfo('Got robot data service')
         self._has_robot_data = True
         
         if srv.test_time > 0:
@@ -206,7 +204,7 @@ class RobotCheckout:
 
     def process_diagnostics(self):
         # Sort diagnostics by level
-        rospy.logout('Sorting diagnostic messages by level')
+        rospy.loginfo('Sorting diagnostic messages by level')
         diagnostics = dict.values(self._name_to_diagnostic)
         for diag in diagnostics:
             diag.check_stale()
@@ -221,7 +219,7 @@ class RobotCheckout:
         table = '<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">\n'
         table += '<tr><td><b>Name</b></td><td><b>Level</b></td><td><b>Message</b></td></tr>\n'
 
-        rospy.logout('Outputting diagnostics')
+        rospy.loginfo('Outputting diagnostics')
         for diag in diagnostics:
             level = level_dict[diag._level]
             table += '<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n' % (diag._name, level, diag._message)
@@ -245,7 +243,7 @@ class RobotCheckout:
         return summary, html
 
     def checkout_robot(self):
-        if self._has_sent_result:
+        if self.has_sent_result:
             return
 
         try:
@@ -278,7 +276,7 @@ class RobotCheckout:
             if self._is_ok and self._visual_ok and self._joints_ok and self._acts_ok and not self._timeout:
                 r.result = r.RESULT_PASS
             else:
-                r.result = r.RESULT_HUMAN_REQUIRED
+                r.result = r.RESULT_FAIL
                 
             rospy.wait_for_service('test_result', 5)
 
@@ -291,7 +289,6 @@ class RobotCheckout:
             self.send_failure_call('checkout_robot', traceback.format_exc())
 
     def act_data(self, act_datas):
-        # Don't need position data, gives actuator position in encoder ticks
         try:
             self._acts_ok = True
 
@@ -382,8 +379,8 @@ if __name__ == '__main__':
     try:
         checkout = RobotCheckout()
         sleep(1)
-        print "rospy", rospy
         checkout.wait_for_data()
+        rospy.spin()
     except Exception, e:
         print 'Caught exception in robot checkout.\n%s' % traceback.format_exc()
         rospy.logerr('Robot checkout exception.\n%s' % traceback.format_exc())

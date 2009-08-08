@@ -1,4 +1,20 @@
-<launch> 
-  <node pkg="qualification" type="full_arm_test_spawner.py" args="_elbow_flex $(find qualification)/onboard/full_arm_test/sinesweep_elbow_flex.xml" />
+<launch>
+  <group ns="test_controller" clear_params="true">
+    <param name="type" type="string" value="SineSweepController" />
+    <param name="joint_name" type="string" value="none" />
+
+    <!-- Analysis params -->
+    <param name="first_mode" type="double" value="14" />
+    <param name="second_mode" type="double" value="20.0" />
+    <param name="error_tolerance" type="double" value="0.15" />
+    
+    <!-- Sine sweep params -->
+    <param name="amplitude" type="double" value="4.0" />
+    <param name="start_freq" type="double" value="5.0" />
+    <param name="end_freq" type="double" value="100.0" />
+    <param name="duration" type="double" value="10.0" />
+  </group>
+  
+  <node pkg="qualification" type="full_arm_test_spawner.py" args="test_controller _elbow_flex_joint test_controller/joint_name" /> 
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
 </launch>

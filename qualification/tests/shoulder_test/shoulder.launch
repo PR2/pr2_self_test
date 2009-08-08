@@ -6,6 +6,7 @@
   <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
 
   <!-- Shoulder Calibration -->
-  <node pkg="mechanism_bringup" type="calibrate.py"
-        args="$(find qualification)/tests/shoulder_test/shoulder_cal.xml" output="screen" />
+  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
+  <node pkg="mechanism_bringup" type="calibrate.py" output="screen" 
+        args="cal_r_shoulder_pan cal_r_shoulder_lift cal_r_upper_arm_roll" />
 </launch>

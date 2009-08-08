@@ -1,0 +1,22 @@
+<robots>
+  <!-- PR2 -->
+  <robot name="PRE" start_pkg="pr2_alpha" startup="pre.launch" 
+	 test_file="pr2_qual.xml" serial="my_serial" />
+
+  <robot name="PRF" start_pkg="pr2_alpha" startup="prf.launch" 
+	 test_file="pr2_qual.xml" serial="my_serial" />
+
+  <robot name="PRG" start_pkg="pr2_alpha" startup="prg.launch" 
+	 test_file="pr2_qual.xml" serial="my_serial" />
+
+
+  <!-- Head carts -->
+  <robot name="HCA" start_pkg="pr2_head_cart" startup="hca.launch" 
+	 test_file="head_cart_qual.xml" serial="hca" />
+
+  <robot name="HCB" start_pkg="pr2_head_cart" startup="hcb.launch" 
+	 test_file="head_cart_qual.xml" serial="hcb" />
+  
+  <robot name="HCC" start_pkg="pr2_head_cart" startup="hcc.launch" 
+	 test_file="head_cart_qual.xml" serial="hcc" />
+</robots>

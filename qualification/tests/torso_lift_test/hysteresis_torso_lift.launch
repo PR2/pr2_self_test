@@ -1,5 +1,25 @@
-<launch> 
-<!-- Moved qualification node up so plotting function can be ready to recieve -->
+<launch>
+  <group ns="test_controller" clear_params="true">
+    <param name="type" type="string" value="HysteresisController" />
+    <param name="velocity" type="double" value="0.01" />
+    <param name="max_effort" type="double" value="10200.0" />
+    <param name="max_expected" type="double" value="1800" />
+    <param name="min_expected" type="double" value="-1400" />
+    <param name="max_position" type="double" value="0.05" />
+    <param name="min_position" type="double" value="0.30" />
+    <param name="timeout" type="double" value="180" />
+
+    <group ns="velocity_controller" clear_params="true">
+      <param name="type" type="string" value="JointVelocityController" />
+      <param name="joint" type="string" value="torso_lift_joint" />
+      <param name="pid/p" type="double" value="2000000.0" />
+      <param name="pid/i" type="double" value="1000" />
+      <param name="pid/d" type="double" value="0.0" />
+      <param name="pid/i_clamp" type="double" value="1200" />
+    </group>
+  </group>
+    
+  <node pkg="mechanism_control" type="spawner.py" args="test_controller" />
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
-  <node pkg="mechanism_control" type="spawner.py" args="$(find qualification)/tests/torso_lift_test/hysteresis_torso_lift.xml" />
+
 </launch>

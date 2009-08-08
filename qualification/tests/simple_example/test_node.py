@@ -37,13 +37,33 @@ roslib.load_manifest('qualification')
 
 import rospy
 from std_srvs.srv import *
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, DiagnosticString
+from time import sleep
 
-rospy.init_node("test_node", anonymous=True)
 
 def callback(msg):
   print("Got msg")
   return EmptyResponse()
 
-rospy.Service('self_test', Empty, callback)
-print("Test Spinning...")
-rospy.spin()
+if __name__ == '__main__':
+  rospy.init_node("test_node")
+  
+  rospy.Service('self_test', Empty, callback)
+  
+  pub = rospy.Publisher('/diagnostics', DiagnosticArray)
+  
+  # Publish diagnostics to check runtime monitor, rxconsole
+  msg = DiagnosticArray()
+  stat = DiagnosticStatus()
+  stat.level = 0
+  stat.name = 'Test Node'
+  stat.message = 'OK'
+  stat.hardware_id = 'HW ID'
+  stat.strings = [ DiagnosticString(label='Node Status', value='OK') ]
+  stat.values = []
+  msg.status.append(stat)
+
+  while not rospy.is_shutdown():
+    pub.publish(msg)
+    rospy.loginfo('Test node is printing things')
+    sleep(1.0)

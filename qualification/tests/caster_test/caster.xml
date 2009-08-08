@@ -11,7 +11,7 @@
   <joint name="base_joint" type="planar" />
 
   <link name="base_link">
-    <parent name=" world" />
+    <parent name="world" />
     <origin xyz=" 0 0 1 " rpy=" 0 0 0" /> 
     <joint name="base_joint" />
     <inertial>

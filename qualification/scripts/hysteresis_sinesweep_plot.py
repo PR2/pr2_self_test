@@ -59,13 +59,13 @@ import traceback
 class App:
   def __init__(self):
     self.data_sent = False
-    rospy.init_node("TestPlotter", anonymous=True)
-    self.data_topic = rospy.Service("test_data", TestData, self.on_data)
-    self.result_service = rospy.ServiceProxy('test_result', TestResult)
+    rospy.init_node("/test_plotter")
+    self.data_topic = rospy.Service("/test_data", TestData, self.on_data)
+    self.result_service = rospy.ServiceProxy('/test_result', TestResult)
     rospy.spin()
     
-  def on_data(self,req):
-    print 'Got data named %s' % (req.test_name)
+  def on_data(self, req):
+    rospy.loginfo('Got data named %s' % (req.test_name))
     self.data = req
     if self.data.test_name == "hysteresis":
       self.hysteresis_plot()
@@ -98,13 +98,13 @@ class App:
       r.html_result = ''
       r.text_summary = 'No data.'
       r.plots = []
-      r.result = TestResultRequest.RESULT_HUMAN_REQUIRED # RESULT_FAIL
+      r.result = TestResultRequest.RESULT_FAIL
 
       image_title = self.data.joint_name + "_hysteresis"
 
       # Check the num points, timeout
       if len(self.data.position) < 250: 
-        r.result = TestResultRequest.RESULT_HUMAN_REQUIRED # RESULT_FAIL
+        r.result = TestResultRequest.RESULT_FAIL
         r.text_summary = "Not enough data points, bad encoder or bad gains."
         
         error_msg = "<p>Not enough data points, hysteresis controller may have malfunctioned. Check diagnostics.</p>"
@@ -118,10 +118,10 @@ class App:
         return
 
       if self.data.arg_value[5] == 0:
-        r.result = TestResultRequest.RESULT_HUMAN_REQUIRED # RESULT_FAIL
+        r.result = TestResultRequest.RESULT_FAIL
         r.text_summary = 'Hysteresis controller timed out. Check diagnostics.'
         r.html_result = '<p>Hysteresis controller timed out. Check diagnostics. Controller gains may be bad, or motors may be in safety lockout. Did the device pass the visualizer? Is it calibrated?</p><p>Test status: <b>FAIL</b>.</p>'
-        self.send_result(r)
+        self.send_results(r)
         return
 
       # Compute the encoder travel
@@ -129,7 +129,7 @@ class App:
       max_encoder = max(numpy.array(self.data.position))
 
       if abs(max_encoder - min_encoder) < 0.005:
-        r.result = TestResultRequest.RESULT_HUMAN_REQUIRED # RESULT_FAIL
+        r.result = TestResultRequest.RESULT_FAIL
         r.text_summary = 'Mechanism didn\'t move. Check diagnostics.'
         r.html_result = "<p>No travel of mechanism, hysteresis did not complete. Check controller gains and encoder.</p><p>Test status: <b>FAIL</b>.</p>"
         self.send_result(r)
@@ -206,7 +206,7 @@ class App:
       
       vel_html = self.hysteresis_velocity(self.data.arg_value[4], pos_position, pos_vel, neg_position, neg_vel)
       regress_html = self.hysteresis_regression(pos_position, pos_eff, neg_position, neg_eff)
-      param_html = self.hysteresis_params()
+      param_html = self.controller_params()
 
       html = '<img src=\"IMG_PATH/%s1.png\", width = 640, height = 480/>' % image_title
       html += '<p align=center><b>Range Data</b></p>' + range_html + '<hr size="2">\n'
@@ -225,6 +225,9 @@ class App:
       if range_result and effort_result:
         r.text_summary = 'Hysteresis result: OK'
         r.result = TestResultRequest.RESULT_PASS
+      elif not range_result:
+        r.text_summary = 'Hysteresis range failed.'
+        r.result = TestResultRequest.RESULT_FAIL
       else:
         r.text_summary = 'Hysteresis result: FAIL. ' + range_sum + ' ' + effort_sum
         r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
@@ -362,8 +365,8 @@ class App:
 
     table = '<table border="1" cellpadding="2" cellspacing="0">\n'
     table += '<tr><td></td><td><b>Observed</b></td><td><b>Expected</b></td><td><b>Status</b></td></tr>\n' 
-    table += '<tr><td>Maximum</td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>\n' % (max, max_expect, max_status)
-    table += '<tr><td>Minimum</td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>\n' % (min, min_expect, min_status)
+    table += '<tr><td>Maximum</td><td>%.3f</td><td>%.3f</td><td>%s</td></tr>\n' % (max, max_expect, max_status)
+    table += '<tr><td>Minimum</td><td>%.3f</td><td>%.3f</td><td>%s</td></tr>\n' % (min, min_expect, min_status)
     table += '</table>\n'
 
     html += table
@@ -383,25 +386,17 @@ class App:
     max_sd = numpy.std(max_array)
     min_sd = numpy.std(min_array)
 
-    # Should have these be parameters instead of magic
+    ##@todo Should have these be parameters instead of magic
     tolerance = abs(max_exp - min_exp) * 0.15
 
-    sd_denominator = max_avg - min_avg
+    sd_denominator = abs(max_avg - min_avg)
     sd_max = sd_denominator * 0.20
     
-    max_ok = True
-    min_ok = True
-    if abs(max_avg - max_exp) > tolerance:
-      max_ok = False
-    if abs(min_avg - min_exp) > tolerance:
-      min_ok = False
-
-    max_even = True
-    min_even = True
-    if max_sd > sd_max:
-      max_even = False
-    if min_sd > sd_max:
-      min_even = False
+    max_ok = abs(max_avg - max_exp) < tolerance
+    min_ok = abs(min_avg - min_exp) < tolerance
+  
+    max_even = max_sd < sd_max
+    min_even = min_sd < sd_max
 
     summary = 'Effort: FAIL.'
     result = False
@@ -413,7 +408,7 @@ class App:
       html = '<p>Efforts have acceptable average, but are uneven.</p>\n'
     elif max_avg - max_exp > tolerance and min_exp - min_avg > tolerance:
       html = '<p>Effort is too high.</p>\n'
-    elif max_exp - max_avg > tolerance and min_avg - min_exp > tolerance:
+    elif max_avg - max_exp < tolerance and min_exp - min_avg < tolerance:
       html = '<p>Effort is too low.</p>\n'
     else:
       html = '<p>Efforts are outside acceptable parameters. See graphs.</p>\n'
@@ -430,7 +425,7 @@ class App:
       negative_msg = '<div class="warning">UNEVEN</div>'
     if max_ok and max_even:
       positive_msg = '<div class="pass">OK</div>'
-    if max_ok and max_even:
+    if min_ok and min_even:
       negative_msg = '<div class="pass">OK</div>'
 
     html += '<p><table border="1" cellpadding="2" cellspacing="0">\n'
@@ -442,7 +437,7 @@ class App:
     return html, summary, result
 
   def hysteresis_velocity(self, search, pos_position, pos_vel, neg_position, neg_vel):
-    html = '<p>Search velocity: %.2f.</p><br>\n' % search
+    html = '<p>Search velocity: %.2f.</p><br>\n' % abs(search)
 
     pos_avg = numpy.average(pos_vel)
     pos_sd = numpy.std(pos_vel)
@@ -485,8 +480,8 @@ class App:
 
 
     # Add table of all test params
-  def hysteresis_params(self):
-    html = '<p>Test parameters from hysteresis controller.</p><br>\n'
+  def controller_params(self):
+    html = '<p>Test parameters from controller.</p><br>\n'
     html += '<table border="1" cellpadding="2" cellspacing="0">\n'
     html += '<tr><td><b>Name</b></td><td><b>Value</b></td></tr>\n'
     for i in range(0, len(self.data.arg_name)):
@@ -498,7 +493,6 @@ class App:
 
   def sine_sweep_plot(self):
     try:
-
       r = TestResultRequest()
       r.html_result = ''
       r.text_summary = 'No data.'
@@ -527,7 +521,7 @@ class App:
       # plot in decibels
       axes1.psd(numpy.array(self.data.effort), NFFT=next_pow_two, Fs=1000, Fc=0, color='r')
       axes1.psd(numpy.array(self.data.position), NFFT=next_pow_two, Fs=1000, Fc=0)
-      axes1.set_xlim(0, 100)
+      #axes1.set_xlim(0, 100)
       axes1.set_title('Position PSD')
     
       # plot in power (pxx - power, f - freqs)
@@ -548,16 +542,17 @@ class App:
 
       # Find second mode
       # Max after first mode
-      index2 = numpy.argmax(pxx[index - cutoff: pxx.size])
+      index2 = numpy.argmax(pxx[index + cutoff: pxx.size])
       max_value = max(pxx[index - cutoff: pxx.size])
-      index2 += cutoff
-      axes2.plot([f[index2]], [pxx[index2]], 'r.', markersize = 8);
+      index2 = index2 + index + cutoff
+      axes2.plot([f[index2]], [pxx[index2]], 'r.', markersize = 10);
       self.second_mode = f[index2]
       
       r.html_result, r.text_summary, tr = self.sine_sweep_analysis(image_title)
       axes2.axvline(x=self.data.arg_value[0], color='r') # Line at first mode
+      axes2.axvline(x=self.data.arg_value[1], color='r') # Line at second mode
       axes2.set_xlim(0, 100)
-      axes2.set_ylim(0, max_value+10)
+      axes2.set_ylim(0, min(max_value + 10, max_value * 1.25))
       axes2.set_xlabel('Frequency')
       axes2.set_ylabel('Power')
       axes2.set_title('Velocity PSD')
@@ -565,9 +560,6 @@ class App:
       # Title
       fig.text(.35, .95, self.data.joint_name + ' SineSweep Test')
 
-      
-      #r.html_result = html
-      #r.text_summary = summary
       if tr==True:
         r.result = TestResultRequest.RESULT_PASS
       else:
@@ -576,7 +568,6 @@ class App:
       stream = StringIO()
       plot.savefig(stream, format="png")
       image = stream.getvalue()
-      
       
       p = qualification.msg.Plot()
       r.plots.append(p)
@@ -613,10 +604,14 @@ class App:
       html += "<H6>First mode: <b>OK</b>.</H6>"
       summary += "First mode: OK."
       tr=True
-    html += "<p>First mode measured: %f, expected: %f.</p>" % (self.first_mode, first_mode_param)
-    #html += "<p>Second mode measured: %f, expected %f.</p>" % (self.second_mode, second_mode_param)
+    html += "<p>First mode measured: %f, expected: %f.<br>" % (self.first_mode, first_mode_param)
+    html += "<br>Second mode measured: %f, expected %f.</p>" % (self.second_mode, second_mode_param)
 
     html += '<br><img src=\"IMG_PATH/%s.png\", width = 640, height = 480/><br>' % image_title
+
+    html += '<hr size="2">\n'
+
+    html += self.controller_params()
 
     return (html, summary, tr)
 
@@ -628,4 +623,4 @@ if __name__ == "__main__":
   except Exception, e:
     traceback.print_exc()
     
-  print 'Quitting Hysteresis Sinesweep Plot, shutting down node.'
+  rospy.loginfo('Quitting Hysteresis Sinesweep Plot, shutting down node.')

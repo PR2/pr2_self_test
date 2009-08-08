@@ -48,12 +48,10 @@ ret = wx.MessageBox("Hello!", "Hi!", wx.OK|wx.CANCEL)
 if (ret == wx.CANCEL):
     done = ScriptDoneRequest()
     done.result = ScriptDoneRequest.RESULT_FAIL
-    done.script = 'popup message'
     done.failure_msg = 'Cancel pressed on popup window.'
 else:
     done = ScriptDoneRequest()
     done.result = ScriptDoneRequest.RESULT_OK
-    done.script = 'popup message'
     done.failure_msg = ''
     
 try:

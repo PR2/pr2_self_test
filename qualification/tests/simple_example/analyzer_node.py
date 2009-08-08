@@ -37,10 +37,9 @@ roslib.load_manifest('qualification')
 
 import sys
 import rospy
-from std_srvs.srv import *
-from qualification.srv import *
+from std_srvs.srv import Empty
+from qualification.srv import TestResult, TestResultRequest
 import qualification.msg
-import std_msgs
 import time
 
 import rospy
@@ -49,16 +48,17 @@ import matplotlib.pyplot as plt
 from StringIO import StringIO
 
 if (len(sys.argv) <= 1):
-  print >> sys.stderr, 'Must specify one of pass/fail/human'
+  rospy.logerr('Must specify one of pass/fail/human')
+  sys.exit(0)
 
-rospy.init_node("test_analyzer", anonymous=True)
+rospy.init_node("test_analyzer")
+
 test_service = rospy.ServiceProxy('self_test', Empty)
 result_service = rospy.ServiceProxy('test_result', TestResult)
 
 rospy.wait_for_service('self_test')
 test_service()
 
-rospy.logerr("Got response, sending test result")
 r = TestResultRequest()
 r.plots = []
 if (sys.argv[1] == "pass"):

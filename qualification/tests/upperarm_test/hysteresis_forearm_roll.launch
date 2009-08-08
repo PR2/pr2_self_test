@@ -1,4 +1,24 @@
-<launch> 
-  <node pkg="mechanism_control" type="spawner.py" args="$(find qualification)/tests/upperarm_test/hysteresis_forearm_roll.xml" />
+<launch>
+  <group ns="test_controller" clear_params="true">
+    <param name="type" type="string" value="HysteresisController" />
+    <param name="velocity" type="double" value="1.5" />
+    <param name="max_effort" type="double" value="2.0" />
+    <param name="max_expected" type="double" value="0.29" />
+    <param name="min_expected" type="double" value="-0.29" />
+    <param name="max_position" type="double" value="0" />
+    <param name="min_position" type="double" value="0" />
+    <param name="timeout" type="double" value="30" />
+
+    <group ns="velocity_controller" clear_params="true">
+      <param name="type" type="string" value="JointVelocityController" />
+      <param name="joint" type="string" value="r_forearm_roll_joint" />
+      <param name="pid/p" type="double" value="5.0" />
+      <param name="pid/i" type="double" value="0.0" />
+      <param name="pid/d" type="double" value="0.0" />
+      <param name="pid/i_clamp" type="double" value="0.0" />
+    </group>
+  </group>
+  
+  <node pkg="mechanism_control" type="spawner.py" args="test_controller" />
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
 </launch>

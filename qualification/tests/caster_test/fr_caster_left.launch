@@ -1,0 +1,4 @@
+<launch>
+  <param name="caster_test/side" value="fr" type="str" />
+  <param name="caster_test/wheel" value="l" type="str" />
+</launch>

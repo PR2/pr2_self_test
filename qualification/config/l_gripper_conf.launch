@@ -2,11 +2,8 @@
   <include file="$(find qualification)/tests/init.machine" />
 
   <!-- Configure MCB -->
-  <node machine="realtime" pkg="qualification" type="configure_mcbs.py" args="--motor=l_gripper_motor,0" />
-
-  <node machine="realtime" pkg="qualification" type="count_mcbs.py" />
+  <node machine="realtime" pkg="qualification" type="mcb_prog_conf.py" args="-c -n 1 --motor=l_gripper_motor,0" />
 
   <!-- Confirm configuation -->
   <node pkg="qualification" type="confirm_conf.py" output="screen"/>
 </launch>
-

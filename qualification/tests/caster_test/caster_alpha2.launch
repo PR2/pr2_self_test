@@ -6,7 +6,8 @@
   <include file="$(find qualification)/tests/init.machine" />
   <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
 
-  <!-- Needs calibration? -->
-  <node pkg="mechanism_bringup" type="calibrate.py"
-  	args="$(find qualification)/tests/caster_test/caster_cal_alpha2.xml" />
+  <!-- Caster calibration -->
+  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
+  <node pkg="mechanism_bringup" type="calibrate.py" output="screen"
+  	args="cal_caster_fl_alpha2" />
 </launch>

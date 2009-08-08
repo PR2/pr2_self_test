@@ -33,7 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 
-# Kevin Watts
+# Author: Kevin Watts
 
 import roslib
 roslib.load_manifest('qualification')
@@ -48,8 +48,8 @@ rospy.init_node('configuration_subtest')
 result_proxy = rospy.ServiceProxy('test_result', TestResult)
 
 # Later we can run motor conf and actually check the configuration
-serial = rospy.get_param('conf_serial')
-name = rospy.get_param('conf_name')
+serial = rospy.get_param('/qual_item/serial')
+name = rospy.get_param('/qual_item/name')
 
 html = '<p>Configured %s as %s.</p>\n' % (serial, name)
 

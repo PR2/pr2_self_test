@@ -43,7 +43,7 @@ import roslib
 roslib.load_manifest(PKG) 
 import wx 
 from wx import xrc
-from deprecated_srvs.srv import *
+from qualification.srv import ConfirmConf, ConfirmConfRequest, ConfirmConfResponse
 import rospy 
 import time
 import os
@@ -51,16 +51,11 @@ import os
 app = wx.PySimpleApp()
 process_done = False
 prompt_done = False
-prompt_click ="no"
+prompt_click =False
 frame=wx.Frame(None)
 
  
-def msg_detail_prompt(msg):
-  # Parse msg for details
-  msg, sep, details = msg.partition(':::')
-  if len(details) < 5:
-    details = 'No details available.'#
-
+def msg_detail_prompt(msg, details):
   # Load MCB conf dialog box from gui.xrc
   xrc_path = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'xrc/gui.xrc')
   xrc_resource = xrc.XmlResource(xrc_path)
@@ -68,52 +63,47 @@ def msg_detail_prompt(msg):
   dialog = xrc_resource.LoadDialog(None, 'confirm_conf_dialog')
   # Set text in message text
   xrc.XRCCTRL(dialog, 'message_text').SetLabel(msg)
-  xrc.XRCCTRL(dialog, 'message_text').Wrap(300)  
+  xrc.XRCCTRL(dialog, 'message_text').Wrap(400)  
   xrc.XRCCTRL(dialog, 'detail_text').AppendText(details)
+
+  global prompt_click, prompt_done
   
   dialog.Layout()
   dialog.Fit()
 
-  global prompt_click, prompt_done
-
-  if (dialog.ShowModal() == wx.ID_OK):
-    prompt_click = "yes"
-  else:
-    prompt_click = "no"
+  prompt_click = (dialog.ShowModal() == wx.ID_OK)
   prompt_done = True
   dialog.Destroy()
    
 def check_w_user(req):
-  rospy.logout("Confirm Conf Result: %s" % req.str)
-  if req.str == "done":
-    wx.CallAfter(frame.Close)
-    return StringStringResponse("na")
-  global prompt_done
-  prompt_done=False
+  global prompt_done, prompt_click
 
-  wx.CallAfter(msg_detail_prompt, req.str)
+  wx.CallAfter(msg_detail_prompt, req.message, req.details)
 
-  while(not prompt_done):
-    rospy.logout("Waiting for retry prompt . . .")
-    for i in range(0, 5):
-      time.sleep(1) 
+  while(not prompt_done and not rospy.is_shutdown()):
+    rospy.loginfo("Waiting for retry prompt . . .")
+    for i in range(0, 10):
+      time.sleep(0.5) 
 
-  rospy.logout("User result: %s" % prompt_click)
-  
-  if prompt_click =="yes":
-    return StringStringResponse("retry")
+  resp = ConfirmConfResponse()
+  if prompt_click:
+    resp.retry = ConfirmConfResponse.RETRY
   else:
-    wx.CallAfter(frame.Close)      
-    return StringStringResponse("fail")
+    resp.retry = ConfirmConfResponse.FAIL
+
+  #wx.CallAfter(frame.Close)    
+
+  prompt_done = False
+  prompt_click = False
+  return resp
+
  
 def confirm_conf():
   rospy.init_node(NAME)
-  s = rospy.Service('mcb_conf_results', StringString, check_w_user)  
+  s = rospy.Service('mcb_conf_results', ConfirmConf, check_w_user)  
   app.MainLoop()
   time.sleep(1)
   
-
-
 
 if __name__ == "__main__":  
   confirm_conf()

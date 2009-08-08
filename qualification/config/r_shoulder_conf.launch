@@ -2,9 +2,7 @@
   <include file="$(find qualification)/tests/init.machine" />
 
   <!-- configure_mcbs -->
-  <node machine="realtime" pkg="qualification" type="configure_mcbs.py" args="--motor=r_shoulder_pan_motor,0 --motor=r_shoulder_lift_motor,1 --motor=r_upper_arm_roll_motor,2" />
-
-  <node machine="realtime" pkg="qualification" type="count_mcbs.py" />
+  <node machine="realtime" pkg="qualification" type="mcb_prog_conf.py" args="-c -n 3 --motor=r_shoulder_pan_motor,0 --motor=r_shoulder_lift_motor,1 --motor=r_upper_arm_roll_motor,2" />
 
   <!-- Confirm configuation -->
   <node pkg="qualification" type="confirm_conf.py" output="screen"/>

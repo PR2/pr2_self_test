@@ -37,50 +37,88 @@
 import roslib
 roslib.load_manifest('qualification')
 import rospy, sys, time
-
-from mechanism_msgs.srv import SpawnController, KillController
+import os.path
+import signal
 
 from mechanism_control import mechanism
+from mechanism_msgs.srv import SpawnController, KillController, SwitchController
 
-def main():
-    if len(sys.argv) < 2:
-        print "Can't load test XML file."
-        sys.exit(1)
+from xml.dom.minidom import parse, parseString
+import xml.dom
 
-    rospy.init_node('caster_test_spawner_node')
+def print_usage(exit_code = 0):
+    print 'spawner.py [--stopped] <controller names>'
+    sys.exit(exit_code)
 
-    side = rospy.get_param("caster_test/side")
+rospy.wait_for_service('spawn_controller')
+spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
+kill_controller = rospy.ServiceProxy('kill_controller', KillController)
+switch_controller = rospy.ServiceProxy('switch_controller', SwitchController)
 
-    try:
-        rospy.wait_for_service('spawn_controller')
-        spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
-        kill_controller = rospy.ServiceProxy('kill_controller', KillController)
+spawned = None
+prev_handler = None
 
-        controller_file = open(sys.argv[1])
-        controller_xml = controller_file.read() % side
-
-        controller_file.close()
-
-        resp = spawn_controller(controller_xml,1)
-
-        if len(resp.ok) != 1 or resp.ok[0] != chr(1):
-            rospy.logerr('Failed to spawn test controller')
-            rospy.logerr('Controller XML: %s' % controller_xml)
-            sys.exit(2)
-
-        while not rospy.is_shutdown():
-            time.sleep(0.5)
-    finally:
+def shutdown(sig, stackframe):
+    global spawned
+    if spawned is not None:
         for i in range(3):
             try:
-                rospy.logout("Trying to kill test_controller")
-                resp = kill_controller('test_controller')
-                if resp.ok[0] == chr(1):
-                    rospy.logout("Succeeded in killing test_controller")
-                    break
+                rospy.logout("Trying to kill %s" % spawned)
+                kill_controller(spawned)
+                rospy.logout("Succeeded in killing %s" % spawned)
+                break
             except rospy.ServiceException:
-                rospy.logerr("ServiceException while killing test_controller")
+                raise
+                rospy.logerr("ServiceException while killing %s" % spawned)
+    # We're shutdown.  Now invoke rospy's handler for full cleanup.
+    if prev_handler is not None:
+        prev_handler(signal.SIGINT,None)
 
+def main():
+    if len(sys.argv) < 4:
+        print "caster_test_spawner.py <controller_name> <joint_param_name> <joint_base_name>"
+        sys.exit(2)
+
+    rospy.init_node('caster_test_spawner')
+
+    side = rospy.get_param("caster_test/side") # 'fl', etc
+    wheel = rospy.get_param("caster_test/wheel") # 'l' or 'r'
+
+    # Override rospy's signal handling.  We'll invoke rospy's handler after
+    # we're done shutting down.
+    global prev_handler
+    prev_handler = signal.getsignal(signal.SIGINT)
+    signal.signal(signal.SIGINT, shutdown)
+
+    # Controller name
+    controller = rospy.myargv()[1]
+    # Parameter that stores joint name for controller
+    joint_param_name = rospy.myargv()[2] 
+    # Caster base name looks like "SIDE_caster_WHEEL_wheel_joint"
+    joint_base_name = rospy.myargv()[3]
+
+    # Get full caster joint name
+    joint_name = joint_base_name.replace('WHEEL', wheel).replace('SIDE', side)
+    # Set the name of the joint we want to control
+    rospy.set_param(joint_param_name, joint_name)
+
+    global spawned
+
+    resp = spawn_controller(controller)
+    if resp.ok != 0:
+        spawned = controller
+        rospy.loginfo("Spawned controller: %s" % controller)
+    else:
+        time.sleep(1) # give error message a chance to get out
+        rospy.logerr("Failed to spawn %s" % controller)
+
+    resp = switch_controller([spawned], [], 2)
+    if resp.ok != 0:
+        rospy.loginfo("Started controllers: %s" % spawned)
+    else:
+        rospy.logerr("Failed to start controller: %s" % spawned)
+
+    rospy.spin()
 
 if __name__ == '__main__':
     main()
