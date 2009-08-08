@@ -111,34 +111,17 @@ public:
     }
   }
 
-  void image_cb(const sensor_msgs::Image::ConstPtr &img_msg_orig)
+  void image_cb(const sensor_msgs::Image::ConstPtr &img_msg)
   {
-    sensor_msgs::Image img_msg = *img_msg_orig; // Because we will be changing the encoding.
     frame_++;
     if (frame_ <= skip_frames_)
       return;
     
     // Compute image intensity.
 
-    if (img_msg.encoding.find("bayer") != std::string::npos)
-      img_msg.encoding = "mono";
-    
-    long long sum = 0;
-    
-    if (img_bridge_.fromImage(img_msg, "mono"))
-    {
-      std::vector<unsigned char> data = img_msg.uint8_data.data;
-      int pixels = img_msg.uint8_data.layout.dim[0].size * img_msg.uint8_data.layout.dim[1].size;
-
-      for (int i = 0; i < pixels; i++)
-      {
-        sum += data[i];
-      }
-      
-      //ROS_INFO("Sum: %f", sum / 7e6);
-    }
-    
-    double intensity = sum / 7e6;
+    img_bridge_.fromImage(img_msg);
+    CvScalar mean = cvAvg(img_bridge_.toIpl());
+    double intensity = mean.val[0];
 
     // Control logic
     
