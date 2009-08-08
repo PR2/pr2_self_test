@@ -101,9 +101,9 @@ class TransmissionMonitor():
         diag.strings.append(DiagnosticString(value=self._actuator, label="Actuator"))
         diag.strings.append(DiagnosticString(value=str(self._positive), label="Positive Joint"))
         diag.strings.append(DiagnosticString(value=str(self._continuous), label="Continuous Joint"))
-        diag.values.append(DiagnosticValue(value=float(self._ref_position), label="Reference Position"))
-        diag.values.append(DiagnosticValue(value=float(self._deadband), label="Deadband"))
-        diag.values.append(DiagnosticValue(value=float(self._rx_count), label="Mech State RX Count"))
+        diag.values.append(KeyValue(value=float(self._ref_position), label="Reference Position"))
+        diag.values.append(KeyValue(value=float(self._deadband), label="Deadband"))
+        diag.values.append(KeyValue(value=float(self._rx_count), label="Mech State RX Count"))
 
 
         # Check if we can find both the joint and actuator
@@ -150,17 +150,17 @@ class TransmissionMonitor():
         diag.strings.insert(0, DiagnosticString(value=diag.message, label='Transmission Status'))
         diag.strings.insert(1, DiagnosticString(value=reading_msg, label='Current Reading'))
         diag.strings.append(DiagnosticString(value=str(calibrated), label='Is Calibrated'))
-        diag.values.append(DiagnosticValue(value=cal_reading, label='Calibration Reading'))
-        diag.values.append(DiagnosticValue(value=position, label='Joint Position'))
+        diag.values.append(KeyValue(value=cal_reading, label='Calibration Reading'))
+        diag.values.append(KeyValue(value=position, label='Joint Position'))
         
-        diag.values.append(DiagnosticValue(value=self._num_errors, label='Total Errors'))
-        diag.values.append(DiagnosticValue(value=self._num_errors_since_reset, label='Errors Since Reset'))
+        diag.values.append(KeyValue(value=self._num_errors, label='Total Errors'))
+        diag.values.append(KeyValue(value=self._num_errors_since_reset, label='Errors Since Reset'))
 
         self._max_position = max(self._max_position, position)
-        diag.values.append(DiagnosticValue(value = self._max_position, label='Max Obs. Position'))
+        diag.values.append(KeyValue(value = self._max_position, label='Max Obs. Position'))
 
         self._min_position = min(self._min_position, position)
-        diag.values.append(DiagnosticValue(value = self._min_position, label='Min Obs. Position'))
+        diag.values.append(KeyValue(value = self._min_position, label='Min Obs. Position'))
         
         return diag, self._ok
 

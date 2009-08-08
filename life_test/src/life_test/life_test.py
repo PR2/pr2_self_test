@@ -49,7 +49,7 @@ from wx import xrc
 
 import rospy
 from std_srvs.srv import *
-from diagnostic_msgs.msg import DiagnosticMessage, DiagnosticStatus, DiagnosticValue, DiagnosticString
+from diagnostic_msgs.msg import DiagnosticMessage, DiagnosticStatus, KeyValue, DiagnosticString
 
 # Stuff from life_test package
 from msg import TestStatus

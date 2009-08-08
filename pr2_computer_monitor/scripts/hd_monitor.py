@@ -110,7 +110,7 @@ def update_status_stale(stat, last_update_time):
     stat.strings.pop(0)
     stat.values.pop(0)
     stat.strings.insert(0, DiagnosticString(label = 'Update Status', value = stale_status))
-    stat.values.insert(0, DiagnosticValue(label = 'Time Since Update', value = time_since_update))
+    stat.values.insert(0, KeyValue(label = 'Time Since Update', value = time_since_update))
 
 class hdMonitor():
     def __init__(self, hostname, home_dir = ''):
@@ -130,7 +130,7 @@ class hdMonitor():
         self._temp_stat.hardware_id = hostname
         self._temp_stat.message = 'No Data'
         self._temp_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
-        self._temp_stat.values = [ DiagnosticValue(label = 'Time Since Last Update', value = 100000 )]
+        self._temp_stat.values = [ KeyValue(label = 'Time Since Last Update', value = 100000 )]
 
         if self._home_dir != '':
             self._usage_stat = DiagnosticStatus()
@@ -138,7 +138,7 @@ class hdMonitor():
             self._usage_stat.hardware_id = hostname
             self._usage_stat.name = '%s HD Usage' % hostname
             self._usage_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
-            self._usage_stat.values = [ DiagnosticValue(label = 'Time Since Last Update', value = 100000) ]
+            self._usage_stat.values = [ KeyValue(label = 'Time Since Last Update', value = 100000) ]
             self.check_disk_usage()
 
         self._last_temp_time = 0
@@ -170,7 +170,7 @@ class hdMonitor():
             return
 
         diag_strs = [ DiagnosticString(label = 'Update Status', value = 'OK' ) ]
-        diag_vals = [ DiagnosticValue(label = 'Time Since Last Update', value = 0 ) ]
+        diag_vals = [ KeyValue(label = 'Time Since Last Update', value = 0 ) ]
         diag_level = 0
         diag_message = 'OK'
                 
@@ -188,7 +188,7 @@ class hdMonitor():
             diag_strs.append(DiagnosticString(label = 'Disk %d Temp Status' % index, value = temp_dict[temp_level]))
             diag_strs.append(DiagnosticString(label = 'Disk %d Mount Pt.' % index, value = drives[index]))
             diag_strs.append(DiagnosticString(label = 'Disk %d Device ID' % index, value = makes[index]))
-            diag_vals.append(DiagnosticValue(label = 'Disk %d Temp' % index, value = temp))
+            diag_vals.append(KeyValue(label = 'Disk %d Temp' % index, value = temp))
         
         if not temp_ok:
             diag_level = 2
@@ -229,7 +229,7 @@ class hdMonitor():
             return
 
         diag_strs = [ DiagnosticString(label = 'Update Status', value = 'OK' ) ]
-        diag_vals = [ DiagnosticValue(label = 'Time Since Last Update', value = 0 ) ]
+        diag_vals = [ KeyValue(label = 'Time Since Last Update', value = 0 ) ]
         diag_level = 0
         diag_message = 'OK'
         

@@ -95,7 +95,7 @@ def check_ipmi():
                     tmp = ipmi_val.rstrip(' degrees C').lstrip()
                     if unicode(tmp).isnumeric():
                         temperature = float(tmp)
-                        diag_vals.append(DiagnosticValue(label = name, value = temperature))
+                        diag_vals.append(KeyValue(label = name, value = temperature))
 
                         cpu_name = name.split()[0]
                         if temperature >= 80 and temperature < 85:
@@ -121,7 +121,7 @@ def check_ipmi():
                     tmp = ipmi_val.rstrip(' degrees C').lstrip()
                     if unicode(tmp).isnumeric():
                         temperature = float(tmp)
-                        diag_vals.append(DiagnosticValue(label = name, value = temperature))
+                        diag_vals.append(KeyValue(label = name, value = temperature))
                         
                         dev_name = name.split()[0]
                         if temperature >= 60 and temperature < 70:
@@ -140,7 +140,7 @@ def check_ipmi():
                     rpm = ipmi_val.rstrip(' RPM').lstrip()
                     if unicode(rpm).isnumeric():
                         rpm = float(rpm)
-                        diag_vals.append(DiagnosticValue(label = name, value = rpm))
+                        diag_vals.append(KeyValue(label = name, value = rpm))
                     else:
                         diag_strs.append(DiagnosticString(label = name, value = ipmi_val))
 
@@ -189,7 +189,7 @@ def check_core_temps(sys_temp_strings):
         tmp = stdout.strip()
         if unicode(tmp).isnumeric():
             temp = float(tmp) / 1000
-            diag_vals.append(DiagnosticValue(label = 'Core %d Temp' % index, value = temp))
+            diag_vals.append(KeyValue(label = 'Core %d Temp' % index, value = temp))
 
             if temp >= 85 and temp < 90:
                 diag_level = max(diag_level, 1)
@@ -233,7 +233,7 @@ def check_clock_speed(enforce_speed):
             speed = words[1].strip().split('.')[0]
             if unicode(speed).isnumeric():
                 mhz = float(speed)
-                vals.append(DiagnosticValue(label = 'Core %d Speed' % index, value = mhz))
+                vals.append(KeyValue(label = 'Core %d Speed' % index, value = mhz))
                 
                 if mhz < 2240 and mhz > 2150:
                     lvl = max(lvl, 1)
@@ -279,10 +279,10 @@ def check_uptime():
         load15 = float(upvals[-1])
         num_users = float(upvals[-7])
 
-        vals.append(DiagnosticValue(label = '1 min Load Average', value = load1))
-        vals.append(DiagnosticValue(label = '5 min Load Average', value = load5))
-        vals.append(DiagnosticValue(label = '15 min Load Average', value = load15))
-        vals.append(DiagnosticValue(label = 'Number of Users', value = num_users))
+        vals.append(KeyValue(label = '1 min Load Average', value = load1))
+        vals.append(KeyValue(label = '5 min Load Average', value = load5))
+        vals.append(KeyValue(label = '15 min Load Average', value = load15))
+        vals.append(KeyValue(label = 'Number of Users', value = num_users))
 
         if load1 > 25 or load5 > 18:
             level = 1
@@ -321,9 +321,9 @@ def check_memory():
         used_mem = float(data[2])
         free_mem = float(data[3])
 
-        values.append(DiagnosticValue(label = 'Total Memory', value = total_mem))
-        values.append(DiagnosticValue(label = 'Used Memory', value = used_mem))
-        values.append(DiagnosticValue(label = 'Free Memory', value = free_mem))
+        values.append(KeyValue(label = 'Total Memory', value = total_mem))
+        values.append(KeyValue(label = 'Used Memory', value = used_mem))
+        values.append(KeyValue(label = 'Free Memory', value = free_mem))
 
         level = 0
         if free_mem < 10:
@@ -374,10 +374,10 @@ def check_mpstat():
             nice = float(lst[4])
             system = float(lst[5])
             
-            vals.append(DiagnosticValue(label = 'CPU %s User' % cpu_name, value = user))
-            vals.append(DiagnosticValue(label = 'CPU %s Nice' % cpu_name, value = nice))
-            vals.append(DiagnosticValue(label = 'CPU %s System' % cpu_name, value = system))
-            vals.append(DiagnosticValue(label = 'CPU %s Idle' % cpu_name, value = idle))
+            vals.append(KeyValue(label = 'CPU %s User' % cpu_name, value = user))
+            vals.append(KeyValue(label = 'CPU %s Nice' % cpu_name, value = nice))
+            vals.append(KeyValue(label = 'CPU %s System' % cpu_name, value = system))
+            vals.append(KeyValue(label = 'CPU %s Idle' % cpu_name, value = idle))
 
             core_level = 0
             if user + nice > 75.0:
@@ -432,7 +432,7 @@ def update_status_stale(stat, last_update_time):
     stat.strings.pop(0)
     stat.values.pop(0)
     stat.strings.insert(0, DiagnosticString(label = 'Update Status', value = stale_status))
-    stat.values.insert(0, DiagnosticValue(label = 'Time Since Update', value = time_since_update))
+    stat.values.insert(0, KeyValue(label = 'Time Since Update', value = time_since_update))
 
 class CPUMonitor():
     def __init__(self, hostname):
@@ -455,7 +455,7 @@ class CPUMonitor():
         self._temp_stat.hardware_id = hostname
         self._temp_stat.message = 'No Data'
         self._temp_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
-        self._temp_stat.values = [ DiagnosticValue(label = 'Time Since Last Update', value = 100000 )]
+        self._temp_stat.values = [ KeyValue(label = 'Time Since Last Update', value = 100000 )]
 
         self._usage_stat = DiagnosticStatus()
         self._usage_stat.name = '%s CPU Usage' % hostname
@@ -463,7 +463,7 @@ class CPUMonitor():
         self._usage_stat.hardware_id = hostname
         self._usage_stat.message = 'No Data'
         self._usage_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
-        self._usage_stat.values = [ DiagnosticValue(label = 'Time Since Last Update', value = 100000 )]
+        self._usage_stat.values = [ KeyValue(label = 'Time Since Last Update', value = 100000 )]
 
         self._nfs_stat = DiagnosticStatus()
         self._nfs_stat.name = '%s NFS I/O' % hostname
@@ -471,7 +471,7 @@ class CPUMonitor():
         self._nfs_stat.hardware_id = hostname
         self._nfs_stat.message = 'No Data'
         self._nfs_stat.strings = [ DiagnosticString(label = 'Update Status', value = 'No Data' )]
-        self._nfs_stat.values = [ DiagnosticValue(label = 'Time Since Last Update', value = 100000 )]
+        self._nfs_stat.values = [ KeyValue(label = 'Time Since Last Update', value = 100000 )]
 
         self._last_temp_time = 0
         self._last_usage_time = 0
@@ -510,7 +510,7 @@ class CPUMonitor():
         nfs_level = 0
         msg = 'OK'
         strs = [ DiagnosticString(label = 'Update Status', value = 'OK' )]
-        vals = [ DiagnosticValue(label = 'Time Since Last Update', value = 0 )]
+        vals = [ KeyValue(label = 'Time Since Last Update', value = 0 )]
 
         try:
             p = subprocess.Popen('iostat -n',
@@ -535,17 +535,17 @@ class CPUMonitor():
                 r_blk_srv = float(lst[5])
                 w_blk_srv = float(lst[6])
                 
-                vals.append(DiagnosticValue(
+                vals.append(KeyValue(
                         label = '%s Read Blks/s' % file_sys, value=read_blk))
-                vals.append(DiagnosticValue(
+                vals.append(KeyValue(
                         label = '%s Write Blks/s' % file_sys, value=write_blk))
-                vals.append(DiagnosticValue(
+                vals.append(KeyValue(
                         label = '%s Read Blk dir/s' % file_sys, value=read_blk_dir))
-                vals.append(DiagnosticValue(
+                vals.append(KeyValue(
                         label = '%s Write Blks dir/s' % file_sys, value=write_blk_dir))
-                vals.append(DiagnosticValue(
+                vals.append(KeyValue(
                         label = '%s Read Blks srv/s' % file_sys, value=r_blk_srv))
-                vals.append(DiagnosticValue(
+                vals.append(KeyValue(
                         label = '%s Write Blks srv/s' % file_sys, value=w_blk_srv))
                 
         except Exception, e:
@@ -580,7 +580,7 @@ class CPUMonitor():
             return
 
         diag_strs = [ DiagnosticString(label = 'Update Status', value = 'OK' ) ]
-        diag_vals = [ DiagnosticValue(label = 'Time Since Last Update', value = 0 ) ]
+        diag_vals = [ KeyValue(label = 'Time Since Last Update', value = 0 ) ]
         diag_msgs = []
         diag_level = 0
 
@@ -634,7 +634,7 @@ class CPUMonitor():
 
         diag_level = 0
         diag_strs = [ DiagnosticString(label = 'Update Status', value = 'OK' ) ]
-        diag_vals = [ DiagnosticValue(label = 'Time Since Last Update', value = 0 )]
+        diag_vals = [ KeyValue(label = 'Time Since Last Update', value = 0 )]
         
         # Check mpstat
         mp_level, mp_vals, mp_strs = check_mpstat()

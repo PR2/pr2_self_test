@@ -39,7 +39,7 @@ roslib.load_manifest('life_test')
 import wx
 import sys
 
-from diagnostic_msgs.msg import DiagnosticMessage, DiagnosticStatus, DiagnosticValue, DiagnosticString
+from diagnostic_msgs.msg import DiagnosticMessage, DiagnosticStatus, KeyValue, DiagnosticString
 from std_srvs.srv import *
 from mechanism_msgs.msg import MechanismState, JointState, ActuatorState
 

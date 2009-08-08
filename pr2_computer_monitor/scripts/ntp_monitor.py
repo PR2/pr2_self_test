@@ -34,7 +34,7 @@
 import roslib
 roslib.load_manifest('pr2_computer_monitor')
 
-from diagnostic_msgs.msg import DiagnosticMessage, DiagnosticStatus, DiagnosticValue, DiagnosticString
+from diagnostic_msgs.msg import DiagnosticMessage, DiagnosticStatus, KeyValue, DiagnosticString
 import sys
 import rospy
 import socket
