@@ -48,8 +48,10 @@ import wx
 from wx import xrc
 
 import rospy
-from std_srvs.srv import *
-from diagnostic_msgs.msg import DiagnosticMessage, DiagnosticStatus, KeyValue, DiagnosticString
+
+from std_srvs.srv import * 
+#from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue, DiagnosticString
+
 
 # Stuff from life_test package
 from msg import TestStatus

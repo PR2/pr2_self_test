@@ -30,7 +30,7 @@
 import time
 import random
 import roslib
-roslib.load_manifest('caster_life_test')
+roslib.load_manifest('life_test')
 import rospy
 from std_msgs.msg import Float64
 from mechanism_msgs.msg import MechanismState
@@ -57,7 +57,7 @@ def main():
     speed = -SPEED
     last_time = 0
     rospy.init_node('periodic_drive', anonymous=True)
-    last_state = LastMessage('/mechanism_state', MechanismState)
+    last_state = LastMessage('/joint_state', JointStates)
     pub_steer = rospy.Publisher("/caster/steer_velocity", Float64)
     pub_drive = rospy.Publisher("/caster/drive_effort", Float64)
     pub_steer.publish(Float64(0.0))
@@ -66,11 +66,11 @@ def main():
     while not last_state.msg: pass
     while not rospy.is_shutdown():
         time.sleep(0.01)
-        mech_state = last_state.last()
+        joint_state = last_state.last()
         rotation_state = None
-        for joint_state in mech_state.joint_states:
-            if joint_state.name == ROTATION_JOINT:
-                rotation_state = joint_state
+        for state in joint_state.joints:
+            if state.name == ROTATION_JOINT:
+                rotation_state = state
                 break
         if not rotation_state:
             print "The %s joint was not found in the mechanism state" % ROTATION_JOINT

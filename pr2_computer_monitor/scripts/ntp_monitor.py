@@ -34,7 +34,8 @@
 import roslib
 roslib.load_manifest('pr2_computer_monitor')
 
-from diagnostic_msgs.msg import DiagnosticMessage, DiagnosticStatus, KeyValue, DiagnosticString
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue, DiagnosticString
+
 import sys
 import rospy
 import socket
@@ -47,7 +48,7 @@ import re
 NAME = 'ntp_monitor'
 
 def ntp_monitor(ntp_hostname, offset=500):
-    pub = rospy.Publisher("/diagnostics", DiagnosticMessage)
+    pub = rospy.Publisher("/diagnostics", DiagnosticArray)
     rospy.init_node(NAME, anonymous=True)
 
     hostname = socket.gethostbyaddr(socket.gethostname())[0]
@@ -88,7 +89,7 @@ def ntp_monitor(ntp_hostname, offset=500):
             stat.message = "Error running ntpupdate"
             stat.strings = [ DiagnosticString("N/A","offset (us)") ] 
 
-        pub.publish(DiagnosticMessage(None, [stat]))
+        pub.publish(DiagnosticArray(None, [stat]))
         time.sleep(1)
 
 def ntp_monitor_main(argv=sys.argv):

@@ -122,7 +122,7 @@ class hdMonitor():
         self._no_temp_warn =  rospy.get_param('no_hd_temp_warn', False)
         self._home_dir = home_dir
 
-        self._diag_pub = rospy.Publisher('/diagnostics', DiagnosticMessage)
+        self._diag_pub = rospy.Publisher('/diagnostics', DiagnosticArray)
 
         self._temp_stat = DiagnosticStatus()
         self._temp_stat.name = "%s HD Temperature" % hostname
@@ -314,7 +314,7 @@ class hdMonitor():
         self._mutex.acquire()
         update_status_stale(self._temp_stat, self._last_temp_time)
         
-        msg = DiagnosticMessage()
+        msg = DiagnosticArray()
         msg.status.append(self._temp_stat)
         if self._home_dir != '':
             update_status_stale(self._usage_stat, self._last_usage_time)

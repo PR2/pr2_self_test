@@ -438,7 +438,7 @@ class CPUMonitor():
     def __init__(self, hostname):
         rospy.init_node('cpu_monitor_%s' % hostname)
         
-        self._diag_pub = rospy.Publisher('/diagnostics', DiagnosticMessage)
+        self._diag_pub = rospy.Publisher('/diagnostics', DiagnosticArray)
 
         self._mutex = threading.Lock()
 
@@ -681,7 +681,7 @@ class CPUMonitor():
         update_status_stale(self._usage_stat, self._last_usage_time)
         update_status_stale(self._nfs_stat, self._last_nfs_time)
 
-        msg = DiagnosticMessage()
+        msg = DiagnosticArray()
         msg.status.append(self._temp_stat)
         msg.status.append(self._usage_stat)
         msg.status.append(self._nfs_stat)

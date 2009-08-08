@@ -75,8 +75,8 @@ class EtherCATTestMonitorNode():
         self._trans_status         = [] 
 
         self.test_status_pub = rospy.Publisher('test_status', TestStatus)
-        self.diag_sub = rospy.Subscriber('/diagnostics', DiagnosticMessage, self.diag_callback)
-        self.diag_pub = rospy.Publisher('/diagnostics', DiagnosticMessage)
+        self.diag_sub = rospy.Subscriber('/diagnostics', DiagnosticArray, self.diag_callback)
+        self.diag_pub = rospy.Publisher('/diagnostics', DiagnosticArray)
 
         self.reset_motors = rospy.ServiceProxy('reset_motors', Empty)
         self.halt_motors = rospy.ServiceProxy('halt_motors', Empty)
