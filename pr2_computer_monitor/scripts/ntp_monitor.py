@@ -34,7 +34,7 @@
 import roslib
 roslib.load_manifest('pr2_computer_monitor')
 
-from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue, DiagnosticString
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
 import sys
 import rospy
@@ -51,7 +51,7 @@ def ntp_monitor(ntp_hostname, offset=500):
     pub = rospy.Publisher("/diagnostics", DiagnosticArray)
     rospy.init_node(NAME, anonymous=True)
 
-    hostname = socket.gethostbyaddr(socket.gethostname())[0]
+    hostname = socket.gethostname()
 
     stat = DiagnosticStatus()
     stat.level = 0
@@ -59,8 +59,6 @@ def ntp_monitor(ntp_hostname, offset=500):
     stat.message = "Acceptable synchronization"
     stat.hardware_id = hostname
     stat.values = []
-    stat.values = []
-    stat.strings = []
     
     while not rospy.is_shutdown():
         try:
@@ -77,8 +75,7 @@ def ntp_monitor(ntp_hostname, offset=500):
 
             stat.level = 0
             stat.message = "Acceptable synchronization"
-            stat.strings = [ DiagnosticString(str(measured_offset),
-                                              "offset (us)") ]
+            stat.values = [ KeyValue("offset (us)", str(measured_offset)) ]
             
             if (abs(measured_offset) > offset):
                 stat.level = 2
@@ -87,7 +84,7 @@ def ntp_monitor(ntp_hostname, offset=500):
         else:
             stat.level = 2
             stat.message = "Error running ntpupdate"
-            stat.strings = [ DiagnosticString("N/A","offset (us)") ] 
+            stat.values = [ KeyValue("offset (us)", "N/A") ]
 
         pub.publish(DiagnosticArray(None, [stat]))
         time.sleep(1)
