@@ -95,9 +95,7 @@ try:
             html += "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">\n"
             html += "<tr><b><td>Label</td><td>Value</td></b></tr>\n"
             for val in stat.values:
-                html += "<tr><td>%s</td><td>%f</td></tr>\n" % (val.label, val.value)
-            for val in stat.strings:
-                html += "<tr><td>%s</td><td>%s</td></tr>\n" % (val.label, val.value)
+                html += "<tr><td>%s</td><td>%s</td></tr>\n" % (val.key, val.value)
             html += "</table></p>\n"
         
         html += "<hr size=\"2\">\n"
