@@ -39,7 +39,7 @@ import roslib
 roslib.load_manifest('life_test')
 
 from mechanism_msgs.msg import MechanismState
-from diagnostic_msgs.msg import *
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
 from std_srvs.srv import *
 
@@ -140,7 +140,9 @@ class EtherCATTestMonitorNode():
 
         self.test_status_pub.publish(status)
 
-        self.diag_pub.publish(status = self._trans_status)
+        array = DiagnosticArray()
+        array.status = self._trans_status
+        self.diag_pub.publish(array)
 
         # DISABLE FOR TESTING
         # Halt the test if we have a bad transmission

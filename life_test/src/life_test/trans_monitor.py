@@ -95,15 +95,14 @@ class TransmissionMonitor():
         diag.name = "Trans. Monitor: %s" % self._joint
         diag.message = "OK"
         diag.values = [ ]
-        diag.strings = [ ]
  
-        diag.strings.append(KeyValue(value=self._joint, label="Joint"))
-        diag.strings.append(KeyValue(value=self._actuator, label="Actuator"))
-        diag.strings.append(KeyValue(value=str(self._positive), label="Positive Joint"))
-        diag.strings.append(KeyValue(value=str(self._continuous), label="Continuous Joint"))
-        diag.values.append(KeyValue(value=float(self._ref_position), label="Reference Position"))
-        diag.values.append(KeyValue(value=float(self._deadband), label="Deadband"))
-        diag.values.append(KeyValue(value=float(self._rx_count), label="Mech State RX Count"))
+        diag.values.append(KeyValue("Joint", self._joint))
+        diag.values.append(KeyValue("Actuator", self._actuator))
+        diag.values.append(KeyValue("Positive Joint", str(self._positive)))
+        diag.values.append(KeyValue("Continuous Joint", str(self._continuous)))
+        diag.values.append(KeyValue("Reference Position", str(self._ref_position)))
+        diag.values.append(KeyValue("Deadband", str(self._deadband)))
+        diag.values.append(KeyValue("Mech State RX Count", str(self._rx_count)))
 
 
         # Check if we can find both the joint and actuator
@@ -122,8 +121,8 @@ class TransmissionMonitor():
             calibrated = (mech_state.joint_states[joint_names.index(self._joint)].is_calibrated == 1)
             
 
-        diag.strings.append(KeyValue(value=str(act_exists), label='Actuator Exists'))
-        diag.strings.append(KeyValue(value=str(joint_exists), label='Joint Exists'))
+        diag.values.append(KeyValue('Actuator Exists', str(act_exists)))
+        diag.values.append(KeyValue('Joint Exists', str(joint_exists)))
 
 
 
@@ -147,20 +146,20 @@ class TransmissionMonitor():
             diag.message = 'Broken'
             diag.level = 2
         
-        diag.strings.insert(0, KeyValue(value=diag.message, label='Transmission Status'))
-        diag.strings.insert(1, KeyValue(value=reading_msg, label='Current Reading'))
-        diag.strings.append(KeyValue(value=str(calibrated), label='Is Calibrated'))
-        diag.values.append(KeyValue(value=cal_reading, label='Calibration Reading'))
-        diag.values.append(KeyValue(value=position, label='Joint Position'))
+        diag.values.insert(0, KeyValue('Transmission Status', diag.message))
+        diag.values.insert(1, KeyValue('Current Reading', reading_msg))
+        diag.values.append(KeyValue('Is Calibrated', str(calibrated)))
+        diag.values.append(KeyValue('Calibration Reading',str(cal_reading)))
+        diag.values.append(KeyValue('Joint Position', str(position)))
         
-        diag.values.append(KeyValue(value=self._num_errors, label='Total Errors'))
-        diag.values.append(KeyValue(value=self._num_errors_since_reset, label='Errors Since Reset'))
+        diag.values.append(KeyValue('Total Errors', str(self._num_errors)))
+        diag.values.append(KeyValue('Errors Since Reset', str(self._num_errors_since_reset)))
 
         self._max_position = max(self._max_position, position)
-        diag.values.append(KeyValue(value = self._max_position, label='Max Obs. Position'))
+        diag.values.append(KeyValue('Max Obs. Position', str(self._max_position)))
 
         self._min_position = min(self._min_position, position)
-        diag.values.append(KeyValue(value = self._min_position, label='Min Obs. Position'))
+        diag.values.append(KeyValue('Min Obs. Position', str(self._min_position)))
         
         return diag, self._ok
 

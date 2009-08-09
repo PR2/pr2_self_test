@@ -39,7 +39,7 @@ roslib.load_manifest('life_test')
 import wx
 import sys
 
-from diagnostic_msgs.msg import DiagnosticMessage, DiagnosticStatus, KeyValue, DiagnosticString
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from std_srvs.srv import *
 from mechanism_msgs.msg import MechanismState, JointState, ActuatorState
 
@@ -57,7 +57,7 @@ class FakeTestFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, wx.ID_ANY, 'Fake Test')
         
-        self.diag_pub = rospy.Publisher('/diagnostics', DiagnosticMessage)
+        self.diag_pub = rospy.Publisher('/diagnostics', DiagnosticArray)
         self.mech_pub = rospy.Publisher('mechanism_state', MechanismState)
 
         self._mech_timer = wx.Timer(self, 2)
@@ -187,7 +187,7 @@ class FakeTestFrame(wx.Frame):
 
 
     def publish_diag(self, level, choice):
-        msg = DiagnosticMessage()
+        msg = DiagnosticArray()
         stat = DiagnosticStatus()
         msg.status.append(stat)
 
