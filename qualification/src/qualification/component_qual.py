@@ -429,8 +429,13 @@ class ComponentQualFrame(QualificationFrame):
 ## Starts roscore, qualification app for components
 class QualificationApp(wx.App):
   def OnInit(self):
-    self._core_launcher = roslaunch_caller.launch_core()
-
+    try:
+      self._core_launcher = roslaunch_caller.launch_core()
+    except Exception, e:
+      sys.stderr.write('Failed to launch core. Another core may already be running.\n\n')
+      traceback.print_exc()
+      sys.exit(5)
+      
     rospy.init_node("Qualification")
     
     self._frame = ComponentQualFrame(None)
