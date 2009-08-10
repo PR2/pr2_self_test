@@ -32,7 +32,7 @@ import roslib; roslib.load_manifest('life_test')
 import random, time
 import rospy
 from std_msgs.msg import *
-from robot_msgs.msg import *
+from geometry_msgs.msg import PoseStamped
 
 pub = rospy.Publisher('r_arm_cartesian_pose_controller/command', PoseStamped)
 

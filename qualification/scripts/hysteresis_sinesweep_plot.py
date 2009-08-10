@@ -34,7 +34,6 @@ import roslib; roslib.load_manifest(PKG)
 
 import numpy
 import math
-from robot_msgs.msg import *
 from std_msgs.msg import *
 from robot_srvs.srv import *
 

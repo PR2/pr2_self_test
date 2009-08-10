@@ -34,8 +34,6 @@
 import roslib
 roslib.load_manifest('qualification')
 
-from robot_msgs.msg import *
-from robot_srvs.srv import *
 from qualification.msg import *
 from qualification.srv import *
 
