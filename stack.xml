@@ -11,12 +11,12 @@
   <depend stack="visualization"/> <!-- rviz --> 
   <depend stack="3rdparty"/> <!-- spacenav --> 
   <depend stack="calibration"/> <!-- auto_arm_commander --> 
-  <depend stack="hardware_test"/> <!-- runtime_monitor, runtime_monitor --> 
-  <depend stack="mechanism"/> <!-- mechanism_control, mechanism_bringup, mechanism_control, mechanism_bringup, mechanism_msgs, mechanism_msgs, mechanism_control, mechanism_control, mechanism_msgs, mechanism_msgs --> 
-  <depend stack="controllers"/> <!-- pr2_mechanism_controllers, robot_mechanism_controllers, robot_mechanism_controllers, dynamic_verification_controllers, joint_qualification_controllers, pr2_mechanism_controllers, robot_mechanism_controllers, robot_mechanism_controllers, joint_qualification_controllers, robot_mechanism_controllers, robot_mechanism_controllers, pr2_mechanism_controllers --> 
+  <depend stack="hardware_test"/> <!-- runtime_monitor --> 
+  <depend stack="mechanism"/> <!-- mechanism_control, mechanism_bringup, mechanism_msgs --> 
+  <depend stack="controllers"/> <!-- pr2_mechanism_controllers, robot_mechanism_controllers, dynamic_verification_controllers, joint_qualification_controllers --> 
   <depend stack="opencv"/> <!-- opencv_latest --> 
-  <depend stack="ros"/> <!-- rospy, roslaunch, rospy, std_msgs, rospy, roslaunch, std_msgs, rospy, rospy, rospy, roscpp, std_msgs, rospy, std_msgs, roscpp, rospy, std_msgs, roscpp, std_msgs, roscpp, std_msgs, roscpp --> 
+  <depend stack="ros"/> <!-- rospy, roslaunch, std_msgs, roscpp --> 
   <depend stack="drivers"/> <!-- forearm_cam --> 
-  <depend stack="common_msgs"/> <!-- robot_srvs, robot_msgs, robot_srvs, diagnostic_msgs, diagnostic_msgs, robot_msgs, diagnostic_msgs, robot_srvs, robot_msgs, robot_msgs, robot_msgs, robot_msgs, robot_msgs --> 
+  <depend stack="common_msgs"/> <!-- robot_srvs, robot_msgs, diagnostic_msgs --> 
 
 </stack>
