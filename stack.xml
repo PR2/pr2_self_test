@@ -17,6 +17,6 @@
   <depend stack="opencv"/> <!-- opencv_latest --> 
   <depend stack="ros"/> <!-- rospy, roslaunch, std_msgs, roscpp --> 
   <depend stack="drivers"/> <!-- forearm_cam --> 
-  <depend stack="common_msgs"/> <!-- robot_srvs, robot_msgs, diagnostic_msgs --> 
+  <depend stack="common_msgs"/> <!-- diagnostic_msgs --> 
 
 </stack>
