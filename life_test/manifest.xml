@@ -33,4 +33,5 @@ When launching on robot, part must be calibrated with power on.
   <depend package="diagnostic_msgs" />
   <depend package="wg_hardware_roslaunch" />
   <depend package="mechanism_msgs" />
+  <depend package="geometry_msgs" />
 </package>

@@ -30,7 +30,7 @@
 
 import roslib; roslib.load_manifest('teleop_spacenav')
 import rospy, sys, math
-from robot_msgs.msg import Vector3
+from geometry_msgs.msg import Vector3
 
 def print_usage(code = 0):
     print sys.argv[0], '<velocity topic> <rotational velocity topic>'

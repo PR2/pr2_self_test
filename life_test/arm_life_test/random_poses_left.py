@@ -31,7 +31,7 @@ import roslib; roslib.load_manifest('life_test')
 
 import random, time
 import rospy
-from robot_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped
 
 #pub = rospy.Publisher('cartesian_pose/command', PoseStamped)
 pub = rospy.Publisher('cartesian_trajectory_left/command', PoseStamped)
