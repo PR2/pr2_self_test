@@ -35,7 +35,6 @@
 # Author: Scott Hassen
 
 
-
 #"""
 #usage: %(progname)s --username=... --password=... reference key value
 #
@@ -53,11 +52,13 @@ import mimetools
 import roslib
 roslib.load_manifest('invent_client')
 
-import rospy
 
-# Make log
-
+## \brief Stores username and password, provides access to invent
+## Performs all action relating to inventory system
+## Will login automatically before all functions if needed
 class Invent:
+  ##@param username str : Username for WG invent system
+  ##@param password str : Password for WG invent system
   def __init__(self, username, password):
     self.username = username
     self.password = password
@@ -70,6 +71,8 @@ class Invent:
     self.site = "http://invent.willowgarage.com/invent/"
     #self.site = "http://localhost/sinvent/"
 
+  ## Login to inventory system with given username and password
+  ## Returns True if successful, False if failure
   def login(self):
     username = self.username
     password = self.password
@@ -86,6 +89,8 @@ class Invent:
     self.loggedin = True
     return True
 
+  ## Return any references to an item 
+  ##@param key str : Serial number of item
   def getItemReferences(self, key):
     if self.loggedin == False:
       self.login()
@@ -108,6 +113,10 @@ class Invent:
     
     return ret
 
+  ## Add reference to an item
+  ##@param key str : Serial number of item
+  ##@param name str : Reference name
+  ##@param reference str : Reference value
   def addItemReference(self, key, name, reference):
     if self.loggedin == False:
       self.login()
@@ -118,7 +127,11 @@ class Invent:
     fp = self.opener.open(url)
     body = fp.read()
     fp.close()
-
+    
+  ## Generates Willow Garage mac address for item. Used for forearm cameras
+  ## Does not return mac address
+  ##@param key str : Serial number of item
+  ##@param name str : Interface name (ex: "lan0")
   def generateWGMacaddr(self, key, name):
     if self.loggedin == False:
       self.login()
@@ -130,6 +143,13 @@ class Invent:
     body = fp.read()
     fp.close()
 
+  ##\brief Sets notes of component
+  ## Sets a note value for the component. Allows users to set the text of 
+  ## a particular note if the noteid parameter is specified. Returns
+  ## noteid to allow note edits. Returns None if error.
+  ##@param reference str : Serial number of item
+  ##@param note str : Text of item
+  ##@param noteid int (optional) : Note ID, allows programmatic access to note text
   def setNote(self, reference, note, noteid=None):
     if self.loggedin == False:
       self.login()
@@ -149,6 +169,11 @@ class Invent:
       return noteid
     return None
 
+  ##\brief Set value of component's key
+  ## Set key-value of component. Ex: setKV(my_ref, 'Test Status', 'PASS')
+  ##@param reference str : Serial number of component
+  ##@param key str : Key (name)
+  ##@param value str : Value
   def setKV(self, reference, key, value):
     if self.loggedin == False:
       self.login()
@@ -167,6 +192,10 @@ class Invent:
     fp.read()
     fp.close()
 
+  ##\brief Return value of component's key
+  ## Get key-value of component. Ex: 'PASS' = getKV(my_ref, 'Test Status')
+  ##@param reference str : Serial number of component
+  ##@param key str : Key (name)
   def getKV(self, reference, key):
     if self.loggedin == False:
       self.login()
@@ -187,6 +216,14 @@ class Invent:
     
     return value
 
+  ##\brief Adds attachment to component
+  ## Adds file as attachment to component. Attachment it encoded to unicode,
+  ## then uploaded. Mimemtype is optional, but helps users view
+  ## attachments in window. 
+  ##@param reference str : Serial number of component
+  ##@param name str : Attachment filename
+  ##@param mimetype MIMEType : MIMEType of file
+  ##@param attachment any : Attachement data
   def add_attachment(self, reference, name, mimetype, attachment):
     if self.loggedin == False:
       self.login()
@@ -264,6 +301,3 @@ def encode_multipart_formdata(fields, files, BOUNDARY = '-----'+mimetools.choose
 
     return content_type, body
 
-if __name__ == '__main__':
-  invent = Invent('watts', 'willow')
-  rospy.spin()

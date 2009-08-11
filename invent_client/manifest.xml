@@ -5,7 +5,6 @@ Description of invent client.
   <author>Scott Hassen, Kevin Watts</author>
   <review status="na" notes=""/>
   <license>BSD</license>
-  <url>http://pr.willowgarage.com/wiki/Invent_Client</url>
-  <depend package="rospy" />
+  <url>http://pr.willowgarage.com/wiki/invent_client</url>
   <rosdep name="python-clearsilver" />
 </package>
