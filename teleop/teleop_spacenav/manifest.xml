@@ -11,6 +11,8 @@
   <depend package="robot_mechanism_controllers" />
   <depend package="mechanism_control" />
   <depend package="spacenav_node" />
+  <depend package="joy" />
+
   <url>http://pr.willowgarage.com</url>
   <export>
   </export>
