@@ -77,6 +77,7 @@ int main(int argc, char **argv)
         geometry_msgs::Vector3 offset_msg;
         offset_msg.x = offset_msg.y = offset_msg.z = 0;
         node.publish("/spacenav/offset", offset_msg);
+
         geometry_msgs::Vector3 rot_offset_msg;
         rot_offset_msg.x = rot_offset_msg.y = rot_offset_msg.z = 0;
         node.publish("/spacenav/rot_offset", rot_offset_msg);
@@ -109,6 +110,11 @@ int main(int argc, char **argv)
 
       //printf("%lf  %lf  %lf\n", rot_offset_msg.x, rot_offset_msg.y, rot_offset_msg.z);
       node.publish("/spacenav/rot_offset", rot_offset_msg);
+
+      geometry_msgs::Twist twist_msg;
+      twist_msg.linear = offset_msg;
+      twist_msg.angular = rot_offset_msg;
+      node.publish("spacenav/twist", twist_msg);
 
       joystick_msg.axes[0] = offset_msg.x / FULL_SCALE;
       joystick_msg.axes[1] = offset_msg.y / FULL_SCALE;
