@@ -690,9 +690,11 @@ if __name__ == '__main__':
     hostname = socket.gethostname()
 
     cpu_node = CPUMonitor(hostname)
+
+    rate = rospy.Rate(1.0)
     try:
         while not rospy.is_shutdown():
-            sleep(1.0)
+            rate.sleep()
             cpu_node.publish_stats()
     except Exception, e:
         rospy.logerr(traceback.format_exc())

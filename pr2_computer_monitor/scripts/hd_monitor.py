@@ -338,11 +338,11 @@ if __name__ == '__main__':
 
         
     hd_monitor = hdMonitor(hostname, home_dir)
-    print 'Made hd monitor'
+    rate = rospy.Rate(1.0)
 
     try:
         while not rospy.is_shutdown():
-            sleep(1.0)
+            rate.sleep()
             hd_monitor.publish_stats()
     #finally:
     except Exception, e:
