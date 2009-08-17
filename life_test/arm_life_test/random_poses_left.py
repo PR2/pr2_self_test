@@ -33,13 +33,13 @@ import random, time
 import rospy
 from geometry_msgs.msg import PoseStamped
 
-#pub = rospy.Publisher('cartesian_pose/command', PoseStamped)
-pub = rospy.Publisher('cartesian_trajectory_left/command', PoseStamped)
+#pub = rospy.Publisher('l_arm_cartesian_pose_controller/command', PoseStamped)
+pub = rospy.Publisher('/l_arm_cartesian_trajectory_controller/command', PoseStamped)
 
 
 def p(x, y, z, rx, ry, rz, w):
   m = PoseStamped()
-  m.header.frame_id = 'base_link'
+  m.header.frame_id = '/base_link'
   m.header.stamp = rospy.get_rostime()
   m.pose.position.x = x
   m.pose.position.y = y
