@@ -469,7 +469,7 @@ class CPUMonitor():
                                     KeyValue(key = 'Time Since Last Update', value = 'N/A') ]
 
         self._nfs_stat = DiagnosticStatus()
-        self._nfs_stat.name = '%s NFS I/O' % hostname
+        self._nfs_stat.name = '%s NFS IO' % hostname
         self._nfs_stat.level = 2
         self._nfs_stat.hardware_id = hostname
         self._nfs_stat.message = 'No Data'
