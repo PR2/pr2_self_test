@@ -1,5 +1,6 @@
 <package>
   <description brief='Monitors computers on PR2 for temp, etc'>
+Monitors the computer's processor and hard drives of the PR2. This package is very PR2 specific, but it can be configured with optional parameters to monitor almost any computer.
   </description>
   <author>Kevin Watts (watts@willowgarage.com)</author>
   <license>BSD</license>
