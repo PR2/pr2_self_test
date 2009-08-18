@@ -1,10 +1,10 @@
 <package>
   <description brief="Interfaces with WG inventory system" >
-Description of invent client.    
+Provides an interface for the Willow Garage Inventory system, used by the life_test and qualification systems to automatically log assembly data into invent.
   </description>
   <author>Scott Hassen, Kevin Watts</author>
   <review status="na" notes=""/>
   <license>BSD</license>
-  <url>http://pr.willowgarage.com/wiki/invent_client</url>
+  <url>http://ros.org/wiki/invent_client</url>
   <rosdep name="python-clearsilver" />
 </package>
