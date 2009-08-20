@@ -3,7 +3,7 @@
 import roslib; roslib.load_manifest("tune_joints")
 import rospy
 from std_msgs.msg import Float64
-from robot_mechanism_controllers.msg import JointTuningMsg
+from experimental_controllers.msg import JointTuningMsg
 import sys
 import time
 
