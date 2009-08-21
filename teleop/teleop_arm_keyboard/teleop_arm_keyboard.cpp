@@ -54,7 +54,7 @@
   - None
 
   Publishes to (name / type):
-  - @b "lArmCmd"/JointPosCmd : configuration of the left arm (all the joint angles); sent on every keypress.
+  - @b "lArmCmd"/set_command : configuration of the left arm (all the joint angles); sent on every keypress.
 
   <hr>
 
@@ -68,11 +68,11 @@
 #include <signal.h>
 #include <math.h>
 
-#include <ros/node.h>
-#include <pr2_mechanism_controllers/JointPosCmd.h>
-#include <std_msgs/Float64.h>
+#include <ros/ros.h>
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
 
-#define COMMAND_TIMEOUT_SEC 0.2
+#include <std_msgs/Float64.h>
 
 #define L_CONTROLLER_NAME_0 "l_shoulder_pan_position_controller"
 #define L_CONTROLLER_NAME_1 "l_shoulder_lift_position_controller"
@@ -128,9 +128,12 @@
 /// @todo Remove this giant enum, which was stoled from pr2Core/pr2Core.h.
 /// It can be replaced by some simpler indexing scheme.
 
-class TeleopArmKeyboardNode : public ros::Node
+class TeleopArmKeyboardNode
 {
   private:
+    ros::NodeHandle node;
+    ros::Publisher r_pub[8],l_pub[8];
+
     std_msgs::Float64 lArmCmd[8];
     std_msgs::Float64 rArmCmd[8];
 
@@ -138,9 +141,8 @@ class TeleopArmKeyboardNode : public ros::Node
     double lArmCmdStep[8];
     double rArmCmdStep[8];
     // constructor
-    TeleopArmKeyboardNode() : ros::Node("teleop_arm_keyboard_node")
+    TeleopArmKeyboardNode()
     {
-
       // initialize step size
       this->lArmCmdStep[0] = L_STEP_SIZE_0;
       this->lArmCmdStep[1] = L_STEP_SIZE_1;
@@ -161,22 +163,22 @@ class TeleopArmKeyboardNode : public ros::Node
       this->rArmCmdStep[7] = R_STEP_SIZE_7;
 
       // advertise
-      advertise<std_msgs::Float64>(L_COMMAND_TOPIC_0,1);
-      advertise<std_msgs::Float64>(L_COMMAND_TOPIC_1,1);
-      advertise<std_msgs::Float64>(L_COMMAND_TOPIC_2,1);
-      advertise<std_msgs::Float64>(L_COMMAND_TOPIC_3,1);
-      advertise<std_msgs::Float64>(L_COMMAND_TOPIC_4,1);
-      advertise<std_msgs::Float64>(L_COMMAND_TOPIC_5,1);
-      advertise<std_msgs::Float64>(L_COMMAND_TOPIC_6,1);
-      advertise<std_msgs::Float64>(L_COMMAND_TOPIC_7,1);
-      advertise<std_msgs::Float64>(R_COMMAND_TOPIC_0,1);
-      advertise<std_msgs::Float64>(R_COMMAND_TOPIC_1,1);
-      advertise<std_msgs::Float64>(R_COMMAND_TOPIC_2,1);
-      advertise<std_msgs::Float64>(R_COMMAND_TOPIC_3,1);
-      advertise<std_msgs::Float64>(R_COMMAND_TOPIC_4,1);
-      advertise<std_msgs::Float64>(R_COMMAND_TOPIC_5,1);
-      advertise<std_msgs::Float64>(R_COMMAND_TOPIC_6,1);
-      advertise<std_msgs::Float64>(R_COMMAND_TOPIC_7,1);
+      this->l_pub[0] = this->node.advertise<std_msgs::Float64>(L_COMMAND_TOPIC_0,1);
+      this->l_pub[1] = this->node.advertise<std_msgs::Float64>(L_COMMAND_TOPIC_1,1);
+      this->l_pub[2] = this->node.advertise<std_msgs::Float64>(L_COMMAND_TOPIC_2,1);
+      this->l_pub[3] = this->node.advertise<std_msgs::Float64>(L_COMMAND_TOPIC_3,1);
+      this->l_pub[4] = this->node.advertise<std_msgs::Float64>(L_COMMAND_TOPIC_4,1);
+      this->l_pub[5] = this->node.advertise<std_msgs::Float64>(L_COMMAND_TOPIC_5,1);
+      this->l_pub[6] = this->node.advertise<std_msgs::Float64>(L_COMMAND_TOPIC_6,1);
+      this->l_pub[7] = this->node.advertise<std_msgs::Float64>(L_COMMAND_TOPIC_7,1);
+      this->r_pub[0] = this->node.advertise<std_msgs::Float64>(R_COMMAND_TOPIC_0,1);
+      this->r_pub[1] = this->node.advertise<std_msgs::Float64>(R_COMMAND_TOPIC_1,1);
+      this->r_pub[2] = this->node.advertise<std_msgs::Float64>(R_COMMAND_TOPIC_2,1);
+      this->r_pub[3] = this->node.advertise<std_msgs::Float64>(R_COMMAND_TOPIC_3,1);
+      this->r_pub[4] = this->node.advertise<std_msgs::Float64>(R_COMMAND_TOPIC_4,1);
+      this->r_pub[5] = this->node.advertise<std_msgs::Float64>(R_COMMAND_TOPIC_5,1);
+      this->r_pub[6] = this->node.advertise<std_msgs::Float64>(R_COMMAND_TOPIC_6,1);
+      this->r_pub[7] = this->node.advertise<std_msgs::Float64>(R_COMMAND_TOPIC_7,1);
 
       // cmd_armconfig should probably be initialised
       // with the current joint angles of the arm rather
@@ -239,11 +241,12 @@ class TeleopArmKeyboardNode : public ros::Node
 // Stuff for keyboard interaction
 int kfd = 0;
 struct termios cooked, raw;
+bool quit_loop;
+
 void quit(int sig)
 {
-  //  tbk->stopRobot();
-  
   tcsetattr(kfd, TCSANOW, &cooked);
+  quit_loop = true;
   exit(0);
 }
 
@@ -251,15 +254,18 @@ void quit(int sig)
 
 int main(int argc, char** argv)
 {
-  ros::init(argc,argv);
+  ros::init(argc,argv,"teleop_arm_keyboard");
+
+  // spawn 2 threads by default, ///@todo: make this a parameter
+  ros::MultiThreadedSpinner s(1);
+  boost::thread spinner_thread( boost::bind( &ros::spin, s ) );
 
   TeleopArmKeyboardNode* takn = new TeleopArmKeyboardNode();
-
-  signal(SIGINT,quit);
-
+  signal(SIGINT, quit );
   takn->keyboardLoop();
+  std::cout << "back in main" << std::endl;
 
-  return(0);
+  return 0 ;
 }
 
 void TeleopArmKeyboardNode::openGripper(std::string joint_name) {
@@ -381,7 +387,8 @@ void TeleopArmKeyboardNode::keyboardLoop()
   puts("");
   puts("---------------------------");
 
-  for(;;)
+  quit_loop = false;
+  while(!quit_loop)
   {
     // get the next event from the keyboard
     if(read(kfd, &c, 1) < 0)
@@ -431,8 +438,12 @@ void TeleopArmKeyboardNode::keyboardLoop()
         closeGripper(current_joint_name);
         dirty = true;
         break;
-      case 'q':
+      case 'p':
         printCurrentJointValues();
+        break;
+      case 'q':
+        quit_loop = true;
+        tcsetattr(kfd, TCSANOW, &cooked);
         break;
       default:
         break;
@@ -524,23 +535,23 @@ void TeleopArmKeyboardNode::keyboardLoop()
     }
 
     if(!right_arm) {
-      publish(L_COMMAND_TOPIC_0,lArmCmd[0]);
-      publish(L_COMMAND_TOPIC_1,lArmCmd[1]);
-      publish(L_COMMAND_TOPIC_2,lArmCmd[2]);
-      publish(L_COMMAND_TOPIC_3,lArmCmd[3]);
-      publish(L_COMMAND_TOPIC_4,lArmCmd[4]);
-      publish(L_COMMAND_TOPIC_5,lArmCmd[5]);
-      publish(L_COMMAND_TOPIC_6,lArmCmd[6]);
-      publish(L_COMMAND_TOPIC_7,lArmCmd[7]);
+      this->l_pub[0].publish(lArmCmd[0]);
+      this->l_pub[1].publish(lArmCmd[1]);
+      this->l_pub[2].publish(lArmCmd[2]);
+      this->l_pub[3].publish(lArmCmd[3]);
+      this->l_pub[4].publish(lArmCmd[4]);
+      this->l_pub[5].publish(lArmCmd[5]);
+      this->l_pub[6].publish(lArmCmd[6]);
+      this->l_pub[7].publish(lArmCmd[7]);
     } else {
-      publish(R_COMMAND_TOPIC_0,rArmCmd[0]);
-      publish(R_COMMAND_TOPIC_1,rArmCmd[1]);
-      publish(R_COMMAND_TOPIC_2,rArmCmd[2]);
-      publish(R_COMMAND_TOPIC_3,rArmCmd[3]);
-      publish(R_COMMAND_TOPIC_4,rArmCmd[4]);
-      publish(R_COMMAND_TOPIC_5,rArmCmd[5]);
-      publish(R_COMMAND_TOPIC_6,rArmCmd[6]);
-      publish(R_COMMAND_TOPIC_7,rArmCmd[7]);
+      this->r_pub[0].publish(rArmCmd[0]);
+      this->r_pub[1].publish(rArmCmd[1]);
+      this->r_pub[2].publish(rArmCmd[2]);
+      this->r_pub[3].publish(rArmCmd[3]);
+      this->r_pub[4].publish(rArmCmd[4]);
+      this->r_pub[5].publish(rArmCmd[5]);
+      this->r_pub[6].publish(rArmCmd[6]);
+      this->r_pub[7].publish(rArmCmd[7]);
     }
   }
 }
