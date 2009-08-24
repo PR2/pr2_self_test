@@ -18,6 +18,7 @@
   <depend package="pr2_default_controllers" />
   <depend package="life_test" />
   <depend package="ocean_battery_driver" />
+  <depend package="power_monitor"/>
   <depend package="geometry_msgs" />
   <depend package="mechanism_msgs" />
 
