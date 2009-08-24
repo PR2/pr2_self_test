@@ -2,8 +2,41 @@
   <controller name="laser_tilt_controller" topic="laser_controller" type="LaserScannerTrajControllerNode">
     <max_acc  value="1.0" />
     <max_rate value="100.0" />
-    <filter name="d_error_filter" type="TransferFunctionFilter">
-      <params a="1.0 -.1" b=".9" />
+    <filter>
+      <struct>
+        <member>
+          <name>name</name>
+          <value><string>d_error_filter</string></value>
+        </member>
+        <member>
+          <name>type</name>
+          <value><string>TransferFunctionFilter</string></value>
+        </member>
+        <member>
+          <name>params</name>
+          <value>
+            <struct>
+              <member>
+                <name>a</name>
+                <value>
+                  <array>
+                    <value><double>1.0</double></value>
+                    <value><double>-0.1</double></value>
+                  </array>
+                </value>
+              </member>
+              <member>
+                <name>b</name>
+                <value>
+                  <array>
+                    <value><double>0.9</double></value>
+                  </array>
+                </value>
+              </member>
+            </struct>
+          </value>
+        </member>
+      </struct>
     </filter>
     <joint name="laser_tilt_mount_joint">
       <pid p="8" i=".1" d="0.2" iClamp="0.5" />
