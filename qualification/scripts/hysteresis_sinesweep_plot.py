@@ -34,8 +34,6 @@ import roslib; roslib.load_manifest(PKG)
 
 import numpy
 import math
-from std_msgs.msg import *
-from robot_srvs.srv import *
 
 import sys
 import os
@@ -49,9 +47,9 @@ import matplotlib.pyplot as plot
 from StringIO import StringIO
 
 from qualification.msg import Plot
-from qualification.srv import *
+from qualification.srv import TestResult, TestResultRequest
 
-from joint_qualification_controllers.srv import *
+from joint_qualification_controllers.srv import TestData, TestDataResponse
 
 import traceback
 
@@ -263,7 +261,7 @@ class App:
       plot.savefig(stream, format = "png")
       image = stream.getvalue()
       
-      p = qualification.msg.Plot()
+      p = Plot()
       r.plots.append(p)
       p.title = image_title + "1"
       p.image = image
@@ -285,7 +283,7 @@ class App:
       plot.savefig(stream, format = "png")
       image = stream.getvalue()
       
-      p = qualification.msg.Plot()
+      p = Plot()
       r.plots.append(p)
       p.title = image_title + "2"
       p.image = image
@@ -314,7 +312,7 @@ class App:
       plot.savefig(stream, format = "png")
       image = stream.getvalue()
       
-      p = qualification.msg.Plot()
+      p = Plot()
       r.plots.append(p)
       p.title = image_title + "3"
       p.image = image
@@ -568,7 +566,7 @@ class App:
       plot.savefig(stream, format="png")
       image = stream.getvalue()
       
-      p = qualification.msg.Plot()
+      p = Plot()
       r.plots.append(p)
       p.title = image_title
       p.image = image

@@ -863,35 +863,25 @@ em { font-style: normal; font-weight: bold; }\
         print 'adding attachment'
 
         # Use add attachment...
-        if True:
-            try:
-                # Need to get tar to bit stream
-                f = open(self._tar_filename, "rb")
-                tar = f.read()
-                invent.add_attachment(reference, 
-                                      prefix + os.path.basename(self._tar_filename),
-                                      'applicaton/tar', tar)
+ 
+        try:
+            # Need to get tar to bit stream
+            f = open(self._tar_filename, "rb")
+            tar = f.read()
+            invent.add_attachment(reference, 
+                                  prefix + os.path.basename(self._tar_filename),
+                                  'applicaton/tar', tar)
 
-                f.close()            
-                return True, 'Wrote tar file, uploaded to inventory system.'
-            except Exception, e:
-                import traceback
-                traceback.print_exc()
-                print "filename", self._tar_filename
-                print 'Caught exception uploading tar file. %s' % str(e)
-                return False, 'Caught exception loading tar file to inventory. %s' % str(e)
+            f.close()            
+            return True, 'Wrote tar file, uploaded to inventory system.'
+        except Exception, e:
+            import traceback
+            traceback.print_exc()
+            print "filename", self._tar_filename
+            print 'Caught exception uploading tar file. %s' % str(e)
+            return False, 'Caught exception loading tar file to inventory. %s' % str(e)
+         
 
-        else:
-            _path = os.path.join(roslib.packages.get_pkg_dir("qualification"), "src", "qualification", "add_attachment.py")
-            print "_path", _path
-            cmd = [_path, "--username=" + invent.username, "--password=" + invent.password, reference, self._tar_filename]
-            print cmd
-            retcode = subprocess.call(cmd)
-            print "retcode:", retcode
-
-            if retcode == 0:
-                return True, 'Wrote tar file, uploaded to inventory system.'
-            return False, 'Received retcode %s from invent.add_attachment, unable to upload to inventory system.' % retcode
 
     def get_qual_team(self):
         if socket.gethostname() == 'nsf': # Debug on NSF

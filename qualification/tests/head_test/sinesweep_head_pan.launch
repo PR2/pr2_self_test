@@ -10,7 +10,7 @@
     <param name="error_tolerance" type="double" value="0.10" />
     
     <!-- Sine sweep params -->
-    <param name="amplitude" type="double" value="2.8" />
+    <param name="amplitude" type="double" value="2.0" />
     <param name="start_freq" type="double" value="5.0" />
     <param name="end_freq" type="double" value="100.0" />
     <param name="duration" type="double" value="10.0" />

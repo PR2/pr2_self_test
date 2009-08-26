@@ -1,10 +1,6 @@
 <package>
   <description brief='Qualification testing package'>
-    Tests components of the PR2 as individual components and assembled robots.
-
-    ./qualify.py Test individual components
-    ./pr2_qual.py Test head carts and PR2's
-  </description>
+    Tests components of the PR2 as individual components and assembled robots. Tests, analyzes and logs results of the qualification/self-tests.  </description>
   <author>Kevin Watts (watts@willowgarage.com), Josh Faust (jfaust@willowgarage.com)</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>

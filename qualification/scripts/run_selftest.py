@@ -36,12 +36,13 @@ import roslib
 roslib.load_manifest('qualification')
 
 import rospy
-from qualification.srv import TestResult,TestResultRequest
-#from robot_srvs.srv import *
-from diagnostic_msgs.srv import SelfTest,SelfTestRequest
+from qualification.srv import TestResult, TestResultRequest
+from diagnostic_msgs.srv import SelfTest, SelfTestRequest
 
 import sys
 from time import sleep
+
+import traceback
 
 rospy.init_node("run_selftest", anonymous=True)
 
@@ -90,7 +91,7 @@ try:
         html += "<p><b>Test %2d) %s</b>\n" % (i, stat.name)
         html +=  '<br>Result %s: %s</p>\n' % (statdict[stat.level], stat.message)
         
-        if len(stat.values) + len(stat.strings) > 0:
+        if len(stat.values) > 0:
             html += "<p>Self-test values:<br>\n"
             html += "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">\n"
             html += "<tr><b><td>Label</td><td>Value</td></b></tr>\n"
@@ -110,13 +111,13 @@ try:
     result_service.call(r)
 
 except Exception, e:
-    msg = 'Caught exception testing device id %s, node name %s.</p>\n' % (node_id, node_name)
+    msg = 'Caught exception testing device id %s, node name %s.' % (node_id, node_name)
     rospy.logerr(msg)
-    rospy.logerr(str(e))
+    rospy.logerr(traceback.format_exc())
     rospy.wait_for_service('test_result', 10)
     r = TestResultRequest()
     r.plots = []
-    r.html_result = '%s<p>%s</p><p><b>Exception:</b><br>%s</p>' % (extramsg, msg, str(e))
+    r.html_result = '%s<p>%s</p><p><b>Exception:</b><br>%s</p>' % (extramsg, msg, traceback.format_exc())
     if extramsg != "":
         r.text_summary = extramsg
     else:

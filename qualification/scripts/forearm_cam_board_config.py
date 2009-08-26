@@ -47,6 +47,8 @@ print "Enter barcode:"
 barcode = raw_input()
 print "Preparing to configure forearm camera",barcode
 
+rospy.init_node('forearm_config')
+
 # Parse barcode to get serial number.
 if len(barcode) != 12 or not barcode.isdigit():
     print "The item id", barcode, "should be 12 numeric digits."
@@ -57,8 +59,16 @@ if barcode[0:7] != "6805018":
 serial = int(barcode[7:12])
 print "Camera serial number is:", serial
 
+# Get inventory password from qualification
+username = rospy.get_param('/invent/username', None)
+password = rospy.get_param('/invent/password', None)
+
+# Fail if invalid username/password
+i = Invent(username, password)
+if not i.login():
+    exit(-1)
+
 # Get MAC address from invent.
-i = Invent("blaise", "blaiseinvent")
 i.generateWGMacaddr(barcode, "lan0")
 refs = i.getItemReferences(barcode)
 macstr = refs["lan0"]

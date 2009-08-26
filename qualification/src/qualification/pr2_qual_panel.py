@@ -112,7 +112,7 @@ class PR2QualPanel(wx.Panel):
     try:
       doc = minidom.parse(robot_xml_path)
     except IOError:
-      print >> sys.stderr, "Could not load robots from '%s'"%(robots_xml_path)
+      rospy.logerr("Could not load robots from '%s'"%(robots_xml_path))
       sys.exit()
 
     bots = doc.getElementsByTagName('robot')
