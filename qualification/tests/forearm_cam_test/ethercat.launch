@@ -4,11 +4,11 @@
   <!-- Spwns the controllers -->
   <node pkg="mechanism_control" type="spawner.py" output="screen" args="trig_controller led_controller" />
   <group ns="trig_controller">
-    <param name="type" type="string" value="TriggerControllerNode" />
+    <param name="type" type="string" value="TriggerController" />
     <param name="actuator" type="string" value="forearm_cam_qual_trig" />
   </group>
   <group ns="led_controller">
-    <param name="type" type="string" value="TriggerControllerNode" />
+    <param name="type" type="string" value="TriggerController" />
     <param name="actuator" type="string" value="forearm_cam_qual_led" />
   </group>
   
