@@ -53,10 +53,10 @@ rospy.init_node('forearm_config')
 if len(barcode) != 12 or not barcode.isdigit():
     print "The item id", barcode, "should be 12 numeric digits."
     exit(-1)
-if barcode[0:7] != "6805018":
-    print "Item", barcode, "is not a forearm camera."
+if not barcode[0:7] in [ "6805018", "6805027" ]:
+    print "Part number", barcode[0:7], "is not a forearm camera."
     exit(-1)
-serial = int(barcode[7:12])
+serial = int(barcode[5:12])
 print "Camera serial number is:", serial
 
 # Get inventory password from qualification
@@ -79,8 +79,6 @@ if len(macstr.rstrip("1234567890abcdefABCDEF")) != 0 or len(macstr) != 12:
     exit(-1)
 for i in range(0, 6):
     mac.append(int(macstr[2*i:2*i+2], 16))
-
-#exit(1)
 
 # Wait for service, and call it.
 print "Waiting for board_config service."
