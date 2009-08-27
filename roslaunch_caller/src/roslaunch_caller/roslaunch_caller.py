@@ -35,22 +35,17 @@
 # Author: Kevin Watts and Ken Conley
 
 import roslib
-roslib.load_manifest('wg_hardware_roslaunch')
-
+roslib.load_manifest('roslaunch_caller')
 
 import roslaunch
 import roslaunch.core
 import roslaunch.parent
 import roslaunch.pmon
 
-
 import rospy
- 
-import thread
-import traceback
 
 ## ScriptRoslaunch is a specialization of the roslaunch parent for
-## hardware testing. It allows registration of a process listener with
+## using the roslaunch API. It allows registration of a process listener with
 ## the launched parent and also overrides the default roslaunch config
 ## initialiation in order to load from strings instead of files.
 class ScriptRoslaunch(roslaunch.parent.ROSLaunchParent):
