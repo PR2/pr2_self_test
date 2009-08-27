@@ -124,22 +124,9 @@ class SerialPanel(wx.Panel):
 
     launch_script = self.select_conf_to_load(serial)
     name = self._config_descrips_by_file[launch_script]
-
-    #self._current_serial = serial
-
-    #conf_str = open(os.path.join(CONFIG_DIR, launch_script)).read()
-
-    qual_dir = roslib.packages.get_pkg_dir('qualification')
-
-    test = '<test>\n'
-    test += '<name>%s</name>\n' % name
-    test += '<pre_startup>scripts/power_cycle.launch</pre_startup>\n'
-    test += '<pre_startup name="%s">config/%s</pre_startup>\n' % (name, launch_script)
-    test += '<subtest name="%s Test">config/subtest_conf.launch</subtest>\n' % (name)
-    test += '<shutdown>scripts/power_board_disable.launch</shutdown>\n</test>'
-
+    
     config_test = Test()
-    config_test.load(test, qual_dir)
+    config_test.load(launch_script, roslib.packages.get_pkg_dir('qualification'))
     
     item = ConfigObject(name, serial)
 
@@ -162,12 +149,27 @@ class SerialPanel(wx.Panel):
       file = conf.attributes['file'].value
       descrip = conf.attributes['descrip'].value
 
-      if self._configs.has_key(serial):
-        self._configs[serial].append(file)
-      else:
-        self._configs[serial] = [ file ]
+      powerboard = True
+      if conf.attributes.has_key('powerboard'):
+        powerboard = conf.attributes['powerboard'].value != "false"
 
-      self._config_descrips_by_file[file] = descrip
+      # Generate test XML. If we need power board, add prestartup/shutdown
+      # to turn on/off power
+      test = '<test>\n'
+      test += '<name>%s</name>\n' % descrip
+      if powerboard:
+        test += '<pre_startup name="Power Cycle">scripts/power_cycle.launch</pre_startup>\n'
+      test += '<pre_startup name="%s">config/%s</pre_startup>\n' % (descrip, file)
+      test += '<subtest name="%s Test">config/subtest_conf.launch</subtest>\n' % (descrip)
+      if powerboard:
+        test += '<shutdown name="Shutdown">scripts/power_board_disable.launch</shutdown>\n</test>'
+
+      if self._configs.has_key(serial):
+        self._configs[serial].append(test)
+      else:
+        self._configs[serial] = [ test ]
+
+      self._config_descrips_by_file[test] = descrip
 
   def load_tests_from_map(self):
     # Load test directory

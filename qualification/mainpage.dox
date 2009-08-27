@@ -4,7 +4,7 @@
 
 \b qualification is designed to test, configure and qualify PR2's and PR2 components. The backbone is a Qualification Frame or GUI that loads, runs and logs tests and test results. The qualification tests themselves are located in the "tests", "configs" and "onboard" directory and can test almost any part of the PR2.
 
-
+<!--
 \section codeapi Code API
 
 Provide links to specific auto-generated API documentation within your
@@ -32,9 +32,9 @@ remapped.
 List of nodes:
 - \b node_name1
 - \b node_name2
+-->
 
-
-<!-- START: copy for each node -->
+<!-- START: copy for each node 
 
 <hr>
 
@@ -78,8 +78,10 @@ Sets the following parameters on the parameter server
 - \b "foo_service": [std_srvs/FooType] description of foo_service
 
 
-<!-- END: copy for each node -->
+ END: copy for each node -->
 
+
+<!--
 \section commandline Command-line tools
 
 This section is a catch-all for any additional tools that your package
@@ -103,4 +105,7 @@ $ ./script_name [args]
 \verbatim
 $ ./script_name foo bar
 \endverbatim
+
+-->
+
 */

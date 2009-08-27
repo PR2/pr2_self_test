@@ -40,6 +40,8 @@ roslib.load_manifest('qualification')
 import sys, os, time, string, subprocess
 from xml.dom import minidom
 
+import rospy
+
 from qualification.msg import *
 from srv import *
 from test import *
@@ -61,7 +63,7 @@ from email import Encoders
 RESULTS_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results')
 TEMP_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results/temp/')
 
-## Holds results from pre-startup and shutdown scripts
+##\brief Holds results from pre-startup and shutdown scripts
 class TestScriptResult:
     ##@param test_script is test/TestScript that we tested
     def __init__(self, test_script, srv_result):
@@ -90,6 +92,8 @@ class TestScriptResult:
     def get_msg(self):
         return self.msg
 
+##\brief Holds pass/fail status of all subtests.
+##
 ## Stores results of subtests in any case. Completely encapsulates
 ## numeric values of result types from users. 
 class SubTestResultType:
@@ -162,7 +166,9 @@ class SubTestResultType:
     def is_cancel(self):
         return self._result == 7
 
-## Stores and displays result from qualification subtest
+##\brief Stores and displays result from qualification subtest
+##
+##
 class SubTestResult:
     ##@param subtest test/SubTest : Subtest that completed
     ##@param msg srv/TestResultRequest : Received msg from analysis
@@ -203,9 +209,6 @@ class SubTestResult:
     def get_name(self):
         return self._subtest.get_name()
 
-    def set_name(self, name):
-        self._subtest._name = name
-
     def get_pass_bool(self):
         return self._result.get_pass_bool()
 
@@ -218,6 +221,9 @@ class SubTestResult:
     def filename(self):
         return self.filename_base() + '.html'
 
+    ##\brief Save images to file in designated folder
+    ##
+    ##\param path str : Filepath of all images
     def write_images(self, path):
         for plot in self._plots:
             stream = StringIO(plot.image)
@@ -333,8 +339,13 @@ em { font-style:normal; font-weight: bold; }\
 
         return '<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n' % (hyperlink, summary, result)
 
-
+##\brief Result of Qualification test. Stores and logs all data
+##
+##
 class QualTestResult:
+    ##\param qual_item QualTestItem : Item under test
+    ##\param qual_test Test : Test we're running
+    ##\param start_time int : Start time from rospy
     def __init__(self, qual_item, qual_test, start_time):
         self._qual_test = qual_test
 
@@ -404,7 +415,6 @@ class QualTestResult:
         # return sorted by index
         return vals
 
-
     def get_subresults(self):
         kys = dict.keys(self._subresults_by_index)
         kys.sort()
@@ -466,6 +476,7 @@ class QualTestResult:
     def error(self):
         self._error = True
 
+    ##\brief Stores data from subtest as a "retry"
     def retry_subresult(self, index, notes):
         retry_count = len(self._retrys.values()) + 1
 
@@ -573,6 +584,8 @@ em { font-style: normal; font-weight: bold; }\
             st = self.get_subresult(0)
             if st is not None:
                 html += st.html_header()
+            else:
+                html += '<p>No data from configuration, result: %s.</p>\n' % (self.get_test_result_str())
             html += '</body></html>'
             return html
 
@@ -776,14 +789,9 @@ em { font-style: normal; font-weight: bold; }\
         for i in self._subresults_by_index:
             st = self.get_subresult(i)
             
-            #prev = None
-            #next = None
-            #if i > 0:
             prev = self.get_subresult(i - 1)
-            #if i < len(self._subresults_by_index):
             next = self.get_subresult(i + 1)
 
-            # for st in self.get_subresults():
             st_path = write_dir + st.filename()
             st_file = open(st_path, 'w')
             st_file.write(st.make_result_page(True, link_dir, prev, next))
@@ -831,7 +839,7 @@ em { font-style: normal; font-weight: bold; }\
         # Write results to results dir, with local links
         self.write_results_to_file(False, True)
 
-        print 'Wrote results'
+        rospy.loginfo('Wrote results')
 
         if invent == None:
             return False, "Attempted to log results to inventory, but no invent client found."
@@ -844,25 +852,25 @@ em { font-style: normal; font-weight: bold; }\
         
         reference = self._serial
             
-        print 'Writing invent note'
+        rospy.loginfo('Writing invent note')
 
         invent.setNote(self._serial, self.line_summary())
 
         if self._config_only:
             sub = self.get_subresult(0) # Only subresult of configuration
+            if not sub:
+                return True, 'No subresult found!'
             invent.add_attachment(self._serial, prefix + sub.filename(), 'text/html', sub.make_result_page())
             return True, 'Logged reconfiguration in inventory system.'
 
-        print 'Setting test status'
+        rospy.loginfo('Setting test status')
 
         invent.setKV(self._serial, "Test Status", self.get_test_result_str())
 
-        print 'Adding summary'
+        rospy.loginfo('Adding summary')
         invent.add_attachment(reference, prefix + "summary.html", "text/html", self.make_summary_page(False))
         
-        print 'adding attachment'
-
-        # Use add attachment...
+        rospy.loginfo('adding attachment')
  
         try:
             # Need to get tar to bit stream
@@ -882,14 +890,14 @@ em { font-style: normal; font-weight: bold; }\
             return False, 'Caught exception loading tar file to inventory. %s' % str(e)
          
 
-
+        
     def get_qual_team(self):
-        if socket.gethostname() == 'nsf': # Debug on NSF
+        if socket.gethostname() == 'nsf': # Debug on NSF HACK!!!!
             return 'watts@willowgarage.com'
 
         return 'qualdevteam@lists.willowgarage.com'
 
-    # Email qualification team results as HTML summary and tar file
+    ##\brief Email qualification team results as HTML summary and tar file
     def email_qual_team(self):
         try:
             msg = MIMEMultipart('alternative')

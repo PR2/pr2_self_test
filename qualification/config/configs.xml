@@ -55,6 +55,13 @@
   <!-- Torso Lift motor -->
   <config serial="torsoli" 
 	  file="torso_lift_conf.launch" descrip="Torso Lift" />
+
+  <!-- Blaise, this is an example for the cameras. Use powerboard="false" to
+       disable the power from turning on/off. -->
+  <config serial="6805018" powerboard="false"
+          file="left_cam.launch" descrip="Left Forearm Cam" />
+  <config serial="6805018" powerboard="false"
+          file="right_cam.launch" descrip="Right Forearm Cam" />
 </configs>
 
 
