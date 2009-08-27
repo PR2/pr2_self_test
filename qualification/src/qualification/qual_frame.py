@@ -769,7 +769,6 @@ class QualificationFrame(wx.Frame):
         self.log('SHUT DOWN POWER BOARD MANUALLY')
         return
 
-
       if shutdown_script.get_timeout() > 0:
           timeout = shutdown_script.get_timeout()
           self._shutdown_timer = threading.Timer(timeout,
