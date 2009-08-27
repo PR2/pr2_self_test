@@ -45,5 +45,5 @@ if __name__ == '__main__':
     app.MainLoop()
   except Exception, e:
     print "Caught exception in TestManagerApp Main Loop"
-    print e
-    e
+    import traceback
+    trackback.print_exc()

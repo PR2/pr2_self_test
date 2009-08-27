@@ -50,7 +50,6 @@ from wx import xrc
 import rospy
 
 from std_srvs.srv import * 
-#from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue, DiagnosticString
 
 
 # Stuff from life_test package
@@ -67,7 +66,8 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import Encoders
 
-import wg_hardware_roslaunch.roslaunch_caller as roslaunch_caller
+
+from roslaunch_caller import roslaunch_caller 
         
 
 class TestMonitorPanel(wx.Panel):

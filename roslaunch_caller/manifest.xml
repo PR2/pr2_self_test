@@ -1,0 +1,10 @@
+<package>
+  <description brief='Puts roslaunch in a library for API use'>
+  </description>
+  <author>Kevin Watts (watts@willowgarage.com), Ken Conley (kwc@willowgarage.com)</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <depend package="rospy" />
+  <depend package="roslaunch" />
+  <url>http://www.ros.org/wiki/roslaunch_caller</url>
+</package>

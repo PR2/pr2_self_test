@@ -32,7 +32,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-### Author: Kevin Watt
+### Author: Kevin Watts
 
 import roslib
 import roslib.packages
@@ -65,19 +65,21 @@ from invent_client.invent_client import Invent
 import runtime_monitor
 from runtime_monitor.monitor_panel import MonitorPanel
 
-import wg_hardware_roslaunch.roslaunch_caller as roslaunch_caller
+from roslaunch_caller import roslaunch_caller 
 
 import rxtools
 import rxtools.cppwidgets
 
 
-## Passed to qualification manager
+##\brief Passed to qualification manager
+##
+## Holds data about item to be qualified. Subtests can hold more data
 class QualTestObject():
   def __init__(self, name, serial):
     self.name = name
     self.serial = serial
 
-## Loads instructions for operator. Displays instructions in HTML window.
+##\brief Loads instructions for operator. Displays instructions in HTML window.
 class InstructionsPanel(wx.Panel):
   def __init__(self, parent, resource, qualification_frame, file):
     wx.Panel.__init__(self, parent)
@@ -108,7 +110,9 @@ class InstructionsPanel(wx.Panel):
   def on_cancel(self, event):
     # We reset here and don't cancel, because nothing is running
     self._manager.reset()
-   
+  
+##\brief Displays waiting page, subtest results
+## 
 ## Plots panel displays a waiting page while waiting for subtests to 
 ## complete, displays subtest results, displays runtime monitor 
 class PlotsPanel(wx.Panel):
@@ -140,15 +144,15 @@ class PlotsPanel(wx.Panel):
 
     # Make runtime monitor panel, console panel
     self._notebook = xrc.XRCCTRL(self._panel, 'results_notebook')
-    self.create_monitor()
-    self.create_rxconsole()
+    self._create_monitor()
+    self._create_rxconsole()
 
-  def create_monitor(self):
+  def _create_monitor(self):
     self._monitor_panel = MonitorPanel(self._notebook)
     self._monitor_panel.SetSize(wx.Size(400, 500))
     self._notebook.AddPage(self._monitor_panel, "Runtime Monitor")
 
-  def create_rxconsole(self):
+  def _create_rxconsole(self):
     rxtools.cppwidgets.initRoscpp("qualification_console", False)
 
     self._rxconsole_panel = rxtools.cppwidgets.RosoutPanel(self._notebook)
@@ -192,8 +196,10 @@ class PlotsPanel(wx.Panel):
   def on_cancel(self, event):
     self._manager.cancel()
     
-## Displays results of qualification tests. Results come in as a TestResult 
-## class, which makes an HTML page
+##\brief Displays results of entire qualification tests
+##
+## Displays results of qualification tests. Results come in as a QualTestResult 
+## class, which makes an HTML page. Users must submit to inventory system.
 class ResultsPanel(wx.Panel):
   def __init__(self, parent, resource, qualification_frame):
     wx.Panel.__init__(self, parent)
@@ -226,11 +232,11 @@ class ResultsPanel(wx.Panel):
   def on_submit(self, event):
     self._manager.submit_results(self._notesbox.GetValue(), self._dir_picker.GetPath())
 
-## Prestartup or shutdown scripts, returns timeout msg
+##\brief Prestartup or shutdown scripts, returns timeout msg
 def script_timeout(timeout):
   return ScriptDoneRequest(1, "Automatic timeout. Timeout: %s" % timeout)
 
-## Subtest timeout, returns timeout message
+##\brief Subtest timeout, returns timeout message
 def subtest_timeout(timeout):
   msg = 'Automated timeout. Timeout: %s' % timeout
 
@@ -242,13 +248,15 @@ def subtest_timeout(timeout):
 
   return result
   
+##\brief Makes waiting page for subtests
 def make_html_waiting_page(subtest_name, index, len_subtests):
   html = '<html>\n<H2 align=center>Waiting for Subtest to Complete</H2>\n'
   html += '<H3 align=center>Test Name: %s</H3>\n' % subtest_name
   html += '<H4 align=center>Test %d of %d</H4>\n</html>' % (index + 1, len_subtests)
   return html
 
-## Main frame of qualification
+##\brief Main frame of qualification
+##
 ## Loads tests, launches them and records results
 class QualificationFrame(wx.Frame):
   def __init__(self, parent):
@@ -732,8 +740,6 @@ class QualificationFrame(wx.Frame):
 
     self.log('Launches stopped.')
 
-
-  
   ## Launches shutdown script
   def test_finished(self):
     if (self._current_test is not None and self._current_test.getShutdownScript() != None):

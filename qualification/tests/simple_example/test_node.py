@@ -37,7 +37,7 @@ roslib.load_manifest('qualification')
 
 import rospy
 from std_srvs.srv import *
-from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, DiagnosticString
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from time import sleep
 
 
@@ -59,8 +59,7 @@ if __name__ == '__main__':
   stat.name = 'Test Node'
   stat.message = 'OK'
   stat.hardware_id = 'HW ID'
-  stat.strings = [ DiagnosticString(label='Node Status', value='OK') ]
-  stat.values = []
+  stat.values = [ KeyValue('Node Status', 'OK') ]
   msg.status.append(stat)
 
   while not rospy.is_shutdown():

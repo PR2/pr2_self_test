@@ -65,7 +65,7 @@ from invent_client.invent_client import Invent
 from life_test import *
 from test_param import *
 
-import wg_hardware_roslaunch.roslaunch_caller as roslaunch_caller
+from roslaunch_caller import roslaunch_caller 
 
 class TestManagerFrame(wx.Frame):
     def __init__(self, parent):

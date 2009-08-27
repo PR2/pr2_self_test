@@ -53,6 +53,8 @@ from xml.dom import minidom
 from qualification.test import *
 from qualification.qual_frame import *
 
+from roslaunch_caller import roslaunch_caller 
+
 import traceback
 
 ONBOARD_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'onboard')

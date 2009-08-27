@@ -61,10 +61,9 @@ from invent_client.invent_client import Invent
 import runtime_monitor
 from runtime_monitor.monitor_panel import MonitorPanel
 
-import wg_hardware_roslaunch.roslaunch_caller as roslaunch_caller
+from roslaunch_caller import roslaunch_caller 
 
 TESTS_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'tests')
-
 CONFIG_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'config')
 
 
