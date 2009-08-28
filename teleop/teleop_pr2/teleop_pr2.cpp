@@ -45,6 +45,8 @@
 #define TORSO_TOPIC "torso_lift_velocity_controller/set_command"
 #define HEAD_TOPIC "head_controller/command"
 
+using namespace std;
+
 class TeleopPR2 
 {
    public:
@@ -189,6 +191,12 @@ class TeleopPR2
       req_vw = joy_msg->axes[axis_vw] * vw;
     else
       req_vw = 0.0;
+
+    // Enforce max/mins for velocity
+    // Joystick should be [-1, 1], but it might not be
+    req_vx = max(min(req_vx, vx), -vx);
+    req_vy = max(min(req_vy, vy), -vy);
+    req_vw = max(min(req_vw, vw), -vw);
     
     // Head
     // Update commanded position by how joysticks moving
@@ -196,13 +204,13 @@ class TeleopPR2
     if((axis_pan >= 0) && (((unsigned int)axis_pan) < joy_msg->get_axes_size()) && cmd_head && deadman_)
     {
       req_pan += joy_msg->axes[axis_pan] * pan_step;
-      req_pan = std::max(std::min(req_pan, max_pan), -max_pan);
+      req_pan = max(min(req_pan, max_pan), -max_pan);
     }
     
     if ((axis_tilt >= 0) && (((unsigned int)axis_tilt) < joy_msg->get_axes_size()) && cmd_head && deadman_)
     {
       req_tilt += joy_msg->axes[axis_tilt] * tilt_step;
-      req_tilt = std::max(std::min(req_tilt, max_tilt), min_tilt);
+      req_tilt = max(min(req_tilt, max_tilt), min_tilt);
     }
     
     // Torso
