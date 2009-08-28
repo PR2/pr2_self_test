@@ -47,6 +47,8 @@ import os
 import os.path
 import wx
 
+rospy.init("forearm_cam_set_name")
+
 def getparam(name):
     val = rospy.get_param(name, None)
     if val == None:
@@ -57,9 +59,10 @@ def getparam(name):
 # Get inventory password from qualification
 username = getparam('/invent/username')
 password = getparam('/invent/password')
-cameraname = getparam('forearm_camera_set_name/camera_name')
-cameraip = getparam('forearm_camera_set_name/camera_ip')
-progip = getparam('forearm_camera_set_name/programming_ip')
+part = getparam('/qualification/serial')
+cameraname = getparam('camera_name')
+cameraip = getparam('camera_ip')
+progip = getparam('programming_ip')
 
 # Fail if invalid username/password
 i = Invent(username, password)
