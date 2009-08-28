@@ -47,7 +47,7 @@ import os
 import os.path
 import wx
 
-rospy.init("forearm_cam_set_name")
+rospy.init("wge100_camera_set_name")
 
 def getparam(name):
     val = rospy.get_param(name, None)
@@ -79,7 +79,7 @@ except KeyError:
     exit(-1)
                                         
 # Set the camera's name
-retval = system("rosrun forearm_cam set_name '%s'"%(camera_url+"@"+progip, cameraname, cameraip))
+retval = system("rosrun wge100_camera set_name '%s'"%(camera_url+"@"+progip, cameraname, cameraip))
 print "Return value:", retval
 exit(-1)
 try:

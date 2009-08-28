@@ -1,5 +1,0 @@
-<launch>
-  <node pkg="qualification" type="load_firmware_ram.py"> 
-    <param name="impactdir" value="$(find qualification)/tests/forearm_cam_test/impact"/>
-  </node>
-</launch>

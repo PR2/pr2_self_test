@@ -4,4 +4,4 @@ rospack(qualification)
 genmsg()
 gensrv()
 
-rospack_add_executable(tests/forearm_cam_test/led_flash_test tests/forearm_cam_test/led_flash_test.cpp)
+rospack_add_executable(tests/wge100_camera_test/led_flash_test tests/wge100_camera_test/led_flash_test.cpp)

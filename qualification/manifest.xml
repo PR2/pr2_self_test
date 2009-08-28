@@ -20,7 +20,7 @@
   <depend package="pr2_head_cart" />
   <depend package="invent_client" />
   <depend package="roslaunch_caller" />
-  <depend package="forearm_cam" />
+  <depend package="wge100_camera" />
   <depend package="opencv_latest" />
   <depend package="rxtools" />
   <depend package="realtime_tools" />

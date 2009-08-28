@@ -45,6 +45,15 @@ import rospy
 import subprocess
 import os
 import os.path
+import wx
+
+def check_programmed(iface):
+    args = ['rosrun', 'wge100_camera', 'discover']
+    if iface != None:
+        args.append(iface)
+    p = subprocess.Popen(args, stdout=subprocess.PIPE)
+    impactout = p.communicate()[0]
+    return 'Found camera' in impactout
 
 rospy.init_node("load_firmware", anonymous=True)
 
@@ -52,40 +61,53 @@ r = TestResultRequest()
 r.plots = []
 
 try:
+    iface=rospy.get_param("~cam_interface")
+except:
+    iface=None
+
+try:
     impactdir=rospy.get_param("~impactdir")
-    url=rospy.get_param("~url")
 except:
     import traceback
     traceback.print_exc()
 #if (len(sys.argv) != 2):
     #print >> sys.stderr, 'must specify impact directory (%i) args given'%len(sys.argv);
     print >> sys.stderr, 'impactdir option must indicate impact project directory';
-    print >> sys.stderr, 'url option must indicate camera url';
     r.html_result = "<p>Bad arguments to load_firmware.py.</p>"
     r.text_summary = "Error in test."
     r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
     print "error"
 else:
-    try:
-        os.chdir(impactdir);
-        p = subprocess.Popen(['rosrun', 'forearm_cam', 'upload_mcs', 'default.mcs', url], stdout=subprocess.PIPE)
-        upload_mcs_out = p.communicate()[0]
-    except Exception, e:
-        upload_mcs_out = str(e)
-   
-    upload_mcs_out = upload_mcs_out.replace('\n','<br>')
+    os.chdir(impactdir);
+    reprogram = True
+    if check_programmed(iface):
+        app = wx.PySimpleApp()
+	ret = wx.MessageBox("The device is already programmed. Skip reprogramming?", "Device Programmed", wx.YES|wx.NO)
+	if ret == wx.YES:
+	    reprogram = False
+    if reprogram:
+        p = subprocess.Popen(['./startimpact', '-batch', 'load_firmware.cmd'], stderr=subprocess.PIPE)
+        impactout = p.communicate()[1]
 
-    if '''Success!''' in upload_mcs_out:
-        r.text_summary = "Firmware download succeeded."
-        r.html_result = "<p>Test passed.</p><p>"+upload_mcs_out+"</p>" 
+        impactout = impactout.replace('\n','<br>')
+
+        if '''INFO:iMPACT - '1': Flash was programmed successfully.''' in impactout:
+            r.text_summary = "Firmware download succeeded."
+            r.html_result = "<p>Test passed.</p><p>"+impactout+"</p>" 
+            r.result = TestResultRequest.RESULT_PASS
+            print "pass"
+        else:
+            r.text_summary = "Firmware download failed."
+            r.result = TestResultRequest.RESULT_FAIL
+            r.html_result = "<p>Test Failed.</p><p>"+impactout+"</p>"
+            print "fail"
+            print impactout
+    else: 
+        r.html_result = "<p>Firmware was already programmed.</p>"
+        r.text_summary = "Firmware already programmed (Pass)." 
         r.result = TestResultRequest.RESULT_PASS
         print "pass"
-    else:
-        r.text_summary = "Firmware download failed."
-        r.result = TestResultRequest.RESULT_FAIL
-        r.html_result = "<p>Test Failed.</p><p>"+upload_mcs_out+"</p>"
-        print "fail"
-        print upload_mcs_out
+
     
 result_service = rospy.ServiceProxy('test_result', TestResult)
 

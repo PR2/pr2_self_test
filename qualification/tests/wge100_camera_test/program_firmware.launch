@@ -1,6 +1,6 @@
 <launch>
   <node pkg="qualification" type="load_firmware.py"> 
-    <param name="impactdir" value="$(find qualification)/tests/forearm_cam_test/impact"/>
+    <param name="impactdir" value="$(find qualification)/tests/wge100_camera_test/impact"/>
     <param name="cam_interface" value="eth2"/>
   </node>
 </launch>

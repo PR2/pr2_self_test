@@ -43,7 +43,7 @@
 
   <!-- Forearm camera tests -->
   <test serial="6805018"
-  file="forearm_cam_test/test.xml" descrip="Forearm Camera Test" />
+  file="wge100_camera_test/test.xml" descrip="Forearm Camera Test" />
 
   <!-- Special tests -->
   <test serial="faketes" 

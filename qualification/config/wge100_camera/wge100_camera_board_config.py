@@ -37,7 +37,7 @@
 import roslib; roslib.load_manifest('qualification')
 import rospy
 from invent_client.invent_client import Invent;
-from forearm_cam.srv import BoardConfig
+from wge100_camera.srv import BoardConfig
 import sys
 
 print "WARNING! This script can only be run once per camera."

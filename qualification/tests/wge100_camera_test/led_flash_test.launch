@@ -1,5 +1,5 @@
 <launch>
-  <include file="$(find qualification)/tests/forearm_cam_test/ethercat.launch" />
+  <include file="$(find qualification)/tests/wge100_camera_test/ethercat.launch" />
   
   <group ns="forearm">
     <param name="camera_url" type="str" value="any://@192.168.202.2#eth2"/>
@@ -15,7 +15,7 @@
     <param name="auto_exposure" type="bool" value="False" />
     <param name="exposure" type="double" value="0.010" />
   </group>
-  <node name="forearm" pkg="forearm_cam" type="forearm_node" respawn="false" output="screen"/>
+  <node name="forearm" pkg="wge100_camera" type="forearm_node" respawn="false" output="screen"/>
   
   <node name="led_flash_test" pkg="qualification" type="led_flash_test" respawn="false" output="screen">
     <param name="rate" type="double" value="40.13"/>

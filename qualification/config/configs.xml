@@ -64,7 +64,7 @@
     file="forearm_cam_l.launch" descrip="Make Into Left Forearm" />
 
   <config serial="6805018"
-    file="forearm_cam_set_mac.launch" descrip="Set Serial Camera and MAC (permanent)" />
+    file="wge100_set_mac.launch" descrip="Set Serial Camera and MAC (permanent)" />
 </configs>
 
                                                           

@@ -1,8 +1,8 @@
 <launch>
-  <include file="$(find qualification)/tests/forearm_cam_test/ethercat.launch" />
+  <include file="$(find qualification)/tests/wge100_camera_test/ethercat.launch" />
   
   <!-- Camera -->
-  <group ns="forearm_cam">
+  <group ns="wge100_camera">
     <param name="camera_url" type="str" value="any://@192.168.202.2#eth2"/>
     <param name="video_mode" type="str" value="640x480x30"/>
     <param name="ext_trig" type="bool" value="True"/>
@@ -11,11 +11,11 @@
     <param name="trig_phase" type="double" value="0"/>
     <param name="exit_on_fault" type="bool" value="true"/>
   </group>
-  <node name="forearm_cam" pkg="forearm_cam" type="forearm_node" respawn="false" output="screen"/>
+  <node name="wge100_camera" pkg="wge100_camera" type="forearm_node" respawn="false" output="screen"/>
 
   <!-- Self Test -->
   <node pkg="qualification" type="run_selftest.py">
-        <remap from="node_name" to="forearm_cam"/>
+        <remap from="node_name" to="wge100_camera"/>
   </node>
 
 </launch>
