@@ -56,12 +56,15 @@
   <config serial="torsoli" 
 	  file="torso_lift_conf.launch" descrip="Torso Lift" />
 
-  <!-- Blaise, this is an example for the cameras. Use powerboard="false" to
-       disable the power from turning on/off. -->
+  <!-- Forearm Camera -->
   <config serial="6805018" powerboard="false"
-          file="left_cam.launch" descrip="Left Forearm Cam" />
+    file="forearm_cam_r.launch" descrip="Make Into Right Forearm" />
+
   <config serial="6805018" powerboard="false"
-          file="right_cam.launch" descrip="Right Forearm Cam" />
+    file="forearm_cam_l.launch" descrip="Make Into Left Forearm" />
+
+  <config serial="6805018"
+    file="forearm_cam_set_mac.launch" descrip="Set Serial Camera and MAC (permanent)" />
 </configs>
 
-
+                                                          

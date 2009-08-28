@@ -36,8 +36,8 @@
 
 import roslib; roslib.load_manifest('qualification')
 import rospy
-from forearm_cam.srv import BoardConfig
 from invent_client.invent_client import Invent;
+from forearm_cam.srv import BoardConfig
 import sys
 
 print "WARNING! This script can only be run once per camera."
@@ -57,7 +57,13 @@ if not barcode[0:7] in [ "6805018", "6805027" ]:
     print "Part number", barcode[0:7], "is not a forearm camera."
     exit(-1)
 serial = int(barcode[5:12])
-print "Camera serial number is:", serial
+
+if serial >= 1800000 and serial <= 1800015: # First 15 cameras followed a different system
+    serial = serial - 1800000
+   
+url = "serial://%i"%serial
+
+print "Camera url is:", url
 
 # Get inventory password from qualification
 username = rospy.get_param('/invent/username', None)
@@ -66,7 +72,27 @@ password = rospy.get_param('/invent/password', None)
 # Fail if invalid username/password
 i = Invent(username, password)
 if not i.login():
+    print "Could not connect to invent."
     exit(-1)
+
+# Was this camera already put on invent with a different serial?
+# Write camera serial number to invent if it is not already there
+try:
+    prevserial = i.getItemReferences(barcode)["camera_url"]
+    if not prevserial in [ url, '']:
+        print "This part was already stored in invent with a different serial '%s'. This should never happen."%prevserial
+        exit(-1)
+except KeyError:
+    prevserial = ''
+    pass
+
+if prevserial != url:
+    print "Writing camera_url to invent"
+    i.addItemReference(barcode, "camera_url", url)
+else:
+    print "camera_url already in invent"
+
+exit(-1)
 
 # Get MAC address from invent.
 i.generateWGMacaddr(barcode, "lan0")
