@@ -21,5 +21,5 @@
   </group>
   
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
-  <node pkg="mechanism_control" type="spawner.py" args="test_controller" />
+  <node pkg="pr2_mechanism_control" type="spawner.py" args="test_controller" />
 </launch>

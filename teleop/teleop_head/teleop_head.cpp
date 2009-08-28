@@ -36,8 +36,8 @@
 #include "ros/ros.h"
 #include "joy/Joy.h"
 
-#include "mechanism_msgs/JointState.h"
-#include "mechanism_msgs/JointStates.h"
+#include "pr2_mechanism_msgs/JointState.h"
+#include "pr2_mechanism_msgs/JointStates.h"
 
 class TeleopHead 
 {
@@ -80,7 +80,7 @@ class TeleopHead
     
     ROS_DEBUG("deadman_button: %d\n", deadman_button);
     
-    head_pub_ = n_.advertise<mechanism_msgs::JointStates>("head_controller/command", 1);
+    head_pub_ = n_.advertise<pr2_mechanism_msgs::JointStates>("head_controller/command", 1);
 
     joy_sub_ = n_.subscribe("joy", 10, &TeleopHead::joy_cb, this);
   }
@@ -113,8 +113,8 @@ class TeleopHead
   {
     if (deadman_)
     { 
-      mechanism_msgs::JointState joint_cmd ;
-      mechanism_msgs::JointStates joint_cmds;
+      pr2_mechanism_msgs::JointState joint_cmd ;
+      pr2_mechanism_msgs::JointStates joint_cmds;
       
       joint_cmd.name ="head_pan_joint";
       joint_cmd.position = req_pan;
@@ -128,8 +128,8 @@ class TeleopHead
     }
     else if (!deadman_no_publish_)
     {
-      mechanism_msgs::JointState joint_cmd ;
-      mechanism_msgs::JointStates joint_cmds;
+      pr2_mechanism_msgs::JointState joint_cmd ;
+      pr2_mechanism_msgs::JointStates joint_cmds;
       
       joint_cmd.name ="head_pan_joint";
       joint_cmd.position = req_pan;

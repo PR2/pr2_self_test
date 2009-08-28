@@ -37,8 +37,8 @@
 #include "ros/ros.h"
 #include "joy/Joy.h"
 #include "geometry_msgs/Twist.h"
-#include "mechanism_msgs/JointState.h"
-#include "mechanism_msgs/JointStates.h"
+#include "pr2_mechanism_msgs/JointState.h"
+#include "pr2_mechanism_msgs/JointStates.h"
 
 #include "std_msgs/Float64.h"
 
@@ -150,7 +150,7 @@ class TeleopPR2
           torso_pub_ = n_.advertise<std_msgs::Float64>(TORSO_TOPIC, 1);
         
         if (head_button != 0)
-          head_pub_ = n_.advertise<mechanism_msgs::JointStates>(HEAD_TOPIC, 1);
+          head_pub_ = n_.advertise<pr2_mechanism_msgs::JointStates>(HEAD_TOPIC, 1);
 
         vel_pub_ = n_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
@@ -246,8 +246,8 @@ class TeleopPR2
       // Head
       if (head_button != 0)
       {
-        mechanism_msgs::JointState joint_cmd ;
-        mechanism_msgs::JointStates joint_cmds;
+        pr2_mechanism_msgs::JointState joint_cmd ;
+        pr2_mechanism_msgs::JointStates joint_cmds;
         
         joint_cmd.name ="head_pan_joint";
         joint_cmd.position = req_pan;
@@ -281,8 +281,8 @@ class TeleopPR2
         // Publish head
         if (head_button != 0)
         {
-          mechanism_msgs::JointState joint_cmd ;
-          mechanism_msgs::JointStates joint_cmds;
+          pr2_mechanism_msgs::JointState joint_cmd ;
+          pr2_mechanism_msgs::JointStates joint_cmds;
           
           joint_cmd.name ="head_pan_joint";
           joint_cmd.position = req_pan;

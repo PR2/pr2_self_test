@@ -37,8 +37,8 @@
 
 #include <ros/ros.h>
 
-#include <mechanism_msgs/JointState.h>
-#include <mechanism_msgs/JointStates.h>
+#include <pr2_mechanism_msgs/JointState.h>
+#include <pr2_mechanism_msgs/JointStates.h>
 
 #define HEAD_TOPIC "/head_controller/command"
 
@@ -67,7 +67,7 @@ class TeleopHeadKeyboard
     req_tilt = 0.0;
     req_pan = 0.0;
  
-    head_pub_ = n_.advertise<mechanism_msgs::JointStates>(HEAD_TOPIC, 1);
+    head_pub_ = n_.advertise<pr2_mechanism_msgs::JointStates>(HEAD_TOPIC, 1);
     
     n_.param("max_pan", max_pan, 2.7);
     n_.param("max_tilt", max_tilt, 1.4);
@@ -176,8 +176,8 @@ void TeleopHeadKeyboard::keyboardLoop()
     if (dirty == true)
     {
       
-      mechanism_msgs::JointState joint_cmd ;
-      mechanism_msgs::JointStates joint_cmds;
+      pr2_mechanism_msgs::JointState joint_cmd ;
+      pr2_mechanism_msgs::JointStates joint_cmds;
        
       joint_cmd.name ="head_pan_joint";
       joint_cmd.position = req_pan;

@@ -9,7 +9,7 @@
   <depend package="std_msgs" />
   <depend package="geometry_msgs" />
   <depend package="robot_mechanism_controllers" />
-  <depend package="mechanism_control" />
+  <depend package="pr2_mechanism_control" />
   <depend package="spacenav_node" />
   <depend package="joy" />
 
