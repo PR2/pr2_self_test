@@ -46,96 +46,74 @@ import subprocess
 import os
 import os.path
 import wx
+import traceback
+from invent_client.invent_client import Invent
+from qualification.srv import TestResult, TestResultRequest
 
-rospy.init("wge100_camera_set_name")
+rospy.init_node("wge100_camera_set_name")
 
 def getparam(name):
     val = rospy.get_param(name, None)
     if val == None:
-        print "Parameter %s not set"%name
-        exit(-1)
+        failed("Parameter %s not set"%name)
     return val
 
-# Get inventory password from qualification
-username = getparam('/invent/username')
-password = getparam('/invent/password')
-part = getparam('/qualification/serial')
-cameraname = getparam('camera_name')
-cameraip = getparam('camera_ip')
-progip = getparam('programming_ip')
+def failed(message):
+    send_response("Error setting camera name", message, -1)
 
-# Fail if invalid username/password
-i = Invent(username, password)
-if not i.login():
-    print "Could not connect to invent."
-    exit(-1)
+def passed(message):
+    send_response("Camera successfully set to %s at %s "%(cameraname, cameraip),
+            message, 0)
 
-# Get camera url
-try:
-    prevserial = i.getItemReferences(barcode)["camera_url"]
-    if prevserial == '':
-        raise KeyError
-except KeyError:
-    exit(-1)
-                                        
-# Set the camera's name
-retval = system("rosrun wge100_camera set_name '%s'"%(camera_url+"@"+progip, cameraname, cameraip))
-print "Return value:", retval
-exit(-1)
-try:
-    iface=rospy.get_param("~cam_interface")
-except:
-    iface=None
-
-try:
-    impactdir=rospy.get_param("~impactdir")
-except:
-    import traceback
-    traceback.print_exc()
-#if (len(sys.argv) != 2):
-    #print >> sys.stderr, 'must specify impact directory (%i) args given'%len(sys.argv);
-    print >> sys.stderr, 'impactdir option must indicate impact project directory';
-    r.html_result = "<p>Bad arguments to load_firmware.py.</p>"
-    r.text_summary = "Error in test."
+def send_response(summary, message, retval):
+    print message.replace('<b>','').replace('</b>','')
+    r=TestResultRequest()
+    r.text_summary = summary
+    r.html_result = "<p>%s</p>"%message.replace('\n','<br>')
     r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
-    print "error"
-else:
-    os.chdir(impactdir);
-    reprogram = True
-    if check_programmed(iface):
-        app = wx.PySimpleApp()
-	ret = wx.MessageBox("The device is already programmed. Skip reprogramming?", "Device Programmed", wx.YES|wx.NO)
-	if ret == wx.YES:
-	    reprogram = False
-    if reprogram:
-        p = subprocess.Popen(['./startimpact', '-batch', 'load_firmware.cmd'], stderr=subprocess.PIPE)
-        impactout = p.communicate()[1]
-
-        impactout = impactout.replace('\n','<br>')
-
-        if '''INFO:iMPACT - '1': Flash was programmed successfully.''' in impactout:
-            r.text_summary = "Firmware download succeeded."
-            r.html_result = "<p>Test passed.</p><p>"+impactout+"</p>" 
-            r.result = TestResultRequest.RESULT_PASS
-            print "pass"
-        else:
-            r.text_summary = "Firmware download failed."
-            r.result = TestResultRequest.RESULT_FAIL
-            r.html_result = "<p>Test Failed.</p><p>"+impactout+"</p>"
-            print "fail"
-            print impactout
-    else: 
-        r.html_result = "<p>Firmware was already programmed.</p>"
-        r.text_summary = "Firmware already programmed (Pass)." 
-        r.result = TestResultRequest.RESULT_PASS
-        print "pass"
-
     
-result_service = rospy.ServiceProxy('test_result', TestResult)
+    result_service = rospy.ServiceProxy('test_result', TestResult)
+    rospy.sleep(5);
+    rospy.wait_for_service('test_result')
+    result_service.call(r)
+    exit(retval)
 
-rospy.sleep(5);
+try:
+    # Get inventory password from qualification
+    username = getparam('/invent/username')
+    password = getparam('/invent/password')
+    barcode = getparam('/qualification/serial')
+    cameraname = getparam('~camera_name')
+    cameraip = getparam('~camera_ip')
+    progip = getparam('~programming_ip')
+    
+    # Fail if invalid username/password
+    i = Invent(username, password)
+    if not i.login():
+        failed("Could not connect to invent.")
+    
+    # Get camera url
+    try:
+        camera_url = i.getItemReferences(barcode)["camera_url"]
+        if camera_url == '':
+            raise KeyError
+    except KeyError:
+        failed("Could not get camera url from invent. Try setting the  serial and MAC")
+                                            
+    # Set the camera's name
+    p = subprocess.Popen(["rosrun", "wge100_camera", "set_name",
+        camera_url+"@"+progip, cameraname, cameraip ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    setnameout = p.communicate()
+    
+    passed("Output from setname tool...\n<b>Standard output:</b>\n"+setnameout[0]+"\n\n<b>Standard error:</b>\n"+setnameout[1])
 
-# block until the test_result service is available
-rospy.wait_for_service('test_result')
-result_service.call(r)
-
+    if retval == 0:
+        i.setKV(barcode, "Configured name", cameraname)
+        i.setKV(barcode, "Configured ip", cameraip)
+        passed("passed") # FIXME
+    else:
+        i.setKV(barcode, "Configured name", "<configure failed>")
+        i.setKV(barcode, "Configured ip", "<configure failed>")
+        failed("failed") # FIXME
+except:
+    failed('<b>Exception:</b>\n%s'%traceback.format_exc())
