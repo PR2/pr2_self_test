@@ -163,6 +163,8 @@ class SerialPanel(wx.Panel):
       test += '<subtest name="%s Test">config/subtest_conf.launch</subtest>\n' % (descrip)
       if powerboard:
         test += '<shutdown name="Shutdown">scripts/power_board_disable.launch</shutdown>\n</test>'
+      else:
+        test += '</test>'
 
       if self._configs.has_key(serial):
         self._configs[serial].append(test)
