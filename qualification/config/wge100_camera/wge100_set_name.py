@@ -41,14 +41,12 @@ from std_srvs.srv import *
 from qualification.srv import *
 import qualification.msg
 import std_msgs
-import rospy
 import subprocess
 import os
 import os.path
-import wx
 import traceback
 from invent_client.invent_client import Invent
-from qualification.srv import TestResult, TestResultRequest
+from qualification.srv import ScriptDone, ScriptDoneRequest
 
 rospy.init_node("wge100_camera_set_name")
 
@@ -67,14 +65,17 @@ def passed(message):
 
 def send_response(summary, message, retval):
     print message.replace('<b>','').replace('</b>','')
-    r=TestResultRequest()
-    r.text_summary = summary
-    r.html_result = "<p>%s</p>"%message.replace('\n','<br>')
-    r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
+    r=ScriptDoneRequest()
+    r.failure_msg = message.replace('<b>','').replace('</b>','')
+    #r.html_result = "<p>%s</p>"%message.replace('\n','<br>')
+    if retval != 0:
+        r.result = ScriptDoneRequest.RESULT_FAIL
+    else:
+        r.result = ScriptDoneRequest.RESULT_OK
     
-    result_service = rospy.ServiceProxy('test_result', TestResult)
+    result_service = rospy.ServiceProxy('prestartup_done', ScriptDone)
     rospy.sleep(5);
-    rospy.wait_for_service('test_result')
+    rospy.wait_for_service('prestartup_done')
     result_service.call(r)
     exit(retval)
 
@@ -82,7 +83,7 @@ try:
     # Get inventory password from qualification
     username = getparam('/invent/username')
     password = getparam('/invent/password')
-    barcode = getparam('/qualification/serial')
+    barcode = getparam('/qual_item/serial')
     cameraname = getparam('~camera_name')
     cameraip = getparam('~camera_ip')
     progip = getparam('~programming_ip')
