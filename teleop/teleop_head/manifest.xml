@@ -7,7 +7,7 @@
   <license>BSD</license>
   <review status="na" notes="" />
   <depend package="joy" />
-  <depend package="pr2_mechanism_msgs" />
+  <depend package="sensor_msgs" />
   <depend package="pr2_default_controllers" />
   <depend package="roscpp" />
 </package>

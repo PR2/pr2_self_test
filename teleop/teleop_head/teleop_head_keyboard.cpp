@@ -37,8 +37,7 @@
 
 #include <ros/ros.h>
 
-#include <pr2_mechanism_msgs/JointState.h>
-#include <pr2_mechanism_msgs/JointStates.h>
+#include <sensor_msgs/JointState.h>
 
 #define HEAD_TOPIC "/head_controller/command"
 
@@ -67,7 +66,7 @@ class TeleopHeadKeyboard
     req_tilt = 0.0;
     req_pan = 0.0;
  
-    head_pub_ = n_.advertise<pr2_mechanism_msgs::JointStates>(HEAD_TOPIC, 1);
+    head_pub_ = n_.advertise<sensor_msgs::JointState>(HEAD_TOPIC, 1);
     
     n_.param("max_pan", max_pan, 2.7);
     n_.param("max_tilt", max_tilt, 1.4);
@@ -176,16 +175,13 @@ void TeleopHeadKeyboard::keyboardLoop()
     if (dirty == true)
     {
       
-      pr2_mechanism_msgs::JointState joint_cmd ;
-      pr2_mechanism_msgs::JointStates joint_cmds;
-       
-      joint_cmd.name ="head_pan_joint";
-      joint_cmd.position = req_pan;
-      joint_cmds.joints.push_back(joint_cmd);
-      joint_cmd.name="head_tilt_joint";
-      joint_cmd.position = req_tilt;
-      joint_cmds.joints.push_back(joint_cmd);
-
+      sensor_msgs::JointState joint_cmds;
+      joint_cmds.set_name_size(2);
+      joint_cmds.set_position_size(2);
+      joint_cmds.name[0] ="head_pan_joint";
+      joint_cmds.position[0] = req_pan;
+      joint_cmds.name[1] ="head_tilt_joint";
+      joint_cmds.position[1] = req_tilt;
       head_pub_.publish(joint_cmds) ;
 
 

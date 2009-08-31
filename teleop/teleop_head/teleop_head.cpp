@@ -36,8 +36,7 @@
 #include "ros/ros.h"
 #include "joy/Joy.h"
 
-#include "pr2_mechanism_msgs/JointState.h"
-#include "pr2_mechanism_msgs/JointStates.h"
+#include "sensor_msgs/JointState.h"
 
 class TeleopHead 
 {
@@ -80,7 +79,7 @@ class TeleopHead
     
     ROS_DEBUG("deadman_button: %d\n", deadman_button);
     
-    head_pub_ = n_.advertise<pr2_mechanism_msgs::JointStates>("head_controller/command", 1);
+    head_pub_ = n_.advertise<sensor_msgs::JointState>("head_controller/command", 1);
 
     joy_sub_ = n_.subscribe("joy", 10, &TeleopHead::joy_cb, this);
   }
@@ -113,33 +112,26 @@ class TeleopHead
   {
     if (deadman_)
     { 
-      pr2_mechanism_msgs::JointState joint_cmd ;
-      pr2_mechanism_msgs::JointStates joint_cmds;
-      
-      joint_cmd.name ="head_pan_joint";
-      joint_cmd.position = req_pan;
-      joint_cmds.joints.push_back(joint_cmd);
-      joint_cmd.name="head_tilt_joint";
-      joint_cmd.position = req_tilt;
-      joint_cmds.joints.push_back(joint_cmd);
-      
+      sensor_msgs::JointState joint_cmds;
+      joint_cmds.set_name_size(2);
+      joint_cmds.set_position_size(2);
+      joint_cmds.name[0] ="head_pan_joint";
+      joint_cmds.position[0] = req_pan;
+      joint_cmds.name[1] ="head_tilt_joint";
+      joint_cmds.position[1] = req_tilt;
       head_pub_.publish(joint_cmds);
       fprintf(stdout,"teleop_head:: %f, %f\n", req_pan, req_tilt);  
     }
     else if (!deadman_no_publish_)
     {
-      pr2_mechanism_msgs::JointState joint_cmd ;
-      pr2_mechanism_msgs::JointStates joint_cmds;
-      
-      joint_cmd.name ="head_pan_joint";
-      joint_cmd.position = req_pan;
-      joint_cmds.joints.push_back(joint_cmd);
-      joint_cmd.name="head_tilt_joint";
-      joint_cmd.position = req_tilt;
-      joint_cmds.joints.push_back(joint_cmd);
-      
+      sensor_msgs::JointState joint_cmds;
+      joint_cmds.set_name_size(2);
+      joint_cmds.set_position_size(2);
+      joint_cmds.name[0] ="head_pan_joint";
+      joint_cmds.position[0] = req_pan;
+      joint_cmds.name[1] ="head_tilt_joint";
+      joint_cmds.position[1] = req_tilt;
       head_pub_.publish(joint_cmds);
-      
       fprintf(stdout,"teleop_head:: %f, %f\n", req_pan, req_tilt);  
     }
   }
