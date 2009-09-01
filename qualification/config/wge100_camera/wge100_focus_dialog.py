@@ -34,53 +34,30 @@
 
 import roslib
 roslib.load_manifest('qualification')
-
-import rospy
-import rospy.client
-import subprocess
-import traceback
-from invent_client.invent_client import Invent
+import wx
 import sys
 
-rospy.init_node("wge100_get_url")
+from qualification.srv import *
 
-def getparam(name):
-    val = rospy.get_param(name, None)
-    if val == None:
-        print >> sys.stderr, "Parameter %s not set"%name
-        exit(-1)
-    return val
+import rospy
 
+finish = rospy.ServiceProxy('prestartup_done', ScriptDone)
+
+app = wx.PySimpleApp()
+ret = wx.MessageBox("Did you successfully manage to focus the camera?", "Camera Focus", wx.YES_NO)
+if (ret == wx.NO):
+    done = ScriptDoneRequest()
+    done.result = ScriptDoneRequest.RESULT_FAIL
+    done.failure_msg = 'User was unable to focus the camera.'
+else:
+    done = ScriptDoneRequest()
+    done.result = ScriptDoneRequest.RESULT_OK
+    done.failure_msg = ''
+    
 try:
-    print >> sys.stderr, "This node converts the serial number in /qualification/serial into a camera url."
-
-    # Get inventory password from qualification
-    username = getparam('/invent/username')
-    password = getparam('/invent/password')
-    barcode = getparam('qual_item/serial')
-    
-    # Fail if invalid username/password
-    i = Invent(username, password)
-    if not i.login():
-        print >> sys.stderr, "Could not connect to invent."
-        exit(-1)
-    
-    # Get camera url
-    try:
-        print >> sys.stderr, "Searching for barcode ", barcode
-        camera_url = i.getItemReferences(barcode)["camera_url"]
-        if camera_url == '':
-            raise KeyError
-    except KeyError:
-        print >> sys.stderr, "Could not get camera url from invent in wge100_get_url.py"
-        exit(-1)
-
-    myargv = rospy.client.myargv()
-    if len(myargv) == 2:
-        camera_url = camera_url + myargv[1]
-    print camera_url
-    print >> sys.stderr, "Url is:", camera_url
-                                            
+    rospy.wait_for_service('prestartup_done', 2)
+    finish.call(done)
+    sys.exit(0)
 except:
-    raise
-    #print >> sys.stderr, "Exception caught in wge100_get_url.py"
+    # Timeout exceeded while waiting for service
+    sys.exit(0)

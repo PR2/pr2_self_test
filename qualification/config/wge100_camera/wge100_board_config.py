@@ -36,15 +36,21 @@
 
 import roslib; roslib.load_manifest('qualification')
 import rospy
+import rospy.client
 from invent_client.invent_client import Invent;
 from wge100_camera.srv import BoardConfig
 import sys
 
-print "WARNING! This script can only be run once per camera."
-print "Make sure you enter the right barcode!"
-print
-print "Enter barcode:"
-barcode = raw_input()
+myargv = rospy.client.myargv()
+
+if len(myargv) != 2:
+    print "WARNING! This script can only be run once per camera."
+    print "Make sure you enter the right barcode!"
+    print
+    print "Enter barcode:"
+    barcode = raw_input()
+else:
+    barcode = myargv[1]
 print "Preparing to configure forearm camera",barcode
 
 rospy.init_node('forearm_config')
@@ -92,8 +98,6 @@ if prevserial != url:
 else:
     print "camera_url already in invent"
 
-exit(-1)
-
 # Get MAC address from invent.
 i.generateWGMacaddr(barcode, "lan0")
 refs = i.getItemReferences(barcode)
@@ -111,4 +115,5 @@ print "Waiting for board_config service."
 rospy.wait_for_service('board_config', 10)
 board_config = rospy.ServiceProxy('board_config', BoardConfig)
 rslt = board_config(serial, "".join([chr(x) for x in mac]) );
-print "Result is ", rslt.success
+print "Result is", rslt.success
+exit(rslt == 1) # Returns 0 on success

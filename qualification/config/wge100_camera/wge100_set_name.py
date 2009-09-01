@@ -73,9 +73,8 @@ def send_response(summary, message, retval):
     else:
         r.result = ScriptDoneRequest.RESULT_OK
     
+    rospy.wait_for_service('prestartup_done', 2)
     result_service = rospy.ServiceProxy('prestartup_done', ScriptDone)
-    rospy.sleep(5);
-    rospy.wait_for_service('prestartup_done')
     result_service.call(r)
     exit(retval)
 
@@ -83,7 +82,7 @@ try:
     # Get inventory password from qualification
     username = getparam('/invent/username')
     password = getparam('/invent/password')
-    barcode = getparam('/qual_item/serial')
+    barcode = getparam('qual_item/serial')
     cameraname = getparam('~camera_name')
     cameraip = getparam('~camera_ip')
     progip = getparam('~programming_ip')

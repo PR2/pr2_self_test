@@ -1,6 +1,6 @@
 <launch>
-  <node name="wge100_focus" pkg="wge100_camera" type="wge100_camera_node" respawn="true" output="screen">
-    <param name="camera_url" type="str" command="rosrun qualification wge100_get_url.py @$(env WGE100_IP)" />
+  <node name="wge100_board_config" pkg="wge100_camera" type="wge100_camera_node" respawn="true" output="screen">
+    <param name="camera_url" type="str" value="serial://0@$(env WGE100_IP)" />
     <param name="video_mode" type="str" value="640x480x30" />
     <param name="auto_exposure" type="bool" value="False" />
     <param name="exposure" type="double" value="0.02" />
@@ -14,23 +14,25 @@
     <param name="do_colorize" type="bool" value="True"/>
   </node>
 
-  <node name="wge100_focus_proc" pkg="stereo_image_proc" type="imageproc" respawn="false" output="screen">
-    <remap from="camera" to="wge100_focus"/>
+  <node name="wge100_board_config_proc" pkg="stereo_image_proc" type="imageproc" respawn="false" output="screen">
+    <remap from="camera" to="wge100_board_config"/>
   </node>
   
-  <node pkg="image_view" type="image_view" respawn="false" name="wge100_focus_image_view">
+  <node pkg="image_view" type="image_view" respawn="false" name="wge100_board_config_image_view">
     <param name="autosize" type="bool" value="True"/>
     <param name="window_name" type="str" value="'WGE100 camera focus'"/>
-    <remap from="image" to="wge100_focus/image_color"/>
+    <remap from="image" to="wge100_board_config/image_color"/>
   </node>
 
-  <node name="wge100_focus_graph" pkg="camera_focus" type="focus" respawn="false" output="screen">
-    <remap from="image" to="wge100_focus/image_raw"/>
+  <node name="wge100_board_config_graph" pkg="camera_focus" type="focus" respawn="false" output="screen">
+    <remap from="image" to="wge100_board_config/image_raw"/>
     <param name="startx" type="int" value="160"/>
     <param name="starty" type="int" value="120"/>
     <param name="endx" type="int" value="420"/>
     <param name="endy" type="int" value="280"/>
   </node>
 
-  <node name="wge100_focus_ok" pkg="qualification" type="wge100_focus_dialog.py" output="screen"/>
+  <node name="wge100_board_config_ok" pkg="qualification" type="wge100_board_config_dialog.py" output="screen">
+    <param name="camera_path" type="str" value="wge100_board_config"/>
+  </node>
 </launch>

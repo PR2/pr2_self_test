@@ -34,15 +34,13 @@
 
 import roslib
 roslib.load_manifest('qualification')
+import wx
+import sys
+import os
+
+from qualification.srv import *
 
 import rospy
-import rospy.client
-import subprocess
-import traceback
-from invent_client.invent_client import Invent
-import sys
-
-rospy.init_node("wge100_get_url")
 
 def getparam(name):
     val = rospy.get_param(name, None)
@@ -51,36 +49,29 @@ def getparam(name):
         exit(-1)
     return val
 
+rospy.init_node("wge100_set_mac_dialog")
+barcode = getparam('qual_item/serial')
+camera_path = getparam('~camera_path')+"/board_config"
+
+app = wx.PySimpleApp()
+ret = wx.MessageBox("Does the window labeled 'Camera to be Programmed' show images from camera %s, and are you sure you want to permanently set its MAC and serial number?"%barcode, "Set MAC and Serial Number", wx.YES_NO)
+done = ScriptDoneRequest()
+if (ret == wx.NO):
+    done.result = ScriptDoneRequest.RESULT_FAIL
+    done.failure_msg = 'User pressed NO.'
+else:
+    if os.system("rosrun qualification wge100_board_config.py board_config:=%s %s"%(camera_path, barcode)) == 0:
+        done.result = ScriptDoneRequest.RESULT_OK
+        done.failure_msg = ''
+    else:
+        done.result = ScriptDoneRequest.RESULT_FAIL
+        done.failure_msg = 'Board configuration failed.'
+    
 try:
-    print >> sys.stderr, "This node converts the serial number in /qualification/serial into a camera url."
-
-    # Get inventory password from qualification
-    username = getparam('/invent/username')
-    password = getparam('/invent/password')
-    barcode = getparam('qual_item/serial')
-    
-    # Fail if invalid username/password
-    i = Invent(username, password)
-    if not i.login():
-        print >> sys.stderr, "Could not connect to invent."
-        exit(-1)
-    
-    # Get camera url
-    try:
-        print >> sys.stderr, "Searching for barcode ", barcode
-        camera_url = i.getItemReferences(barcode)["camera_url"]
-        if camera_url == '':
-            raise KeyError
-    except KeyError:
-        print >> sys.stderr, "Could not get camera url from invent in wge100_get_url.py"
-        exit(-1)
-
-    myargv = rospy.client.myargv()
-    if len(myargv) == 2:
-        camera_url = camera_url + myargv[1]
-    print camera_url
-    print >> sys.stderr, "Url is:", camera_url
-                                            
+    finish = rospy.ServiceProxy('prestartup_done', ScriptDone)
+    rospy.wait_for_service('prestartup_done', 2)
+    finish.call(done)
+    sys.exit(0)
 except:
-    raise
-    #print >> sys.stderr, "Exception caught in wge100_get_url.py"
+    # Timeout exceeded while waiting for service
+    sys.exit(0)
