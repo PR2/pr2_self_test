@@ -41,8 +41,16 @@
 	file="gripper_test/test.xml" descrip="Gripper Test" />
  
 
-  <!-- Forearm camera tests -->
+  <!-- Old color Forearm camera tests -->
   <test serial="6805018"
+  file="wge100_camera_test/test.xml" descrip="Forearm Camera Test" />
+
+  <!-- New color Forearm camera tests -->
+  <test serial="6805030"
+  file="wge100_camera_test/test.xml" descrip="Forearm Camera Test" />
+
+  <!-- New B&W Forearm camera tests -->
+  <test serial="6805027"
   file="wge100_camera_test/test.xml" descrip="Forearm Camera Test" />
 
   <!-- Special tests -->
