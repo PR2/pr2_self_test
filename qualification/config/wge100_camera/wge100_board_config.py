@@ -107,8 +107,14 @@ mac = []
 if len(macstr.rstrip("1234567890abcdefABCDEF")) != 0 or len(macstr) != 12:
     print "The MAC should be 12 hex digits."
     exit(-1)
-for i in range(0, 6):
-    mac.append(int(macstr[2*i:2*i+2], 16))
+for j in range(0, 6):
+    mac.append(int(macstr[2*j:2*j+2], 16))
+
+if i.getKV(barcode, 'board_configured') == 'yes':
+    print "This board has already been configured."
+    exit(0)
+
+i.setKV(barcode, 'board_configured', 'unknown')
 
 # Wait for service, and call it.
 print "Waiting for board_config service."
@@ -116,4 +122,6 @@ rospy.wait_for_service('board_config', 10)
 board_config = rospy.ServiceProxy('board_config', BoardConfig)
 rslt = board_config(serial, "".join([chr(x) for x in mac]) );
 print "Result is", rslt.success
+if rslt.success == 1:
+    i.setKV(barcode, 'board_configured', 'yes')
 exit(rslt == 1) # Returns 0 on success
