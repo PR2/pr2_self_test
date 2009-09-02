@@ -24,6 +24,9 @@
   <depend package="opencv_latest" />
   <depend package="rxtools" />
   <depend package="realtime_tools" />
+  <depend package="image_view" />
+  <depend package="camera_focus" />
+  <depend package="image_proc" />
   <url>http://pr.willowgarage.com/wiki/qualification</url>
   <sysdepend os="ubuntu" version="7.04-feisty" package="python-wxgtk2.8"/>
   <sysdepend os="ubuntu" version="8.04-hardy" package="python-wxgtk2.8"/>
