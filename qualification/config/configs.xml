@@ -63,10 +63,10 @@
   <config serial="6805018" powerboard="false"
     file="wge100_camera/set_name_forearm_camera_l.launch" descrip="Make Into Left Forearm" />
 
-  <config serial="6805018"
+  <config serial="6805018" powerboard="false"
     file="wge100_camera/set_mac.launch" descrip="Set Serial Camera and MAC (permanent)" />
 
-  <config serial="6805018"
+  <config serial="6805018" powerboard="false"
     file="wge100_camera/focus_camera.launch" descrip="Focus Camera" />
 </configs>
 
