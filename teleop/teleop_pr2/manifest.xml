@@ -6,6 +6,7 @@
   <author>Kevin Watts</author>
   <license>BSD</license>
   <review status="na" notes="" />
+  <depend package="xacro" />
   <depend package="joy" />
   <depend package="std_msgs" />
   <depend package="geometry_msgs" />
