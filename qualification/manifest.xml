@@ -5,6 +5,7 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <depend package="rospy" />
+  <depend package="camera_focus" />
   <depend package="std_msgs" />
   <depend package="diagnostic_msgs" />
   <depend package="hokuyo_node" />
