@@ -47,7 +47,13 @@ import re
 
 NAME = 'ntp_monitor'
 
-def ntp_monitor(ntp_hostname, offset=500):
+def ntp_monitor(ntp_hostname, offset=500, self_offset=500):
+    try:
+        offset = int(offset)
+        self_offset = int(self_offset)
+    except:
+        parser.error("offset must be a number")
+
     pub = rospy.Publisher("/diagnostics", DiagnosticArray)
     rospy.init_node(NAME, anonymous=True)
 
@@ -59,51 +65,54 @@ def ntp_monitor(ntp_hostname, offset=500):
     stat.message = "Acceptable synchronization"
     stat.hardware_id = hostname
     stat.values = []
+
+    self_stat = DiagnosticStatus()
+    self_stat.level = 0
+    self_stat.name = "NTP offset from: "+ hostname + " to: self."
+    self_stat.message = "Acceptable synchronization"
+    self_stat.hardware_id = hostname
+    self_stat.values = []
     
     while not rospy.is_shutdown():
-        try:
-            p = Popen(["ntpdate", "-q", ntp_hostname], stdout=PIPE, stdin=PIPE, stderr=PIPE)
-            res = p.wait()
-            (o,e) = p.communicate()
-        except OSError, (errno, msg):
-            if errno == 4:
-                break #ctrl-c interrupt
-            else:
-                raise
-        if (res == 0):
-            measured_offset = float(re.search("offset (.*),", o).group(1))*1000000
+        for st,host,off in [(stat,ntp_hostname,offset), (self_stat, hostname,self_offset)]:
 
-            stat.level = 0
-            stat.message = "Acceptable synchronization"
-            stat.values = [ KeyValue("offset (us)", str(measured_offset)) ]
+            try:
+                p = Popen(["ntpdate", "-q", host], stdout=PIPE, stdin=PIPE, stderr=PIPE)
+                res = p.wait()
+                (o,e) = p.communicate()
+            except OSError, (errno, msg):
+                if errno == 4:
+                    break #ctrl-c interrupt
+                else:
+                    raise
+            if (res == 0):
+                measured_offset = float(re.search("offset (.*),", o).group(1))*1000000
+
+                st.level = 0
+                st.message = "Acceptable synchronization"
+                st.values = [ KeyValue("offset (us)", str(measured_offset)) ]
             
-            if (abs(measured_offset) > offset):
-                stat.level = 2
-                stat.message = "Offset too great"
+                if (abs(measured_offset) > off):
+                    st.level = 2
+                    st.message = "Offset too great"
                                 
-        else:
-            stat.level = 2
-            stat.message = "Error running ntpupdate"
-            stat.values = [ KeyValue("offset (us)", "N/A") ]
+            else:
+                st.level = 2
+                st.message = "Error running ntpupdate"
+                st.values = [ KeyValue("offset (us)", "N/A") ]
 
-        pub.publish(DiagnosticArray(None, [stat]))
+
+        pub.publish(DiagnosticArray(None, [stat, self_stat]))
         time.sleep(1)
 
 def ntp_monitor_main(argv=sys.argv):
     import optparse
-    parser = optparse.OptionParser(usage="usage: ntp_monitor ntp-hostname [offset-tolerance]")
+    parser = optparse.OptionParser(usage="usage: ntp_monitor ntp-hostname [offset-tolerance=500] [self_offset-tolerance=500]")
     options, args = parser.parse_args(argv[1:])
-    if len(args) == 1:
-        ntp_hostname, offset = args[0], 500
-    elif len(args) == 2:
-        ntp_hostname, offset = args
-        try:
-            offset = int(offset)
-        except:
-            parser.error("offset must be a number")
+    if (len(args) > 0 and len(args) <= 3):
+        apply(ntp_monitor, args)
     else:
         parser.error("Invalid arguments")
-    ntp_monitor(ntp_hostname, offset)
 
 if __name__ == "__main__":
     try:
