@@ -58,7 +58,7 @@ import csv
 
 class EtherCATTestMonitorNode():
     def __init__(self):
-        rospy.init_node('test_monitor', anonymous = True)
+        rospy.init_node('test_monitor')
 
         self._trans_monitors = []
         if len(rospy.myargv()) > 1:
@@ -102,7 +102,6 @@ class EtherCATTestMonitorNode():
         
 
     def create_trans_monitors(self, csv_filename):
-
         trans_csv = csv.reader(open(csv_filename, 'rb'))
         for row in trans_csv:
             actuator = row[0].lstrip().rstrip()

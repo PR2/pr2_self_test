@@ -41,14 +41,14 @@ import sys
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from std_srvs.srv import *
-from mechanism_msgs.msg import MechanismState, JointState, ActuatorState
+from pr2_mechanism_msgs.msg import MechanismState, JointState, ActuatorState
 
 import os
 import time
 
 import rospy
 
-import threading
+from time import sleep
 from wx import xrc
 
 import math
@@ -110,6 +110,19 @@ class FakeTestFrame(wx.Frame):
         jnt_st.applied_effort = float(-2 * sine)
         jnt_st.commanded_effort = float(-2 * sine)
         jnt_st.is_calibrated = 1
+
+        cont_st = JointState()
+        cont_st.name = 'cont_joint'
+        cont_st.position = 5 * float(0.5 * sine)
+        cont_st.velocity = 2.5 * float(0.5 * cosine)
+        cont_st.is_calibrated = 1
+
+        cont_act_st = ActuatorState()
+        cont_act_st.name = 'cont_motor'
+        cont_act_st.calibration_reading = 14 
+        wrapped_position = (cont_st.position % 6.28)
+        if wrapped_position > 3.14:
+            cont_act_st.calibration_reading = 13
         
         # Use same position as above, with 100:1 reduction -> Ampltitude 200
         act_st = ActuatorState()
@@ -122,9 +135,9 @@ class FakeTestFrame(wx.Frame):
         act_st.velocity = float(200 * cosine)
         
         # Only one that makes a difference
-        act_st.calibration_reading = 14
+        act_st.calibration_reading = 13
         if sine > 0.0 and self._cal_box.IsChecked():
-            act_st.calibration_reading = 13
+            act_st.calibration_reading = 14
 
         act_st.calibration_rising_edge_valid = 1
         act_st.calibration_falling_edge_valid = 1
@@ -143,8 +156,8 @@ class FakeTestFrame(wx.Frame):
 
         mech_st = MechanismState()
         mech_st.time = rospy.get_time()
-        mech_st.actuator_states = [ act_st ]
-        mech_st.joint_states = [ jnt_st ]
+        mech_st.actuator_states = [ act_st, cont_act_st ]
+        mech_st.joint_states = [ jnt_st, cont_st ]
 
         self.mech_pub.publish(mech_st)
   
@@ -170,6 +183,7 @@ class FakeTestFrame(wx.Frame):
         self.range_param_ctrl.SetValue(range_param)
 
     def on_timer(self, event = None):
+        sleep(0.1)
         if not rospy.is_shutdown():
             self._diag_timer.Start(1000, True)
 

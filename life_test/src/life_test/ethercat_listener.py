@@ -15,7 +15,7 @@
 #    copyright notice, this list of conditions and the following
 #    disclaimer in the documentation and/or other materials provided
 #    with the distribution.
-#  * Neither the name of the Willow Garage nor the names of its
+#  * Neither the name of Willow Garage, Inc. nor the names of its
 #    contributors may be used to endorse or promote products derived
 #    from this software without specific prior written permission.
 #
@@ -31,19 +31,64 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+#
+
+# Author: Kevin Watts
+PKG = 'life_test'
 
 import roslib
-roslib.load_manifest('life_test')
+roslib.load_manifest(PKG)
 
-import wx
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+from std_srvs.srv import *
 
-import life_test.ui
+import rospy
 
-if __name__ == '__main__':
-  try:
-    app = life_test.ui.TestManagerApp(0)
-    app.MainLoop()
-  except Exception, e:
-    print "Caught exception in TestManagerApp Main Loop"
-    import traceback
-    traceback.print_exc()
+import threading
+
+class EthercatListener:
+    def __init__(self):
+        self._diag_sub = rospy.Subscriber('/diagnostics', DiagnosticArray, self._diag_callback)
+        self._mutex = threading.Lock()
+
+        self._ok = True
+        self._update_time = 0
+        self._reset_motors = rospy.ServiceProxy('reset_motors', Empty)
+        self._halt_motors = rospy.ServiceProxy('halt_motors', Empty)
+
+    # Doesn't do anything
+    def create(self, params):
+        return True
+
+    def halt(self):
+        self._halt_motors()
+
+    def reset(self):
+        self._reset_motors()
+
+    def _diag_callback(self, msg):
+        self._mutex.acquire()
+        for stat in msg.status:
+            if stat.name == 'EtherCAT Master':
+                self._ok = (stat.level == 0)
+                self._update_time = rospy.get_time()
+                break
+        self._mutex.release()
+    
+    def check_ok(self):
+        self._mutex.acquire()
+        msg = ''
+        stat = 0
+        if not self._ok:
+            stat = 2
+            msg = 'EtherCAT Error'
+
+        if rospy.get_time() - self._update_time > 3:
+            stat = 3
+            msg = 'EtherCAT Stale'
+            if self._update_time == 0:
+                msg = 'No EtherCAT Data'
+        
+        self._mutex.release()
+        return stat, msg, None
+    

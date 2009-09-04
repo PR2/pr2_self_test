@@ -1,9 +1,9 @@
-<!-- Stores data on every test that can run through the test manager -->
+<!-- Stores data on every test that can run through Test Manager -->
 <tests>
   <test serial="faketes" name="Simple Test" 
 	short="Fake" trac="007"
 	desc="Test to test life GUI"
-	script="simple_test/test.launch" 
+	script="simple_test/test.launch" power="false"
 	type="Life Test" >
 
     <!-- Load test parameters -->
@@ -20,7 +20,7 @@
 	short="Wrist" trac="438"
 	desc="Test of wrist holding weight."
 	script="wrist_test/test_gui.launch" 
-	type="Life Test" >
+	type="Life Test" power="true" >
     <param name="Rate" param_name="cycle_rate"
 	   desc="Frequency of commands"
 	   val="3.0" rate="true" />
@@ -36,7 +36,7 @@
 	short="Wrist" trac="401"
 	desc="Test of wrist attached to a bar, jerking around."
 	rate="3" script="wrist_test/test_gui.launch" 
-	type="Life Test" >
+	type="Life Test" power="true" >
     <param name="Rate" param_name="cycle_rate"
 	   desc="Frequency of commands"
 	   val="3.0" rate="true" />
@@ -54,7 +54,7 @@
 	short="Head" trac="289"
 	desc="Tests head on test cart, moving between [-0.4, 1.4] tilt, [-2.7, 2.7] pan."
 	script="head_test/life_test/test_gui.launch"
-	type="Life Test" >
+	type="Life Test" power="true" >
     <param name="Cycle rate" param_name="cycle_rate"
 	   desc="Cycle rate of head"
 	   val="2.0" rate="true" />
@@ -64,7 +64,7 @@
 	short="Head" trac="288"
 	desc="Impacts head, pan and tilt"
 	script="head_test/impact_test/test_gui.launch"
-	type="Impact Test" >
+	type="Impact Test" power="true" >
     <param name="Cycle rate" param_name="cycle_rate"
 	   desc="Cycle rate of head"
 	   val="0.25" rate="true" />
@@ -74,7 +74,7 @@
 	short="Cable" trac="320/400"
 	desc="Tests arm cables."
 	rate="1.0" script="arm_life_test/test_gui.launch"
-	type="Life Test" >
+	type="Life Test" power="true" >
     <param name="Forearm Roll" param_name="forearm_roll"
 	   desc="Forearm roll true/false"
 	   val="false" rate="false" />
@@ -85,7 +85,7 @@
 	short="Cable" trac="320/400"
 	desc="Tests arm cables."
 	script="arm_life_test/test_gui.launch"
-	type="Life Test" >
+	type="Life Test" power="true" >
     <param name="Forearm Roll" param_name="forearm_roll"
 	   desc="Forearm roll true/false"
 	   val="true" rate="false" />
@@ -98,7 +98,7 @@
 	short="Full CB" trac="402"
 	desc="Moves arm up and down for full counterbalance workout."
 	script="arm_life_test/test_gui_cb.launch"
-	type="Life Test" >
+	type="Life Test" power="true" >
     <param name="Cycle rate" param_name="cycle_rate"
 	   desc="Cycle rate of arm/CB"
 	   val="0.5" rate="true" />
@@ -108,7 +108,7 @@
 	short="Dummy CB" trac="402"
 	desc="Moves arm up and down for full counterbalance workout."
 	script="arm_life_test/test_gui_cb_forearm.launch"
-	type="Life Test" >
+	type="Life Test" power="true" >
     <param name="Cycle rate" param_name="cycle_rate"
 	   desc="Cycle rate of arm/CB"
 	   val="0.5" rate="true" />

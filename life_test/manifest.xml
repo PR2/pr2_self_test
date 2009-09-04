@@ -2,18 +2,11 @@
 
   <description brief="Runs life/impact tests on test carts and robots">
     
-     This package contains the scripts needed to run a life and impact tests on 
-robots and test carts. 
+    This package contains the scripts needed to run burn in and life tests on PR2 components.
 
-To launch on test cart, go to {part}_test/ and 'roslaunch test_cart.launch'
-To launch on robot, go to {part}_test and 'roslaunch life_test.launch'
-
-If the part also has an impact test, go to:
-{part}_test/(life or impact)_test/
-and launch the tests as above.
-
-When launching on robot, part must be calibrated with power on.
-    
+    Use Test Manager to run tests:
+    roscd life_test
+    bin/gui
   </description>
   <author>Kevin Watts</author>
   <review status="na" notes=""/>

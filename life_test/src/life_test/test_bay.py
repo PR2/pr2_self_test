@@ -2,7 +2,7 @@
 #
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,18 +32,58 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# Author: Kevin Watts
+
 import roslib
 roslib.load_manifest('life_test')
 
-import wx
 
-import life_test.ui
+class FailedLoadError(Exception): pass
+class BayNameExistsError(Exception): pass
 
-if __name__ == '__main__':
-  try:
-    app = life_test.ui.TestManagerApp(0)
-    app.MainLoop()
-  except Exception, e:
-    print "Caught exception in TestManagerApp Main Loop"
-    import traceback
-    traceback.print_exc()
+##\brief Collection of test bays
+class TestRoom:
+    def __init__(self, hostname):
+        self.hostname = hostname
+        self._bays = {}
+
+    def add_bay(self, bay):
+        if self._bays.has_key(bay.name):
+            raise BayNameExistsError
+        self._bays[bay.name] = bay
+
+    def get_bay_names(self, need_power):
+        if not need_power:
+            return self._bays.keys()
+
+        names = []
+        for name in self._bays.keys():
+            if self._bays[name].power:
+                names.append(name)
+        return names
+
+    def get_bay(self, name):
+        if not self._bays.has_key(name):
+            return None
+        return self._bays[name]
+
+##\brief Computer, powerboard and breaker to run test
+class TestBay:
+    def __init__(self, xml_doc):
+        self.name = xml_doc.attributes['name'].value
+        self.machine = xml_doc.attributes['machine'].value
+        if xml_doc.attributes.has_key('board'):
+            self.board = xml_doc.attributes['board'].value
+            self.breaker = int(xml_doc.attributes['breaker'].value)
+            if self.breaker not in [0, 1, 2]:
+                raise FailedLoadError
+        else:
+            self.board = None
+            self.breaker = None
+        
+
+
+
+
+                            
+                            

@@ -41,7 +41,8 @@ import rospy
 
 # Should include parameters as a list here
 class LifeTest:
-    def __init__(self, short_serial, test_name, short_name, trac, desc, test_type, launch_file, params):
+    def __init__(self, short_serial, test_name, short_name, 
+                 trac, desc, test_type, launch_file, need_power, params):
         self._short_serial = short_serial
         self._name = test_name
         self._short = short_name
@@ -51,6 +52,8 @@ class LifeTest:
         self._test_type = test_type
 
         self._params = params
+
+        self.need_power = need_power
 
     def set_params(self, namespace):
         for param in self._params:
@@ -63,6 +66,9 @@ class LifeTest:
                                         len(serial)])
         # Or just return the short name and the trac ticket
         return "%s #%s" % (self._short, self._trac)
+
+    def needs_power(self):
+        return self.need_power
             
         
 ## Stores parameter data for each test

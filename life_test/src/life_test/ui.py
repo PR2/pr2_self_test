@@ -2,7 +2,7 @@
 #
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,16 +32,16 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-### Author: Kevin Watts
-
+## Author: Kevin Watts
+PKG = 'life_test'
 import roslib
-import roslib.packages
-roslib.load_manifest('life_test')
+roslib.load_manifest(PKG)
 
 import rospy
 import roslaunch
 import roslaunch.pmon
 
+import socket
 import os
 import sys
 import datetime
@@ -53,17 +53,17 @@ import threading
 from wx import xrc
 from wx import html
 
-import thread
+import threading
 from xml.dom import minidom
-
-
-from cStringIO import StringIO
-import struct
 
 from invent_client.invent_client import Invent
 
 from life_test import *
 from test_param import *
+from test_bay import *
+
+from pr2_power_board.srv import PowerBoardCommand
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
 from roslaunch_caller import roslaunch_caller 
 
@@ -79,15 +79,17 @@ class TestManagerFrame(wx.Frame):
         self._tests_by_serial = {}
 
         # Load XRC
-        xrc_path = os.path.join(roslib.packages.get_pkg_dir('life_test'),  'xrc/gui.xrc')
+        xrc_path = os.path.join(roslib.packages.get_pkg_dir('life_test'), 'xrc/gui.xrc')
         self._xrc = xrc.XmlResource(xrc_path)
 
         # Get real username/password for invent here...
-        self._invent_client = None # Invent('watts', 'willow')
+        self._invent_client = None 
         
-        self._active_machines = []
+        self._active_bays = []
+        self._active_boards = {}
 
         self.load_tests_from_file()
+        self.load_rooms_from_file()
 
         self._main_panel = self._xrc.LoadPanel(self, 'manager_panel')
 
@@ -108,7 +110,39 @@ class TestManagerFrame(wx.Frame):
 
         self._current_log = []
 
+        self._diag_sub = rospy.Subscriber('/diagnostics', DiagnosticArray, self._diag_cb)
+        self._diags = []
+
+        self._power_node = None
+        self._power_cmd = rospy.ServiceProxy('power_board_control', PowerBoardCommand)
+
         self.log('Started Test Manager')
+
+    def __del__(self):
+        if self._power_node is not None:
+            self._power_node.shutdown()
+
+    def _diag_cb(self, msg):
+        self._mutex.acquire()
+        self._diags.append(msg)
+        self._mutex.release()
+        wx.CallAfter(self._new_diag)
+        
+    ##\brief Look for known power boards in diagnostics, update panels
+    def _new_diag(self):
+        self._mutex.acquire()
+        for msg in self._diags:
+            for status in msg.status:
+                if status.name.startswith("Power board"):
+                    board_sn = int(status.name.split()[2])
+                    for val in status.values:
+                        for breaker in range(0, 3):
+                            if val.key == "Breaker %d State" % breaker:
+                                if self._active_boards.has_key((board_sn, breaker)):
+                                    panel = self._active_boards[(board_sn, breaker)]
+                                    self._test_panels[panel].update_board(val.value)
+        self._mutex.release()
+                
 
     def load_test(self, test, serial):
         # Make notebook page for panel
@@ -140,17 +174,44 @@ class TestManagerFrame(wx.Frame):
             del self._test_panels[serial]
             del self._active_serials[idx]
         
-    def test_start_check(self, machine):
-        if machine in self._active_machines:
+    def test_start_check(self, bay, serial):
+        if bay in self._active_bays:
             return False
         else:
-            self._active_machines.append(machine)
+            self._active_bays.append(bay)
+
+            if bay.board is not None:
+                self._active_boards[(bay.board, bay.breaker)] = serial
+            
+            if bay.board and self._power_node is None:
+                self._power_node = roslaunch_caller.launch_script('<launch><node pkg="pr2_power_board" type="power_node" /></launch>')
+
             return True
 
-    def test_stop(self, machine):
-        if machine in self._active_machines:
-            idx = self._active_machines.index(machine)
-            del self._active_machines[idx]
+    def test_stop(self, bay):
+        if bay in self._active_bays:
+            idx = self._active_bays.index(bay)
+            del self._active_bays[idx]
+
+        if bay.board is not None:
+            del self._active_boards[(bay.board, bay.breaker)]
+
+        if len(self._active_boards.keys()) == 0 and self._power_node is not None:
+            self._power_node.shutdown()
+            self._power_node = None
+
+
+    def power_run(bay):
+        self._power_cmd(bay.board, bay.breaker, 'start', 0)
+
+    def power_standby(bay):
+        self._power_cmd(bay.board, bay.breaker, 'stop', 0)
+
+    def power_reset(bay):
+        self._power_cmd(bay.board, bay.breaker, 'reset', 0)
+
+    def power_disable(bay):
+        self._power_cmd(bay.board, bay.breaker, 'disable', 0)
 
     def load_invent_client(self):
         # Loads invent client. 
@@ -167,7 +228,6 @@ class TestManagerFrame(wx.Frame):
         password_ctrl = xrc.XRCCTRL(dialog, 'password')
         username_ctrl.SetFocus()
         
-        # These values don't come through in the xrc file
         username_ctrl.SetMinSize(wx.Size(200, -1))
         password_ctrl.SetMinSize(wx.Size(200, -1))
 
@@ -178,7 +238,9 @@ class TestManagerFrame(wx.Frame):
             
                 invent = Invent(username, password)
                 if (invent.login() == False):
-                    wx.MessageBox('Please enter a valid username and password.', 'Valid Login Required', wx.OK|wx.ICON_ERROR, self)
+                    wx.MessageBox('Please enter a valid username and password.',
+                                  'Valid Login Required', wx.OK|wx.ICON_ERROR, 
+                                  self)
                 else:
                     self._invent_client = invent
                     return True
@@ -210,12 +272,45 @@ class TestManagerFrame(wx.Frame):
         self.log('Starting test %s' % test._name)
 
         self.load_test(test, serial)
-        #wx.CallAfter(self.load_test, test, serial)
+
+    ## Loads locations for tests
+    def load_rooms_from_file(self):
+        filepath = os.path.join(roslib.packages.get_pkg_dir(PKG), 'wg_test_rooms.xml')
+
+        rooms = {}
+
+        try:
+            doc = minidom.parse(filepath)
+            rooms_xml = doc.getElementsByTagName('room')
+            for room_xml in rooms_xml:
+                hostname = room_xml.attributes['hostname'].value
+                room = TestRoom(hostname)
+                rooms[hostname] = room
+                
+                for bay in room_xml.getElementsByTagName('bay'):
+                    room.add_bay(TestBay(bay))
+
+            self._rooms = rooms
+        except:
+            traceback.print_exc()
+            wx.MessageBox('Unable to load test rooms and bays information from %s. Check the file and try again' % filepath)
+            return
+
+        if len(self._rooms.keys()) == 0:
+            wx.MessageBox('No test rooms found in %s. Check the file and try again' % filepath)
+            return
+        
+        if self._rooms.has_key(socket.gethostname()):
+            self.room = self._rooms[hostname]
+        else:
+            self.room = room # Last room
+            
+        
 
     # Loads tests from XML file
-    def load_tests_from_file(self):
-        test_xml_path = os.path.join(roslib.packages.get_pkg_dir('life_test'), 'tests.xml')
-        self._tests = {}
+    def load_tests_from_file(self, test_xml_path =os.path.join(roslib.packages.get_pkg_dir('life_test'), 'tests.xml')):
+        my_tests = {}
+
         try:
             doc = minidom.parse(test_xml_path)
         except IOError:
@@ -232,6 +327,7 @@ class TestManagerFrame(wx.Frame):
                 type = test.attributes['type'].value
                 trac = test.attributes['trac'].value
                 short = test.attributes['short'].value
+                power = test.attributes['power'].value != 'false'
                 
                 # Add test parameters
                 # Make param from XML element
@@ -252,16 +348,18 @@ class TestManagerFrame(wx.Frame):
 
                         
                 life_test = LifeTest(serial, name, short, trac, 
-                                     desc, type, script, test_params)
+                                     desc, type, script, power, test_params)
 
-                if self._tests.has_key(serial):
-                    self._tests[serial].append(life_test)
+                if my_tests.has_key(serial):
+                    my_tests[serial].append(life_test)
                 else:
-                    self._tests[serial] = [ life_test ]
+                    my_tests[serial] = [ life_test ]
                     
+            self._tests = my_tests
         except:
             traceback.print_exc()
             rospy.logerr('Caught exception parsing test XML.')
+            wx.MessageBox('Unable to load test from file. Check the file and try again.')
 
     def select_string_from_list(self, msg, lst):
         # Load robot selection dialog
@@ -312,7 +410,6 @@ class TestManagerFrame(wx.Frame):
         time_str = strftime("%m/%d/%Y %H:%M:%S: ", localtime(rospy.get_time()))
 
         self._current_log.append(time_str + msg)
-        #wx.CallAfter(self.update_log_display)
         self.update_log_display()
 
     def log_test_entry(self, test_name, machine, message):
@@ -324,15 +421,12 @@ class TestManagerFrame(wx.Frame):
         log_msg = time_str + 'Machine %s, Test %s. Message: %s' % (machine, test_name, message)
 
         self._current_log.append(log_msg)
-        #wx.CallAfter(self.update_log_display)
         self.update_log_display()
 
     def update_log_display(self):
-        #self._mutex.acquire()
         for log in self._current_log:
             self._log_text.AppendText(log + '\n')
         self._current_log = []
-        #self._mutex.release()
 
     def on_close(self, event):
         # Would try/catch here work?
@@ -346,10 +440,18 @@ class TestManagerFrame(wx.Frame):
 
         self.Destroy()
         
+    ## Add stuff for invent login, loading test bays
     def on_menu(self, event):
         if (event.GetEventObject() == self._file_menu):
             if (event.GetId() == wx.ID_EXIT):
                 self.Close()
+                return
+        if (event.GetEventObject() == self._tests_menu):
+            if (event.GetId() == 2001):
+                self.load_tests_from_file()
+                return
+            if (event.GetId() == 2002):
+                self.load_rooms_from_file()
                 return
 
     def create_menu_bar(self):
@@ -357,27 +459,30 @@ class TestManagerFrame(wx.Frame):
         
         # file menu
         self._file_menu = wx.Menu()
+        self._file_menu.Append(1001, "Invent Login\tCTRL+l")
         self._file_menu.Append(wx.ID_EXIT, "E&xit")
         menubar.Append(self._file_menu, "&File")
                 
+        self._tests_menu = wx.Menu()
+        self._tests_menu.Append(2001, "Reload tests (tests.xml)")
+        self._tests_menu.Append(2002, "Reload rooms and bays (wg_test_rooms.xml)")
+        menubar.Append(self._tests_menu, "&Tests")
+
         self.SetMenuBar(menubar)
-        
         self.Bind(wx.EVT_MENU, self.on_menu)
 
 
 class TestManagerApp(wx.App):
     def OnInit(self):
         # Launch roscore
-        config = roslaunch.ROSLaunchConfig()
-        config.master.auto = config.master.AUTO_RESTART
+        #config = roslaunch.ROSLaunchConfig()
+        #config.master.auto = config.master.AUTO_RESTART
         
-
         self._core_launcher = roslaunch_caller.launch_core()
-
 
         rospy.init_node("life_test_manager")
         self._frame = TestManagerFrame(None)
-        self._frame.SetSize(wx.Size(650, 850))
+        self._frame.SetSize(wx.Size(1600, 1100))
         self._frame.Layout()
         self._frame.Centre()
         self._frame.Show(True)
