@@ -41,7 +41,7 @@
 
 #include "std_msgs/Float64.h"
 
-#define TORSO_TOPIC "torso_lift_velocity_controller/set_command"
+#define TORSO_TOPIC "torso_lift_velocity_controller/command"
 #define HEAD_TOPIC "head_controller/command"
 
 using namespace std;
