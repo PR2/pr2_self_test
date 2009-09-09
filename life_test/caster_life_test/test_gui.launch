@@ -1,0 +1,36 @@
+<launch>
+  <param name="robot_description"
+         command="$(find xacro)/xacro.py '$(find life_test)/caster_life_test/caster.urdf.xacro'" />
+
+  <!-- Calibration (move to YAML) -->
+  <group ns="cal_fl_caster" >
+    <param name="type" type="str" value="CasterCalibrationController" />
+    <param name="actuator" type="str" value="fl_caster_rotation_motor" />
+    <param name="joint" type="str" value="fl_caster_rotation_joint" />
+    <param name="transmission" type="str" value="fl_caster_rotation_trans" />
+    <param name="velocity" type="double" value="2.0" />
+    <group ns="caster_pid" >
+      <param name="p" type="double" value="6.0" />
+    </group>
+    <group ns="wheel_pid" >
+      <param name="p" type="double" value="4.0" />
+    </group>
+    <group ns="joints" >
+      <param name="caster" type="str" value="fl_caster_rotation_joint" />
+      <param name="caster" type="str" value="fl_caster_l_wheel_joint" />
+      <param name="caster" type="str" value="fl_caster_r_wheel_joint" />
+    </group>
+  </group>
+  <node pkg="mechanism_bringup" type="calibrate.py"
+        args="cal_fl_caster" name="cal_caster" output="screen" />
+
+  <!-- Controller, velocity controller from YAML -->
+
+  <!-- Commander -->
+  <node pkg="life_test" type="periodic_drive.py" name="caster_cmder" />
+
+  <!-- Monitor (with transmission) -->
+  
+  
+
+</launch>

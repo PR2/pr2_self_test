@@ -112,12 +112,14 @@ class TestMonitorPanel(wx.Panel):
         
         self._status_bar = xrc.XRCCTRL(self._panel, 'test_status_bar')
 
+        # Pause and reset
         self._reset_button = xrc.XRCCTRL(self._panel, 'reset_motors_button')
         self._reset_button.Bind(wx.EVT_BUTTON, self.on_reset_motors)
 
         self._halt_button = xrc.XRCCTRL(self._panel, 'halt_motors_button')
         self._halt_button.Bind(wx.EVT_BUTTON, self.on_halt_motors)
 
+        # Logs and operator input
         self._user_log = xrc.XRCCTRL(self._panel, 'user_log_input')
         self._user_submit = xrc.XRCCTRL(self._panel, 'user_submit_button')
         self._user_submit.Bind(wx.EVT_BUTTON, self.on_user_entry)
@@ -138,16 +140,14 @@ class TestMonitorPanel(wx.Panel):
         self._power_board_text.SetBackgroundColour("White")
         self._power_board_text.SetValue("Test Not Running")
 
+        self._estop_status = xrc.XRCCTRL(self._panel, 'estop_status')
+        self._estop_status.SetValue("Test Not Running")
+
         self._power_run_button = xrc.XRCCTRL(self._panel, 'power_run_button')
         self._power_run_button.Bind(wx.EVT_BUTTON, self.on_power_run)
 
         self._power_standby_button = xrc.XRCCTRL(self._panel, 'power_standby_button')
         self._power_standby_button.Bind(wx.EVT_BUTTON, self.on_power_standby)
-
-
-        self._power_reset_button = xrc.XRCCTRL(self._panel, 'power_reset_button')
-        self._power_reset_button.Bind(wx.EVT_BUTTON, self.on_power_reset)
-
 
         self._power_disable_button = xrc.XRCCTRL(self._panel, 'power_disable_button')
         self._power_disable_button.Bind(wx.EVT_BUTTON, self.on_power_disable)
@@ -179,8 +179,7 @@ class TestMonitorPanel(wx.Panel):
         # Test log data
         self._test_complete = False
 
-        # Timeout for etherCAT diagnostics
-        # Don't start it here, wait until test is launched
+        # Timeout for etherCAT diagnostics, starts when test launched
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
         self.last_message_time = rospy.get_time()
@@ -206,7 +205,8 @@ class TestMonitorPanel(wx.Panel):
         self._notebook.AddPage(self._monitor_panel, "Runtime Monitor")
 
     def __del__(self):
-        self.stop_test()
+        if self.is_launched():
+            self.stop_test()
 
         if self._status_sub is not None:
             self._status_sub.unregister()
@@ -259,20 +259,16 @@ class TestMonitorPanel(wx.Panel):
 
     def on_close(self, event):
         try:
-            #bi = wx.BusyInfo("Closing test and logging, please wait.")
-            #wx.Yield()
             self.update_test_record('Closing down test.')
             self.update_invent()
             self.record_test_log()
             self.notify_operator(1, 'Closing.')
-            #bi.Destroy()
         except:
             rospy.logerr('Exception on close: %s' % traceback.format_exc())
 
         self._manager.close_tab(self._serial)
-        
 
-
+    ##\brief Updates record, notifies operator if necessary
     def update_test_record(self, note = ''):
         alert, msg = self._record.update(self.is_launched(), self._is_running, self._is_stale, note)
 
@@ -336,7 +332,7 @@ class TestMonitorPanel(wx.Panel):
 
         self._invent_note_id = self._manager._invent_client.setNote(self._serial, note + stats, self._invent_note_id)
 
-    # Should also be in notifier class
+    # Should also be in notifier classs
     def record_test_log(self):
         try:
             # Adds log csv to invent
@@ -347,7 +343,6 @@ class TestMonitorPanel(wx.Panel):
             csv_file = f.read()
             self._manager._invent_client.add_attachment(self._serial, os.path.basename(self._record.csv_filename()), 'text/csv', csv_file)
             f.close()
-            # print 'Wrote CSV of test log to invent'
             
             summary_name = strftime("%m%d%Y_%H%M%S", localtime(self._record._start_time)) + '_summary.html'
             self._manager._invent_client.add_attachment(self._serial, summary_name, 'text/html', self.make_html_test_summary())
@@ -359,9 +354,6 @@ class TestMonitorPanel(wx.Panel):
         self.timer.Start(1000 * self.timeout_interval, True)
         
     def on_timer(self, event):
-        # Need the mutex?
-        self._mutex.acquire()
-        
         interval = rospy.get_time() - self.last_message_time
         
         if interval > self.timeout_interval: 
@@ -374,22 +366,47 @@ class TestMonitorPanel(wx.Panel):
             self.update_controls(4)
         else:
             self._is_stale = False
-            
-        self._mutex.release()
 
-    def on_power_run(self):
-        self._manager.power_run(self._bay)
+    def _test_power_cmd(self):
+        if not self.is_launched():
+            wx.MessageBox('Test is not launched. Unable to command power board', 'Test is not launched', wx.OK|wx.ICON_ERROR, self)
+            return False
 
-    def on_power_standby(self):
-        self._manager.power_standby(self._bay)
+        if self._bay.board is None:
+            wx.MessageBox('Test bay has no power board. Unable to command power board', 'No Power Board',
+                          wx.OK|wx.ICON_ERROR, self)
+            return False
+        return True        
 
-    def on_power_reset(self):
-        self._manager.power_reset(self._bay)
+    def on_power_run(self, event):
+        self.update_test_record("Turning on power.")
+        if not self._test_power_cmd():
+            return
 
-    def on_power_disable(self):
-        self._manager.power_disable(self._bay)
+        if not self._manager.power_run(self._bay):
+            self.update_test_record("Unable to command power board.")
+            wx.MessageBox('Unable to run power board. Board: %d, breaker: %d' % (self._bay.board, self._bay.breaker), wx.OK|wx.ICON_ERROR, self)
 
-    def update_board(self, value):
+    def on_power_standby(self, event):
+        self.update_test_record("Setting power to standby.")
+        if not self._test_power_cmd():
+            return
+        
+        if not self._manager.power_standby(self._bay):
+            self.update_test_record("Unable to command power board.")
+            wx.MessageBox('Unable to standby power board. Board: %d, breaker: %d' % (self._bay.board, self._bay.breaker), wx.OK|wx.ICON_ERROR, self)
+
+    def on_power_disable(self, event):
+        self.update_test_record("Setting power to disable.")
+        if not self._test_power_cmd():
+            return
+
+        if not self._manager.power_disable(self._bay):
+            self.update_test_record("Unable to command power board.")
+            wx.MessageBox('Unable to disable power board. Board: %d, breaker: %d' % (self._bay.board, self._bay.breaker), wx.OK|wx.ICON_ERROR, self)
+
+    ##\brief Updates power board control
+    def update_board(self, value, estop):
         if value == "Standby":
             self._power_board_text.SetBackgroundColour("Orange")
             self._power_board_text.SetValue("Standby")
@@ -400,8 +417,16 @@ class TestMonitorPanel(wx.Panel):
             self._power_board_text.SetBackgroundColour("Red")
             self._power_board_text.SetValue("Disabled")
 
-    def update_controls(self, level = 4, msg = 'None'):
-        # Assumes it has the lock
+        if not estop:
+            self._estop_status.SetBackgroundColour("Red")
+            self._estop_status.SetValue("E-Stop Hit")
+        else:
+            self._estop_status.SetBackgroundColour("Light Green")
+            self._estop_status.SetValue("E-Stop OK")
+            
+
+    ##\brief Updates test status bar
+    def _update_status_bar(self, level, msg):
         if not self.is_launched():
             self._status_bar.SetValue("Launch to display status")
             self._status_bar.SetBackgroundColour("White")
@@ -419,39 +444,36 @@ class TestMonitorPanel(wx.Panel):
             self._status_bar.SetBackgroundColour("Light Blue")
         else:
             self._status_bar.SetBackgroundColour("White")
-            self._status_bar.SetValue("Test Monitor Stale")
-        
-        self._reset_button.Enable(self.is_launched())
-        self._halt_button.Enable(self.is_launched())
+            self._status_bar.SetValue("Test Monitor Stale")        
 
-        # FIX
+    ##\brief Called after status message or timer callback
+    def update_controls(self, level = 4, msg = 'None'):
+        self._update_status_bar(level, msg)
+
+        ##\todo FIX
         remaining = self.calc_remaining()
         remain_str = "N/A" 
         if remaining < 10**6:
             remain_str = self._record.get_duration_str(remaining)
         self._done_time_ctrl.SetValue(remain_str)
 
-        self._test_log_window.Freeze()
-        (x, y) = self._test_log_window.GetViewStart()
-        self._test_log_window.SetPage(self.make_html_cycle_log_table())
-        self._test_log_window.Scroll(x, y)
-        self._test_log_window.Thaw()
-
         self._active_time_ctrl.SetValue(self._record.get_active_str())
         self._elapsed_time_ctrl.SetValue(self._record.get_elapsed_str())
         
+    ##\brief Set pause/reset and power buttons on or off
+    def _enable_controls(self):
+        self._reset_button.Enable(self.is_launched())
+        self._halt_button.Enable(self.is_launched())
+
         self._test_bay_ctrl.Enable(not self.is_launched())
-        #self._launch_button.Enable(not self.is_launched())
         self._close_button.Enable(not self.is_launched())
 
         # Power buttons
         self._power_run_button.Enable(self.is_launched() and self._bay.board is not None)
         self._power_standby_button.Enable(self.is_launched() and self._bay.board is not None)
-        self._power_reset_button.Enable(self.is_launched() and self._bay.board is not None)
-        self._power_disable_button.Enable(self.is_launched() and self._bay.board is not None)
+        self._power_disable_button.Enable(self.is_launched() and self._bay.board is not None)        
         
-
-
+    
     def display_logs(self):
         kys = dict.keys(self._current_log)
         kys.sort()
@@ -462,6 +484,14 @@ class TestMonitorPanel(wx.Panel):
                                 localtime(ky)) + self._current_log[ky] + '\n'
 
         self._log_ctrl.AppendText(log_str)
+
+        # Test log control in second panel
+        self._test_log_window.Freeze()
+        (x, y) = self._test_log_window.GetViewStart()
+        self._test_log_window.SetPage(self.make_html_cycle_log_table())
+        self._test_log_window.Scroll(x, y)
+        self._test_log_window.Thaw()
+
         self._current_log = {}
 
     def stop_if_done(self):
@@ -475,6 +505,7 @@ class TestMonitorPanel(wx.Panel):
         if remain < 0:
             self._test_complete = True
             self.stop_test()
+            self._enable_controls()
         
     def status_callback(self, msg):
         self._mutex.acquire()
@@ -497,24 +528,24 @@ class TestMonitorPanel(wx.Panel):
         self._mutex.release()
      
     
-    def make_launch_script(self, local_diag_topic):
+    def make_launch_script(self, bay, script, local_diag_topic):
         launch = '<launch>\n'
-        launch += '<group ns="%s">' % self._bay.name
+        launch += '<group ns="%s">' % bay.name
 
         # Remap
         launch += '<remap from="/diagnostics" to="%s" />' % local_diag_topic
          
         # Init machine
-        launch += '<machine name="test_host_root" user="root" address="%s" ' % self._bay.machine
+        launch += '<machine name="test_host_root" user="root" address="%s" ' % bay.machine
         launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="never"/>'
-        launch += '<machine name="test_host" address="%s" ' % self._bay.machine
+        launch += '<machine name="test_host" address="%s" ' % bay.machine
         launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)"  />'
 
         # Include our launch file
-        launch += '<include file="$(find life_test)/%s" />' % self._test._launch_script
+        launch += '<include file="$(find life_test)/%s" />' % script
 
         # Will set bag name to be serial
-        launch += ' <node pkg="rosrecord" type="rosrecord" args="-f /hwlog/test_runtime_automatic /diagnostics" />'
+        launch += ' <node pkg="rosrecord" type="rosrecord" args="-f /hwlog/test_runtime_automatic /diagnostics" name="test_logger" />'
         
         launch += '</group>\n</launch>'
 
@@ -531,6 +562,7 @@ class TestMonitorPanel(wx.Panel):
             self.launch_test()
 
         self.update_controls()
+        self._enable_controls()
 
     def stop_test_user(self):
         dialog = wx.MessageDialog(self, 'Are you sure you want to stop this test?', 'Confirm Stop Test', wx.OK|wx.CANCEL)
@@ -543,23 +575,25 @@ class TestMonitorPanel(wx.Panel):
         if self.is_launched():
             self._launch_button.Enable(False)
             if self._bay.board is not None:
-                self._manager.power_disable(self._bay)
+                if not self._manager.power_disable(self._bay):
+                    wx.MessageBox("Power disable command failed. Unable to command power board", "Power command failed", wx.OK|wx.ICON_ERROR, self)
+                    
             self._power_board_text.SetBackgroundColour("White")
             self._power_board_text.SetValue("Test Not Running")
+
+            self._estop_status.SetBackgroundColour("White")
+            self._estop_status.SetValue("Test Not Running")
 
             # Machine, board stats
             self._machine_text.SetValue("Not running")
             self._power_sn_text.SetValue("Not running")
             self._power_breaker_text.SetValue("Not running")
-            #bi = wx.BusyInfo('Stopping test, please wait')
-            #wx.Yield()
-            print 'Shutting down test'
             self.on_halt_motors(None)
             self._test_launcher.shutdown()
             self._manager.test_stop(self._bay)
             self.update_test_record('Stopping test launch')
+            self._is_running = False
             self._test_launcher = None  
-            #bi.Destroy()
             self._launch_button.Enable(True)
             self._launch_button.SetLabel("Launch")
 
@@ -569,16 +603,13 @@ class TestMonitorPanel(wx.Panel):
 
         self._is_running = False
 
+
     def launch_test(self):
         dialog = wx.MessageDialog(self, 'Are you sure you want to launch?', 'Confirm Launch', wx.OK|wx.CANCEL)
         if dialog.ShowModal() != wx.ID_OK:
             return
         
         self._launch_button.Enable(False)
-
-        #bi = wx.BusyInfo("Launching test, please wait")
-        #wx.Yield()
-        # Get machine, end condition, etc
 
         bay_name = self._test_bay_ctrl.GetStringSelection()
         bay = self._manager.room.get_bay(bay_name)
@@ -595,18 +626,25 @@ class TestMonitorPanel(wx.Panel):
         self._bay = bay
 
         if self._bay.board is not None:
-            self._manager.power_run(self._bay)
+            if not self._manager.power_run(self._bay):
+                wx.MessageBox('Unable to command power board. Check connections. Board: %s, Breaker %d' % (self._bay.board, self._bay.breaker), 'Power Command Failure', wx.OK|wx.ICON_ERROR, self)
+                self._launch_button.Enable(True)
+                self._manager.test_stop(self._bay)
+                return
 
         # Machine, board stats
         self._machine_text.SetValue(self._bay.machine)
         if self._bay.board is not None:
-            self._power_sn_text.SetValue(self._bay.board)
-            self._power_breaker_text.SetValue(self._bay.breaker)
+            self._power_sn_text.SetValue(str(self._bay.board))
+            self._power_breaker_text.SetValue(str(self._bay.breaker))
             self._power_board_text.SetValue("No data")
+            self._estop_status.SetValue("No data")
         else:
             self._power_sn_text.SetValue("No board")
             self._power_breaker_text.SetValue("No breaker")
             self._power_board_text.SetValue("No board")
+            self._estop_status.SetValue("No board")
+            
 
         local_diag = '/' + self._bay.name + '/diagnostics'
 
@@ -614,19 +652,18 @@ class TestMonitorPanel(wx.Panel):
 
         self._test.set_params(self._bay.name)
         self._test_launcher = roslaunch_caller.ScriptRoslaunch(
-            self.make_launch_script(local_diag))
+            self.make_launch_script(self._bay, self._test._launch_script, local_diag))
         try:
             self._test_launcher.start()
         except roslaunch.RLException, e:
             traceback.print_exc()
-            self._manager.test_stop(self._bay.name)
+            self._manager.test_stop(self._bay)
             self._bay = None
-            self.update_test_record('Failed to launch script')
+            self.update_test_record('Failed to launch script, caught exception.')
             self.update_test_record(traceback.format_exc())
             self._test_launcher.shutdown()
             self._test_launcher = None
-            self.launch_button.Enable(True)
-            #bi.Destroy()
+            self._launch_button.Enable(True)
             return None
 
         local_status = '/' + self._bay.name + '/test_status'
@@ -637,14 +674,13 @@ class TestMonitorPanel(wx.Panel):
         self.update_controls()
 
         self._status_sub = rospy.Subscriber(local_status, TestStatus, self.status_callback)
-        #bi.Destroy()
         self._launch_button.Enable(True)
         self._launch_button.SetLabel("Stop")
         
     # Changed from halt_motors to halt_test for test monitor
     def on_halt_motors(self, event = None):
         try:
-            self.update_test_record('Halting motors.')
+            self.update_test_record('Pausing test.')
             # Call halt motors service on NAME_SPACE/pr2_etherCAT
             halt_srv = rospy.ServiceProxy(self._bay.name + '/halt_test', Empty)
             halt_srv()
@@ -654,7 +690,7 @@ class TestMonitorPanel(wx.Panel):
 
     def on_reset_motors(self, event = None):
          try:
-             self.update_test_record('Reseting motors')
+             self.update_test_record('Resetting test.')
              reset = rospy.ServiceProxy(self._bay.name + '/reset_test', Empty)
              reset()
 
@@ -673,8 +709,9 @@ class TestMonitorPanel(wx.Panel):
         return 'test.team@lists.willowgarage.com'
 
     def line_summary(self, msg):
-        machine_str = self._bay.name
-        if not self._bay:
+        if self._bay is not None:
+            machine_str = self._bay.name
+        else:
             machine_str = 'NONE'
         return "Test %s on bay %s. MSG: %s" % (self._test.get_title(self._serial), machine_str, msg)
 

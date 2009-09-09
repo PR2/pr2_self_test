@@ -56,14 +56,14 @@ def main():
     angle = STRAIGHT
     speed = -SPEED
     last_time = 0
-    rospy.init_node('periodic_drive', anonymous=True)
+    rospy.init_node('caster_cmder')
     last_state = LastMessage('/mechanism_state', MechanismState)
     pub_steer = rospy.Publisher("/caster/steer_velocity", Float64)
     pub_drive = rospy.Publisher("/caster/drive_effort", Float64)
     pub_steer.publish(Float64(0.0))
     pub_drive.publish(Float64(0.0))
     print "Waiting for a mechanism_state message..."
-    while not last_state.msg: pass
+    while not last_state.msg and not rospy.is_shutdown(): pass
     while not rospy.is_shutdown():
         time.sleep(0.01)
         mech_state = last_state.last()

@@ -33,6 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ## Author: Kevin Watts
+
 PKG = 'life_test'
 import roslib
 roslib.load_manifest(PKG)
@@ -135,12 +136,24 @@ class TestManagerFrame(wx.Frame):
             for status in msg.status:
                 if status.name.startswith("Power board"):
                     board_sn = int(status.name.split()[2])
-                    for val in status.values:
-                        for breaker in range(0, 3):
-                            if val.key == "Breaker %d State" % breaker:
-                                if self._active_boards.has_key((board_sn, breaker)):
-                                    panel = self._active_boards[(board_sn, breaker)]
-                                    self._test_panels[panel].update_board(val.value)
+                    if self._active_boards.has_key(board_sn):
+                        runstop = False
+                        runbutton = False
+                        for val in status.values:
+                            if val.key == "RunStop Button Status":
+                                runbutton = (val.value == "True")
+                            if val.key == "RunStop Status":
+                                runstop = (val.value == "True")
+                        estop = runstop and runbutton
+
+                        for val in status.values:
+                            if val.key.startswith("Breaker "):
+                                for breaker in self._active_boards[board_sn].keys():
+                                    if val.key == "Breaker %d State" % breaker:
+                                        panel = self._active_boards[board_sn][breaker]
+                                        self._test_panels[panel].update_board(val.value, estop)
+
+        self._diags = []
         self._mutex.release()
                 
 
@@ -181,10 +194,13 @@ class TestManagerFrame(wx.Frame):
             self._active_bays.append(bay)
 
             if bay.board is not None:
-                self._active_boards[(bay.board, bay.breaker)] = serial
-            
-            if bay.board and self._power_node is None:
-                self._power_node = roslaunch_caller.launch_script('<launch><node pkg="pr2_power_board" type="power_node" /></launch>')
+                if not self._active_boards.has_key(bay.board):
+                    self._active_boards[bay.board] = {}
+                self._active_boards[bay.board][bay.breaker] = serial
+
+            if bay.board is not None and self._power_node is None:
+                self._power_node = roslaunch_caller.ScriptRoslaunch('<launch><node pkg="pr2_power_board" type="power_node" name="power_cmd" /></launch>')
+                self._power_node.start()
 
             return True
 
@@ -194,25 +210,59 @@ class TestManagerFrame(wx.Frame):
             del self._active_bays[idx]
 
         if bay.board is not None:
-            del self._active_boards[(bay.board, bay.breaker)]
+            del self._active_boards[bay.board][bay.breaker]
+            if len(self._active_boards[bay.board].keys()) == 0:
+                del self._active_boards[bay.board]
 
         if len(self._active_boards.keys()) == 0 and self._power_node is not None:
             self._power_node.shutdown()
             self._power_node = None
 
+    # Power commands
+    def _reset_power_disable(self, bay):
+        try:
+            rospy.wait_for_service('power_board_control', 10)
+            resp = self._power_cmd(bay.board, bay.breaker, 'reset', 0)
+            if resp.retval != 0:
+                rospy.logerr('Failed to reset board %s, breaker %d. Retval: %s' % (bay.board, bay.breaker, retval))
+                return False
 
-    def power_run(bay):
-        self._power_cmd(bay.board, bay.breaker, 'start', 0)
+            time.sleep(1)
+            return True
+        except:
+            rospy.logerr(traceback.format_exc())
+            return False
 
-    def power_standby(bay):
-        self._power_cmd(bay.board, bay.breaker, 'stop', 0)
 
-    def power_reset(bay):
-        self._power_cmd(bay.board, bay.breaker, 'reset', 0)
+    def power_run(self, bay):
+        try:
+            if not self._reset_power_disable(bay):
+                return False
 
-    def power_disable(bay):
-        self._power_cmd(bay.board, bay.breaker, 'disable', 0)
+            resp = self._power_cmd(bay.board, bay.breaker, 'start', 0)
+            return resp.retval == 0
+        except:
+            rospy.logerr(traceback.format_exc())
+            return False
 
+    def power_standby(self, bay):
+        try:
+            if not self._reset_power_disable(bay):
+                return False
+
+            resp = self._power_cmd(bay.board, bay.breaker, 'stop', 0)
+            return resp.retval == 0
+        except:
+            return False
+
+    def power_disable(self, bay):
+        try:
+            rospy.wait_for_service('power_board_control', 10)
+            resp = self._power_cmd(bay.board, bay.breaker, 'disable', 0)
+            return resp.retval == 0
+        except:
+            return False
+             
     def load_invent_client(self):
         # Loads invent client. 
         # Like singleton, doesn't construct unless valid login
@@ -359,8 +409,9 @@ class TestManagerFrame(wx.Frame):
         except:
             traceback.print_exc()
             rospy.logerr('Caught exception parsing test XML.')
-            wx.MessageBox('Unable to load test from file. Check the file and try again.')
+            wx.MessageBox('Unable to load test from file %s. Check the file and try again.' % test_xml_path)
 
+    ##\brief Pop-up GUI that lets users select which test to load
     def select_string_from_list(self, msg, lst):
         # Load robot selection dialog
         dialog = self._xrc.LoadDialog(self, 'select_test_dialog')
@@ -480,7 +531,7 @@ class TestManagerApp(wx.App):
         
         self._core_launcher = roslaunch_caller.launch_core()
 
-        rospy.init_node("life_test_manager")
+        rospy.init_node("test_manager")
         self._frame = TestManagerFrame(None)
         self._frame.SetSize(wx.Size(1600, 1100))
         self._frame.Layout()

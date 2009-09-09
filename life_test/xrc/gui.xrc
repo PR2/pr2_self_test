@@ -446,7 +446,7 @@
 																<pos>-1,-1</pos>
 																<size>180,100</size>
 																<font>
-																	<size>16</size>
+																	<size>20</size>
 																	<family>swiss</family>
 																	<style>normal</style>
 																	<weight>bold</weight>
@@ -890,9 +890,9 @@
 															<option>0</option>
 															<flag>wxALL</flag>
 															<border>5</border>
-															<object class="wxButton" name="power_reset_button">
+															<object class="wxButton" name="power_disable_button">
 																<size>250,-1</size>
-																<label>Reset Disable</label>
+																<label>Disable</label>
 																<default>0</default>
 															</object>
 														</object>
@@ -900,10 +900,11 @@
 															<option>0</option>
 															<flag>wxALL</flag>
 															<border>5</border>
-															<object class="wxButton" name="power_disable_button">
+															<object class="wxTextCtrl" name="estop_status">
+																<style>wxTE_CENTRE|wxTE_READONLY</style>
 																<size>250,-1</size>
-																<label>Disable</label>
-																<default>0</default>
+																<value></value>
+																<maxlength>0</maxlength>
 															</object>
 														</object>
 													</object>

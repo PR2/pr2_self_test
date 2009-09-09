@@ -1,0 +1,3 @@
+ethercat:
+  type: EthercatListener
+  file: ethercat_listener

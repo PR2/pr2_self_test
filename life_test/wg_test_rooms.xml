@@ -4,4 +4,13 @@
     <bay name="testi" machine="testi" />
   </room>
 
+  <room hostname="cmi" >
+    <bay name="testi" machine="testi" board="1001" breaker="1" />
+  </room>
+
+  
+  <room hostname="testi" >
+    <bay name="testi" machine="testi" board="1001" breaker="1" />
+  </room>
+  
 </rooms>

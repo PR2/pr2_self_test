@@ -622,7 +622,7 @@
                                         <property name="border">5</property>
                                         <property name="flag">wxEXPAND</property>
                                         <property name="proportion">0</property>
-                                        <object class="wxStaticBoxSizer" expanded="1">
+                                        <object class="wxStaticBoxSizer" expanded="0">
                                             <property name="id">wxID_ANY</property>
                                             <property name="label">Setup</property>
                                             <property name="minimum_size"></property>
@@ -1489,7 +1489,7 @@
                                                                     <property name="context_help"></property>
                                                                     <property name="enabled">1</property>
                                                                     <property name="fg"></property>
-                                                                    <property name="font">Sans,90,92,16,74,0</property>
+                                                                    <property name="font">Sans,90,92,20,74,0</property>
                                                                     <property name="hidden">0</property>
                                                                     <property name="id">wxID_ANY</property>
                                                                     <property name="maximum_size"></property>
@@ -1700,7 +1700,7 @@
                                         <property name="border">5</property>
                                         <property name="flag">wxEXPAND</property>
                                         <property name="proportion">1</property>
-                                        <object class="wxStaticBoxSizer" expanded="0">
+                                        <object class="wxStaticBoxSizer" expanded="1">
                                             <property name="id">wxID_ANY</property>
                                             <property name="label">Logs and Progress</property>
                                             <property name="minimum_size"></property>
@@ -2631,7 +2631,7 @@
                                                         <property name="border">5</property>
                                                         <property name="flag">wxEXPAND</property>
                                                         <property name="proportion">1</property>
-                                                        <object class="wxBoxSizer" expanded="0">
+                                                        <object class="wxBoxSizer" expanded="1">
                                                             <property name="minimum_size"></property>
                                                             <property name="name">bSizer511</property>
                                                             <property name="orient">wxVERTICAL</property>
@@ -2859,10 +2859,10 @@
                                                                     <property name="font"></property>
                                                                     <property name="hidden">0</property>
                                                                     <property name="id">wxID_ANY</property>
-                                                                    <property name="label">Reset Disable</property>
+                                                                    <property name="label">Disable</property>
                                                                     <property name="maximum_size"></property>
                                                                     <property name="minimum_size"></property>
-                                                                    <property name="name">power_reset_button</property>
+                                                                    <property name="name">power_disable_button</property>
                                                                     <property name="permission">protected</property>
                                                                     <property name="pos"></property>
                                                                     <property name="size">250,-1</property>
@@ -2902,29 +2902,28 @@
                                                                 <property name="border">5</property>
                                                                 <property name="flag">wxALL</property>
                                                                 <property name="proportion">0</property>
-                                                                <object class="wxButton" expanded="1">
+                                                                <object class="wxTextCtrl" expanded="1">
                                                                     <property name="bg"></property>
                                                                     <property name="context_help"></property>
-                                                                    <property name="default">0</property>
                                                                     <property name="enabled">1</property>
                                                                     <property name="fg"></property>
                                                                     <property name="font"></property>
                                                                     <property name="hidden">0</property>
                                                                     <property name="id">wxID_ANY</property>
-                                                                    <property name="label">Disable</property>
                                                                     <property name="maximum_size"></property>
+                                                                    <property name="maxlength">0</property>
                                                                     <property name="minimum_size"></property>
-                                                                    <property name="name">power_disable_button</property>
+                                                                    <property name="name">estop_status</property>
                                                                     <property name="permission">protected</property>
                                                                     <property name="pos"></property>
                                                                     <property name="size">250,-1</property>
-                                                                    <property name="style"></property>
+                                                                    <property name="style">wxTE_CENTRE|wxTE_READONLY</property>
                                                                     <property name="subclass"></property>
                                                                     <property name="tooltip"></property>
+                                                                    <property name="value"></property>
                                                                     <property name="window_extra_style"></property>
                                                                     <property name="window_name"></property>
                                                                     <property name="window_style"></property>
-                                                                    <event name="OnButtonClick"></event>
                                                                     <event name="OnChar"></event>
                                                                     <event name="OnEnterWindow"></event>
                                                                     <event name="OnEraseBackground"></event>
@@ -2947,6 +2946,10 @@
                                                                     <event name="OnRightUp"></event>
                                                                     <event name="OnSetFocus"></event>
                                                                     <event name="OnSize"></event>
+                                                                    <event name="OnText"></event>
+                                                                    <event name="OnTextEnter"></event>
+                                                                    <event name="OnTextMaxLen"></event>
+                                                                    <event name="OnTextURL"></event>
                                                                     <event name="OnUpdateUI"></event>
                                                                 </object>
                                                             </object>

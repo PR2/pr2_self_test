@@ -58,7 +58,7 @@ class TestRoom:
 
         names = []
         for name in self._bays.keys():
-            if self._bays[name].power:
+            if self._bays[name].board is not None:
                 names.append(name)
         return names
 
@@ -73,7 +73,7 @@ class TestBay:
         self.name = xml_doc.attributes['name'].value
         self.machine = xml_doc.attributes['machine'].value
         if xml_doc.attributes.has_key('board'):
-            self.board = xml_doc.attributes['board'].value
+            self.board = int(xml_doc.attributes['board'].value)
             self.breaker = int(xml_doc.attributes['breaker'].value)
             if self.breaker not in [0, 1, 2]:
                 raise FailedLoadError
