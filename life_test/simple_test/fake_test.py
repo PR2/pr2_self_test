@@ -155,7 +155,6 @@ class FakeTestFrame(wx.Frame):
         act_st.num_encoder_errors = 0
 
         mech_st = MechanismState()
-        mech_st.time = rospy.get_time()
         mech_st.actuator_states = [ act_st, cont_act_st ]
         mech_st.joint_states = [ jnt_st, cont_st ]
 

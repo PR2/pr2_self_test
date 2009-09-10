@@ -90,7 +90,7 @@ class TestMonitor:
 
         for ns, listener_param in my_params.iteritems():
             if not create_listener(listener_param, self._listeners):
-                rospy.logfatal('Listener failed to initialize. Exiting')
+                rospy.logfatal('Listener failed to initialize. Exiting.')
                 sys.exit()
 
         self._status_pub = rospy.Publisher('test_status', TestStatus)

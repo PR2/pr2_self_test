@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 # Copyright (c) 2008, Willow Garage, Inc.
 # All rights reserved.
 #
@@ -26,71 +26,57 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-##\author Kevin Watts
-
-##\brief Commands a gripper to open and close repeatedly
+# Author: Kevin Watts, original by Stuart Glaser
 
 import roslib
 roslib.load_manifest('life_test')
+import time
+import random
 import rospy
 from std_msgs.msg import Float64
-from sensor_msgs.msg import JointState
 
-import random
-import sys
+ROTATION_JOINT = 'fl_caster_rotation_joint'
+SPEED = 10
+STEER_VEL = 5
 
-from time import sleep
+class CasterCmd:
+    def __init__(self):
+        self.steer = STEER_VEL
+        self.drive = SPEED
 
-class LastMessage():
-    def __init__(self, topic, msg_type):
-        self.msg = None
-        rospy.Subscriber(topic, msg_type, self.callback)
-
-    def last(self):
-        return self.msg
-
-    def callback(self, msg):
-        self.msg = msg
-
-def main():
-    controller_name = rospy.myargv()[1]
-    
-    rospy.init_node('gripper_cmder')
-    control_topic = '%s/command' % controller_name
-
-    eff = 100
-
-    turn_count = 0
-    last_state = LastMessage('joint_states', JointState)
-    try:
-        pub = rospy.Publisher(control_topic, Float64)
-        while not last_state.msg and not rospy.is_shutdown(): pass
-        pub.publish(Float64(eff))
-        while not rospy.is_shutdown():
-            sleep(0.01)
-            jnt_states = last_state.last()
-            grip_idx = -1
-            for index, name in enumerate(jnt_states.name):
-                if name == 'r_gripper_joint':
-                    grip_idx = index
-                    break
-            if grip_idx < 0:
-                print "The joint %s was not found in the joints states" % 'r_gripper_joint'
-
-            if abs(jnt_states.velocity[grip_idx]) < 0.0005:
-                turn_count += 1
+    def update(self):
+        if self.steer > 0:
+            self.steer = -1 * self.steer
+            self.drive = 0
+        elif self.steer < 0:
+            self.steer = 0
+            if random.randint(0, 1) == 1:
+                self.drive = SPEED
             else:
-                turn_count = 0
+                self.drive = -SPEED
+        elif self.steer == 0:
+            self.steer = STEER_VEL
+            self.drive = 0
+            
+        
+def main():
+    rospy.init_node('caster_cmder')
+    cmder = CasterCmd()
+    pub_steer = rospy.Publisher("caster_fl/steer", Float64)
+    pub_drive = rospy.Publisher("caster_fl/drive", Float64)
+    pub_steer.publish(Float64(0.0))
+    pub_drive.publish(Float64(0.0))
 
-            if turn_count > 10:
-                eff = -1 * eff
-                pub.publish(Float64(eff))
+    rate = float(rospy.get_param('cycle_rate', 1.0))
 
-    except:
-        import traceback
-        rospy.logerr(traceback.format_exc())
-        traceback.print_exc()
-
+    while not rospy.is_shutdown():
+        # Steers the caster to be straight
+        pub_steer.publish(Float64(cmder.steer))
+        pub_drive.publish(Float64(cmder.drive))
+        
+        if random.randint(0, 3) != 3:
+            cmder.update()
+        time.sleep(1 / rate / 2)
 
 if __name__ == '__main__':
     main()

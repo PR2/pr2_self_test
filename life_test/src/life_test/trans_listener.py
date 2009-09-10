@@ -49,6 +49,8 @@ import rospy
 
 import threading
 
+GRACE_HITS = 5
+
 class JointTransmissionListener():
     def __init__(self):
         self._ok = True
@@ -57,6 +59,8 @@ class JointTransmissionListener():
         self._rx_count = 0
         self._max_position = -10000000
         self._min_position = 100000000
+
+        self._broke_count = 0
         
     ## Mandatory params: actuator, joint, deadband
     def create(self, params):
@@ -96,11 +100,13 @@ class JointTransmissionListener():
         else:
             self._wrap = params['wrap']
         
+        # Max limit
         if not params.has_key('max'):
             self._max = None
         else:
             self._max = params['max']
 
+        # Min limit
         if not params.has_key('min'):
             self._min = None
         else:
@@ -113,18 +119,18 @@ class JointTransmissionListener():
         self._num_errors_since_reset = 0
 
     def check_device(self, position, cal_reading, calibrated):
+        if not calibrated:
+            return True # Don't bother with uncalibrated joints
+
+        if self._wrap is not None and self._wrap > 0:
+            position = position % (self._wrap)
+
         if self._up_ref is not None:
             if abs(position - self._up_ref) < self._deadband:
                 return True # Don't know b/c in deadband
         if self._down_ref is not None:
             if abs(position - self._down_ref) < self._deadband:
                 return True # Don't know b/c in deadband
-
-        if not calibrated:
-            return True # Don't bother with uncalibrated joints
-
-        if self._wrap is not None and self._wrap > 0:
-            position = position % (self._wrap)
 
         # Check limits
         if self._max is not None and position > self._max:
@@ -133,7 +139,8 @@ class JointTransmissionListener():
             return False
 
         # Reverse for joints that have negative search velocities
-        cal_bool = cal_reading % 2 == 0
+        cal_bool = cal_reading % 2 == 1
+        
         
         ## Has both up and down limit
         if (self._up_ref is not None) and (self._down_ref is not None):
@@ -145,6 +152,7 @@ class JointTransmissionListener():
                 if position > self._up_ref and cal_bool:
                     return True
                 else:
+                    rospy.logwarn('Broken transmission reading for %s. Position: %f (wrapped), cal_reading: %d. Up ref: %s, down ref: %s' % (self._joint, position, cal_reading, str(self._up_ref), str(self._down_ref)))
                     return False
             else: # Down > Up
                 if position < self._up_ref and cal_bool:
@@ -154,6 +162,7 @@ class JointTransmissionListener():
                 if (position > self._down_ref) and not cal_bool:
                     return True
                 else:
+                    rospy.logwarn('Broken transmission reading for %s. Position: %f (wrapped), cal_reading: %d. Up ref: %s, down ref: %s' % (self._joint, position, cal_reading, str(self._up_ref), str(self._down_ref)))
                     return False
 
         ## Has only up limit
@@ -163,6 +172,7 @@ class JointTransmissionListener():
             if position < self._up_ref and not cal_bool:
                 return True
             else:
+                rospy.logwarn('Broken transmission reading for %s. Position: %f (wrapped), cal_reading: %d. Up ref: %s, down ref: %s' % (self._joint, position, cal_reading, str(self._up_ref), str(self._down_ref)))
                 return False
 
         ## Has only down limit
@@ -172,8 +182,10 @@ class JointTransmissionListener():
             if position < self._down_ref and cal_bool:
                 return True
             else:
+                rospy.logwarn('Broken transmission reading for %s. Position: %f (wrapped), cal_reading: %d. Up ref: %s, down ref: %s' % (self._joint, position, cal_reading, str(self._up_ref), str(self._down_ref)))
                 return False
         
+        rospy.logwarn('Broken transmission reading for %s. (No case handled.) Position: %f (wrapped), cal_reading: %d. Up ref: %s, down ref: %s' % (self._joint, position, cal_reading, str(self._up_ref), str(self._down_ref)))
         return False
 
 
@@ -181,7 +193,7 @@ class JointTransmissionListener():
         self._rx_count += 1
         diag = DiagnosticStatus()
         diag.level = 0  # Default the level to 'OK'
-        diag.name = "Trans. Monitor: %s" % self._joint
+        diag.name = "Trans. Listener: %s" % self._joint
         diag.message = "OK"
         diag.values = [ ]
  
@@ -224,8 +236,14 @@ class JointTransmissionListener():
             return diag, False
         
         # Monitor current state
+        # Give it a certain number of false positives before reporting error
         reading_msg = 'OK'
         if not self.check_device(position, cal_reading, calibrated):
+            self._broke_count += 1
+        else:
+            self._broke_count = 0
+
+        if self._broke_count > GRACE_HITS:
             self._ok = False
             self._num_errors += 1
             self._num_errors_since_reset += 1
@@ -239,7 +257,7 @@ class JointTransmissionListener():
         diag.values.insert(0, KeyValue('Transmission Status', diag.message))
         diag.values.insert(1, KeyValue('Current Reading', reading_msg))
         diag.values.append(KeyValue('Is Calibrated', str(calibrated)))
-        diag.values.append(KeyValue('Calibration Reading',str(cal_reading)))
+        diag.values.append(KeyValue('Calibration Reading', str(cal_reading)))
         diag.values.append(KeyValue('Joint Position', str(position)))
         
         diag.values.append(KeyValue('Total Errors', str(self._num_errors)))
@@ -273,6 +291,7 @@ class TransmissionListener:
 
             joint_mon = JointTransmissionListener()
             if not joint_mon.create(joint_param):
+                rospy.logerr('Unable to create JointTransmissionListener')
                 return False
             self._joint_monitors.append(joint_mon)
         return True
@@ -293,8 +312,8 @@ class TransmissionListener:
 
         # Halt if broken
         if not self._ok and was_ok:
-            rospy.logerr('Halting motors, broken transmission')
-            #self._halt_motors()
+            rospy.logerr('Halting motors, broken transmission.')
+            self._halt_motors()
         
 
     def reset(self):
@@ -312,7 +331,7 @@ class TransmissionListener:
         
         if self._last_msg_time == 0:
             self._mutex.release()
-            return 3, "No mech stat messages", None
+            return 3, "No mech state", None
         if rospy.get_time() - self._last_msg_time > 3:
             self._mutex.release()
             return 3, "Mech state stale", None

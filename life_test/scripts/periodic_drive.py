@@ -33,11 +33,11 @@ import roslib
 roslib.load_manifest('life_test')
 import rospy
 from std_msgs.msg import Float64
-from mechanism_msgs.msg import MechanismState
+from pr2_mechanism_msgs.msg import MechanismState
 
 STRAIGHT = 0.82
 ROTATION_JOINT = 'fl_caster_rotation_joint'
-SPEED = 1000.0
+SPEED = 10.0
 PERIOD = 30.0
 PI = 3.14159
 
@@ -58,8 +58,8 @@ def main():
     last_time = 0
     rospy.init_node('caster_cmder')
     last_state = LastMessage('/mechanism_state', MechanismState)
-    pub_steer = rospy.Publisher("/caster/steer_velocity", Float64)
-    pub_drive = rospy.Publisher("/caster/drive_effort", Float64)
+    pub_steer = rospy.Publisher("/caster_fl/steer", Float64)
+    pub_drive = rospy.Publisher("/caster_fl/drive", Float64)
     pub_steer.publish(Float64(0.0))
     pub_drive.publish(Float64(0.0))
     print "Waiting for a mechanism_state message..."

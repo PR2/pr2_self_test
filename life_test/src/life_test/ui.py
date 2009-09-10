@@ -63,6 +63,8 @@ from life_test import *
 from test_param import *
 from test_bay import *
 
+from msg import TestInfoArray
+
 from pr2_power_board.srv import PowerBoardCommand
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
@@ -119,9 +121,25 @@ class TestManagerFrame(wx.Frame):
 
         self.log('Started Test Manager')
 
+        self._info_timer = wx.Timer(self, 1)
+        self.Bind(wx.EVT_TIMER, self.on_info_timer, self._info_timer)
+        self._info_timer.Start(500, True)
+
+        self._info_pub = rospy.Publisher('test_info', TestInfoArray)
+
     def __del__(self):
         if self._power_node is not None:
             self._power_node.shutdown()
+
+    def on_info_timer(self, event):
+        time.sleep(0.1)
+        if not rospy.is_shutdown():
+            self._info_timer.Start(500, True)
+
+        array = TestInfoArray()
+        for serial, panel in self._test_panels.iteritems():
+            array.data.append(panel.on_status_check())
+        self._info_pub.publish(array)
 
     def _diag_cb(self, msg):
         self._mutex.acquire()
@@ -155,6 +173,8 @@ class TestManagerFrame(wx.Frame):
 
         self._diags = []
         self._mutex.release()
+
+
                 
 
     def load_test(self, test, serial):
@@ -335,10 +355,9 @@ class TestManagerFrame(wx.Frame):
             for room_xml in rooms_xml:
                 hostname = room_xml.attributes['hostname'].value
                 room = TestRoom(hostname)
-                rooms[hostname] = room
-                
                 for bay in room_xml.getElementsByTagName('bay'):
                     room.add_bay(TestBay(bay))
+                rooms[hostname] = room
 
             self._rooms = rooms
         except:
@@ -351,7 +370,7 @@ class TestManagerFrame(wx.Frame):
             return
         
         if self._rooms.has_key(socket.gethostname()):
-            self.room = self._rooms[hostname]
+            self.room = self._rooms[socket.gethostname()]
         else:
             self.room = room # Last room
             

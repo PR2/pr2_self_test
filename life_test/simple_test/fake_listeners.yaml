@@ -9,12 +9,12 @@ trans:
     actuator: fake_motor
     max: 2
     min: -2
-    up_ref: 0
+    down_ref: 0
     deadband: 0.1
   cont_trans:
     joint: cont_joint
     actuator: cont_motor
-    up_ref: 0
-    down_ref: 3.14
+    up_ref: 3.14
+    down_ref: 0
     wrap: 6.28
     deadband: 0.1

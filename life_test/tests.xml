@@ -23,9 +23,20 @@
         type="Burn-in Test" >
     <param name="Rate" param_name="cycle_rate"
            desc="Frequency of test"
-           rate="true" val="0.5" />
+           rate="true" val="0.1" />
   </test>
 
+  <test serial="6804108" name="Caster Test"
+        short="Caster" trac="001"
+        desc="Caster jerks around under pressure"
+        script="caster_life_test/test_gui.launch" power="true"
+        type="Burn-in Test" >
+    <param name="Rate" param_name="cycle_rate"
+           desc="Frequency of test"
+           rate="true" val="0.25" />
+  </test>
+
+  
   <test serial="6804213" name="Free Wrist Test" 
 	short="Wrist" trac="438"
 	desc="Test of wrist holding weight."

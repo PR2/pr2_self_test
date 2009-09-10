@@ -212,7 +212,7 @@
 																	<option>0</option>
 																	<flag>wxALL</flag>
 																	<border>5</border>
-																	<object class="wxChoice" name="test_machine_ctrl">
+																	<object class="wxChoice" name="test_bay_ctrl">
 																		<size>150,35</size>
 																		<font>
 																			<size>16</size>
@@ -1476,6 +1476,193 @@
 							<content />
 						</object>
 					</object>
+				</object>
+			</object>
+		</object>
+	</object>
+	<object class="wxPanel" name="status_panel">
+		<style>wxTAB_TRAVERSAL</style>
+		<size>650,160</size>
+		<object class="wxStaticBoxSizer">
+			<orient>wxHORIZONTAL</orient>
+			<label>Test Status</label>
+			<object class="sizeritem">
+				<option>1</option>
+				<flag>wxEXPAND</flag>
+				<border>5</border>
+				<object class="wxBoxSizer">
+					<orient>wxVERTICAL</orient>
+					<object class="sizeritem">
+						<option>1</option>
+						<flag>wxALL|wxEXPAND</flag>
+						<border>5</border>
+						<object class="wxTextCtrl" name="bay_status">
+							<style>wxTE_CENTRE|wxTE_MULTILINE|wxTE_READONLY</style>
+							<font>
+								<size>16</size>
+								<family>swiss</family>
+								<style>normal</style>
+								<weight>bold</weight>
+								<underlined>0</underlined>
+								<face>Sans</face>
+							</font>
+							<value></value>
+							<maxlength>0</maxlength>
+						</object>
+					</object>
+				</object>
+			</object>
+			<object class="sizeritem">
+				<option>0</option>
+				<flag>wxEXPAND</flag>
+				<border>5</border>
+				<object class="wxBoxSizer">
+					<orient>wxVERTICAL</orient>
+					<object class="sizeritem">
+						<option>0</option>
+						<flag>wxALL</flag>
+						<border>5</border>
+						<object class="wxTextCtrl" name="power_status">
+							<style>wxTE_CENTRE|wxTE_READONLY</style>
+							<size>220,-1</size>
+							<font>
+								<size>14</size>
+								<family>swiss</family>
+								<style>normal</style>
+								<weight>bold</weight>
+								<underlined>0</underlined>
+								<face>Sans</face>
+							</font>
+							<value></value>
+							<maxlength>0</maxlength>
+						</object>
+					</object>
+					<object class="sizeritem">
+						<option>0</option>
+						<flag>wxALL</flag>
+						<border>5</border>
+						<object class="wxTextCtrl" name="estop_status">
+							<style>wxTE_CENTRE|wxTE_READONLY</style>
+							<size>220,-1</size>
+							<font>
+								<size>14</size>
+								<family>swiss</family>
+								<style>normal</style>
+								<weight>bold</weight>
+								<underlined>0</underlined>
+								<face>Sans</face>
+							</font>
+							<value></value>
+							<maxlength>0</maxlength>
+						</object>
+					</object>
+					<object class="sizeritem">
+						<option>0</option>
+						<flag>wxALL</flag>
+						<border>5</border>
+						<object class="wxTextCtrl" name="elapsed_text">
+							<style>wxTE_CENTRE|wxTE_READONLY</style>
+							<size>220,-1</size>
+							<font>
+								<size>14</size>
+								<family>swiss</family>
+								<style>normal</style>
+								<weight>bold</weight>
+								<underlined>0</underlined>
+								<face>Sans</face>
+							</font>
+							<value></value>
+							<maxlength>0</maxlength>
+						</object>
+					</object>
+				</object>
+			</object>
+			<object class="sizeritem">
+				<option>0</option>
+				<flag>wxEXPAND</flag>
+				<border>5</border>
+				<object class="wxBoxSizer">
+					<orient>wxVERTICAL</orient>
+					<object class="sizeritem">
+						<option>0</option>
+						<flag>wxALL</flag>
+						<border>5</border>
+						<object class="wxTextCtrl" name="serial_text">
+							<style>wxTE_CENTRE|wxTE_READONLY</style>
+							<size>180,-1</size>
+							<font>
+								<size>14</size>
+								<family>swiss</family>
+								<style>normal</style>
+								<weight>bold</weight>
+								<underlined>0</underlined>
+								<face>Sans</face>
+							</font>
+							<value></value>
+							<maxlength>0</maxlength>
+						</object>
+					</object>
+					<object class="sizeritem">
+						<option>0</option>
+						<flag>wxALL</flag>
+						<border>5</border>
+						<object class="wxTextCtrl" name="test_name_text">
+							<style>wxTE_CENTRE|wxTE_READONLY</style>
+							<size>180,-1</size>
+							<font>
+								<size>14</size>
+								<family>swiss</family>
+								<style>normal</style>
+								<weight>bold</weight>
+								<underlined>0</underlined>
+								<face>Sans</face>
+							</font>
+							<value></value>
+							<maxlength>0</maxlength>
+						</object>
+					</object>
+					<object class="sizeritem">
+						<option>1</option>
+						<flag>wxEXPAND</flag>
+						<border>5</border>
+						<object class="wxBoxSizer">
+							<orient>wxHORIZONTAL</orient>
+							<object class="sizeritem">
+								<option>0</option>
+								<flag>wxALL</flag>
+								<border>5</border>
+								<object class="wxTextCtrl" name="machine_text">
+									<style>wxTE_CENTRE|wxTE_READONLY</style>
+									<size>180,-1</size>
+									<font>
+										<size>14</size>
+										<family>swiss</family>
+										<style>normal</style>
+										<weight>bold</weight>
+										<underlined>0</underlined>
+										<face>Sans</face>
+									</font>
+									<value></value>
+									<maxlength>0</maxlength>
+								</object>
+							</object>
+						</object>
+					</object>
+				</object>
+			</object>
+		</object>
+	</object>
+	<object class="wxPanel" name="status_container_panel">
+		<style>wxTAB_TRAVERSAL</style>
+		<size>670,750</size>
+		<object class="wxBoxSizer">
+			<orient>wxVERTICAL</orient>
+			<object class="sizeritem">
+				<option>1</option>
+				<flag>wxEXPAND | wxALL</flag>
+				<border>5</border>
+				<object class="wxScrolledWindow" name="scrolled_window">
+					<style>wxHSCROLL|wxVSCROLL</style>
 				</object>
 			</object>
 		</object>

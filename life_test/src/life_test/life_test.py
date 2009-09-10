@@ -53,7 +53,7 @@ from std_srvs.srv import *
 
 
 # Stuff from life_test package
-from msg import TestStatus
+from msg import TestStatus, TestInfo
 from test_param import TestParam, LifeTest
 from test_record import TestRecord
 
@@ -96,7 +96,7 @@ class TestMonitorPanel(wx.Panel):
         self._launch_button = xrc.XRCCTRL(self._panel, 'launch_test_button')
         self._launch_button.Bind(wx.EVT_BUTTON, self.start_stop_test)
 
-        self._test_bay_ctrl = xrc.XRCCTRL(self._panel, 'test_machine_ctrl')
+        self._test_bay_ctrl = xrc.XRCCTRL(self._panel, 'test_bay_ctrl')
         self._test_bay_ctrl.SetItems(self._manager.room.get_bay_names(test.needs_power()))
         
         self._end_cond_type = xrc.XRCCTRL(self._panel, 'end_cond_type')
@@ -172,6 +172,9 @@ class TestMonitorPanel(wx.Panel):
         self._diag_msgs = {}
 
         self._is_running = False
+        self._stat_level = 127 # Not launched
+        self._power_stat = "Disable"
+        self._estop_stat = False
 
         # Launches test, call stop to kill it
         self._test_launcher = None
@@ -367,6 +370,37 @@ class TestMonitorPanel(wx.Panel):
         else:
             self._is_stale = False
 
+    def on_status_check(self):
+        msg = TestInfo()
+        msg.serial = str(self._serial)
+        msg.test_name = str(self._test._short)
+        if self.is_launched():
+            msg.test_status = int(self._stat_level)
+            msg.bay_name = str(self._bay.name)
+            msg.machine = str(self._bay.machine)
+            if self._bay.board is not None:
+                msg.board = self._bay.board
+                msg.breaker = self._bay.breaker
+                msg.power_status = self._power_stat
+                if self._estop_stat:
+                    msg.estop = 1
+                else:
+                    msg.estop = 0
+            else:
+                msg.board = 0
+                msg.breaker = 0
+                                
+        else:
+            msg.test_status = 127
+            msg.bay_name = "None"
+            msg.board = 0
+            msg.breaker = 0
+            msg.machine = ""
+
+        msg.elapsed = self._record.get_cum_time()
+        
+        return msg        
+
     def _test_power_cmd(self):
         if not self.is_launched():
             wx.MessageBox('Test is not launched. Unable to command power board', 'Test is not launched', wx.OK|wx.ICON_ERROR, self)
@@ -407,6 +441,9 @@ class TestMonitorPanel(wx.Panel):
 
     ##\brief Updates power board control
     def update_board(self, value, estop):
+        self._power_stat = value
+        self._estop_stat = estop
+
         if value == "Standby":
             self._power_board_text.SetBackgroundColour("Orange")
             self._power_board_text.SetValue("Standby")
@@ -443,12 +480,14 @@ class TestMonitorPanel(wx.Panel):
             self._status_bar.SetValue("Test Monitor reports stale: %s" % msg)
             self._status_bar.SetBackgroundColour("Light Blue")
         else:
-            self._status_bar.SetBackgroundColour("White")
+            self._status_bar.SetBackgroundColour("Light Blue")
             self._status_bar.SetValue("Test Monitor Stale")        
 
     ##\brief Called after status message or timer callback
     def update_controls(self, level = 4, msg = 'None'):
         self._update_status_bar(level, msg)
+
+        self._stat_level = level
 
         ##\todo FIX
         remaining = self.calc_remaining()
