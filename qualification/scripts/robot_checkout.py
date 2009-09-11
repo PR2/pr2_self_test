@@ -193,7 +193,7 @@ class RobotCheckout:
         rospy.loginfo('Got robot data service')
         self._has_robot_data = True
         
-        if srv.test_time > 0:
+        if srv.test_time >= 0:
             self._timeout = False
      
         self._check_time = srv.test_time
@@ -339,7 +339,13 @@ class RobotCheckout:
                 elif name == 'base_joint':
                     cal = '<div class=\"pass\">Base</div>'
                 elif name.find('finger') > 0:
-                    cal = '<div class=\"pass\">Finger</div>'
+                    cal = '<div class=\"pass\">Gripper</div>'
+                elif name.find('gripper_float_joint') > 0:
+                    cal = '<div class=\"pass\">Gripper</div>'
+                elif name.find('gripper_palm_joint') > 0:
+                    cal = '<div class=\"pass\">Gripper</div>'
+                elif name.find('gripper_tool_joint') > 0:
+                    cal = '<div class=\"pass\">Gripper</div>'
                 else:
                     cal = '<div class=\"warn\"><b>NO</b></div>'
                     self._joints_ok = False

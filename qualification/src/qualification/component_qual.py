@@ -381,11 +381,11 @@ class ComponentQualFrame(QualificationFrame):
         self.get_powerboard()
       
       if (event.GetId() == 3150):
-        rospy.set_param('/qualification/powerboard/0', self._powerboard_menu.IsChecked(2150))
+        rospy.set_param('/qualification/powerboard/0', self._powerboard_menu.IsChecked(3150))
       if (event.GetId() == 3151):
-        rospy.set_param('/qualification/powerboard/1', self._powerboard_menu.IsChecked(2151))
+        rospy.set_param('/qualification/powerboard/1', self._powerboard_menu.IsChecked(3151))
       if (event.GetId() == 3152):
-        rospy.set_param('/qualification/powerboard/2', self._powerboard_menu.IsChecked(2152))
+        rospy.set_param('/qualification/powerboard/2', self._powerboard_menu.IsChecked(3152))
 
     if (event.GetEventObject() == self._host_menu):
       if (event.GetId() == 4001):

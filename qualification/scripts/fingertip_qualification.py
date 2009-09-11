@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Copyright (c) 2008, Willow Garage, Inc.
 # All rights reserved.
 #
@@ -24,109 +25,249 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from numpy.numarray.numerictypes import Float64
 
-# Author: Matthew Piccoli
+##\author Matthew Piccoli
+##\brief Fingertip qualification of gripper
 
 import roslib
 roslib.load_manifest('qualification')
 
-import rospy
-from qualification.srv import *
-from std_msgs.msg import Float64
-from pr2_msgs.msg import PressureState
+import numpy
+import matplotlib
+import matplotlib.pyplot as plot
+from StringIO import StringIO
 from time import sleep
 import traceback
 
-class FingertipQualification:
-  def pressure_callback(self,data):
-    self.data0 = data.data0
-    self.data1 = data.data1
-    
-  def __init__(self):
-    self.set_cmd = 0.0
-    #self.pub = rospy.Publisher('r_gripper_joint/set_commmand', Float64)
-    self.pub = rospy.Publisher('joint_effort_controller/commmand', Float64)
-    rospy.Subscriber("pressure/r_gripper_motor", PressureState, self.pressure_callback)
-    rospy.init_node('fingertip_qualification')
-    self.initial = rospy.get_param('grasp_force_initial', -25.0)
-    self.increment = rospy.get_param('grasp_force_increment', -25.0) 
-    self.num_increments = rospy.get_param('grasp_increments', 4) 
-    self.x0 = rospy.get_param('x^0', -39181) 
-    self.x1 = rospy.get_param('x^1', -4060.5)
-    self.x2 = rospy.get_param('x^2', -45.618)
-    self.x3 = rospy.get_param('x^3', -17.442)
-    self.tol_percent = rospy.get_param('tolerance_percent', 10.0)
-    self.fingertip_refresh = rospy.get_param('fingertip_refresh_hz', 25)
-    self.num_sensors = rospy.get_param('num_sensors', 22)
-    self.num_sensors_outside = rospy.get_param('num_sensors_outside', 7)
-    self.force = self.initial
+import rospy
+from qualification.srv import TestResult, TestResultRequest
+from qualification.msg import Plot
+from std_msgs.msg import Float64
+from pr2_msgs.msg import PressureState
 
-  def open_gripper(self):
-    self.set_cmd = 100
-    self.pub.publish(self.set_cmd)
-    sleep(3)
-    
-  def close_gripper(self):
-    self.set_cmd = -100
-    self.pub.publish(self.set_cmd)
-    sleep(3)
-    
-  def check_connected(self):
-    sleep(1/self.fingertip_refresh*2)
-    #TODO::check if data exists!!!!!
-    for i in range(self.num_sensors_outside, self.num_sensors - 1):
-      if self.data0[i] == 0:
-        print "fingertip 0, sensor %i is not reporting" %i
-        #TODO::Report failiure
-      if self.data1[i] == 0:
-        print "fingertip 1, sensor %i is not reporting" %i
-        #TODO::Report failiure
+
+
+import threading
+
+class FingertipQualification:
+    def __init__(self):
+        self._mutex = threading.Lock()
+        self.set_cmd = 0.0
+        self.pub = rospy.Publisher('r_gripper_effort_controller/command', Float64)
+        rospy.Subscriber("pressure/r_gripper_motor", PressureState, self.pressure_callback)
+        rospy.init_node('fingertip_qualification')
+        self.initial = rospy.get_param('grasp_force_initial', -25.0)
+        self.increment = rospy.get_param('grasp_force_increment', -25.0) 
+        self.num_increments = rospy.get_param('grasp_increments', 4) 
+        self.x0 = rospy.get_param('x^0', -39181) 
+        self.x1 = rospy.get_param('x^1', -4060.5)
+        self.x2 = rospy.get_param('x^2', -45.618)
+        self.x3 = rospy.get_param('x^3', -17.442)
+        self.tol_percent = rospy.get_param('tolerance_percent', 10.0)
+        self.fingertip_refresh = rospy.get_param('fingertip_refresh_hz', 25)
+        self.num_sensors = rospy.get_param('num_sensors', 22)
+        self.num_sensors_outside = rospy.get_param('num_sensors_outside', 7)
+        self.force = self.initial
+
+        self.data_sent = False
+        self.result_service = rospy.ServiceProxy('/test_result', TestResult)
+
+        self._connection_data = ''
+
+        # Data
+        self._forces = []
+        self._expected = []
+        self._tip0 = []
+        self._tip1 = []
+
+    def pressure_callback(self,data):
+        self._mutex.acquire()
+        self.data0 = data.data0
+        self.data1 = data.data1
+        self._mutex.release()
+
+    def test_failed_service_call(self, except_str = ''):
+        rospy.logerr(except_str)
+        r = TestResultRequest()
+        r.html_result = except_str
+        r.text_summary = 'Caught exception, automated test failure.'
+        r.plots = []
+        r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
+        self.send_results(r)
+
+    def send_results(self, test_result):
+        if not self.data_sent:
+            rospy.wait_for_service('test_result', 30)
+            self.result_service.call(test_result)
+            self.data_sent = True
+
+    def open_gripper(self):
+        self.set_cmd = 100
+        self.pub.publish(self.set_cmd)
+        sleep(2)
         
-  def increment_value(self):
-    self.force = self.force + self.increment
+    def close_gripper(self):
+        self.set_cmd = -100
+        self.pub.publish(self.set_cmd)
+        sleep(4)
     
-  def record_zero_pos(self):
-    self.starting_sum0 = 0
-    self.starting_sum1 = 0
-    for i in range(self.num_sensors_outside, self.num_sensors - 1):
-      self.starting_sum0 = self.starting_sum0 + self.data0[j]
-      self.starting_sum1 = self.starting_sum1 + self.data1[j]
+    def check_connected(self):
+        sleep(1/self.fingertip_refresh*2)
+        self._mutex.acquire()
+
+        ok = True
+        tip0 = []
+        tip1 = []
+
+        # TODO::check if data exists!!!!!
+        connect_table = '<table border="1" cellpadding="2" cellspacing="0">\n'
+        connect_table += '<tr><td><b>Sensor</b></td><td><b>Tip 0</b></td><td><b>Tip 1</b></td></tr>\n'
+        for i in range(0, self.num_sensors - 1):
+            tip0 = 'OK'
+            tip1 = 'OK'
+            if self.data0[i] == 0:
+                ok = False
+                tip0 = 'No data'               
+
+            if self.data1[i] == 0:
+                ok = False
+                tip1 = 'No data'
+
+            connect_table += '<tr><td>%d</td><td>%s</td><td>%s</td></tr>\n' % (i, tip0, tip1)
+        connect_table += '</table>\n'
+
+        self._mutex.release()
+        
+        connect_str = 'OK'
+        if not ok:
+            connect_str = 'Error'
+        self._connected_data = '<p>Tip connections: %s.</p>\n' % connect_str
+        self._connected_data += connect_table
+        
+        if not ok:
+            r = TestResultRequest()
+            r.text_summary = 'Not connected'
+            r.html_result = self._connected_data 
+            r.html_result +=  '<hr size="2">\n' + self._write_equation()
+            r.html_result += '<hr size="2">\n' + self._write_params()
+            r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
+            self.send_results(r)
+                
+        return ok
+
+    def increment_value(self):
+        self.force += self.increment
+    
+    def record_zero_pos(self):
+        self._mutex.acquire()
+        self.starting_sum0 = 0
+        self.starting_sum1 = 0
+        for i in range(self.num_sensors_outside, self.num_sensors - 1):
+            self.starting_sum0 = self.starting_sum0 + self.data0[j]
+            self.starting_sum1 = self.starting_sum1 + self.data1[j]
+        self._mutex.release()
       
-  def check_increase(self):
-    current_sum0 = 0
-    current_sum1 = 0
-    for i in range(self.num_sensors_outside, self.num_sensors - 1):
-      current_sum0 = current_sum0 + self.data0[j]
-      current_sum0 = current_sum0 + self.data1[j]
-    expected_value = self.force*self.force*self.force*self.x3 + self.force*self.force*self.x2 + self.force*self.x1 + self.x0
-    if current_sum0-self.starting_sum0 > expected_value*(1+self.tol_percent/100): #value is too high for this pad
-      print "fingertip 0 is reporting values of %s that are too high above %s at force %s" %(current_sum0-self.starting_sum0, expected_value,self.force)
-      #TODO::Report failiure
-    if current_sum0-self.starting_sum0 < expected_value*(1-self.tol_percent/100): #value is too low for this pad
-      print "fingertip 0 is reporting values of %s that are too low below %s at force %s" %(current_sum0-self.starting_sum0, expected_value,self.force)
-      #TODO::Report failiure
-    if current_sum1-self.starting_sum1 > expected_value*(1+self.tol_percent/100): #value is too high for this pad
-      print "fingertip 1 is reporting values of %s that are too high above %s at force %s" %(current_sum0-self.starting_sum0, expected_value,self.force)
-      #TODO::Report failiure
-    if current_sum1-self.starting_sum1 < expected_value*(1-self.tol_percent/100): #value is too low for this pad
-      print "fingertip 1 is reporting values of %s that are too low below %s at force %s" %(current_sum0-self.starting_sum0, expected_value,self.force)
-      #TODO::Report failiure
+    def record_increase(self):
+        self._mutex.acquire()
+        current_sum0 = 0
+        for current in self.data0:
+            current_sum0 += current
+        current_sum1 = 0
+        for current in self.data1:
+            current_sum1 += current
+        self._mutex.release()
+ 
+        expected_value = self.force*self.force*self.force*self.x3 + self.force*self.force*self.x2 + self.force*self.x1 + self.x0
+
+        self._forces.append(self.force)
+        self._expected.append(expected_value / 100)
+        self._tip0.append(current_sum0)
+        self._tip1.append(current_sum1)
+
+        print 'Current 0', current_sum0
+        print 'Current 1', current_sum1
+        
+
+    def _write_equation(self):
+        html = '<p>Equation for total gripper force</p>\n'
+        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
+        html += '<tr><td><b>Term</b></td><td><b>Value</b></td></tr>\n'
+        html += '<tr><td>Force^3</td><td>%f</td></tr>\n' % self.x3
+        html += '<tr><td>Force^2</td><td>%f</td></tr>\n' % self.x2
+        html += '<tr><td>Force</td><td>%f</td></tr>\n' % self.x1
+        html += '<tr><td>Constant</td><td>%s</td></tr>\n' % self.x0
+        html += '</table>\n'
+
+        return html
+
+    def _write_params(self):
+        html = '<p>Test parameters:</p>\n'
+        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
+        html += '<tr><td><b>Parameter</b></td><td><b>Value</b></td></tr>\n'
+        html += '<tr><td>Num Sensors</td><td>%d</td></tr>\n' % self.num_sensors
+        html += '<tr><td>Num Sensors Outside</td><td>%d</td></tr>\n' % self.num_sensors_outside
+        html += '<tr><td>Num. Increments</td><td>%d</td></tr>\n' % self.num_increments
+        html += '<tr><td>Max Force</td><td>%f</td></tr>\n' % self.force
+        html += '<tr><td>Tolerance</td><td>%f</td></tr>\n' % self.tol_percent
+        html += '<tr><td>Force Increment</td><td>%f</td></tr>\n' % self.increment
+        html += '</table>\n'
+
+        return html
+
+    def process_results(self):
+        html = '<p>Finger tip data.</p>\n'
+        html += '<img src="IMG_PATH/finger_tip.png", width=640, height=480 />\n'
+        html += '<hr size="2">\n' + self._write_equation()
+        html += '<hr size="2">\n' + self._write_params()
+        html += '<hr size="2">\n' + self._connected_data
+        
+        
+        r = TestResultRequest()
+        r.text_summary = 'Finger tip test'
+        r.html_result = html
+        r.plots = []
+        r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
+
+        fig = plot.figure(1)
+        plot.ylabel('Effort')
+        plot.xlabel('Total pressure')
+        plot.plot(numpy.array(self._forces), numpy.array(self._expected), label='Expected')
+        plot.plot(numpy.array(self._forces), numpy.array(self._tip0), label='Tip 0')
+        plot.plot(numpy.array(self._forces), numpy.array(self._tip1), label='Tip 1')
+        fig.text(.3, .95, 'Fingertip Pressure v. Effort')
+        plot.legend(shadow=True)
+        
+        # Store figure in Plot message
+        stream = StringIO()
+        plot.savefig(stream, format="png")
+        image = stream.getvalue()
+        p = Plot()
+        r.plots.append(p)
+        p.title = 'finger_tip'
+        p.image = image
+        p.image_format = 'png'
+
+        self.send_results(r)
+        
 
 if __name__ == '__main__':
-  try:
     qual = FingertipQualification()
-    qual.open_gripper()
-    qual.check_connected()
-    for j in range(0,qual.num_increments):
-      qual.record_zero_pos()
-      qual.close_gripper()
-      qual.check_increase()
-      qual.open_gripper()
-      qual.increment_value()
-    rospy.spin()
-  except Exception, e:
-    print 'Caught exception in fingertip_qualification.\n%s' % traceback.format_exc()
-    rospy.logerr('Fingertip qualification exception.\n%s' % traceback.format_exc())
+    try:
+        qual.open_gripper()
+        if not qual.check_connected():
+            sleep(1)
+
+
+        for j in range(0,qual.num_increments):
+            qual.record_zero_pos()
+            qual.close_gripper()
+            qual.record_increase()
+            qual.open_gripper()
+            qual.increment_value()
+        qual.process_results()
+    except Exception, e:
+        print 'Caught exception in fingertip_qualification.\n%s' % traceback.format_exc()
+        rospy.logerr('Fingertip qualification exception.\n%s' % traceback.format_exc())
+        qual.test_failed_service_call(traceback.format_exc())
 
     print 'Quitting fingertip qualification'

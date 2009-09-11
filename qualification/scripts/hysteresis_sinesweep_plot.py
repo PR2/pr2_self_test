@@ -79,8 +79,7 @@ class App:
     r.html_result = except_str
     r.text_summary = 'Caught exception, automated test failure.'
     r.plots = []
-    r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
-    #self.result_service.call(r)
+    r.result = TestResultRequest.RESULT_FAIL
     self.send_results(r)
 
   def send_results(self, test_result):
@@ -100,7 +99,8 @@ class App:
       image_title = self.data.joint_name + "_hysteresis"
 
       # Check the num points, timeout
-      if len(self.data.position) < 250: 
+      if len(self.data.position) < 250:
+        param_html = self.controller_params()
         r.result = TestResultRequest.RESULT_FAIL
         r.text_summary = "Not enough data points, bad encoder or bad gains."
         
@@ -110,14 +110,18 @@ class App:
         error_msg += "Make sure motors are not in safety lockout (check diagnostics)<br>\n"
         error_msg += "Check controller gains if problem persists on components of same type.</p>\n"
         error_msg += "<p>Test status: <b>FAIL</b>.</p>"
+        error_msg += '<p align=center><b>Test Parameters</b></p>' + param_html + '<hr size="2">\n'
+        
         r.html_result = error_msg
         self.send_results(r)
         return
 
       if self.data.arg_value[5] == 0:
+        param_html = self.controller_params()
         r.result = TestResultRequest.RESULT_FAIL
         r.text_summary = 'Hysteresis controller timed out. Check diagnostics.'
         r.html_result = '<p>Hysteresis controller timed out. Check diagnostics. Controller gains may be bad, or motors may be in safety lockout. Did the device pass the visualizer? Is it calibrated?</p><p>Test status: <b>FAIL</b>.</p>'
+        r.html_result += '<p align=center><b>Test Parameters</b></p>' + param_html + '<hr size="2">\n'
         self.send_results(r)
         return
 
@@ -126,9 +130,11 @@ class App:
       max_encoder = max(numpy.array(self.data.position))
 
       if abs(max_encoder - min_encoder) < 0.005:
+        param_html = self.controller_params()
         r.result = TestResultRequest.RESULT_FAIL
         r.text_summary = 'Mechanism didn\'t move. Check diagnostics.'
         r.html_result = "<p>No travel of mechanism, hysteresis did not complete. Check controller gains and encoder.</p><p>Test status: <b>FAIL</b>.</p>"
+        r.html_result += '<p align=center><b>Test Parameters</b></p>' + param_html + '<hr size="2">\n'
         self.send_result(r)
         return
       
@@ -160,9 +166,11 @@ class App:
       
       # Make sure we have at least some points in both directions
       if effort1_array.size < 20 or effort2_array.size < 20:
+        param_html = self.controller_params()
         r.result = TestResultRequest.RESULT_HUMAN_REQUIRED # RESULT_FAIL
         r.text_summary = 'Incomplete data set. Check diagnostics.'
         r.html_result = "<p>Not enough data in one or more directions.</p><p>Test Status: <b>FAIL</b>.</p><p>Test status: <b>FAIL</b>.</p>"
+        r.html_result += '<p align=center><b>Test Parameters</b></p>' + param_html + '<hr size="2">\n'
         self.send_result(r)
         return
 
@@ -237,7 +245,7 @@ class App:
       axes2.set_xlabel('Position')
       axes1.set_ylabel('Effort (+ dir)')
       axes2.set_ylabel('Effort (- dir)')
-      axes1.plot(pos_position, pos_eff, 'b--', label='Data')
+      axes1.plot(pos_position, pos_eff, 'b--', label='_nolegend_')
       axes2.plot(neg_position, neg_eff, 'b--', label='_nolegend_')
       if max_avg != 0 or min_avg != 0:
         # Add error bars for SD
@@ -289,7 +297,7 @@ class App:
       p.image = image
       p.image_format = "png"
 
-      # Create the figure 2: Effort vs. Position. 2: Velocity vs. Position
+      # Create the figure 3: Effort vs. Position.
       fig=plot.figure(3)
       
       # Plot the effort hysteresis

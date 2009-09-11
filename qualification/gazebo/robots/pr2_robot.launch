@@ -1,0 +1,17 @@
+<launch>
+  <!-- start gazebo -->
+  <include file="$(find gazebo)/launch/empty_world.launch"/>
+
+  <!-- load pr2 -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_defs)/robots/pr2.urdf.xacro'" />
+  <node pkg="gazebo_tools" type="urdf2factory" name="urdf_factory"
+        args="robot_description" respawn="false"  />
+
+  <!-- Robot state publisher -->
+  <node pkg="robot_state_publisher" type="state_publisher"
+        name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <param name="tf_prefix" type="string" value="" />
+  </node>
+
+</launch>

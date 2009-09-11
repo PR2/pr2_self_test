@@ -1,4 +1,5 @@
 <launch>
   <include file="$(find qualification)/tests/init.machine" />
-  <node machine="realtime" pkg="qualification" type="test_node.py"/>
+  <node machine="realtime" pkg="qualification"
+        type="test_node.py" name="startup" />
 </launch>

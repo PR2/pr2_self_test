@@ -393,7 +393,8 @@ class QualificationFrame(wx.Frame):
   ## Launches rosrecord node to record diagnostics for test
   def record_tests(self):
     record = '<launch>\n'
-    record += '<node pkg="rosrecord" type="rosrecord" args="-f /hwlog/%s_qual_test /diagnostics" />\n' % self._current_item.serial
+    record += '<node pkg="rosrecord" type="rosrecord" name="test_logger" \n'
+    record += 'args="-f /hwlog/%s_qual_test /diagnostics" />\n' % self._current_item.serial
     record += '</launch>\n'
 
     self._record_launch = self.launch_script(record)

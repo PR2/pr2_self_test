@@ -63,7 +63,7 @@ def call_done_service(result, msg):
   r = ScriptDoneRequest()
   r.result = result
   r.failure_msg = msg
-  rospy.wait_for_service('visual_check')
+  rospy.wait_for_service('visual_check', 5)
   result_service.call(r)
 
 class VisualizerFrame(wx.Frame):
@@ -117,9 +117,8 @@ class VisualizerFrame(wx.Frame):
   def load_config_from_path(self, path):
     manager = self._visualizer_panel.getManager()
     manager.removeAllDisplays()
-    config = wx.FileConfig(localFilename=path)
-    manager.loadGeneralConfig(config)
-    manager.loadDisplayConfig(config)
+    self._visualizer_panel.loadGeneralConfig(path)
+    self._visualizer_panel.loadDisplayConfig(path)
     
   def set_instructions(self, instructions):
     self._instructions_ctrl.SetValue(instructions)
@@ -160,10 +159,13 @@ class VisualizerApp(wx.App):
     ogre_tools.cleanupOgre()
 
 if __name__ == "__main__":
+  
+
+
   if (len(sys.argv) < 2):
     call_done_service(ScriptDoneRequest.RESULT_ERROR, "Visual verifier not given path to config file.\nusage: visual_verifier.py 'path to config file'")
-    #print "usage: visual_verifier.py 'path to config file'"
-    #sys.exit(1)
+    print 'Usage: visual_verifier.py \'path to config file\''
+    sys.exit(1)
   
   try:
     app = VisualizerApp(sys.argv[1])

@@ -1,11 +1,15 @@
 <test>
   <instructions>instructions.html</instructions>
-  <pre_startup>../../scripts/power_board_standby.launch</pre_startup>
-  <pre_startup>gripper_prog.launch</pre_startup>
-  <pre_startup>../../scripts/power_cycle.launch</pre_startup>
-  <pre_startup>../../config/r_gripper_conf.launch</pre_startup>
-  <startup>gripper.launch</startup>
-  <shutdown>../../scripts/power_board_disable.launch</shutdown>
-  <subtest>gripper_checkout.launch</subtest>
-  <subtest>hysteresis_gripper.launch</subtest>
+  <pre_startup timeout="30" name="Power Standby">../../scripts/power_board_standby.launch</pre_startup>
+  <pre_startup timeout="60" name="Program MCB's">gripper_prog.launch</pre_startup>
+  <pre_startup timeout="30" name="Power Cycle">../../scripts/power_cycle.launch</pre_startup>
+  <pre_startup timeout="60" name="Configure MCB's">../../config/r_gripper_conf.launch</pre_startup>
+  <startup name="Gripper Startup">gripper.launch</startup>
+
+  <subtest name="Gripper Checkout">gripper_checkout.launch</subtest>
+  <subtest timeout="60" name="Gripper Hystersis">hysteresis_gripper.launch</subtest>
+  <!--
+      <subtest name="Fingers"  timeout="60">fingertip_qualification.launch</subtest>
+      -->
+  <shutdown timeout="30" name="Power Shutdown">../../scripts/power_board_disable.launch</shutdown>
 </test>

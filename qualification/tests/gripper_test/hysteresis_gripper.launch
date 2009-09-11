@@ -2,23 +2,25 @@
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="HysteresisController" />
     <param name="velocity" type="double" value="-0.01" />
-    <param name="max_effort" type="double" value="2.5" />
-    <param name="max_expected" type="double" value="0.9" />
-    <param name="min_expected" type="double" value="-0.9" />
-    <param name="max_position" type="double" value="0.078" />
-    <param name="min_position" type="double" value="0.001" />
+    <param name="max_effort" type="double" value="60" />
+    <param name="max_expected" type="double" value="13.5" />
+    <param name="min_expected" type="double" value="-13.5" />
+    <param name="max_position" type="double" value="0.086" />
+    <param name="min_position" type="double" value="0.002" /> <!-- May be 0.003 -->
     <param name="timeout" type="double" value="30" />
 
     <group ns="velocity_controller" clear_params="true">
       <param name="type" type="string" value="JointVelocityController" />
       <param name="joint" type="string" value="r_gripper_joint" />
-      <param name="pid/p" type="double" value="400.0" />
-      <param name="pid/i" type="double" value="3.0" />
+      <param name="pid/p" type="double" value="10000.0" />
+      <param name="pid/i" type="double" value="10000.0" />
       <param name="pid/d" type="double" value="0.0" />
-      <param name="pid/i_clamp" type="double" value="1.0" />
+      <param name="pid/i_clamp" type="double" value="15.0" />
     </group>
   </group>
   
-  <node pkg="pr2_mechanism_control" type="spawner.py" args="test_controller" />
-  <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
+  <node pkg="pr2_mechanism_control" type="spawner.py"
+        name="$(anon hyst_spawner)" args="test_controller" />
+  <node pkg="qualification" type="hysteresis_sinesweep_plot.py"
+        name="hyst_analysis" />
 </launch>

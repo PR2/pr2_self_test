@@ -1,0 +1,22 @@
+<launch>
+  <!-- Gazebo and robot -->
+  <include file="$(find qualification)/gazebo/robots/pr2_robot.launch" />
+
+  <!-- Checkout analysis -->
+  <node pkg="qualification" type="robot_checkout.py" name="robot_checkout" />
+
+  <!-- Overrides visual verifier -->
+  <node pkg="qualification" type="visual_ok.py" name="visual_ok" />
+
+  <!-- Checkout controller -->
+  <group ns="test_controller" clear_params="true">
+    <param name="type" type="string" value="CheckoutController" />
+    <param name="timeout" type="double" value="30.0" />
+  </group>
+  <node pkg="pr2_mechanism_control" type="spawner.py"
+        args="test_controller" name="pr2_chk_ctrl" />
+
+  <!-- Test: asserts we have checkout service and that we passed -->
+  <test test-name="pr2_checkout" pkg="qualification"
+        type="checkout_test.py" time-limit="60" />
+</launch>

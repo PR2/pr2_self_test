@@ -1,3 +1,3 @@
 <launch>
-  <node pkg="qualification" type="simple_shutdown.py" />
+  <node pkg="qualification" type="simple_shutdown.py" name="shutdown" />
 </launch>

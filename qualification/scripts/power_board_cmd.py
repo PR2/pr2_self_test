@@ -89,12 +89,14 @@ def main():
   breakers[1] = rospy.get_param('%s/1' % BOARD_NAMESPACE, False)
   breakers[2] = rospy.get_param('%s/2' % BOARD_NAMESPACE, False)
 
+  rospy.loginfo('Board: %d, Breakers: %s, %s, %s' % (serial, breakers[0], breakers[1], breakers[2]))
+
   brk_ok = False
   for brk in breakers:
     brk_ok = brk_ok or brk
   if not brk_ok:
     done.result = ScriptDoneRequest.RESULT_ERROR
-    done.failure_msg = 'No breakers enabled!'
+    done.failure_msg = 'No breakers enabled.'
     done_proxy.call(done)
     time.sleep(2)
 
@@ -105,7 +107,7 @@ def main():
     for power_cmd in options.commands:
       # Wait for previous power cmd to take effect
       if not is_first:
-        time.sleep(1)
+        time.sleep(2)
         
       is_first = False
       for num in breakers.keys():
@@ -113,7 +115,6 @@ def main():
           continue
 
         resp = control_proxy(serial, num, power_cmd, 0)  
-
         rospy.loginfo('CMD: %d %d %s. Received return code %d' % 
                      (serial, num, power_cmd, resp.retval))
         if resp.retval != 0:

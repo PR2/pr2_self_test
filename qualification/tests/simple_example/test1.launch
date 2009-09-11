@@ -1,3 +1,4 @@
 <launch>
-  <node pkg="qualification" type="analyzer_node.py" args="pass"/>
+  <node pkg="qualification" name="passing_node"
+        type="analyzer_node.py" args="pass"/>
 </launch>
