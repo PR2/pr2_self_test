@@ -1,0 +1,13 @@
+<launch>
+
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find qualification)/tests/caster_test/caster_alpha2.xml'" />
+
+  <!-- Loads realtime machine and PR2_etherCAT -->
+  <include file="$(find qualification)/tests/init.machine" />
+  <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
+
+  <!-- Caster calibration -->
+  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
+  <node pkg="mechanism_bringup" type="calibrate.py" output="screen"
+  	args="cal_caster_fl_alpha2" />
+</launch>

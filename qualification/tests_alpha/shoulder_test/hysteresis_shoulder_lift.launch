@@ -1,0 +1,24 @@
+<launch>
+  <group ns="test_controller" clear_params="true">
+    <param name="type" type="string" value="HysteresisController" />
+    <param name="velocity" type="double" value="1.25" />
+    <param name="max_effort" type="double" value="5.0" />
+    <param name="max_expected" type="double" value="-0.95" />
+    <param name="min_expected" type="double" value="-3.0" />
+    <param name="max_position" type="double" value="-0.35" />
+    <param name="min_position" type="double" value="0.54" />
+    <param name="timeout" type="double" value="30" />
+
+    <group ns="velocity_controller" clear_params="true">
+      <param name="type" type="string" value="JointVelocityController" />
+      <param name="joint" type="string" value="r_shoulder_lift_joint" />
+      <param name="pid/p" type="double" value="10.0" />
+      <param name="pid/i" type="double" value="3.0" />
+      <param name="pid/d" type="double" value="0.0" />
+      <param name="pid/i_clamp" type="double" value="2.5" />
+    </group>
+  </group>
+
+  <node pkg="pr2_mechanism_control" type="spawner.py" args="test_controller" />
+  <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
+</launch>

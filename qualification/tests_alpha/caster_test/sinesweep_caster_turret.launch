@@ -1,0 +1,22 @@
+<launch>
+  <group ns="test_controller" clear_params="true">
+    <param name="type" type="string" value="SineSweepController" />
+    <param name="joint_name" type="string" value="none" />
+
+    <!-- Analysis params -->
+    <param name="first_mode" type="double" value="17.6" />
+    <param name="second_mode" type="double" value="37.0" />
+    <param name="error_tolerance" type="double" value="0.15" />
+    
+    <!-- Sine sweep params -->
+    <param name="amplitude" type="double" value="4.0" />
+    <param name="start_freq" type="double" value="5.0" />
+    <param name="end_freq" type="double" value="100.0" />
+    <param name="duration" type="double" value="10.0" />
+  
+  </group>
+
+  <node pkg="qualification" type="caster_test_spawner.py" args="test_controller test_controller/joint_name SIDE_caster_rotation_joint" />
+  
+  <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
+</launch>
