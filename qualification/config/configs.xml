@@ -68,6 +68,33 @@
 
   <config serial="6805018" powerboard="false"
     file="wge100_camera/focus_camera.launch" descrip="Focus Camera" />
+  
+  <!-- B/W head camera -->
+  <config serial="6805027" powerboard="false"
+    file="wge100_camera/set_name_forearm_camera_r.launch" descrip="Make Into Right Forearm" />
+
+  <config serial="6805027" powerboard="false"
+    file="wge100_camera/set_name_forearm_camera_l.launch" descrip="Make Into Left Forearm" />
+
+  <config serial="6805027" powerboard="false"
+    file="wge100_camera/set_mac.launch" descrip="Focus + Set MAC and Serial (permanent)" />
+
+  <config serial="6805027" powerboard="false"
+    file="wge100_camera/focus_camera.launch" descrip="Focus Camera" />
+
+
+  <!-- Color Head Camera -->
+  <config serial="6805030" powerboard="false"
+    file="wge100_camera/set_name_forearm_camera_r.launch" descrip="Make Into Right Forearm" />
+
+  <config serial="6805030" powerboard="false"
+    file="wge100_camera/set_name_forearm_camera_l.launch" descrip="Make Into Left Forearm" />
+
+  <config serial="6805030" powerboard="false"
+    file="wge100_camera/set_mac.launch" descrip="Focus + Set MAC and Serial (permanent)" />
+
+  <config serial="6805030" powerboard="false"
+    file="wge100_camera/focus_camera.launch" descrip="Focus Camera" />
 </configs>
 
                                                           

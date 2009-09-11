@@ -59,7 +59,7 @@ rospy.init_node('forearm_config')
 if len(barcode) != 12 or not barcode.isdigit():
     print "The item id", barcode, "should be 12 numeric digits."
     exit(-1)
-if not barcode[0:7] in [ "6805018", "6805027" ]:
+if not barcode[0:7] in [ "6805018", "6805027", "6805030"]:
     print "Part number", barcode[0:7], "is not a forearm camera."
     exit(-1)
 serial = int(barcode[5:12])
