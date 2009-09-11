@@ -6,12 +6,12 @@
   <node pkg="qualification" type="fingertip_qualification.py"
         name="tip_analysis" output="screen">
     <param name="grasp_force_initial" type="double" value="-25.0" />
-    <param name="grasp_force_increment" type="double" value="-10.0" />
-    <param name="grasp_increments" type="int" value="12" />
-    <param name="x^0" type="double" value="-39181.0"/>
-    <param name="x^1" type="double" value="-4060.5"/>
-    <param name="x^2" type="double" value="-45.618"/>
-    <param name="x^3" type="double" value="-17.442"/>
+    <param name="grasp_force_increment" type="double" value="-1.0" />
+    <param name="grasp_increments" type="int" value="75" />
+    <param name="x^0" type="double" value="701.63"/>
+    <param name="x^1" type="double" value="-896.61" />
+    <param name="x^2" type="double" value="0" />
+    <param name="x^3" type="double" value="0" />
     <param name="tolerance_percent" type="double" value="10.0"/>
     <param name="fingertip_refresh_hz" type="double" value="25.0"/>
     <param name="num_sensors" type="int" value="22"/>

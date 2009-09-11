@@ -8,8 +8,9 @@
 
   <subtest name="Gripper Checkout">gripper_checkout.launch</subtest>
   <subtest timeout="60" name="Gripper Hystersis">hysteresis_gripper.launch</subtest>
-  <!--
-      <subtest name="Fingers"  timeout="60">fingertip_qualification.launch</subtest>
-      -->
+
+<!--
+      <subtest name="Fingertip Test"  timeout="600">fingertip_qualification.launch</subtest>
+-->
   <shutdown timeout="30" name="Power Shutdown">../../scripts/power_board_disable.launch</shutdown>
 </test>

@@ -17,6 +17,6 @@
         args="test_controller" name="pr2_chk_ctrl" />
 
   <!-- Test: asserts we have checkout service and that we passed -->
-  <test test-name="pr2_checkout" pkg="qualification"
+  <node test-name="pr2_checkout" pkg="qualification" name="test_checkout"
         type="checkout_test.py" time-limit="60" />
 </launch>
