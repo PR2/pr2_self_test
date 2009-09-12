@@ -36,7 +36,7 @@
 
 ##\brief Tests loading of checkout controller on PR2 with gazebo
 
-DURATION = 30
+DURATION = 120
 
 PKG = 'qualification'
 import roslib; roslib.load_manifest(PKG)
@@ -46,7 +46,7 @@ import rospy, rostest
 from time import sleep
 import sys
 
-from qualification.srv import *
+from qualification.srv import TestResult, TestResultResponse
 
 class TestCheckoutPR2(unittest.TestCase):
     def __init__(self, *args):
@@ -61,13 +61,17 @@ class TestCheckoutPR2(unittest.TestCase):
 
         self.srv = srv
 
+        print 'Summary:', srv.text_summary
+        return TestResultResponse()
+
     def test_checkout_pr2(self):
         rospy.init_node('test_checkout')
         rospy.Service('test_result', TestResult, self.result_cb)
-        sleep(DURATION)
-        #self.assert_(True)
+        while self.srv is None:
+            sleep(5.0)
+        
         self.assert_(self.srv is not None, "No result from checkout controller")
-        self.assert_(self.success, "Checkout result was unsuccessful")
+        self.assert_(self.success, "Checkout result was unsuccessful. Data: %s" % self.srv.text_summary)
 
 
 if __name__ == '__main__':

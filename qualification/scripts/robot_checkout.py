@@ -130,6 +130,7 @@ class RobotCheckout:
             self.has_sent_result = True
         except Exception, e:
             rospy.logerr('Caught exception sending failure call! %s' % traceback.format_exc())
+            traceback.print_exc()
             
 
     def wait_for_data(self):

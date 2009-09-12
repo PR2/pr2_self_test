@@ -12,11 +12,12 @@
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="CheckoutController" />
     <param name="timeout" type="double" value="30.0" />
+    <param name="gazebo" type="bool" value="true" />
   </group>
   <node pkg="pr2_mechanism_control" type="spawner.py"
         args="test_controller" name="pr2_chk_ctrl" />
 
   <!-- Test: asserts we have checkout service and that we passed -->
-  <node test-name="pr2_checkout" pkg="qualification" name="test_checkout"
-        type="checkout_test.py" time-limit="60" />
+  <test test-name="pr2_checkout" pkg="qualification" name="test_checkout"
+        type="checkout_test.py" time-limit="180" />
 </launch>
