@@ -45,34 +45,59 @@ import unittest
 import rospy, rostest
 from time import sleep
 import sys
+from optparse import OptionParser
 
 from qualification.srv import TestResult, TestResultResponse
 
-class TestCheckoutPR2(unittest.TestCase):
+DURATION = 300
+
+class TestQualUnit(unittest.TestCase):
     def __init__(self, *args):
-        super(TestCheckoutPR2, self).__init__(*args)
+        super(TestQualUnit, self).__init__(*args)
+
+        parser = OptionParser(usage="usage ./%prog [options]", prog="qual_unittest.py")
+        parser.add_option('--human_ok', action="store_true",
+                          dest="human", default=False,
+                          metavar="HUMAN", help="Result-HUMAN_REQUIRED is a pass")
+        # Option comes with rostest, will fail w/o this line
+        parser.add_option('--gtest_output', action="store",
+                          dest="gtest")
+
+
 
         self.success = False
         self.srv = None
+
+        rospy.init_node('test_qual')
+
+        options, args = parser.parse_args(rospy.myargv())
+
+        rospy.Service('test_result', TestResult, self.result_cb)
+
+        self._human = options.human
     
     def result_cb(self, srv):
         if srv.result == 0:
             self.success = True
+        elif srv.result == 2 and self._human:
+            self.success = True
 
         self.srv = srv
 
-        print 'Summary:', srv.text_summary
         return TestResultResponse()
 
-    def test_checkout_pr2(self):
-        rospy.init_node('test_checkout')
-        rospy.Service('test_result', TestResult, self.result_cb)
+    def test_qual_unit(self):
+
+        start = rospy.get_time()
         while self.srv is None:
             sleep(5.0)
+            if rospy.get_time() - start > DURATION:
+                break
         
-        self.assert_(self.srv is not None, "No result from checkout controller")
-        self.assert_(self.success, "Checkout result was unsuccessful. Data: %s" % self.srv.text_summary)
+        self.assert_(self.srv is not None, "No result from qualification test")
+        self.assert_(self.success, "Qual test result was unsuccessful. Human OK: %s. Data: %s" % (self._human, self.srv.text_summary))
 
 
 if __name__ == '__main__':
-    rostest.run(PKG, sys.argv[0], TestCheckoutPR2, sys.argv)
+    print 'SYS ARGS:', sys.argv
+    rostest.run(PKG, sys.argv[0], TestQualUnit, sys.argv)

@@ -547,11 +547,13 @@ class App:
 
       # Find second mode
       # Max after first mode
-      index2 = numpy.argmax(pxx[index + cutoff: pxx.size])
-      max_value = max(pxx[index - cutoff: pxx.size])
-      index2 = index2 + index + cutoff
-      axes2.plot([f[index2]], [pxx[index2]], 'r.', markersize = 10);
-      self.second_mode = f[index2]
+      second_array = pxx[index + cutoff: pxx.size]
+      if len(second_array > 10):
+        index2 = numpy.argmax(second_array)
+        max_value = max(pxx[index - cutoff: pxx.size])
+        index2 = index2 + index + cutoff
+        axes2.plot([f[index2]], [pxx[index2]], 'r.', markersize = 10);
+        self.second_mode = f[index2]
       
       r.html_result, r.text_summary, tr = self.sine_sweep_analysis(image_title)
       axes2.axvline(x=self.data.arg_value[0], color='r') # Line at first mode

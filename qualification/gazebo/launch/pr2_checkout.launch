@@ -19,5 +19,5 @@
 
   <!-- Test: asserts we have checkout service and that we passed -->
   <test test-name="pr2_checkout" pkg="qualification" name="test_checkout"
-        type="checkout_test.py" time-limit="180" />
+        type="qual_unittest.py" time-limit="60" />
 </launch>
