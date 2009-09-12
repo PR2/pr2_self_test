@@ -54,6 +54,7 @@ def get_duration_str(duration):
     
     return "%dhr, %.1fm" % (hrs, min)
 
+##\brief Displays test status, including bay, power, estop, elapsed time
 class TestStatusPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, -1)
@@ -92,32 +93,36 @@ class TestStatusPanel(wx.Panel):
 
     def get_elapsed(self):
         return self._elapsed
-        
-    def update(self, msg):
-        #if msg.test_status < 0:
-        #    self._close_button.Enable(True)
-        #else:
-        #    self._close_button.Enable(False)
 
+    def set_stale(self):
+        self._bay_status.SetBackgroundColour("Light Blue")
+        self._bay_status.SetValue("Stale")
+
+        self._power_status.SetBackgroundColour("Light Blue")
+        self._estop_status.SetBackgroundColour("Light Blue")
+        self._elapsed_text.SetBackgroundColour("Light Blue")
+
+    ##\brief Update display with new status message
+    def update(self, msg):
         if msg.test_status == -1:
             self._bay_status.SetBackgroundColour("White")
-            self._bay_status.SetValue("Shut down")
+            self._bay_status.SetValue("OFF")
             
         elif msg.test_status == 127:
             self._bay_status.SetBackgroundColour("White")
-            self._bay_status.SetValue("Not launched")
+            self._bay_status.SetValue("N/A")
         elif msg.test_status == 0:
             self._bay_status.SetBackgroundColour("Light Green")
-            self._bay_status.SetValue("Bay: %s\nOK" % msg.bay_name)
+            self._bay_status.SetValue(msg.bay_name)
         elif msg.test_status == 1:
             self._bay_status.SetBackgroundColour("Orange")
-            self._bay_status.SetValue("Bay: %s\nWarning" % msg.bay_name)
+            self._bay_status.SetValue(msg.bay_name)
         elif msg.test_status == 2:
             self._bay_status.SetBackgroundColour("Red")
-            self._bay_status.SetValue("Bay: %s\nError" % msg.bay_name)
+            self._bay_status.SetValue(msg.bay_name)
         elif msg.test_status == 3 or msg.test_status == 4:
             self._bay_status.SetBackgroundColour("Light Blue")
-            self._bay_status.SetValue("Bay: %s\nStale" % msg.bay_name)
+            self._bay_status.SetValue(msg.bay_name)
 
         if msg.board == 0:
             self._power_status.SetValue("No power board")
@@ -146,13 +151,17 @@ class TestStatusPanel(wx.Panel):
         self._serial_text.SetValue(self._serial)
 
         self._elapsed = msg.elapsed
+        self._elapsed_text.SetBackgroundColour("White")
         self._elapsed_text.SetValue(get_duration_str(self._elapsed))
         if msg.machine == "":
             self._machine_text.SetValue("Not launched")
         else:
             self._machine_text.SetValue("Machine: %s" % msg.machine)
 
-        
+##\brief Holds status panels in scrolled window
+##
+## Subscribes to 'test_info'/TestInfoArray and creates/updates status panels
+## from information. 
 class TestContainerStatusPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
@@ -175,6 +184,21 @@ class TestContainerStatusPanel(wx.Panel):
         self._scrolled_window.SetScrollRate(0, 20)
         
         self._status_panels = {}
+        
+        # Shows blue if we're stale
+        self._timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.on_timer)
+        self._timer.Start(1000)
+
+        self.timeout = 5
+        self.last_message_time = 0
+
+    def on_timer(self, event):
+        if rospy.get_time() - self.last_message_time < self.timeout:
+            return
+
+        for serial, panel in self._status_panels.iteritems():
+            panel.set_stale()
 
     def close_tab(self, serial):
         if not self._status_panels.has_key(serial):
@@ -198,6 +222,7 @@ class TestContainerStatusPanel(wx.Panel):
 
     def update(self):
         self._mutex.acquire()
+        self.last_message_time = rospy.get_time()
         serials = self._status_panels.keys()
 
         for test_info in self.msg.data:
@@ -214,6 +239,7 @@ class TestContainerStatusPanel(wx.Panel):
             idx = serials.index(test_info.serial)
             serials.pop(idx)
 
+        ## Update panels that have closed
         for srl in serials:
             panel = self._status_panels[srl]
 
@@ -229,6 +255,6 @@ class TestContainerStatusPanel(wx.Panel):
             
         self._mutex.release()
         
-        ## Todo - allow delete stale panels
+        ## Todo - allow delete used panels
         ## put into test manager
-        ## Stale if no updates
+

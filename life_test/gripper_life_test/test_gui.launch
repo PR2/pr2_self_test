@@ -5,18 +5,7 @@
         args="-i eth0 -x robot_description" name="pr2_etherCAT" />
 
   <!-- Calibration -->
-  <group ns="cal_r_gripper" >
-    <param name="type" type="str" value="GripperCalibrationController" />
-    <param name="actuator" type="str" value="r_gripper_motor" />
-    <param name="joint" type="str" value="r_gripper_joint" />
-    <param name="velocity" type="double" value="-0.01" />
-    <group ns="pid" >
-      <param name="p" type="double" value="1500" />
-      <param name="i" type="double" value="25" />
-      <param name="d" type="double" value="0" />
-      <param name="i_clamp" type="double" value="100" />
-    </group>
-  </group>
+  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
   <node pkg="mechanism_bringup" type="calibrate.py"
         args="cal_r_gripper" name="cal_grip" output="screen" />
 

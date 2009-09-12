@@ -391,16 +391,16 @@
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_BOTTOM</flag>
 																	<border>5</border>
 																	<object class="wxButton" name="launch_test_button">
-																		<size>120,100</size>
+																		<size>150,100</size>
 																		<font>
-																			<size>14</size>
+																			<size>18</size>
 																			<family>swiss</family>
 																			<style>normal</style>
 																			<weight>bold</weight>
 																			<underlined>0</underlined>
 																			<face>Sans</face>
 																		</font>
-																		<label>Launch\n  Test</label>
+																		<label>Launch</label>
 																		<default>0</default>
 																	</object>
 																</object>
@@ -1497,9 +1497,9 @@
 						<flag>wxALL|wxEXPAND</flag>
 						<border>5</border>
 						<object class="wxTextCtrl" name="bay_status">
-							<style>wxTE_CENTRE|wxTE_MULTILINE|wxTE_READONLY</style>
+							<style>wxTE_CENTRE|wxTE_READONLY</style>
 							<font>
-								<size>16</size>
+								<size>24</size>
 								<family>swiss</family>
 								<style>normal</style>
 								<weight>bold</weight>

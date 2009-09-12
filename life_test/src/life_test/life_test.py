@@ -203,7 +203,8 @@ class TestMonitorPanel(wx.Panel):
 
 
     def create_monitor(self):
-        self._monitor_panel = MonitorPanel(self._notebook)
+        # Give blank topic to prevent unregistering problems (ROS #1702)
+        self._monitor_panel = MonitorPanel(self._notebook, 'none')
         self._monitor_panel.SetSize(wx.Size(400, 500))
         self._notebook.AddPage(self._monitor_panel, "Runtime Monitor")
 
@@ -596,19 +597,23 @@ class TestMonitorPanel(wx.Panel):
     # Launch file, subscribe diagnostics
     def start_stop_test(self, event):
         if self.is_launched():
-            self.stop_test_user()
+            if not self.stop_test_user():
+                return
         else:
-            self.launch_test()
+            if not self.launch_test():
+                return
 
         self.update_controls()
         self._enable_controls()
 
+    ##\brief Called when user presses "stop" button
     def stop_test_user(self):
         dialog = wx.MessageDialog(self, 'Are you sure you want to stop this test?', 'Confirm Stop Test', wx.OK|wx.CANCEL)
         if dialog.ShowModal() != wx.ID_OK:
-            return
+            return False
 
         self.stop_test()
+        return True
 
     def stop_test(self):
         if self.is_launched():
@@ -646,7 +651,7 @@ class TestMonitorPanel(wx.Panel):
     def launch_test(self):
         dialog = wx.MessageDialog(self, 'Are you sure you want to launch?', 'Confirm Launch', wx.OK|wx.CANCEL)
         if dialog.ShowModal() != wx.ID_OK:
-            return
+            return False
         
         self._launch_button.Enable(False)
 
@@ -655,12 +660,12 @@ class TestMonitorPanel(wx.Panel):
         if bay is None:
             wx.MessageBox('Select test bay', 'Select Bay', wx.OK|wx.ICON_ERROR, self)
             self._launch_button.Enable(True)
-            return
+            return False
 
         if not self._manager.test_start_check(bay, self._serial):
             wx.MessageBox('Test bay in use, select again!', 'Test bay in use', wx.OK|wx.ICON_ERROR, self)
             self._launch_button.Enable(True)
-            return
+            return False
         
         self._bay = bay
 
@@ -669,7 +674,7 @@ class TestMonitorPanel(wx.Panel):
                 wx.MessageBox('Unable to command power board. Check connections. Board: %s, Breaker %d' % (self._bay.board, self._bay.breaker), 'Power Command Failure', wx.OK|wx.ICON_ERROR, self)
                 self._launch_button.Enable(True)
                 self._manager.test_stop(self._bay)
-                return
+                return False
 
         # Machine, board stats
         self._machine_text.SetValue(self._bay.machine)
@@ -703,7 +708,7 @@ class TestMonitorPanel(wx.Panel):
             self._test_launcher.shutdown()
             self._test_launcher = None
             self._launch_button.Enable(True)
-            return None
+            return False
 
         local_status = '/' + self._bay.name + '/test_status'
         self._is_running = True
@@ -715,6 +720,7 @@ class TestMonitorPanel(wx.Panel):
         self._status_sub = rospy.Subscriber(local_status, TestStatus, self.status_callback)
         self._launch_button.Enable(True)
         self._launch_button.SetLabel("Stop")
+        return True
         
     # Changed from halt_motors to halt_test for test monitor
     def on_halt_motors(self, event = None):

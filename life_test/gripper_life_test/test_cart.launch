@@ -1,20 +1,25 @@
 <launch>
-  <param name="robot_description" command="$(find xacro)/xacro.py gripper.xml" />
 
-  <include file="$(find life_test)/init.machine" />
-  <include file="$(find life_test)/pr2_etherCAT.launch" />
+  <machine name="test_host_root" user="root" address="testi"
+           ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="never"/>
+  
+  <!-- Robot desc and etherCAT -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find life_test)/gripper_life_test/grip_pic.urdf.xacro'" />
+  <node machine="test_host_root" pkg="pr2_etherCAT" type="pr2_etherCAT"
+        args="-i eth0 -x robot_description" name="pr2_etherCAT" />
 
-
-  <!-- Runtime Diagnostics Logging -->
-  <node pkg="rosrecord" type="rosrecord"
-        args="-f /u/wgtest/runtime_logs/gripper_test_runtime.bag /diagnostics" />
-
- <!-- Calibration -->
+  <!-- Robot state publisher -->
+  <node pkg="robot_state_publisher" type="state_publisher"
+        name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="10.0" />
+    <param name="tf_prefix" type="string" value="" />
+  </node>
+    
+  <!-- Calibration -->
+  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
   <node pkg="mechanism_bringup" type="calibrate.py"
-        args="$(find life_test)/gripper_life_test/cal_gripper.xml"
-        output="screen" />
+        args="cal_r_gripper" name="cal_grip" output="screen" />
 
-  <include file="$(find life_test)/gripper_life_test/life_test.launch" />
 
 
 </launch>

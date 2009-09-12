@@ -36,8 +36,8 @@ import rospy
 from std_msgs.msg import Float64
 
 ROTATION_JOINT = 'fl_caster_rotation_joint'
-SPEED = 10
-STEER_VEL = 5
+SPEED = 100
+STEER_VEL = 100
 
 class CasterCmd:
     def __init__(self):
@@ -50,13 +50,13 @@ class CasterCmd:
             self.drive = 0
         elif self.steer < 0:
             self.steer = 0
-            if random.randint(0, 1) == 1:
-                self.drive = SPEED
+            self.drive = SPEED
+        else:
+            if self.drive > 0:
+                self.drive = -1 * self.drive
             else:
-                self.drive = -SPEED
-        elif self.steer == 0:
-            self.steer = STEER_VEL
-            self.drive = 0
+                self.steer = STEER_VEL
+                self.drive = 0
             
         
 def main():
@@ -74,7 +74,7 @@ def main():
         pub_steer.publish(Float64(cmder.steer))
         pub_drive.publish(Float64(cmder.drive))
         
-        if random.randint(0, 3) != 3:
+        if random.randint(0, 4) != 4:
             cmder.update()
         time.sleep(1 / rate / 2)
 
