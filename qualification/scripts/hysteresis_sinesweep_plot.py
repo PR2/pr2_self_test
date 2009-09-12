@@ -554,6 +554,8 @@ class App:
         index2 = index2 + index + cutoff
         axes2.plot([f[index2]], [pxx[index2]], 'r.', markersize = 10);
         self.second_mode = f[index2]
+      else:
+        self.second_mode = 0
       
       r.html_result, r.text_summary, tr = self.sine_sweep_analysis(image_title)
       axes2.axvline(x=self.data.arg_value[0], color='r') # Line at first mode
