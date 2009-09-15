@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,16 +28,25 @@
 
 ##\author Matthew Piccoli, Kevin Watts
 ##\brief Fingertip qualification of gripper
+##
+## This test checks that the gripper tip sensors on the PR2 gripper. It checks 
+## that each tip has the correct number of tips, and that each one is reading.
+## After that, the node commands the gripper to repeatedly open and close and measures
+## the total force of the interior gripper sensors. It compares this total force to a
+## cubic polynomial. After checking the relationship between total pressure and gripper 
+## force, and checking the differences between the two gripper tips, the node reports
+## success or failure.
 
+PKG = 'qualification'
 import roslib
-roslib.load_manifest('qualification')
+roslib.load_manifest(PKG)
 
 import numpy
 import matplotlib
 import matplotlib.pyplot as plot
 from StringIO import StringIO
 from time import sleep
-import traceback
+import threading
 
 import rospy
 from qualification.srv import TestResult, TestResultRequest
@@ -45,32 +54,50 @@ from qualification.msg import Plot
 from std_msgs.msg import Float64
 from pr2_msgs.msg import PressureState
 
-import threading
+lvl_dict = {0: 'OK', 1: 'Questionable', 2: 'Failure' }
 
+##\brief Performs testing PR2 gripper tip sensors
 class FingertipQualification:
     def __init__(self):
         self._mutex = threading.Lock()
         self.set_cmd = 0.0
         
-
         self.pub = rospy.Publisher('r_gripper_effort_controller/command', Float64)
 
         self._pressure_topic = 'pressure/r_gripper_motor'
         rospy.Subscriber(self._pressure_topic, PressureState, self.pressure_callback)
         rospy.init_node('fingertip_qualification')
+
+        # Squeezing params
         self.initial = rospy.get_param('~grasp_force_initial', -25.0)
         self.increment = rospy.get_param('~grasp_force_increment', -25.0) 
         self.num_increments = rospy.get_param('~grasp_increments', 4) 
-        self.x0 = rospy.get_param('~x^0', 701.63)
-        self.x1 = rospy.get_param('~x^1', -896.61)
+
+        # Equation to fit against
+        self.x0 = rospy.get_param('~x^0', 0)
+        self.x1 = rospy.get_param('~x^1', 0)
         self.x2 = rospy.get_param('~x^2', 0)
         self.x3 = rospy.get_param('~x^3', 0)
-        self.tol_percent = rospy.get_param('~tolerance_percent', 10.0)
+
+        # Gripper parameters
         self.fingertip_refresh = rospy.get_param('~fingertip_refresh_hz', 25)
         self.num_sensors = rospy.get_param('~num_sensors', 22)
         self.num_sensors_outside = rospy.get_param('~num_sensors_outside', 7)
         self.force = self.initial
 
+        # Tolerances
+        self._tol_max_quest = rospy.get_param('~tol_max_question', 10)
+        self._tol_max_fail = rospy.get_param('~tol_max_fail', 20)
+        self._tol_avg_quest = rospy.get_param('~tol_avg_question', 10)
+        self._tol_avg_fail = rospy.get_param('~tol_avg_fail', 20)
+
+        self._diff_max_quest = rospy.get_param('~diff_max_question', 5)
+        self._diff_max_fail = rospy.get_param('~diff_max_fail', 10)
+        self._diff_avg_quest = rospy.get_param('~diff_avg_question', 5)
+        self._diff_avg_fail = rospy.get_param('~diff_avg_fail', 10)
+        self._diff_avg_abs_quest = rospy.get_param('~diff_avg_abs_question', 5)
+        self._diff_avg_abs_fail = rospy.get_param('~diff_avg_abs_fail', 10)
+        
         self.data_sent = False
         self.result_service = rospy.ServiceProxy('/test_result', TestResult)
 
@@ -82,44 +109,50 @@ class FingertipQualification:
         self._tip0 = []
         self._tip1 = []
 
+    ##\brief Callback for gripper pressure topic
     def pressure_callback(self,data):
         self._mutex.acquire()
         self.data0 = data.data0
         self.data1 = data.data1
         self._mutex.release()
 
+    ##\brief Record errors in analysis
     def test_failed_service_call(self, except_str = ''):
         rospy.logerr(except_str)
         r = TestResultRequest()
         r.html_result = except_str
         r.text_summary = 'Caught exception, automated test failure.'
         r.plots = []
-        r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
+        r.result = TestResultRequest.RESULT_FAIL
         self.send_results(r)
 
+    ##\brief Send test results to qualification system
     def send_results(self, test_result):
-        if not self.data_sent:
-            rospy.wait_for_service('test_result', 30)
-            self.result_service.call(test_result)
-            self.data_sent = True
+        if self.data_sent:
+            return 
 
+        rospy.wait_for_service('test_result', 15)
+        self.result_service.call(test_result)
+        self.data_sent = True
+
+    ##\brief Command open, wait for 1 sec
     def open_gripper(self):
         self.set_cmd = 50
         self.pub.publish(self.set_cmd)
         sleep(1)
         
+    ##\brief Command close at desired force, wait for 4 sec
     def close_gripper(self):
         self.set_cmd = self.force
         self.pub.publish(self.set_cmd)
         sleep(4)
     
+    ##\brief Make sure we have correct number of gripper sensors on each tip, and all are OK
     def check_connected(self):
         sleep(1/self.fingertip_refresh*2)
         self._mutex.acquire()
 
         ok = True
-
-        # TODO::check if data exists!!!!!
         if self.data0 is None or self.data1 is None:
             r = TestResultRequest()
             r.text_summary = 'No gripper tip data.'
@@ -127,16 +160,18 @@ class FingertipQualification:
             r.html_result = '<p>No gripper tip data. Check connections. Tip 0: %s, tip 1: %s.</p>\n' % (str(self.data0), str(self.data1))
             r.html_result +=  '<hr size="2">\n' + self._write_equation()
             r.html_result += '<hr size="2">\n' + self._write_params()
+            r.html_result += '<hr size="2">\n' + self._write_tols()
             r.result = TestResultRequest.RESULT_FAIL
             self.send_results(r)
 
         if len(self.data0) != self.num_sensors or len(self.data1) != self.num_sensors:
             r = TestResultRequest()
-            r.text_summary = 'Incorrect number of sensors. Expected: %d' % self.num_sensors
+            r.text_summary = 'Incorrect number of sensors. Expected: %d.' % self.num_sensors
             
             r.html_result = '<p>Incorrect number of sensors. Expected: %d. Tip 0: %d, tip 1: %d.</p>\n' % (self.num_sensors, len(self.data0), len(self.data1))
             r.html_result +=  '<hr size="2">\n' + self._write_equation()
             r.html_result += '<hr size="2">\n' + self._write_params()
+            r.html_result += '<hr size="2">\n' + self._write_tols()
             r.result = TestResultRequest.RESULT_FAIL
             self.send_results(r)
 
@@ -161,7 +196,7 @@ class FingertipQualification:
         connect_str = 'OK'
         if not ok:
             connect_str = 'Error'
-        self._connected_data = '<p>Tip connections: %s.</p>\n' % connect_str
+        self._connected_data = '<p align=center><b>Tip connections: %s</b></p><br>\n' % connect_str
         self._connected_data += connect_table
         
         if not ok:
@@ -170,14 +205,17 @@ class FingertipQualification:
             r.html_result = self._connected_data 
             r.html_result +=  '<hr size="2">\n' + self._write_equation()
             r.html_result += '<hr size="2">\n' + self._write_params()
-            r.result = TestResultRequest.RESULT_HUMAN_REQUIRED # FAIL
+            r.html_result += '<hr size="2">\n' + self._write_tols()
+            r.result = TestResultRequest.RESULT_FAIL
             self.send_results(r)
                 
         return ok
 
+    ##\brief Increment commanded force by increment
     def increment_value(self):
         self.force += self.increment
     
+    ##\brief Record "zero" of gripper, when tips are open
     def record_zero_val(self):
         self._mutex.acquire()
         self.starting_sum0 = 0
@@ -187,6 +225,7 @@ class FingertipQualification:
             self.starting_sum1 += self.data1[i]
         self._mutex.release()
       
+    ##\brief Record sum of gripper tip pressure at the commanded force
     def record_increase(self):
         self._mutex.acquire()
         current_sum0 = 0
@@ -195,8 +234,6 @@ class FingertipQualification:
         current_sum1 = 0
         for i in range(self.num_sensors_outside, self.num_sensors):
             current_sum1 += self.data1[i]
-        #for current in self.data1:
-        #    current_sum1 += current
         self._mutex.release()
  
         expected_value = self.force*self.force*self.force*self.x3 + self.force*self.force*self.x2 + self.force*self.x1 + self.x0
@@ -206,8 +243,9 @@ class FingertipQualification:
         self._tip0.append(current_sum0 - self.starting_sum0)
         self._tip1.append(current_sum1 - self.starting_sum1)
 
+    ##\brief Write fit equation as HTML table
     def _write_equation(self):
-        html = '<p>Equation for total gripper force</p>\n'
+        html = '<p align=center><b>Gripper Equation</b></p><br>\n'
         html += '<table border="1" cellpadding="2" cellspacing="0">\n'
         html += '<tr><td><b>Term</b></td><td><b>Value</b></td></tr>\n'
         html += '<tr><td>Force^3</td><td>%f</td></tr>\n' % self.x3
@@ -218,44 +256,178 @@ class FingertipQualification:
 
         return html
 
+    ##\brief Write test params as HTML table
     def _write_params(self):
-        html = '<p>Test parameters:</p>\n'
+        html = '<p align=center><b>Test Parameters</b></p><br>\n'
         html += '<table border="1" cellpadding="2" cellspacing="0">\n'
         html += '<tr><td><b>Parameter</b></td><td><b>Value</b></td></tr>\n'
         html += '<tr><td>Pressure Topic</td><td>%s</td></tr>\n' % self._pressure_topic
         html += '<tr><td>Num Sensors</td><td>%d</td></tr>\n' % self.num_sensors
         html += '<tr><td>Num Sensors Outside</td><td>%d</td></tr>\n' % self.num_sensors_outside
         html += '<tr><td>Num. Increments</td><td>%d</td></tr>\n' % self.num_increments
-        html += '<tr><td>Max Force</td><td>%f</td></tr>\n' % self.force
-        html += '<tr><td>Tolerance</td><td>%f</td></tr>\n' % self.tol_percent
+        html += '<tr><td>Max Force</td><td>%f</td></tr>\n' % (self.force - self.increment)
         html += '<tr><td>Force Increment</td><td>%f</td></tr>\n' % self.increment
         html += '</table>\n'
 
         return html
 
-    def _write_data(self):
-        html = '<p>Fingertip Pressure Data</p>\n'
+    ##\brief Write tolerances as HTML table
+    def _write_tols(self):
+        html = '<p align=center><b>Error Tolerances</b></p>\n'
+        html += '<p>All tolerances given as a percent of the maximum observed value.</p>\n'
         html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Force</b></td><td><b>Tip 0</b></td><td><b>Tip 0</b></td><td><b>Expected</b></td></tr>\n'
+        html += '<tr><td><b>Parameter</b></td><td><b>Questionable</b></td><td><b>Failure</b></td></tr>\n'
+        html += '<tr><td>Max Error</td><td>%.1f</td><td>%.1f</td></tr>\n' % (self._tol_max_quest, self._tol_max_fail)
+        html += '<tr><td>Average Error</td><td>%.1f</td><td>%.1f</td></tr>\n' % (self._tol_avg_quest, self._tol_avg_fail)
+        html += '<tr><td>Max Diff.</td><td>%.1f</td><td>%.1f</td></tr>\n' % (self._diff_max_quest, self._diff_max_fail)
+        html += '<tr><td>Avg. Diff.</td><td>%.1f</td><td>%.1f</td></tr>\n' % (self._diff_avg_quest, self._diff_avg_fail)
+        html += '<tr><td>Avg. Abs. Diff.</td><td>%.1f</td><td>%.1f</td></tr>\n' % (self._diff_avg_abs_quest, self._diff_avg_abs_fail)
+        
+        html += '</table>\n'
+
+        return html
+
+    ##\brief Write pressure at each datapoint for both tips
+    def _write_data(self):
+        html = '<p align=center><b>Fingertip Pressure Data</b></p>\n'
+        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
+        html += '<tr><td><b>Force</b></td><td><b>Tip 0</b></td><td><b>Tip 1</b></td><td><b>Expected</b></td></tr>\n'
         for i in range(0, len(self._forces)):
             html += '<tr><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td></tr>\n' % (self._forces[i], self._tip0[i], self._tip1[i], self._expected[i])
         html += '</table>\n'
 
         return html
 
+    ##\brief At every point, check differences bwt tips
+    def _check_diff(self):
+        diff = numpy.array(self._tip0) - numpy.array(self._tip1)
+        avg_vals = 0.5 * (numpy.array(self._tip0) + numpy.array(self._tip1))
+        
+        max_val = max(avg_vals)
+        max_diff = max(diff) / max_val * 100
+        avg_diff = abs(numpy.average(diff) / max_val * 100)
+        avg_abs_diff = numpy.average(abs(diff)) / max_val * 100
+
+        # Check max_diff < 3.5% of max, avg_diff < 2%, avg_abs_diff < 3.5%
+        # If max_diff > 6%, avg_diff > 5% or avg_avg_diff > 8% -> FAIL
+        max_diff_lvl = 0
+        avg_diff_lvl = 0
+        avg_abs_diff_lvl = 0
+
+
+        if max_diff > self._diff_max_quest:
+            max_diff_lvl = 1
+        if max_diff > self._diff_max_fail:
+            max_diff_lvl = 2
+
+        if avg_diff > self._diff_avg_quest:
+            avg_diff_lvl = 1
+        if avg_diff > self._diff_avg_fail:
+            avg_diff_lvl = 2
+
+        if avg_abs_diff > self._diff_avg_abs_quest:
+            avg_abs_diff_lvl = 1
+        if avg_abs_diff > self._diff_avg_abs_fail:
+            avg_abs_diff_lvl = 2
+        
+        stat_lvl = max(max_diff_lvl, avg_diff_lvl, avg_abs_diff_lvl)
+        
+        html = '<p align=center><b>Fingertip Differences</b></p>\n'
+        html += '<p>Differences given in percent of maximum observed value. Status: %s</p>\n' % lvl_dict[stat_lvl]
+        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
+        html += '<tr><td><b>Parameter</b></td><td><b>Value</b></td><td><b>Status</b></td><td><b>Questionable Pt.</b></td><td><b>Failure Pt.</b></td></tr>\n'
+        html += '<tr><td>Max Diff.</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (max_diff, lvl_dict[max_diff_lvl], self._diff_max_quest, self._diff_max_fail)
+        html += '<tr><td>Avg. Diff.</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (avg_diff, lvl_dict[avg_diff_lvl], self._diff_avg_quest, self._diff_avg_fail)
+        html += '<tr><td>Avg. Abs. Diff.</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (avg_abs_diff, lvl_dict[avg_abs_diff_lvl], self._diff_avg_abs_quest, self._diff_avg_abs_fail)
+
+        html += '</table>\n'
+        
+        return html, stat_lvl
+
+    ##\brief At every point, check abs dev from expected
+    def _check_tol(self):
+        true_vals = numpy.array(self._expected)
+        tip0_vals = numpy.array(self._tip0)
+        tip1_vals = numpy.array(self._tip1)
+        
+        max_val = 0.5 * max(tip0_vals + tip1_vals)
+
+        # Maximum error 
+        max_err0 = max(abs(tip0_vals - true_vals)) / max_val * 100
+        max_err1 = max(abs(tip1_vals - true_vals)) / max_val * 100
+        
+        err0_lvl = 0
+        err1_lvl = 0
+
+        max_val_warn = self._tol_max_quest
+        max_val_err  = self._tol_max_fail
+
+        if max_err0 > self._tol_max_quest:
+            err0_lvl = 1
+        if max_err0 > self._tol_max_fail:
+            err0_lvl = 2
+
+        if max_err1 > self._tol_max_quest:
+            err1_lvl = 1
+        if max_err1 > self._tol_max_fail:
+            err1_lvl = 2
+
+        # Average error
+        avg_err0 = abs(numpy.average(tip0_vals - true_vals) / max_val * 100)
+        avg_err1 = abs(numpy.average(tip1_vals - true_vals) / max_val * 100)
+
+        avg_err0_lvl = 0
+        avg_err1_lvl = 0
+        
+        if avg_err0 > self._tol_avg_quest:
+            avg_err0_lvl = 1
+        if avg_err0 > self._tol_avg_fail:
+            avg_err0_lvl = 2
+
+        if avg_err1 > self._tol_avg_quest:
+            avg_err1_lvl = 1
+        if avg_err1 > self._tol_avg_fail:
+            avg_err1_lvl = 2
+        
+        stat_lvl = max(err0_lvl, err1_lvl, avg_err0_lvl, avg_err1_lvl)
+
+        html = '<p align=center><b>Fingertip Error</b></p>\n'
+        html += '<p>Error from expected value given in percent of maximum observed value. Status: %s</p>\n' % lvl_dict[stat_lvl]
+        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
+        html += '<tr><td><b>Parameter</b></td><td><b>Value</b></td><td><b>Status</b></td><td><b>Questionable Pt.</b></td><td><b>Failure Pt.</b></td></tr>\n'
+        html += '<tr><td>Tip 0 Maximum Error</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (max_err0, lvl_dict[err0_lvl], self._tol_max_quest, self._tol_max_fail)
+        html += '<tr><td>Tip 1 Maximum Error</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (max_err1, lvl_dict[err1_lvl], self._tol_max_quest, self._tol_max_fail)
+        html += '<tr><td>Tip 0 Average Error</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (avg_err0, lvl_dict[avg_err0_lvl], self._tol_avg_quest, self._tol_avg_fail)
+        html += '<tr><td>Tip 1 Average Error</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (avg_err1, lvl_dict[avg_err1_lvl], self._tol_avg_quest, self._tol_avg_fail)
+        html += '</table>\n'
+
+        return html, stat_lvl
+
+    ##\brief Check pass/fail, write HTML result of all data, parameters
     def process_results(self):
-        html = '<p>Finger tip data.</p>\n'
-        html += '<img src="IMG_PATH/finger_tip.png", width=640, height=480 />\n'
+        tol_html, tol_stat = self._check_tol()
+        diff_html, diff_stat = self._check_diff()
+
+        html = '<img src="IMG_PATH/finger_tip.png", width=640, height=480 />\n'
+        html += '<hr size="2">\n' + tol_html
+        html += '<hr size="2">\n' + diff_html
         html += '<hr size="2">\n' + self._write_equation()
         html += '<hr size="2">\n' + self._write_params()
+        html += '<hr size="2">\n' + self._write_tols()
         html += '<hr size="2">\n' + self._write_data()
         html += '<hr size="2">\n' + self._connected_data
                 
+        result_val = TestResultRequest.RESULT_PASS
+        if max(tol_stat, diff_stat) == 1:
+            result_val = TestResultRequest.RESULT_HUMAN_REQUIRED
+        elif max(tol_stat, diff_stat) > 1:
+            result_val = TestResultRequest.RESULT_FAIL
+
         r = TestResultRequest()
-        r.text_summary = 'Finger tip test'
+        r.text_summary = 'Fingertip test. Error tolerance: %s. Tip differences: %s' % (lvl_dict[tol_stat], lvl_dict[diff_stat])
         r.html_result = html
         r.plots = []
-        r.result = TestResultRequest.RESULT_HUMAN_REQUIRED # PASS or FAIL
+        r.result = result_val
 
         fig = plot.figure(1)
         plot.ylabel('Effort')
@@ -284,9 +456,9 @@ if __name__ == '__main__':
     try:
         qual.open_gripper()
         if not qual.check_connected():
-            sleep(1)
+            sleep(1) # Will automatically call failure service, just wait for it
 
-        for j in range(0,qual.num_increments):
+        for j in range(0, qual.num_increments):
             if rospy.is_shutdown():
                 break
 
@@ -297,6 +469,7 @@ if __name__ == '__main__':
             qual.increment_value()
         qual.process_results()
     except Exception, e:
+        import traceback
         print 'Caught exception in fingertip_qualification.\n%s' % traceback.format_exc()
         rospy.logerr('Fingertip qualification exception.\n%s' % traceback.format_exc())
         qual.test_failed_service_call(traceback.format_exc())

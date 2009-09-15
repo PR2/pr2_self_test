@@ -98,7 +98,6 @@ class SerialPanel(wx.Panel):
     # Test cart tab
     self._test_button = xrc.XRCCTRL(self._panel, 'test_button')
     self._serial_text = xrc.XRCCTRL(self._panel, 'serial_text')
-    self._rework_reason = xrc.XRCCTRL(self._panel, 'rework_reason')
     
     self._test_button.Bind(wx.EVT_BUTTON, self.on_test)
         
@@ -209,8 +208,6 @@ class SerialPanel(wx.Panel):
     # Get the first 7 characters of the serial
     serial = self._serial_text.GetValue()
     
-    rework_reason = self._rework_reason.GetValue()
-
     if not self.has_test(serial):
       wx.MessageBox('No test defined for that serial number.','Error - Invalid serial number', wx.OK|wx.ICON_ERROR, self)
   
@@ -224,11 +221,6 @@ class SerialPanel(wx.Panel):
     if test_folder_file is None:
       return
 
-    if (len(rework_reason) > 0):
-      invent = self._manager.get_inventory_object()
-      if (invent != None):
-        invent.setNote(serial, "Hardware rework, reason given: %s" % rework_reason)
-     
     # Hack to find directory of scripts
     dir, sep, test_file = test_folder_file.partition('/')
     

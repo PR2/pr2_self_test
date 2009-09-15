@@ -64,79 +64,64 @@
 								<orient>wxVERTICAL</orient>
 								<object class="sizeritem">
 									<option>1</option>
-									<flag>wxEXPAND</flag>
+									<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL</flag>
 									<border>5</border>
 									<object class="wxBoxSizer">
 										<orient>wxHORIZONTAL</orient>
-										<object class="sizeritem">
-											<option>0</option>
-											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+										<object class="spacer">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
 											<border>5</border>
-											<object class="wxStaticText" name="serial_label">
-												<font>
-													<size>12</size>
-													<family>swiss</family>
-													<style>normal</style>
-													<weight>bold</weight>
-													<underlined>0</underlined>
-													<face>Sans</face>
-												</font>
-												<label>Serial Number:</label>
-											</object>
+											<size>0,0</size>
 										</object>
 										<object class="sizeritem">
 											<option>0</option>
-											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
 											<border>5</border>
-											<object class="wxTextCtrl" name="serial_text">
-												<style>wxTE_PROCESS_ENTER</style>
-												<size>250,-1</size>
-												<font>
-													<size>12</size>
-													<family>swiss</family>
-													<style>normal</style>
-													<weight>normal</weight>
-													<underlined>0</underlined>
-													<face>Sans</face>
-												</font>
-												<value></value>
-												<maxlength>0</maxlength>
+											<object class="wxBoxSizer">
+												<orient>wxHORIZONTAL</orient>
+												<object class="sizeritem">
+													<option>0</option>
+													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="serial_label">
+														<font>
+															<size>12</size>
+															<family>swiss</family>
+															<style>normal</style>
+															<weight>bold</weight>
+															<underlined>0</underlined>
+															<face>Sans</face>
+														</font>
+														<label>Serial Number:</label>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<option>0</option>
+													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="serial_text">
+														<style>wxTE_PROCESS_ENTER</style>
+														<size>250,-1</size>
+														<font>
+															<size>12</size>
+															<family>swiss</family>
+															<style>normal</style>
+															<weight>normal</weight>
+															<underlined>0</underlined>
+															<face>Sans</face>
+														</font>
+														<value></value>
+														<maxlength>0</maxlength>
+													</object>
+												</object>
 											</object>
 										</object>
-									</object>
-								</object>
-								<object class="sizeritem">
-									<option>1</option>
-									<flag>wxEXPAND</flag>
-									<border>5</border>
-									<object class="wxBoxSizer">
-										<orient>wxVERTICAL</orient>
-										<object class="sizeritem">
-											<option>0</option>
-											<flag>wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_CENTER_HORIZONTAL</flag>
+										<object class="spacer">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
 											<border>5</border>
-											<object class="wxStaticText" name="m_staticText12">
-												<font>
-													<size>10</size>
-													<family>swiss</family>
-													<style>normal</style>
-													<weight>normal</weight>
-													<underlined>0</underlined>
-													<face>Sans</face>
-												</font>
-												<label>If hardware reworked, enter reason here:</label>
-											</object>
-										</object>
-										<object class="sizeritem">
-											<option>0</option>
-											<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-											<border>5</border>
-											<object class="wxTextCtrl" name="rework_reason">
-												<style>wxTE_MULTILINE|wxTE_WORDWRAP</style>
-												<size>450,80</size>
-												<value></value>
-												<maxlength>0</maxlength>
-											</object>
+											<size>0,0</size>
 										</object>
 									</object>
 								</object>

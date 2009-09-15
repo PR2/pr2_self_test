@@ -5,14 +5,33 @@
   
   <node pkg="qualification" type="fingertip_qualification.py"
         name="tip_analysis" output="screen">
-    <param name="grasp_force_initial" type="double" value="-25.0" />
-    <param name="grasp_force_increment" type="double" value="-1.0" />
-    <param name="grasp_increments" type="int" value="75" />
-    <param name="x^0" type="double" value="701.63"/>
-    <param name="x^1" type="double" value="-896.61" />
-    <param name="x^2" type="double" value="0" />
+    
+    <!-- Squeezing params. To fit curve, use: (-25, -1, 75) -->
+    <param name="grasp_force_initial" type="double" value="-30.0" />
+    <param name="grasp_force_increment" type="double" value="-10.0" /> 
+    <param name="grasp_increments" type="int" value="8" /> 
+
+    <!-- Equation to fit -->
+    <param name="x^0" type="double" value="-28960"/>
+    <param name="x^1" type="double" value="-1492" />
+    <param name="x^2" type="double" value="-7.82" />
     <param name="x^3" type="double" value="0" />
-    <param name="tolerance_percent" type="double" value="10.0"/>
+
+    <!-- Tolerance on error of wrt expected values -->
+    <param name="tol_max_question" type="double" value="10.0"/>
+    <param name="tol_max_fail" type="double" value="15.0"/>
+    <param name="tol_avg_question" type="double" value="5.0"/>
+    <param name="tol_avg_fail" type="double" value="10.0"/>
+
+    <!-- Tolerance of differences bwt tips -->
+    <param name="diff_max_question" type="double" value="4.0" />
+    <param name="diff_max_fail" type="double" value="6.0" />
+    <param name="diff_avg_question" type="double" value="3.0" />
+    <param name="diff_avg_fail" type="double" value="5.0" />
+    <param name="diff_avg_abs_question" type="double" value="5.0" />
+    <param name="diff_avg_abs_fail" type="double" value="8.0" />
+    
+    <!-- Tip data -->
     <param name="fingertip_refresh_hz" type="double" value="25.0"/>
     <param name="num_sensors" type="int" value="22"/>
     <param name="num_sensors_outside" type="int" value="7"/>

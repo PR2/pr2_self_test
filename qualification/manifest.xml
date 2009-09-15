@@ -7,6 +7,7 @@
   <depend package="rospy" />
   <depend package="camera_focus" />
   <depend package="std_msgs" />
+  <depend package="pr2_msgs" />
   <depend package="diagnostic_msgs" />
   <depend package="hokuyo_node" />
   <depend package="imu_node" />

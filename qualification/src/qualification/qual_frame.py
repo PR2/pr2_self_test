@@ -690,39 +690,39 @@ class QualificationFrame(wx.Frame):
     self.log('Stopping launches')
     
     # Launches
-    if self._subtest_launch:
+    if self._subtest_launch is not None:
       self._subtest_launch.shutdown()
     
-    if self._startup_launch:
+    if self._startup_launch is not None:
       self._startup_launch.shutdown()
       
-    if self._shutdown_launch:
+    if self._shutdown_launch is not None:
       self._shutdown_launch.shutdown()
 
-    if self._prestartup_launch:
+    if self._prestartup_launch is not None:
       self._prestartup_launch.shutdown()
 
-    if self._record_launch:
+    if self._record_launch is not None:
       self._record_launch.shutdown()
       
     # Services advertised
-    if self._shutdown_done_srv:
+    if self._shutdown_done_srv is not None:
       self._shutdown_done_srv.shutdown()
 
-    if self._result_service:
+    if self._result_service is not None:
       self._result_service.shutdown()
         
-    if self._prestartup_done_srv:
+    if self._prestartup_done_srv is not None:
       self._prestartup_done_srv.shutdown()
 
     # Timers
-    if self._subtest_timer:
+    if self._subtest_timer is not None:
       self._subtest_timer.cancel()
     
-    if self._prestart_timer:
+    if self._prestart_timer is not None:
       self._prestart_timer.cancel()
     
-    if self._shutdown_timer:
+    if self._shutdown_timer is not None:
       self._shutdown_timer.cancel()
 
     self._subtest_timer = None

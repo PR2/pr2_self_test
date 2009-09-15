@@ -39,6 +39,8 @@
 	file="wrist_test/test.xml" descrip="Wrist Test" />
   <test serial="6804015" 
 	file="gripper_test/test.xml" descrip="Gripper Test" />
+    <test serial="6804015" 
+	file="gripper_test/test_no_tip.xml" descrip="Gripper Test - No Tips" />
  
 
   <!-- Old color Forearm camera tests -->
