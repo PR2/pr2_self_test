@@ -1499,7 +1499,7 @@
 						<object class="wxTextCtrl" name="bay_status">
 							<style>wxTE_CENTRE|wxTE_READONLY</style>
 							<font>
-								<size>24</size>
+								<size>36</size>
 								<family>swiss</family>
 								<style>normal</style>
 								<weight>bold</weight>

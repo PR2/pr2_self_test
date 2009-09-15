@@ -49,12 +49,13 @@ import rospy
 
 import threading
 
-GRACE_HITS = 5
+GRACE_HITS = 5 # Max number of errors before halt motors called
 
 class JointTransmissionListener():
     def __init__(self):
         self._ok = True
         self._num_errors = 0
+        self._num_hits = 0
         self._num_errors_since_reset = 0
         self._rx_count = 0
         self._max_position = -10000000
@@ -240,6 +241,7 @@ class JointTransmissionListener():
         reading_msg = 'OK'
         if not self.check_device(position, cal_reading, calibrated):
             self._broke_count += 1
+            self._num_hits += 1
         else:
             self._broke_count = 0
 
@@ -262,6 +264,7 @@ class JointTransmissionListener():
         
         diag.values.append(KeyValue('Total Errors', str(self._num_errors)))
         diag.values.append(KeyValue('Errors Since Reset', str(self._num_errors_since_reset)))
+        diag.values.append(KeyValue('Total Bad Readings', str(self._num_hits)))
 
         self._max_position = max(self._max_position, position)
         diag.values.append(KeyValue('Max Obs. Position', str(self._max_position)))
@@ -313,8 +316,12 @@ class TransmissionListener:
         # Halt if broken
         if not self._ok and was_ok:
             rospy.logerr('Halting motors, broken transmission.')
-            self._halt_motors()
-        
+            try:
+                rospy.wait_for_service('halt_motors', 10)
+                self._halt_motors()
+            except:
+                import traceback
+                rospy.logerr('Caught exception trying to halt motors: %s', traceback.format_exc())
 
     def reset(self):
         self._mutex.acquire()

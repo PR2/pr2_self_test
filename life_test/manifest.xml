@@ -27,4 +27,5 @@
   <depend package="roslaunch_caller" />
   <depend package="pr2_mechanism_msgs" />
   <depend package="geometry_msgs" />
+  <depend package="robot_state_publisher" />
 </package>

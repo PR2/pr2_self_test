@@ -186,7 +186,7 @@ class TestMonitorPanel(wx.Panel):
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
         self.last_message_time = rospy.get_time()
-        self.timeout_interval = 5.0
+        self.timeout_interval = 10.0
         self._is_stale = True
 
         # Timer for invent logging
