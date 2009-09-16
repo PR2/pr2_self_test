@@ -107,6 +107,10 @@ class SerialPanel(wx.Panel):
     self._config_button = xrc.XRCCTRL(self._panel, 'config_button')
     self._config_button.Bind(wx.EVT_BUTTON, self.on_config)
 
+    # Starts on test cart panel
+    self._notebook = xrc.XRCCTRL(self._panel, 'test_tab_control')
+    self._notebook.ChangeSelection(0)
+
     self._panel.Bind(wx.EVT_CHAR, self.on_char)
     self._serial_text.SetFocus()
     #self._serial_text.Bind(wx.EVT_COMMAND_TEXT_ENTER, self.on_test)
