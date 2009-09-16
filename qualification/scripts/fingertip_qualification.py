@@ -112,8 +112,8 @@ class FingertipQualification:
     ##\brief Callback for gripper pressure topic
     def pressure_callback(self,data):
         self._mutex.acquire()
-        self.data0 = data.data0
-        self.data1 = data.data1
+        self.l_finger_tip = data.l_finger_tip
+        self.r_finger_tip = data.r_finger_tip
         self._mutex.release()
 
     ##\brief Record errors in analysis
@@ -153,22 +153,22 @@ class FingertipQualification:
         self._mutex.acquire()
 
         ok = True
-        if self.data0 is None or self.data1 is None:
+        if self.l_finger_tip is None or self.r_finger_tip is None:
             r = TestResultRequest()
             r.text_summary = 'No gripper tip data.'
             
-            r.html_result = '<p>No gripper tip data. Check connections. Tip 0: %s, tip 1: %s.</p>\n' % (str(self.data0), str(self.data1))
+            r.html_result = '<p>No gripper tip data. Check connections. Tip 0: %s, tip 1: %s.</p>\n' % (str(self.l_finger_tip), str(self.r_finger_tip))
             r.html_result +=  '<hr size="2">\n' + self._write_equation()
             r.html_result += '<hr size="2">\n' + self._write_params()
             r.html_result += '<hr size="2">\n' + self._write_tols()
             r.result = TestResultRequest.RESULT_FAIL
             self.send_results(r)
 
-        if len(self.data0) != self.num_sensors or len(self.data1) != self.num_sensors:
+        if len(self.l_finger_tip) != self.num_sensors or len(self.r_finger_tip) != self.num_sensors:
             r = TestResultRequest()
             r.text_summary = 'Incorrect number of sensors. Expected: %d.' % self.num_sensors
             
-            r.html_result = '<p>Incorrect number of sensors. Expected: %d. Tip 0: %d, tip 1: %d.</p>\n' % (self.num_sensors, len(self.data0), len(self.data1))
+            r.html_result = '<p>Incorrect number of sensors. Expected: %d. Tip 0: %d, tip 1: %d.</p>\n' % (self.num_sensors, len(self.l_finger_tip), len(self.r_finger_tip))
             r.html_result +=  '<hr size="2">\n' + self._write_equation()
             r.html_result += '<hr size="2">\n' + self._write_params()
             r.html_result += '<hr size="2">\n' + self._write_tols()
@@ -180,11 +180,11 @@ class FingertipQualification:
         for i in range(0, self.num_sensors):
             tip0 = 'OK'
             tip1 = 'OK'
-            if self.data0[i] == 0:
+            if self.l_finger_tip[i] == 0:
                 ok = False
                 tip0 = 'No data'               
 
-            if self.data1[i] == 0:
+            if self.r_finger_tip[i] == 0:
                 ok = False
                 tip1 = 'No data'
 
@@ -221,8 +221,8 @@ class FingertipQualification:
         self.starting_sum0 = 0
         self.starting_sum1 = 0
         for i in range(self.num_sensors_outside, self.num_sensors):
-            self.starting_sum0 += self.data0[i]
-            self.starting_sum1 += self.data1[i]
+            self.starting_sum0 += self.l_finger_tip[i]
+            self.starting_sum1 += self.r_finger_tip[i]
         self._mutex.release()
       
     ##\brief Record sum of gripper tip pressure at the commanded force
@@ -230,10 +230,10 @@ class FingertipQualification:
         self._mutex.acquire()
         current_sum0 = 0
         for i in range(self.num_sensors_outside, self.num_sensors):
-            current_sum0 += self.data0[i]
+            current_sum0 += self.l_finger_tip[i]
         current_sum1 = 0
         for i in range(self.num_sensors_outside, self.num_sensors):
-            current_sum1 += self.data1[i]
+            current_sum1 += self.r_finger_tip[i]
         self._mutex.release()
  
         expected_value = self.force*self.force*self.force*self.x3 + self.force*self.force*self.x2 + self.force*self.x1 + self.x0
