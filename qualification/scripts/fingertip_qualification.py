@@ -201,7 +201,7 @@ class FingertipQualification:
         
         if not ok:
             r = TestResultRequest()
-            r.text_summary = 'Not connected'
+            r.text_summary = 'Not connected.'
             r.html_result = self._connected_data 
             r.html_result +=  '<hr size="2">\n' + self._write_equation()
             r.html_result += '<hr size="2">\n' + self._write_params()
@@ -468,6 +468,8 @@ if __name__ == '__main__':
             qual.open_gripper()
             qual.increment_value()
         qual.process_results()
+    except KeyboardInterrupt:
+        raise
     except Exception, e:
         import traceback
         print 'Caught exception in fingertip_qualification.\n%s' % traceback.format_exc()

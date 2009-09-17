@@ -37,11 +37,14 @@
 	file="upperarm_flex_only_test/test.xml" descrip="Upperarm Test - Flex Jnt Ony" /-->
   <test serial="6804213" 
 	file="wrist_test/test.xml" descrip="Wrist Test" />
+
+  <!-- Gripper -->
   <test serial="6804015" 
 	file="gripper_test/test.xml" descrip="Gripper Test" />
-    <test serial="6804015" 
+  <test serial="6804015" 
 	file="gripper_test/test_no_tip.xml" descrip="Gripper Test - No Tips" />
- 
+  <test serial="6804015"
+        file="gripper_test/drop_test.xml" descrip="Gripper Drop Test" />
 
   <!-- Old color Forearm camera tests -->
   <test serial="6805018"

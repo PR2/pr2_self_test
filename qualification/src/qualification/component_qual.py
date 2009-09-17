@@ -435,7 +435,7 @@ class QualificationApp(wx.App):
       traceback.print_exc()
       sys.exit(5)
       
-    rospy.init_node("Qualification")
+    rospy.init_node("qualification")
     
     self._frame = ComponentQualFrame(None)
     self._frame.SetSize(wx.Size(700,1000))

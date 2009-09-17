@@ -282,7 +282,7 @@ if __name__ == '__main__':
                       default = 0,
                       metavar="NUMBER", help="Number of MCB's")
 
-    # Should this by --motor=?
+    # Should this be --motor=?
     parser.add_option("--motor", type="string", dest="mcbs", 
                       action="append", metavar="NAME,NUM", 
                       help="MCB's to configure by name and number")

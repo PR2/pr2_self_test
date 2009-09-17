@@ -37,7 +37,7 @@
 # Called from configure/program_mcb.py through the mcb_conf_results service
 
 PKG = 'qualification' 
-NAME = 'mcb_conf_verification'
+NAME = 'confirm_conf'
 
 import roslib
 roslib.load_manifest(PKG) 
@@ -48,12 +48,24 @@ import rospy
 import time
 import os
 
-app = wx.PySimpleApp()
+import signal
+
+prev_handler = None
+
+
+app = wx.PySimpleApp(clearSigInt = True)
 process_done = False
 prompt_done = False
 prompt_click =False
 frame=wx.Frame(None)
 
+#def shutdown(sig, stackframe):
+#    rospy.logerr('confirm conf shutting down')
+#    frame.Close()
+#    app.Destroy()
+#    if prev_handler is not None:
+#        prev_handler(signal.SIGINT, None)
+  
  
 def msg_detail_prompt(msg, details):
   # Load MCB conf dialog box from gui.xrc
@@ -91,8 +103,6 @@ def check_w_user(req):
   else:
     resp.retry = ConfirmConfResponse.FAIL
 
-  #wx.CallAfter(frame.Close)    
-
   prompt_done = False
   prompt_click = False
   return resp
@@ -101,6 +111,10 @@ def check_w_user(req):
 def confirm_conf():
   rospy.init_node(NAME)
   s = rospy.Service('mcb_conf_results', ConfirmConf, check_w_user)  
+
+  # Allow it to kill on exit w/o SIGKILL
+  signal.signal(signal.SIGINT, signal.SIG_DFL)
+
   app.MainLoop()
   time.sleep(1)
   
