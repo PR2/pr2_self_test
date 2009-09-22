@@ -30,6 +30,6 @@
 
   <!-- Test: asserts we have checkout service and that we passed or human'd -->
   <test type="qual_unittest.py" pkg="qualification" name="test_hysteresis"
-        args="--human_ok" test-name="pr2_hysteresis" time-limit="180" />
+        args="--human_ok" test-name="pr2_hysteresis" time-limit="300" />
 
 </launch>
