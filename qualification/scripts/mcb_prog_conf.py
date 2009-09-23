@@ -153,7 +153,7 @@ class MCBProgramConfig:
                 msg = "MCB counts don't match. Found %s, expected %s. Retry?" % (count, self.expected)
                 
             if not self.prompt_user(msg, details):
-                self.finished(False, 'Failed to count boards. %s\n%s' % (msg, details))
+                self.finished(False, 'Failed to count boards. Operator canceled.\n\n%s\n%s' % (msg, details))
                 return False
 
     def get_serials(self):

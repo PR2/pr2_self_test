@@ -647,7 +647,7 @@ class QualificationFrame(wx.Frame):
   ## Uses wg_hardware_roslaunch to launch file
   ##@param file str : Full path of launch script
   def launch_file(self, file):
-    self.log('Launching roslaunch file %s'%(file))
+    self.log('Launching file %s'%(file))
     
     f = open(file, 'r')
     launch_xml = f.read()
@@ -790,19 +790,23 @@ class QualificationFrame(wx.Frame):
   def shutdown_finished(self, srv):
     self.log('Shutdown finished')
 
-    if self._shutdown_launch:
+    if self._current_test is None:
+      self.log('No test, how can I be shutting down?')
+      return
+
+    if self._shutdown_launch is not None:
       self._shutdown_launch.shutdown()
       self._shutdown_launch = None
 
-    if self._shutdown_done_srv:
+    if self._shutdown_done_srv is not None:
       self._shutdown_done_srv.shutdown()
       self._shutdown_done_srv = None
 
-    if self._shutdown_timer:
+    if self._shutdown_timer is not None:
       self._shutdown_timer.cancel()
       self._shutdown_timer = None
 
-    shutdown_script = self._current_test.getShutdownScript()
+    #shutdown_script = self._current_test.getShutdownScript()
 
     self._results.add_shutdown_result(srv)
 

@@ -64,6 +64,8 @@
 
   <!-- Instruments and devices -->
   <test serial="6801024" 
+	file="hokuyo_test/test_self_only.xml" descrip="Hokuyo Self-Test Only" />
+    <test serial="6801024" 
 	file="hokuyo_test/test.xml" descrip="Hokuyo Test" />
   <test serial="6801050" 
 	file="imu_test/test.xml" descrip="IMU Test" />

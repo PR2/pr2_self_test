@@ -47,6 +47,7 @@ import matplotlib.pyplot as plot
 from StringIO import StringIO
 from time import sleep
 import threading
+import os
 
 import rospy
 from qualification.srv import TestResult, TestResultRequest
@@ -296,6 +297,17 @@ class FingertipQualification:
             html += '<tr><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td></tr>\n' % (self._forces[i], self._tip0[i], self._tip1[i], self._expected[i])
         html += '</table>\n'
 
+        # Write CSV log
+        if False:
+            import csv
+            csv_path = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results/temp/%s_fingers.csv' % rospy.get_param('/qual_item/serial', 'finger'))
+            log_csv = csv.writer(open(csv_path, 'wb'))
+            log_csv.writerow(['Force', 'Tip 0', 'Tip 1', 'Expected'])
+            for i in range(0, len(self._forces)):
+                log_csv.writerow([self._forces[i], self._tip0[i], self._tip1[i], self._expected[i]])
+            
+            html += '<p>Wrote CSV of results to: %s.</p>\n' % csv_path
+
         return html
 
     ##\brief At every point, check differences bwt tips
@@ -304,7 +316,7 @@ class FingertipQualification:
         avg_vals = 0.5 * (numpy.array(self._tip0) + numpy.array(self._tip1))
         
         max_val = max(avg_vals)
-        max_diff = max(diff) / max_val * 100
+        max_diff = max(abs(diff)) / max_val * 100
         avg_diff = abs(numpy.average(diff) / max_val * 100)
         avg_abs_diff = numpy.average(abs(diff)) / max_val * 100
 

@@ -1,5 +1,8 @@
 <test>
-  <startup>startup.launch</startup>
   <instructions>instructions.html</instructions>
-  <subtest>selftest.launch</subtest>
+  <startup>hokuyo.launch</startup>
+  <subtest name="Self Test" timeout="30">selftest.launch</subtest>
+  <subtest name="Long Range Test" timeout="30">long_range_test.launch</subtest>
+  <subtest name="Mid Range Test" timeout="30">mid_range_test.launch</subtest>
+  <subtest name="Short Range Test" timeout="30">short_range_test.launch</subtest>
 </test>

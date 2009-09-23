@@ -1,4 +1,19 @@
 <launch>
   <node pkg="qualification" type="drop_test.py" name="drop_test"
         args="--pre $(find qualification)/tests/gripper_test/drop_test/gripper_pre_drop.htm --post $(find qualification)/tests/gripper_test/drop_test/gripper_post_drop.html --name 'Gripper Drop Test' 'Front Drop',$(find qualification)/tests/gripper_test/drop_test/gripper_front_drop.htm,2 'Back Drop',$(find qualification)/tests/gripper_test/drop_test/gripper_back_drop.htm,2 'Side Drop',$(find qualification)/tests/gripper_test/drop_test/gripper_side_drop.htm,3" />
+
+  <!-- Turn on LED -->
+  <node pkg="pr2_mechanism_control" type="spawner.py" name="$(anon led_ctrl)"
+        args="r_gripper_led" />
+
+  <!-- Turn on LED -->
+  <group ns="r_gripper_led" >
+    <param name="type" type="str" value="TriggerController" />
+    <param name="actuator" type="str" value="r_gripper_motor" />
+    <param name="running" type="bool" value="True" />
+    <param name="active_low" type="bool" value="True" />
+    <param name="duty_cycle" type="double" value="1.0" />
+    <param name="phase" type="double" value="0.0" />
+    <param name="rep_rate" type="double" value="1.0" />
+  </group>
 </launch>

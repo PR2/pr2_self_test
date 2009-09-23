@@ -60,7 +60,11 @@ def bool_to_msg(val):
         return 'PASS'
     return 'FAIL'
 
+##\brief Contains params, data for drops
 class Drop:
+    ##\param name str : Name of drop (ex: 'Side Drop')
+    ##\param file str : Instructions file of drop
+    ##\param count int : Number of times to complete drop
     def __init__(self, name, file, count):
         self.count = count
         self.file = file
@@ -74,13 +78,14 @@ class Drop:
 
         self._current = 0
     
+    ##\brief Stores data from each drop
     def update(self, packets, halted):
         self.packets[self._current] = bool_to_msg(packets)
         self.halted[self._current] = bool_to_msg(halted)
 
         self._current += 1
 
-
+##\brief Displays instructions for user to run test, makes sure part is working
 class DropTestFrame(wx.Frame):
     def __init__(self, parent, test_name, pre, post, drops):
         wx.Frame.__init__(self, parent, wx.ID_ANY, 'Drop Test')
@@ -127,13 +132,14 @@ class DropTestFrame(wx.Frame):
 
         self._current_drop = 0
         self._current_drop_count = 0
-    
+        
         self._state = -1 # -1: PRE, 0: DROP, 1: POST
 
         self._canceled = False
 
         self.start_test()
         
+    ##\brief Proceed to next drop, or pass if done
     def on_continue(self, event):
         if self._state == -1:
             self._state += 1
@@ -148,7 +154,7 @@ class DropTestFrame(wx.Frame):
             r.text_summary = self._write_summary()
             self.send_results(r)
 
-        
+    ##\brief Cancel test, report failure
     def on_cancel(self, event):
         self._canceled = True
 
@@ -160,7 +166,7 @@ class DropTestFrame(wx.Frame):
         r.text_summary = self._write_summary('Canceled.')
         self.send_results(r)
  
-        
+    ##\brief Error, send failure data to manager
     def test_error_service_call(self, except_str = ''):
         rospy.logerr(except_str)
         r = TestResultRequest()
@@ -170,6 +176,7 @@ class DropTestFrame(wx.Frame):
         r.result = TestResultRequest.RESULT_FAIL
         self.send_results(r)
 
+    ##\brief Send results to qualification manager
     def send_results(self, test_result):
         if not self.data_sent:
             rospy.wait_for_service('test_result', 10)
@@ -177,6 +184,7 @@ class DropTestFrame(wx.Frame):
             self.data_sent = True
         self.Destroy()
 
+    ##\brief Callback for diagnostics msgs
     def _diag_cb(self, msg):
         self._mutex.acquire()
 
@@ -190,6 +198,7 @@ class DropTestFrame(wx.Frame):
         self._mutex.release()
         wx.CallAfter(self._check_msgs)
 
+    ##\brief Checks diagnostics for EtherCAT Master, makes sure OK
     def _check_msgs(self):
         self._mutex.acquire()
         for msg in self._msgs:
@@ -203,12 +212,15 @@ class DropTestFrame(wx.Frame):
         self._msgs = []
         self._mutex.release()
 
+    ##\brief OK if no dropped packets and motors running
     def is_ok(self):
         return self._eth_master_ok and self._drop_packets == 0
 
+    ##\brief Pass if OK and we've completed all drops w/o canceling
     def is_pass(self):
         return self.is_ok() and self._current_drop >= len(self.drops) and not self._canceled
     
+    ##\brief Write data from each drop
     def _write_drop_data(self):
         table = '<table border="1" cellpadding="2" cellspacing="0">\n'
         table += '<tr><td><b>Drop</b></td><td><b>Count</b></td><td><b>Dropped Packets</b></td><td><b>Halted</b></td></tr>\n'
@@ -219,7 +231,7 @@ class DropTestFrame(wx.Frame):
         
         return table
     
-                                                                          
+    ##\brief Write data from entire drop test in HTML
     def _write_result(self, msg=''):
         data = '<p align=center><b>%s Drop Test Data</b></p>\n' % (self.test_name)
         data += '<p>Result: %s. Completed: %d of %d</p>\n' % (bool_to_msg(self.is_pass()), self.complete, self.total)
@@ -230,16 +242,19 @@ class DropTestFrame(wx.Frame):
 
         return data
     
+    ##\brief Write summary of drop test
     def _write_summary(self, msg=''):
         return '%s, result: %s. Completed %d/%d drops. %s' % (self.test_name, bool_to_msg(self.is_pass()), self.complete, self.total, msg)
-                                                              
+                  
+    ##\brief Load pre-drop instructions if any, or proceed
     def start_test(self):
         if self.predrop is not None:
             self._html_window.LoadFile(self.predrop)
         else:
             self._state += 1 # Start dropping
             self.display_drop_structs()
-                                                              
+                                                          
+    ##\brief Load post-drop instructions, or pass drop test
     def post_drop_check(self):
         if self.postdrop is not None:
             self._html_window.LoadFile(self.postdrop)
@@ -249,7 +264,8 @@ class DropTestFrame(wx.Frame):
             r.html_result = self._write_result()
             r.text_summary = self._write_summary()
             self.send_results(r)
-                                                              
+                      
+    ##\brief Verify that drop was OK, move to next drop
     def check_drop(self):
         self.complete += 1
         self.drops[self._current_drop].update(self._drop_packets == 0, self._eth_master_ok)
@@ -275,23 +291,25 @@ class DropTestFrame(wx.Frame):
             return
 
         self.display_drop_structs()
-
+    
+    ##\brief Display instructions for drop in window. 
     def display_drop_structs(self):
         drop = self.drops[self._current_drop]
 
         structs = '<html><header>\n'
-        structs += '<H2>%s</H2>\n' % self.test_name
+        structs += '<H2 align=center>%s</H2>\n' % self.test_name
         structs += '</header><hr size="3">\n<body>\n'
-        structs += '<H3>%s. Count: %d of %d</H4>\n' % (drop.name, self._current_drop_count + 1, drop.count)
+        structs += '<H3>%s. Count: %d of %d</H3>\n' % (drop.name, self._current_drop_count + 1, drop.count)
         structs += '<H4>Drop number %d of %d</H4>\n' % (self._current_drop + 1, len(self.drops))
-        
+        structs += '<hr size=2>\n'
+
         structs += open(drop.file).read()
         structs += '</body></html>'
                                          
         self._html_window.SetPage(structs)
 
     
-
+##\brief App for displaying drop test GUI
 class DropTestApp(wx.App):
     def __init__(self, name, predrop, postdrop, drops):
         self.pre = predrop

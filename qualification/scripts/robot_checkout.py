@@ -76,6 +76,7 @@ class DiagnosticItem:
 class RobotCheckout:
     def __init__(self):
         rospy.init_node('robot_checkout')
+
         self.robot_data = rospy.Service('robot_checkout', RobotData, self.on_robot_data)
         self.result_srv = rospy.ServiceProxy('test_result', TestResult)
         self.has_sent_result = False
@@ -340,6 +341,8 @@ class RobotCheckout:
                 elif name == 'base_joint':
                     cal = '<div class=\"pass\">Base</div>'
                 elif name.find('finger') > 0:
+                    cal = '<div class=\"pass\">Gripper</div>'
+                elif name.find('accelerometer') > 0:
                     cal = '<div class=\"pass\">Gripper</div>'
                 elif name.find('gripper_float_joint') > 0:
                     cal = '<div class=\"pass\">Gripper</div>'
