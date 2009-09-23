@@ -2,7 +2,7 @@
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find qualification)/tests/wge100_camera_test/test_configuration.xml'" />
   
   <!-- Spwns the controllers -->
-  <node pkg="mechanism_control" type="spawner.py" output="screen" args="trig_controller led_controller" />
+  <node name="led_trig_spawner" pkg="pr2_mechanism_control" type="spawner.py" output="screen" args="trig_controller led_controller" />
   <group ns="trig_controller">
     <param name="type" type="string" value="TriggerController" />
     <param name="actuator" type="string" value="wge100_camera_qual_trig" />

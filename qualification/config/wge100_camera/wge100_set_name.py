@@ -57,13 +57,14 @@ def getparam(name):
     return val
 
 def failed(message):
-    send_response("Error setting camera name", message, -1)
+    send_response("Error setting camera name", message, 1)
 
 def passed(message):
     send_response("Camera successfully set to %s at %s "%(cameraname, cameraip),
             message, 0)
 
 def send_response(summary, message, retval):
+    print summary
     print message.replace('<b>','').replace('</b>','')
     r=ScriptDoneRequest()
     r.failure_msg = message.replace('<b>','').replace('</b>','')
@@ -105,15 +106,15 @@ try:
         camera_url+"@"+progip, cameraname, cameraip ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     setnameout = p.communicate()
     
-    passed("Output from setname tool...\n<b>Standard output:</b>\n"+setnameout[0]+"\n\n<b>Standard error:</b>\n"+setnameout[1])
+    msg = "Output from setname tool...\n<b>Standard output:</b>\n"+setnameout[0]+"\n\n<b>Standard error:</b>\n"+setnameout[1]
 
-    if retval == 0:
+    if "Success" in msg:
         i.setKV(barcode, "Configured name", cameraname)
         i.setKV(barcode, "Configured ip", cameraip)
-        passed("passed") # FIXME
+        passed(msg)
     else:
         i.setKV(barcode, "Configured name", "<configure failed>")
         i.setKV(barcode, "Configured ip", "<configure failed>")
-        failed("failed") # FIXME
+        failed(msg)
 except:
     failed('<b>Exception:</b>\n%s'%traceback.format_exc())
