@@ -248,11 +248,12 @@ class SerialPanel(wx.Panel):
     select_text.SetLabel(msg)
     test_box = xrc.XRCCTRL(dialog, 'test_list_box')
     test_box.InsertItems(lst, 0)
+    test_box.SetSelection(0)
     
-    select_text.Wrap(250)
-    
+    select_text.Wrap(270)
+
     dialog.Layout()
-    dialog.Fit()
+
 
     # return string of test folder/file to run
     if (dialog.ShowModal() == wx.ID_OK):
