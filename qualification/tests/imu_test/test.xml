@@ -1,5 +1,5 @@
 <test>
-  <startup>startup.launch</startup>
+  <startup>imu.launch</startup>
   <instructions>instructions.html</instructions>
-  <subtest>selftest.launch</subtest>
+  <subtest name="IMU Selftest" timeout="120">selftest.launch</subtest>
 </test>

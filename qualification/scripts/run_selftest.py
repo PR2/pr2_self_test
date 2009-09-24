@@ -94,7 +94,7 @@ try:
         if len(stat.values) > 0:
             html += "<p>Self-test values:<br>\n"
             html += "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">\n"
-            html += "<tr><b><td>Label</td><td>Value</td></b></tr>\n"
+            html += "<tr><td><b>Label</b></td><td><b>Value</b></td></tr>\n"
             for val in stat.values:
                 html += "<tr><td>%s</td><td>%s</td></tr>\n" % (val.key, val.value)
             html += "</table></p>\n"

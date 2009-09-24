@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="imu_node" type="imu_node" name="imu" >
+    <param name="autostart" value="true" type="bool"/>
+    <param name="autocalibrate" value="true" type="bool"/>
+  </node>
+</launch>
