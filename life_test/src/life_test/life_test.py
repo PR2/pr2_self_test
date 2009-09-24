@@ -173,7 +173,8 @@ class TestMonitorPanel(wx.Panel):
 
         self._is_running = False
         self._stat_level = 127 # Not launched
-        self._power_stat = "Disable"
+        self._test_msg = 'None'
+        self._power_stat = "No data"
         self._estop_stat = False
 
         # Launches test, call stop to kill it
@@ -188,6 +189,13 @@ class TestMonitorPanel(wx.Panel):
         self.last_message_time = rospy.get_time()
         self.timeout_interval = 10.0
         self._is_stale = True
+
+        # Timeout for powerboard status, starts if power comes up
+        self.power_timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.on_power_timer, self.power_timer)
+        self.last_power_update = rospy.get_time()
+        self.power_timeout = 5.0
+        
 
         # Timer for invent logging
         self.invent_timer = wx.Timer(self)
@@ -365,9 +373,9 @@ class TestMonitorPanel(wx.Panel):
             self._is_running = False
             self._is_stale = True
 
+            self.update_controls(4)
             self.update_test_record()
             self.stop_if_done()
-            self.update_controls(4)
         else:
             self._is_stale = False
 
@@ -399,6 +407,7 @@ class TestMonitorPanel(wx.Panel):
             msg.machine = ""
 
         msg.elapsed = self._record.get_cum_time()
+        msg.status_msg = self._test_msg
         
         return msg        
 
@@ -440,12 +449,27 @@ class TestMonitorPanel(wx.Panel):
             self.update_test_record("Unable to command power board.")
             wx.MessageBox('Unable to disable power board. Board: %d, breaker: %d' % (self._bay.board, self._bay.breaker), wx.OK|wx.ICON_ERROR, self)
 
+    def start_power_timer(self):
+        self.power_timer.Start(1000 * self.power_timeout, True)
+
+    def on_power_timer(self, event = None):
+        if rospy.get_time() - self.last_power_update > self.power_timeout:
+            self.update_board("Stale", False)
+
     ##\brief Updates power board control
     def update_board(self, value, estop):
+        if not self.is_launched():
+            return
+
         self._power_stat = value
         self._estop_stat = estop
 
-        if value == "Standby":
+        self.start_power_timer()
+
+        if value == "Stale":
+            self._power_board_text.SetBackgroundColour("Light Blue")
+            self._power_board_text.SetValue("Stale")
+        elif value == "Standby":
             self._power_board_text.SetBackgroundColour("Orange")
             self._power_board_text.SetValue("Standby")
         elif value == "On":
@@ -464,7 +488,7 @@ class TestMonitorPanel(wx.Panel):
             
 
     ##\brief Updates test status bar
-    def _update_status_bar(self, level, msg):
+    def _update_status_bar(self, level, msg):        
         if not self.is_launched():
             self._status_bar.SetValue("Launch to display status")
             self._status_bar.SetBackgroundColour("White")
@@ -489,6 +513,7 @@ class TestMonitorPanel(wx.Panel):
         self._update_status_bar(level, msg)
 
         self._stat_level = level
+        self._test_msg = msg
 
         ##\todo FIX
         remaining = self.calc_remaining()
@@ -561,9 +586,11 @@ class TestMonitorPanel(wx.Panel):
         self._is_running = (self._status_msg.test_ok == 0)
         self._is_stale = False
         self.start_timer()
+
+        self.update_controls(self._status_msg.test_ok, self._status_msg.message)
         self.update_test_record()
         self.stop_if_done()
-        self.update_controls(self._status_msg.test_ok, self._status_msg.message)
+
 
         self._mutex.release()
      
@@ -585,7 +612,7 @@ class TestMonitorPanel(wx.Panel):
         launch += '<include file="$(find life_test)/%s" />' % script
 
         # Will set bag name to be serial
-        launch += ' <node pkg="rosrecord" type="rosrecord" args="-f /hwlog/test_runtime_automatic /diagnostics" name="test_logger" />'
+        launch += ' <node pkg="rosrecord" type="rosrecord" args="-f /hwlog/%s_life_test /diagnostics" name="test_logger" />' % self._serial
         
         launch += '</group>\n</launch>'
 
@@ -682,12 +709,17 @@ class TestMonitorPanel(wx.Panel):
             self._power_sn_text.SetValue(str(self._bay.board))
             self._power_breaker_text.SetValue(str(self._bay.breaker))
             self._power_board_text.SetValue("No data")
+            self._power_board_text.SetBackgroundColour("Light Blue")
             self._estop_status.SetValue("No data")
+            self._estop_status.SetBackgroundColour("Light Blue")
+            self._power_stat = "No data"
+            self._estop_stat = False
         else:
             self._power_sn_text.SetValue("No board")
             self._power_breaker_text.SetValue("No breaker")
             self._power_board_text.SetValue("No board")
-            self._estop_status.SetValue("No board")
+            self._power_board_text.SetBackgroundColour("White")
+            self._estop_status.SetBackgroundColour("White")
             
 
         local_diag = '/' + self._bay.name + '/diagnostics'
@@ -856,6 +888,8 @@ em { font-style:normal; font-weight: bold; }\
                 html += '<H3>Test Status: Launched, Running</H3>\n'
             else:
                 html += '<H3>Test Status: Shutdown</H3>\n'
+
+        html += '<H4>Current Message: %s</H4>\n' % str(self._test_msg)
 
         # Table of test bay, etc
         html += '<hr size="3">\n'

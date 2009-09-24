@@ -119,7 +119,7 @@ class TestMonitor:
             status = max(status, stat)
             if msg != '':
                 messages.append(msg)
-            if diags:
+            if diags is not None:
                 array.status.extend(diags)
         
         if len(self._listeners) == 0:

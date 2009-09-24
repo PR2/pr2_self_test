@@ -7,6 +7,10 @@
   <room hostname="cmi" >
     <bay name="testi" machine="testi" board="1001" breaker="1" />
     <bay name="testk" machine="testk" board="1001" breaker="0" />
+    <bay name="testv" machine="testv" board="1006" breaker="0" />
+    <bay name="testw" machine="testw" board="1006" breaker="1" />
+
+    
   </room>
   
   <room hostname="testi" >

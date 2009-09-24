@@ -130,7 +130,13 @@ class TestStatusPanel(wx.Panel):
             self._estop_status.SetValue("No power board")
             self._estop_status.SetBackgroundColour("While")
         else:
-            if msg.power_status == "Standby":
+            if msg.power_status == "No data":
+                self._power_status.SetBackgroundColour("Light Blue")
+                self._power_status.SetValue("No data - %d #%d" % (msg.board, msg.breaker))
+            elif msg.power_status == "Stale":
+                self._power_status.SetBackgroundColour("Light Blue")
+                self._power_status.SetValue("Stale - %d #%d" % (msg.board, msg.breaker))
+            elif msg.power_status == "Standby":
                 self._power_status.SetBackgroundColour("Orange")
                 self._power_status.SetValue("Standby - %d #%d" % (msg.board, msg.breaker))
             elif msg.power_status == "On":
@@ -138,10 +144,13 @@ class TestStatusPanel(wx.Panel):
                 self._power_status.SetValue("On - %d #%d" % (msg.board, msg.breaker))
             else:
                 self._power_status.SetBackgroundColour("Red")
-                self._power_status.SetValue("Disable - %d #%d" % (msg.board, msg.breaker))
-            if msg.estop == 0:
+                self._power_status.SetValue("Disabled - %d #%d" % (msg.board, msg.breaker))
+            if msg.estop == 0 and msg.power_status != "Stale" and msg.power_status != "No data":
                 self._estop_status.SetBackgroundColour("Red")
                 self._estop_status.SetValue("E-Stop Hit")
+            elif msg.estop == 0:
+                self._estop_status.SetBackgroundColour("Light Blue")
+                self._estop_status.SetValue("No E-Stop Data")
             else:
                 self._estop_status.SetBackgroundColour("Light Green")
                 self._estop_status.SetValue("E-Stop OK")

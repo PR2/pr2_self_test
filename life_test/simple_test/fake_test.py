@@ -211,6 +211,9 @@ class FakeTestFrame(wx.Frame):
         self.diag_pub.publish(msg)
 
 class FakeTestApp(wx.App):
+    def __init__(self):
+        wx.App.__init__(self, clearSigInt = False)
+
     def OnInit(self):
         rospy.init_node("fake_test_node")
         self._frame = FakeTestFrame(None)

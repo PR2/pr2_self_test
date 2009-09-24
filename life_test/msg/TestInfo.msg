@@ -8,3 +8,4 @@ int32 breaker
 string power_status
 byte estop # 0, off; 1, on
 int32 elapsed
+string status_msg

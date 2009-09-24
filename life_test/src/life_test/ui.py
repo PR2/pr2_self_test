@@ -241,7 +241,7 @@ class TestManagerFrame(wx.Frame):
     # Power commands
     def _reset_power_disable(self, bay):
         try:
-            rospy.wait_for_service('power_board_control', 10)
+            rospy.wait_for_service('power_board_control', 5)
             resp = self._power_cmd(bay.board, bay.breaker, 'reset', 0)
             if resp.retval != 0:
                 rospy.logerr('Failed to reset board %s, breaker %d. Retval: %s' % (bay.board, bay.breaker, retval))
@@ -277,7 +277,7 @@ class TestManagerFrame(wx.Frame):
 
     def power_disable(self, bay):
         try:
-            rospy.wait_for_service('power_board_control', 10)
+            rospy.wait_for_service('power_board_control', 5)
             resp = self._power_cmd(bay.board, bay.breaker, 'disable', 0)
             return resp.retval == 0
         except:

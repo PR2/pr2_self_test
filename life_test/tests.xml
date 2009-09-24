@@ -33,7 +33,7 @@
         type="Burn-in Test" >
     <param name="Rate" param_name="cycle_rate"
            desc="Frequency of test"
-           rate="true" val="0.25" />
+           rate="true" val="1.0" />
   </test>
 
   

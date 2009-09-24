@@ -6,13 +6,19 @@
         args="-i eth0 -x robot_description" name="pr2_etherCAT" >
     <param name="publish_rate_mechanism_state" type="double" value="100" />
   </node>
+  <node pkg="pr2_mechanism_control" type="joints_to_diagnostics.py"
+        name="joint_to_diag" machine="test_host" />
 
   <!-- Calibration and velocity controllers -->
   <rosparam command="load" file="$(find life_test)/caster_life_test/caster_controllers.yaml" />
+  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
   <node pkg="mechanism_bringup" type="calibrate.py"
         args="cal_caster_fl" name="cal_caster" output="screen" />
-
-  <!-- Controller, velocity controller from YAML -->
+<!--
+  <node pkg="mechanism_bringup" type="calibrate.py"
+        args="cal_caster_bl_alpha2" name="cal_caster" output="screen" />
+  -->
+  <!-- Controller, velocity controller -->
   <node pkg="pr2_mechanism_control" type="spawner.py"
         args="caster_fl" name="$(anon caster_spawner)" />
 
@@ -21,8 +27,9 @@
 
   <!-- Monitor (with transmission) -->
   <node pkg="life_test" type="test_monitor.py"
-        name="monitor" machine="test_host" output="screen">
-    <rosparam command="load" file="$(find life_test)/caster_life_test/caster_listeners.yaml" />
+        name="monitor" machine="test_host" >
+    <rosparam command="load"
+              file="$(find life_test)/caster_life_test/caster_listeners.yaml" />
   </node>
 
 </launch>

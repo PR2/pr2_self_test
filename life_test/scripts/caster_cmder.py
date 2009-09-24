@@ -35,7 +35,9 @@ import random
 import rospy
 from std_msgs.msg import Float64
 
+# BL for DallasBot caster
 ROTATION_JOINT = 'fl_caster_rotation_joint'
+TOPIC_PREFIX = 'caster_fl'
 SPEED = 100
 STEER_VEL = 100
 
@@ -44,39 +46,61 @@ class CasterCmd:
         self.steer = STEER_VEL
         self.drive = SPEED
 
+        self._count = 0
+
     def update(self):
-        if self.steer > 0:
-            self.steer = -1 * self.steer
+        if self._count == 0:
+            self.steer = -1 * STEER_VEL
             self.drive = 0
-        elif self.steer < 0:
-            self.steer = 0
-            self.drive = SPEED
+        elif self._count == 1:
+            self.steer = STEER_VEL
+            self.drive = 0
         else:
-            if self.drive > 0:
-                self.drive = -1 * self.drive
+            self.steer = 0
+            if self._count % 2 == 0:
+                self.drive = SPEED
             else:
-                self.steer = STEER_VEL
-                self.drive = 0
+                self.drive = -1 * SPEED
+
+        self._count += 1
+        if self._count >= 10:
+            self._count = 0
+            
+
+    ##\brief 1/5 duty cycle on turn
+    def update_rndm(self):
+        rndm = random.randint(0, 10)
+        if rndm == 10:
+            self.steer = -1 * STEER_VEL
+            self.drive = 0
+        elif rndm == 9:
+            self.steer = STEER_VEL
+            self.drive = 0
+        else:
+            self.steer = 0
+            if rndm % 2:
+                self.drive = SPEED
+            else:
+                self.drive = -1 * SPEED
             
         
 def main():
     rospy.init_node('caster_cmder')
     cmder = CasterCmd()
-    pub_steer = rospy.Publisher("caster_fl/steer", Float64)
-    pub_drive = rospy.Publisher("caster_fl/drive", Float64)
+    pub_steer = rospy.Publisher("%s/steer" % TOPIC_PREFIX, Float64)
+    pub_drive = rospy.Publisher("%s/drive" % TOPIC_PREFIX, Float64)
     pub_steer.publish(Float64(0.0))
     pub_drive.publish(Float64(0.0))
 
-    rate = float(rospy.get_param('cycle_rate', 1.0))
+    rate = 1.0 #float(rospy.get_param('cycle_rate', 1.0))
 
     while not rospy.is_shutdown():
         # Steers the caster to be straight
         pub_steer.publish(Float64(cmder.steer))
         pub_drive.publish(Float64(cmder.drive))
         
-        if random.randint(0, 4) != 4:
-            cmder.update()
-        time.sleep(1 / rate / 2)
+        cmder.update()
+        time.sleep(1 / rate)
 
 if __name__ == '__main__':
     main()

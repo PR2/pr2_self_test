@@ -3,6 +3,8 @@
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find life_test)/gripper_life_test/grip_pic.urdf.xacro'" />
   <node machine="test_host_root" pkg="pr2_etherCAT" type="pr2_etherCAT"
         args="-i eth0 -x robot_description" name="pr2_etherCAT" />
+  <node pkg="pr2_mechanism_control" type="joints_to_diagnostics.py"
+        name="joint_to_diag" machine="test_host" />
 
   <!-- Calibration -->
   <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
