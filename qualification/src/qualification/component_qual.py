@@ -410,9 +410,11 @@ class ComponentQualFrame(QualificationFrame):
     rospy.set_param('/qualification/powerboard/0', False)
     rospy.set_param('/qualification/powerboard/1', False)
     rospy.set_param('/qualification/powerboard/2', False)
-    os.environ['ROS_TEST_HOST'] = ''
+    os.environ['ROS_TEST_HOST'] = gui_name
     
     if not doc:
+      wx.MessageBox('Error: Unable to parse \'qualification/wg_map.xml\'. Please check the document and retry.','Unable to parse configuration', wx.OK|wx.ICON_ERROR, self)
+
       return
 
     for station in stations:
@@ -424,6 +426,10 @@ class ComponentQualFrame(QualificationFrame):
         os.environ['ROS_TEST_HOST'] = station.attributes['host'].value
         break
       
+    if rospy.get_param('/qualification/powerboard/serial') == '0000':
+      wx.MessageBox('Warning: Host %s not found in list of known hosts. Check file: \'qualification/wg_map.xml\' and retry.' % gui_name,'Host not found', wx.OK|wx.ICON_ERROR, self)
+      
+
 
 ## Starts roscore, qualification app for components
 class QualificationApp(wx.App):
