@@ -776,7 +776,7 @@
 	</object>
 	<object class="wxDialog" name="select_test_dialog">
 		<style>wxDEFAULT_DIALOG_STYLE</style>
-		<size>300,251</size>
+		<size>300,250</size>
 		<title>Select Component Type</title>
 		<object class="wxBoxSizer">
 			<orient>wxVERTICAL</orient>

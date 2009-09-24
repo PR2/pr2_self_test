@@ -2843,7 +2843,7 @@
             <property name="minimum_size"></property>
             <property name="name">select_test_dialog</property>
             <property name="pos"></property>
-            <property name="size">300,251</property>
+            <property name="size">300,250</property>
             <property name="style">wxDEFAULT_DIALOG_STYLE</property>
             <property name="subclass"></property>
             <property name="title">Select Component Type</property>
