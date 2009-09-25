@@ -233,7 +233,7 @@ class DropTestFrame(wx.Frame):
     
     ##\brief Write data from entire drop test in HTML
     def _write_result(self, msg=''):
-        data = '<p align=center><b>%s Drop Test Data</b></p>\n' % (self.test_name)
+        data = '<p align=center><b>%s Data</b></p>\n' % (self.test_name)
         data += '<p>Result: %s. Completed: %d of %d</p>\n' % (bool_to_msg(self.is_pass()), self.complete, self.total)
         if len(msg) > 0:
             data += '<p>' + msg + '</p>\n'

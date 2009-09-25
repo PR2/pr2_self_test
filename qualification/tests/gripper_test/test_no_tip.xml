@@ -1,5 +1,5 @@
 <test>
-  <instructions>instructions.html</instructions>
+  <instructions>instructions_no_tips.html</instructions>
   <pre_startup timeout="30" name="Power Standby">../../scripts/power_board_standby.launch</pre_startup>
   <pre_startup timeout="60" name="Program MCB's">gripper_prog.launch</pre_startup>
   <pre_startup timeout="30" name="Power Cycle">../../scripts/power_cycle.launch</pre_startup>
