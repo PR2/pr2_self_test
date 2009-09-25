@@ -26,6 +26,6 @@
 
   <!-- Test: asserts we have result service and that we passed or human'd -->
   <test type="qual_unittest.py"  pkg="qualification" name="test_sinesweep"
-        args="--human_ok" test-name="pr2_sinesweep" time-limit="300" />
+        args="--human_ok" test-name="pr2_sinesweep" time-limit="600" />
 
 </launch>
