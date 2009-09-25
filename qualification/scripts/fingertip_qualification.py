@@ -454,8 +454,8 @@ class FingertipQualification:
         r.result = result_val
 
         fig = plot.figure(1)
-        plot.ylabel('Effort')
-        plot.xlabel('Total pressure')
+        plot.xlabel('Effort')
+        plot.ylabel('Total pressure')
         plot.plot(numpy.array(self._forces), numpy.array(self._expected), label='Expected')
         plot.plot(numpy.array(self._forces), numpy.array(self._tip0), label='Tip 0')
         plot.plot(numpy.array(self._forces), numpy.array(self._tip1), label='Tip 1')

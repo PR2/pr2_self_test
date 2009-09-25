@@ -62,7 +62,7 @@ def main():
 
   try:
     rospy.wait_for_service('power_board_control', 5)
-  except ROSException, e:
+  except:
     rospy.logerr('Service wait timed out! %s' % traceback.format_exc())
     # Timeout exceeded, return fail
     done.result = ScriptDoneRequest.RESULT_ERROR

@@ -143,7 +143,8 @@ class VisualizerApp(wx.App):
       if (not os.path.exists(self._filepath)):
         call_done_service(ScriptDoneRequest.RESULT_ERROR, 'Visual check recorded error, file does not exist!')
         rospy.logerr('Visual check recorded error, file does not exist!')
-        #print "File '%s' does not exist!"%(self._filepath)
+        return False
+        # print "File '%s' does not exist!"%(self._filepath)
         #sys.exit(1)
     
       frame.load_config_from_path(self._filepath)
@@ -152,16 +153,15 @@ class VisualizerApp(wx.App):
       return True
     except:
       # Fail here, because this could mean TF is giving NaN values (encoder failure...)
+      traceback.print_exc()
       call_done_service(ScriptDoneRequest.RESULT_ERROR, 'Visual check recorded error on initialization: %s' % traceback.format_exc())
       rospy.logerr('Error initializing rviz: %s' % traceback.format_exc())
+      return False
 
   def OnExit(self):
     ogre_tools.cleanupOgre()
 
 if __name__ == "__main__":
-  
-
-
   if (len(sys.argv) < 2):
     call_done_service(ScriptDoneRequest.RESULT_ERROR, "Visual verifier not given path to config file.\nusage: visual_verifier.py 'path to config file'")
     print 'Usage: visual_verifier.py \'path to config file\''
