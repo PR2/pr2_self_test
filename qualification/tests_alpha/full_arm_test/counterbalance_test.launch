@@ -1,7 +1,0 @@
-<launch>
-  <param name="full_arm_test/side" value="r" type="str" />
-
-  <node pkg="qualification" type="counterbalance_spawner.py" args="$(find qualification)/tests/full_arm_test/counterbalance_test.xml" />
-
-  <node pkg="qualification" type="counterbalance_analysis.py"  />
-</launch>

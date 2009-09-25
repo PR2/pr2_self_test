@@ -27,7 +27,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ##\author Matthew Piccoli, Kevin Watts
-##\brief Fingertip qualification of gripper
+##\brief Qualification of gripper tips
 ##
 ## This test checks that the gripper tip sensors on the PR2 gripper. It checks 
 ## that each tip has the correct number of tips, and that each one is reading.
@@ -99,6 +99,9 @@ class FingertipQualification:
         self._diff_avg_abs_quest = rospy.get_param('~diff_avg_abs_question', 5)
         self._diff_avg_abs_fail = rospy.get_param('~diff_avg_abs_fail', 10)
         
+        # Don't look at tip values, just check the connections
+        self.check_connect_only = rospy.get_param('~check_connect_only', False)
+
         self.data_sent = False
         self.result_service = rospy.ServiceProxy('/test_result', TestResult)
 
@@ -200,6 +203,15 @@ class FingertipQualification:
         self._connected_data = '<p align=center><b>Tip connections: %s</b></p><br>\n' % connect_str
         self._connected_data += connect_table
         
+        if self.check_connect_only:
+            r = TestResultRequest()
+            r.text_summary = 'Gripper tips connected'
+            r.html_result = self._connected_data 
+            r.html_result += '<hr size="2">\n' + self._write_params()
+            r.result = TestResultRequest.RESULT_PASS
+            self.send_results(r)
+            return ok
+
         if not ok:
             r = TestResultRequest()
             r.text_summary = 'Not connected.'
@@ -468,7 +480,12 @@ if __name__ == '__main__':
     try:
         qual.open_gripper()
         if not qual.check_connected():
-            sleep(1) # Will automatically call failure service, just wait for it
+            # We've failed and sent it in, now wait to be terminated
+            rospy.spin()
+
+        # Only check connection, we've sent results already
+        if qual.check_connect_only:
+            rospy.spin()
 
         for j in range(0, qual.num_increments):
             if rospy.is_shutdown():
@@ -479,6 +496,8 @@ if __name__ == '__main__':
             qual.record_increase()
             qual.open_gripper()
             qual.increment_value()
+
+
         qual.process_results()
     except KeyboardInterrupt:
         raise

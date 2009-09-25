@@ -1,8 +1,0 @@
-<test>
-<instructions>instructions_cb.html</instructions>
-<pre_startup>../../scripts/power_cycle.launch</pre_startup>
-<startup>full_arm.launch</startup>
-<subtest>full_arm_checkout.launch</subtest>
-<subtest>counterbalance_test.launch</subtest>
-<shutdown>../../scripts/power_board_disable.launch</shutdown>
-</test>

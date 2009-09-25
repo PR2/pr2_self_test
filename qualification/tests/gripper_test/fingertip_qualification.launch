@@ -41,5 +41,8 @@
     <param name="fingertip_refresh_hz" type="double" value="25.0"/>
     <param name="num_sensors" type="int" value="22"/>
     <param name="num_sensors_outside" type="int" value="7"/>
+
+    <!-- Check connections only, since the tips are bad -->
+    <param name="check_connect_only" type="bool" value="true" />
   </node>
 </launch>
