@@ -456,7 +456,7 @@ class TestMonitorPanel(wx.Panel):
         if rospy.get_time() - self.last_power_update > self.power_timeout:
             self.update_board("Stale", False)
 
-    ##\brief Updates power board control
+    ##\brief Updates power board control with status
     def update_board(self, value, estop):
         if not self.is_launched():
             return
@@ -469,6 +469,10 @@ class TestMonitorPanel(wx.Panel):
         if value == "Stale":
             self._power_board_text.SetBackgroundColour("Light Blue")
             self._power_board_text.SetValue("Stale")
+            self._estop_status.SetBackgroundColour("Light Blue")
+            self._estop_status.SetValue("E-Stop Stale")
+            return
+
         elif value == "Standby":
             self._power_board_text.SetBackgroundColour("Orange")
             self._power_board_text.SetValue("Standby")
@@ -597,7 +601,7 @@ class TestMonitorPanel(wx.Panel):
     
     def make_launch_script(self, bay, script, local_diag_topic):
         launch = '<launch>\n'
-        launch += '<group ns="%s">' % bay.name
+        launch += '<group ns="%s" >' % bay.name
 
         # Remap
         launch += '<remap from="/diagnostics" to="%s" />' % local_diag_topic
@@ -605,7 +609,7 @@ class TestMonitorPanel(wx.Panel):
         # Init machine
         launch += '<machine name="test_host_root" user="root" address="%s" ' % bay.machine
         launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="never"/>'
-        launch += '<machine name="test_host" address="%s" ' % bay.machine
+        launch += '<machine name="test_host" address="%s" default="true" ' % bay.machine
         launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)"  />'
 
         # Include our launch file
@@ -726,6 +730,8 @@ class TestMonitorPanel(wx.Panel):
 
         self.update_test_record('Launching test %s on bay %s, machine %s.' % (self._test._name, self._bay.name, self._bay.machine))
 
+        # Clear namespace
+        rospy.set_param(self._bay.name, {})
         self._test.set_params(self._bay.name)
         self._test_launcher = roslaunch_caller.ScriptRoslaunch(
             self.make_launch_script(self._bay, self._test._launch_script, local_diag))
@@ -763,7 +769,7 @@ class TestMonitorPanel(wx.Panel):
             halt_srv()
 
         except Exception, e:
-            rospy.logerr('Exception on halt motors. %s' % traceback.format_exc())
+            rospy.logerr('Exception on halt test.\n%s' % traceback.format_exc())
 
     def on_reset_motors(self, event = None):
          try:
@@ -772,7 +778,7 @@ class TestMonitorPanel(wx.Panel):
              reset()
 
          except:
-            rospy.logerr('Exception on reset motors. %s' % traceback.format_exc())
+            rospy.logerr('Exception on reset test.\n%s' % traceback.format_exc())
       
     # 
     # Loggers and data processing -> Move to notifier class or elsewhere

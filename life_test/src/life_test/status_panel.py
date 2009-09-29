@@ -266,4 +266,5 @@ class TestContainerStatusPanel(wx.Panel):
         
         ## Todo - allow delete used panels
         ## put into test manager
+        ## Add last message field to GUI display
 

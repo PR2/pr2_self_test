@@ -31,8 +31,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Author: Kevin Watts
-# Shamelessly copied from joint_calibration_monitor/generic_joint_monitor by Vijay Pradeep
+##\author Kevin Watts
+
+##\brief Listens to transmissions of specified joints, halts motors if error detected.
+
 
 PKG = 'life_test'
 
@@ -139,7 +141,7 @@ class JointTransmissionListener():
         if self._min is not None and position < self._min:
             return False
 
-        # Reverse for joints that have negative search velocities
+        # cal_bool is True if the flag is closed
         cal_bool = cal_reading % 2 == 1
         
         
@@ -156,7 +158,7 @@ class JointTransmissionListener():
                     rospy.logwarn('Broken transmission reading for %s. Position: %f (wrapped), cal_reading: %d. Up ref: %s, down ref: %s' % (self._joint, position, cal_reading, str(self._up_ref), str(self._down_ref)))
                     return False
             else: # Down > Up
-                if position < self._up_ref and cal_bool:
+                if position < self._up_ref and not cal_bool:
                     return True
                 if (position > self._up_ref) and (position < self._down_ref) and cal_bool:
                     return True
@@ -266,10 +268,12 @@ class JointTransmissionListener():
         diag.values.append(KeyValue('Errors Since Reset', str(self._num_errors_since_reset)))
         diag.values.append(KeyValue('Total Bad Readings', str(self._num_hits)))
 
-        self._max_position = max(self._max_position, position)
+        if calibrated:
+            self._max_position = max(self._max_position, position)
         diag.values.append(KeyValue('Max Obs. Position', str(self._max_position)))
 
-        self._min_position = min(self._min_position, position)
+        if calibrated:
+            self._min_position = min(self._min_position, position)
         diag.values.append(KeyValue('Min Obs. Position', str(self._min_position)))
         
         return self._ok, diag

@@ -1,7 +1,6 @@
 <package>
 
-  <description brief="Runs life/impact tests on test carts and robots">
-    
+  <description brief="Runs life/burn-in tests on components and robots">
     This package contains the scripts needed to run burn in and life tests on PR2 components.
 
     Use Test Manager to run tests:
@@ -11,7 +10,7 @@
   <author>Kevin Watts</author>
   <review status="na" notes=""/>
   <license>BSD</license>
-  <url>http://pr.willowgarage.com/wiki/Life_Test</url>
+  <url>http://www.ros.org/wiki/Life_Test</url>
 
   <depend package="pr2_defs" />
   <depend package="pr2_default_controllers" />
@@ -28,4 +27,5 @@
   <depend package="pr2_mechanism_msgs" />
   <depend package="geometry_msgs" />
   <depend package="robot_state_publisher" />
+  <depend package="wge100_camera" />
 </package>

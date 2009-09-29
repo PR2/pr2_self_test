@@ -1,18 +1,38 @@
 <launch>
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find life_test)/wrist_test/wrist.xml'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find life_test)/wrist_test/wrist.urdf.xacro'" />
 
-  <node machine="test_host_root" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i eth0 -x robot_description"/>
-
+  <param name="publish_rate_mechanism_state" type="double" value="100" />
+  <node machine="test_host_root" pkg="pr2_etherCAT" type="pr2_etherCAT"
+        args="-i eth0 -x robot_description" name="pr2_etherCAT" />
+  <node pkg="pr2_mechanism_control" type="joints_to_diagnostics.py"
+        name="joint_to_diag" machine="test_host" />
 
   <!-- Calibration -->
-  <!--
+  <rosparam command="load"
+            file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
   <node pkg="mechanism_bringup" type="calibrate.py"
-        args="$(find life_test)/wrist_test/wrist_cal.xml"
-        output="screen" />
--->	
-  <node pkg="life_test" type="wrist_test.py" />
+        args="cal_r_wrist" name="cal_wrist" output="screen" />
 
-  <node pkg="life_test" type="ethercat_test_monitor.py" />
+  <!-- Load wrist effort controllers -->
+  <rosparam command="load"
+            file="$(find pr2_default_controllers)/pr2_joint_effort_controllers.yaml" />
+  <node pkg="pr2_mechanism_control" type="spawner.py"
+        args="r_wrist_flex_effort_controller r_wrist_roll_effort_controller r_gripper_effort_controller"
+        name="$(anon wrist_spawner)" />
+
+  <!-- Commander -->
+  <node pkg="life_test" type="wrist_test.py"
+        name="wrist_commander" machine="test_host" />
+
+  <!-- Monitor (with transmission checker) -->
+  <node pkg="life_test" type="test_monitor.py"
+        name="monitor" machine="test_host" >
+    <rosparam command="load"
+              file="$(find life_test)/wrist_test/wrist_listeners.yaml" />
+  </node>
+
+  <!-- WGE100 cam -->
+  <include file="$(find life_test)/wrist_test/wge100.launch" />
 
 
 </launch>

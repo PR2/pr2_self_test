@@ -1,18 +1,26 @@
 <?xml version="1.0"?>
-<robot name="gripper">
-  
+<robot name="wrist">
   <include filename="$(find pr2_defs)/calibration/default_cal.xml" />
   <include filename="$(find pr2_defs)/defs/gripper/gripper_defs.urdf.xacro" />
-  <include filename="$(find pr2_defs)/defs/materials.urdf.xacro" />
+  <include filename="$(find pr2_defs)/defs/arm/arm_defs.urdf.xacro" />
+  <include filename="$(find pr2_defs)/defs/arm/arm_transmission.xacro" />
   
-  <pr2_gripper side="r" parent="base_link" screw_reduction="${4.0/1000.0}" gear_ratio="${29.16*22.0/16.0*0.9}" >
+  <include filename="$(find pr2_defs)/defs/materials.urdf.xacro" />
+
+  
+  <pr2_forearm side="r" reflect="1" parent="base_link" />
+  <pr2_forearm_transmission side="r" />
+
+  <!-- Needs to be set up for Betas
+  <pr2_gripper side="r" parent="base_link" screw_reduction="${4.0/1000.0}" gear_ratio="${29.16*22.0/16.0}" >
     <origin xyz="0 0 0" rpy="0 0 0" />
   </pr2_gripper>
+-->
   
   <!-- Solid Base for visualizer -->
   <joint name="base_joint" type="fixed">
     <parent link="world" />
-    <origin xyz="0 0 1" rpy="0 0 0" /> 
+    <origin xyz="0 0 0" rpy="0 0 0" /> 
     <child link="base_link" />
   </joint>
 
@@ -38,7 +46,5 @@
   <gazebo reference="base_link" >
     <material>Gazebo/White</material>
   </gazebo>
-
-
 
 </robot>

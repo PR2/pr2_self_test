@@ -1,0 +1,23 @@
+ethercat:
+  type: EthercatListener
+  file: ethercat_listener
+trans:
+  type: TransmissionListener
+  file: trans_listener
+  roll_trans:
+    joint: r_wrist_roll_joint
+    actuator: r_wrist_r_motor
+    up_ref: 1.5707963267948966
+    down_ref: 4.7123889803846897
+    wrap: 6.2831853071795862
+    deadband: 0.1
+  flex_trans:
+    joint: r_wrist_flex_joint
+    actuator: r_wrist_l_motor
+    up_ref: 0.54105
+    deadband: 0.1
+    max: 2.55
+    min: 0.0
+camera:
+  type: CameraListener
+  file: camera_listener

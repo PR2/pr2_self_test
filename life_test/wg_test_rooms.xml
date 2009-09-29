@@ -5,13 +5,16 @@
   </room>
 
   <room hostname="cmi" >
+    <!-- On test cart to side -->
     <bay name="testi" machine="testi" board="1001" breaker="1" />
     <bay name="testk" machine="testk" board="1001" breaker="0" />
 
-    
-    <bay name="testv" machine="testv" board="1006" breaker="0" />
+    <!-- Second rack from top -->
+    <bay name="testq" machine="testq" board="1006" breaker="0" />
     <bay name="testw" machine="testw" board="1006" breaker="1" />
+    <bay name="testv" machine="testv" board="1006" breaker="2" />
 
+    <!-- Top rack -->
     <bay name="testx" machine="testx" board="1002" breaker="2" />
     <bay name="testy" machine="testy" board="1002" breaker="1" />
     <bay name="testz" machine="testz" board="1002" breaker="0" />
