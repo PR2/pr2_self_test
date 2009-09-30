@@ -607,16 +607,23 @@ class TestMonitorPanel(wx.Panel):
         launch += '<remap from="/diagnostics" to="%s" />' % local_diag_topic
          
         # Init machine
+        # Root on remote 
         launch += '<machine name="test_host_root" user="root" address="%s" ' % bay.machine
         launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="never"/>'
+
+        # Default: User on remote
         launch += '<machine name="test_host" address="%s" default="true" ' % bay.machine
         launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)"  />'
+        
+        # Local host
+        launch += '<machine name="localhost" address="localhost" '
+        launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="false"/>'
 
         # Include our launch file
         launch += '<include file="$(find life_test)/%s" />' % script
 
-        # Will set bag name to be serial
-        launch += ' <node pkg="rosrecord" type="rosrecord" args="-f /hwlog/%s_life_test /diagnostics" name="test_logger" />' % self._serial
+        # Rosrecord launches and records local diagnostics
+        launch += ' <node machine="localhost" pkg="rosrecord" type="rosrecord" args="-f /hwlog/%s_life_test /diagnostics" name="test_logger" />' % self._serial
         
         launch += '</group>\n</launch>'
 
