@@ -67,13 +67,20 @@ class Invent:
     self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
 
     self.loggedin = False
+    self._logged_time = 0
 
     self.site = "http://invent.willowgarage.com/invent/"
     #self.site = "http://localhost/sinvent/"
 
+  def login(self):
+    dt = time.time() - self._logged_time
+    if self.loggedin==False or dt > 3600:
+      return self._login()
+    return True
+
   ## Login to inventory system with given username and password
   ## Returns True if successful, False if failure
-  def login(self):
+  def _login(self):
     username = self.username
     password = self.password
     url = self.site + "login/signin0.py?Action.Login=1&username=%(username)s&password=%(password)s" % locals()
@@ -83,17 +90,20 @@ class Invent:
     fp.close()
 
     self.loggedin = False
+    self._logged_time = 0
     if body.find("Invalid Login") != -1:
       return False
 
     self.loggedin = True
+    self._logged_time = time.time()
     return True
 
-  ## Return any references to an item 
+  ## Return any references to an item. References are grouped by
+  ## name, and are stored as NAME:REFERENCE,... under each item.
   ##@param key str : Serial number of item
+  ##@return Dictionary of { name, reference }
   def getItemReferences(self, key):
-    if self.loggedin == False:
-      self.login()
+    self.login()
 
     key = key.strip()
 
@@ -118,8 +128,7 @@ class Invent:
   ##@param name str : Reference name
   ##@param reference str : Reference value
   def addItemReference(self, key, name, reference):
-    if self.loggedin == False:
-      self.login()
+    self.login()
 
     key = key.strip()
 
@@ -133,8 +142,7 @@ class Invent:
   ##@param key str : Serial number of item
   ##@param name str : Interface name (ex: "lan0")
   def generateWGMacaddr(self, key, name):
-    if self.loggedin == False:
-      self.login()
+    self.login()
 
     key = key.strip()
 
@@ -151,8 +159,7 @@ class Invent:
   ##@param note str : Text of item
   ##@param noteid int (optional) : Note ID, allows programmatic access to note text
   def setNote(self, reference, note, noteid=None):
-    if self.loggedin == False:
-      self.login()
+    self.login()
 
     url = self.site + "invent/api.py?Action.AddNoteToItem=1&reference=%s&note=%s" % (reference, urllib2.quote(note))
     if noteid:
@@ -175,8 +182,7 @@ class Invent:
   ##@param key str : Key (name)
   ##@param value str : Value
   def setKV(self, reference, key, value):
-    if self.loggedin == False:
-      self.login()
+    self.login()
 
     key = key.strip()
     value = value.strip()
@@ -197,8 +203,7 @@ class Invent:
   ##@param reference str : Serial number of component
   ##@param key str : Key (name)
   def getKV(self, reference, key):
-    if self.loggedin == False:
-      self.login()
+    self.login()
 
     key = key.strip()
 
@@ -225,8 +230,7 @@ class Invent:
   ##@param mimetype MIMEType : MIMEType of file
   ##@param attachment any : Attachement data
   def add_attachment(self, reference, name, mimetype, attachment):
-    if self.loggedin == False:
-      self.login()
+    self.login()
 
     if not name:
       raise ValueError, "the name is blank"
