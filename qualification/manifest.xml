@@ -45,5 +45,5 @@
   <rosdep name="wxwidgets"/>
   <rosdep name="wxpython"/>
   <rosdep name="python-matplotlib"/>
-
+  <rosdep name="python-serial"/>
 </package>
