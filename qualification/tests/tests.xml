@@ -33,8 +33,6 @@
 	file="shoulder_test/test.xml" descrip="Shoulder Test" />
   <test serial="6804139" 
 	file="upperarm_test/test.xml" descrip="Upperarm Test" />
-  <!--test serial="6804139" 
-	file="upperarm_flex_only_test/test.xml" descrip="Upperarm Test - Flex Jnt Ony" /-->
   <test serial="6804213" 
 	file="wrist_test/test.xml" descrip="Wrist Test" />
 
@@ -65,8 +63,10 @@
   <!-- Instruments and devices -->
   <test serial="6801024" 
 	file="hokuyo_test/test_self_only.xml" descrip="Hokuyo Self-Test Only" />
-    <test serial="6801024" 
+  <test serial="6801024" 
 	file="hokuyo_test/test.xml" descrip="Hokuyo Test" />
+  <test serial="6803504"
+        file="serial_test/test.xml" descrip="USB to Serial Test" />
   <test serial="6801050" 
 	file="imu_test/test.xml" descrip="IMU Test" />
   <test serial="etherne" 

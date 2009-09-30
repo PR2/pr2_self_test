@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find qualification)/tests/init.machine" />
+  
+  <node machine="realtime" pkg="qualification" type="usb_serial.py" name="USB Serial Test" output="screen" />
+</launch>

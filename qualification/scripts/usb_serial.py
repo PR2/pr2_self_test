@@ -33,11 +33,23 @@
 #*  POSSIBILITY OF SUCH DAMAGE.
 #***********************************************************
 
-#import roslib; roslib.load_manifest('qualification')
-#import rospy
+import roslib; roslib.load_manifest('qualification')
+import rospy
 import serial
 import random              
 import threading
+import traceback
+
+from qualification.srv import TestResult, TestResultRequest
+
+
+def index_to_msg(lst, i):
+    try:
+        if lst[i]:
+            return "OK"
+        return "FAIL"
+    except:
+        return "N/A"
 
 class TestSerialPort:
     def __init__(self, port, rate, timeout):
@@ -50,6 +62,9 @@ class TestSerialPort:
         while self.serial.read(1024) != '': # Clear the input buffer
             pass
         self.serial.timeout = timeout
+
+        self.write_ok = False
+        self.join_ok = False
 
     READ = 0
     WRITE = 1
@@ -96,47 +111,124 @@ class TestSerialPort:
         # We only get here on success
         self.error[direction] = False
 
-if __name__ == '__main__':
-    fault = False
-    bytes = 16384
-    rate = 115200
-    
-    ports=[]
-    seeds=[]
-    names=[]
-    timeout = bytes * 10 / rate * 1.1 + 3
-    try:
-        for i in range(0,4):
-            names.append('/dev/ttyUSB%i'%i)
-            try:
-                ports.append(TestSerialPort(names[i], rate, timeout))
-            except serial.SerialException:
-                print "Error opening serial port %s"%names[i]
-                fault = True
-                raise
-            seeds.append(random.random())
-    
-        for i in range(0,4):
-            ports[i].start(TestSerialPort.READ, seeds[i^1], bytes)
+
+class QualUSBSerial:
+    def __init__(self):
+        rospy.init_node('usb_serial_test')
+        self.data_sent = False
         
-        for i in range(0,4):
-            ports[i].start(TestSerialPort.WRITE, seeds[i], bytes)
+        self.result_service = rospy.ServiceProxy('test_result', TestResult)
+
+        self.reads = []
+        self.writes = []
+
+        self.ports = []
+        self.names = []
+        
+
+    def failure_call(self, exception_str = ''):
+        rospy.logerr(exception_str)
+        r = TestResultRequest()
+        r.html_result = exception_str
+        r.text_summary = 'Caught exception, automated test failure.'
+        r.plots = []
+        r.result = TestResultRequest.RESULT_FAIL
+        self.send_results(r)
+        print 'Test failed, waiting for shutdown'
+        rospy.spin()
+
+    def send_results(self, test_result):
+        if self.data_sent:
+            return
+        
+        rospy.wait_for_service('test_result', 15)
+        self.result_service.call(test_result)
+        self.data_sent = True
+
+    def run_qual_test(self):
+        bytes = 16384
+        rate = 115200
+        
+        ports = []
+        seeds = []
+        
+        timeout = bytes * 10 / rate * 1.1 + 3
+
+        ok = True
+        try:
+            for i in range(0,4):
+                self.names.append('/dev/ttyUSB%i'%i)
+                try:
+                    ports.append(TestSerialPort(self.names[i], rate, timeout))
+                except serial.SerialException:
+                    print 'couldnt open port: %d' % i
+                    failure_call("Error opening serial port %s.\n%s" % (self.names[i], traceback.format_exc()))
+
+                seeds.append(random.random())
     
-        for i in range(0,4):
-            if ports[i].join_is_error(TestSerialPort.WRITE):
-                print "Write test failed on port %s"%names[i]
-                fault = True
-            if ports[i].join_is_error(TestSerialPort.READ):
-                print "Read test failed on port %s"%names[i]
-                fault = True
+            for i in range(0,4):
+                ports[i].start(TestSerialPort.READ, seeds[i^1], bytes)
+                
+            for i in range(0,4):
+                ports[i].start(TestSerialPort.WRITE, seeds[i], bytes)
+                
+            for i in range(0,4):
+                self.reads.append(ports[i].join_is_error(TestSerialPort.WRITE))
+                self.writes.append(ports[i].join_is_error(TestSerialPort.READ))
 
-    except serial.SerialException:
-        pass
-    except KeyboardInterrupt:
-        print "Test interrupted."
-        fault = True
+        except serial.SerialException:
+            failure_call(traceback.format_exc())
+        except KeyboardInterrupt:
+            failure_call(traceback.format_exc())
 
-    if fault:
-        print "Test failed."
-    else:
-        print "Test passed."
+        r = TestResultRequest()
+        r.text_summary = 'USB to Serial Test: %s' % self._passed_msg()
+        r.html_result = self._write_results()
+        r.result = TestResultRequest.RESULT_FAIL
+        if self._passed():
+            r.result = TestResultRequest.RESULT_PASS
+        
+        self.send_results(r)
+        
+    def _passed_msg(self):
+        if len(self.reads) != len(self.writes) or len(self.reads) != 4:
+            return "Incomplete"
+
+        if self._passed():
+            return "PASS"
+        return "FAIL"
+
+    def _passed(self):
+        if len(self.reads) != len(self.writes) or len(self.reads) != 4:
+            return False
+
+        ok = True
+        for read in self.reads:
+            ok = ok and read
+        for write in self.writes:
+            ok = ok and write
+
+        if ok:
+            return "PASS"
+        return "FAIL"
+
+    def _write_results(self):
+        html = '<p>USB to serial send/receive test: %s</p>\n' % self._passed()
+        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
+        html += '<tr><td><b>Port</b></td><td><b>Read</b></td><td><b>Write</b></td></tr>\n'
+        for i in range(0, 4):
+            html += '<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n' % (self.names[i], index_to_msg(self.reads, i), index_to_msg(self.writes, i))
+        html += '</table>\n'
+
+        return html
+        
+        
+
+if __name__ == '__main__':
+    qt = QualUSBSerial()
+    try:
+        qt.run_qual_test()
+    except:
+        qt.failure_call(traceback.format_exc())
+
+
