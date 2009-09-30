@@ -108,9 +108,9 @@ class ShortRangeParams(TestParams):
         self.ok_err       = .01
         self.ok_maxerr    = .02
         self.tgt_a        = 0
-        self.ok_a         = numpy.tan(5.0 * numpy.pi / 180) 
+        self.ok_a         = numpy.tan(10.0 * numpy.pi / 180) 
         self.tgt_b        = -0.04
-        self.ok_b         = .15
+        self.ok_b         = 0.04
         self.min_ang      = 70 * numpy.pi / 180
         self.max_ang      = 110 * numpy.pi / 180
 
@@ -339,7 +339,7 @@ if __name__ == '__main__':
 
     if options.long:
         ht = HokuyoTest('scan', LongRangeParams())
-    if options.mid:
+    elif options.mid:
         ht = HokuyoTest('scan', MidRangeParams())
     else:
         ht = HokuyoTest('scan', ShortRangeParams())
@@ -354,6 +354,5 @@ if __name__ == '__main__':
         import traceback
         rospy.logerr('Exception in hokuyo range test.\n%s' % traceback.format_exc())
         ht.test_failed_service_call(traceback.format_exc())
-    
-# Todo - write params (val, expected, tol)
+
 # Setup HK URDF to show laser view in rviz

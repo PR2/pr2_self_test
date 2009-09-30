@@ -50,6 +50,8 @@ node_name = 'node'
 node_id = 'NONE'
 extramsg = ""
 
+from invent_client.invent_client import Invent
+
 try:
     node_name = rospy.resolve_name('node_name')
     selftestname = node_name + '/self_test'
@@ -80,6 +82,20 @@ try:
     
     if result.id is not None and result.id != '':
         node_id = result.id
+    else:
+        extramsg = '<p>Service %s returned with an empty reference ID.</p>\n' % selftestname
+        raise
+
+    # Add item reference to invent
+    username = rospy.get_param('/invent/username', '')
+    password = rospy.get_param('/invent/password', '')
+    serial = rospy.get_param('/qual_item/serial', None)
+    iv = Invent(username, password)
+    if not iv.login() or serial == None:
+        extramsg = '<p>Unable to login to invent to store item reference. Serial: %s. Reference: %s.</p>\n' % (serial, node_id)
+        raise
+    iv.addItemReference(serial, '', node_id)
+
 
     html = "<p><b>Item ID: %s, using node name %s.</b></p>\n" % (node_id, node_name)
 
