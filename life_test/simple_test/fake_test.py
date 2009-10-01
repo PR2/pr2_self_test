@@ -32,7 +32,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Kevin Watts
+##\author Kevin Watts
+##\brief Tests Test Manager system, simulates PR2 hardware undergoing life testing
 
 import roslib
 roslib.load_manifest('life_test')
@@ -52,6 +53,7 @@ from time import sleep
 from wx import xrc
 
 import math
+import signal
 
 class FakeTestFrame(wx.Frame):
     def __init__(self, parent):
@@ -84,6 +86,9 @@ class FakeTestFrame(wx.Frame):
         
         self._reset_srv = rospy.Service('reset_motors', Empty, self.on_reset)
         self._halt_srv = rospy.Service('halt_motors', Empty, self.on_halt)
+
+        self.set_enum_ctrl()
+        self.set_range_ctrl()
 
         self._start_time = rospy.get_time()
         
@@ -121,38 +126,14 @@ class FakeTestFrame(wx.Frame):
         cont_act_st.name = 'cont_motor'
         cont_act_st.calibration_reading = 14 
         wrapped_position = (cont_st.position % 6.28)
-        if wrapped_position > 3.14:
+        if wrapped_position > 3.14 and self._cal_box.IsChecked():
             cont_act_st.calibration_reading = 13
         
-        # Use same position as above, with 100:1 reduction -> Ampltitude 200
         act_st = ActuatorState()
         act_st.name = 'fake_motor'
-        act_st.device_id = 0
-        act_st.encoder_count = 200 * int(sine) + 1134 
-        act_st.position = float(200 * sine)
-        act_st.timestamp = float(rospy.get_time())
-        act_st.encoder_velocity = float(200 * sine)
-        act_st.velocity = float(200 * cosine)
-        
-        # Only one that makes a difference
         act_st.calibration_reading = 13
         if sine > 0.0 and self._cal_box.IsChecked():
             act_st.calibration_reading = 14
-
-        act_st.calibration_rising_edge_valid = 1
-        act_st.calibration_falling_edge_valid = 1
-        act_st.last_calibration_rising_edge = float(0.0)
-        act_st.last_calibration_falling_edge = float(0.0)
-        act_st.is_enabled = 1
-        act_st.run_stop_hit = 0
-        act_st.last_requested_current = float(0.0)
-        act_st.last_commanded_current = float(0.0)
-        act_st.last_measured_current = float(0.0)
-        act_st.last_requested_effort = float(0.0)
-        act_st.last_commanded_effort = float(0.0)
-        act_st.last_measured_effort = float(0.0)
-        act_st.motor_voltage = float(0.0)
-        act_st.num_encoder_errors = 0
 
         mech_st = MechanismState()
         mech_st.actuator_states = [ act_st, cont_act_st ]
@@ -182,6 +163,7 @@ class FakeTestFrame(wx.Frame):
         self.range_param_ctrl.SetValue(range_param)
 
     def on_timer(self, event = None):
+        # Has to sleep to pick up sigint or something.
         sleep(0.1)
         if not rospy.is_shutdown():
             self._diag_timer.Start(1000, True)
@@ -192,9 +174,6 @@ class FakeTestFrame(wx.Frame):
 
         choice = self._level_choice.GetStringSelection()
      
-        self.set_enum_ctrl()
-        self.set_range_ctrl()
-
         if self._pub_check_box.IsChecked():
             self.publish_diag(level, str(choice))
 
@@ -222,13 +201,16 @@ class FakeTestApp(wx.App):
         self._frame.Centre()
         self._frame.Show(True)
 
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+
         return True
 
 if __name__ == '__main__':
     try:
-        app = FakeTestApp(0)
+        app = FakeTestApp()
         app.MainLoop()
     except:
-        print 'Caught in FakeTestApp'
+        print 'Caught exception in FakeTest!'
         import traceback
         traceback.print_exc()
+        rospy.logerr(traceback.format_exc())

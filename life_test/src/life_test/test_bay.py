@@ -54,12 +54,15 @@ class TestRoom:
 
     def get_bay_names(self, need_power):
         if not need_power:
-            return self._bays.keys()
+            bays = self._bays.keys()
+            bays.sort()
+            return bays
 
         names = []
         for name in self._bays.keys():
             if self._bays[name].board is not None:
                 names.append(name)
+        names.sort()
         return names
 
     def get_bay(self, name):

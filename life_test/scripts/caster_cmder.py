@@ -48,6 +48,7 @@ class CasterCmd:
 
         self._count = 0
 
+    ##\brief 1/5 duty cycle on turn, regular sequence
     def update(self):
         if self._count == 0:
             self.steer = -1 * STEER_VEL
@@ -67,7 +68,7 @@ class CasterCmd:
             self._count = 0
             
 
-    ##\brief 1/5 duty cycle on turn
+    ##\brief 1/5 duty cycle on turn, random sequence
     def update_rndm(self):
         rndm = random.randint(0, 10)
         if rndm == 10:
@@ -92,7 +93,7 @@ def main():
     pub_steer.publish(Float64(0.0))
     pub_drive.publish(Float64(0.0))
 
-    rate = 1.0 #float(rospy.get_param('cycle_rate', 1.0))
+    rate = float(rospy.get_param('cycle_rate', 1.0))
 
     while not rospy.is_shutdown():
         # Steers the caster to be straight

@@ -1,3 +1,11 @@
 ethercat:
   type: EthercatListener
   file: ethercat_listener
+trans:
+  type: TransmissionListener
+  file: trans_listener
+  gripper_trans:
+    joint: r_gripper_joint
+    actuator: r_gripper_motor
+    max: 0.09
+    min: -0.001

@@ -75,7 +75,7 @@ def main():
                     grip_idx = index
                     break
             if grip_idx < 0:
-                print "The joint %s was not found in the joints states" % 'r_gripper_joint'
+                rospy.logwarn("The joint %s was not found in the joints states" % 'r_gripper_joint')
 
             if abs(jnt_states.velocity[grip_idx]) < 0.0005:
                 turn_count += 1
@@ -86,6 +86,8 @@ def main():
                 eff = -1 * eff
                 pub.publish(Float64(eff))
 
+    except  KeyboardInterrupt, e:
+        pass
     except:
         import traceback
         rospy.logerr(traceback.format_exc())

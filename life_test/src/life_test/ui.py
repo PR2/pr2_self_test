@@ -132,6 +132,7 @@ class TestManagerFrame(wx.Frame):
             self._power_node.shutdown()
 
     def on_info_timer(self, event):
+        # Sleep here to catch sigint for shutdown
         time.sleep(0.1)
         if not rospy.is_shutdown():
             self._info_timer.Start(500, True)
@@ -143,35 +144,59 @@ class TestManagerFrame(wx.Frame):
 
     def _diag_cb(self, msg):
         self._mutex.acquire()
-        self._diags.append(msg)
+        try:
+            self._diags.append(msg)
+        except:
+            rospy.logerr(traceback.format_exc())
+            self._mutex.release()
+
+
         self._mutex.release()
         wx.CallAfter(self._new_diag)
         
     ##\brief Look for known power boards in diagnostics, update panels
+    ##
+    ##\todo This is causing deadlocks. Added timeout, see if it helps.
+    ## Josh suggested try/except block in case exception is causing problem. Will see
+    ## if that helps.
     def _new_diag(self):
-        self._mutex.acquire()
-        for msg in self._diags:
-            for status in msg.status:
-                if status.name.startswith("Power board"):
-                    board_sn = int(status.name.split()[2])
-                    if self._active_boards.has_key(board_sn):
-                        runstop = False
-                        runbutton = False
-                        for val in status.values:
-                            if val.key == "RunStop Button Status":
-                                runbutton = (val.value == "True")
-                            if val.key == "RunStop Status":
-                                runstop = (val.value == "True")
-                        estop = runstop and runbutton
+        timeout = 0.5
+        start = rospy.get_time()
+        while not self._mutex.acquire(False):
+            sleep(0.1)
+            rospy.log_info('Waiting for mutex for /diagnostics')
+            if rospy.get_time() - start > timeout:
+                rospy.logwarn('Timeout for mutex for /diagnostics exceeded.')
+                return
 
-                        for val in status.values:
-                            if val.key.startswith("Breaker "):
-                                for breaker in self._active_boards[board_sn].keys():
-                                    if val.key == "Breaker %d State" % breaker:
-                                        panel = self._active_boards[board_sn][breaker]
-                                        self._test_panels[panel].update_board(val.value, estop)
+        try:
+            # Search for power board messages. If we have them, update the status in the viewer
+            for msg in self._diags:
+                for status in msg.status:
+                    if status.name.startswith("Power board"):
+                        board_sn = int(status.name.split()[2])
+                        if self._active_boards.has_key(board_sn):
+                            runstop = False
+                            runbutton = False
+                            for val in status.values:
+                                if val.key == "RunStop Button Status":
+                                    runbutton = (val.value == "True")
+                                if val.key == "RunStop Status":
+                                    runstop = (val.value == "True")
+                            estop = runstop and runbutton
+                            
+                            for val in status.values:
+                                if val.key.startswith("Breaker "):
+                                    for breaker in self._active_boards[board_sn].keys():
+                                        if val.key == "Breaker %d State" % breaker:
+                                            panel = self._active_boards[board_sn][breaker]
+                                            self._test_panels[panel].update_board(val.value, estop)
 
-        self._diags = []
+            self._diags = []
+        except:
+            rospy.logerr(traceback.format_exc())
+            self._mutex.release()
+
         self._mutex.release()
 
 
@@ -207,6 +232,7 @@ class TestManagerFrame(wx.Frame):
             del self._test_panels[serial]
             del self._active_serials[idx]
         
+    ##\todo Needs to be fixed to only load boards for tests that need it.
     def test_start_check(self, bay, serial):
         if bay in self._active_bays:
             return False
@@ -544,13 +570,9 @@ class TestManagerFrame(wx.Frame):
 
 class TestManagerApp(wx.App):
     def OnInit(self):
-        # Launch roscore
-        #config = roslaunch.ROSLaunchConfig()
-        #config.master.auto = config.master.AUTO_RESTART
-        
         self._core_launcher = roslaunch_caller.launch_core()
 
-        rospy.init_node("test_manager")
+        rospy.init_node("Test_Manager")
         self._frame = TestManagerFrame(None)
         self._frame.SetSize(wx.Size(1600, 1100))
         self._frame.Layout()
@@ -569,4 +591,4 @@ if __name__ == '__main__':
     except Exception, e:
         print 'Caught exception in TestManagerMainLoop'
         traceback.print_exc()
-        sys.exit(1)
+        sys.exit()

@@ -67,10 +67,6 @@ class JointTransmissionListener():
         
     ## Mandatory params: actuator, joint, deadband
     def create(self, params):
-        if not params.has_key('deadband'):
-            rospy.logerr('Parameter "deadband" not found! Aborting.')
-            return False
-        self._deadband = params['deadband']
 
         if not params.has_key('actuator'):
             rospy.logerr('Parameter "actuator" not found! Aborting.')
@@ -81,6 +77,14 @@ class JointTransmissionListener():
             rospy.logerr('Parameter "joint" not found! Aborting.')
             return False
         self._joint = params['joint']
+
+        if not params.has_key('deadband') and self._joint.find("gripper") < 0:
+            rospy.logerr('Parameter "deadband" not found! Aborting.')
+            return False
+        if params.has_key('deadband'):
+            self._deadband = params['deadband']
+        else:
+            self._deadband = None
 
         ## Calibration flag references
         if not params.has_key('up_ref'):
@@ -93,7 +97,8 @@ class JointTransmissionListener():
         else:
             self._down_ref = params['down_ref']
 
-        if self._up_ref is None and self._down_ref is None:
+        # Must have either up/down, except grippers
+        if self._up_ref is None and self._down_ref is None and self._joint.find("gripper") < 0:
             rospy.logerr('Neither up or down reference was given! Aborting.')
             return False
 
@@ -140,6 +145,10 @@ class JointTransmissionListener():
             return False
         if self._min is not None and position < self._min:
             return False
+
+        # Grippers only have max/min. No other stuff.
+        if self._joint.find("gripper") > 0:
+            return True
 
         # cal_bool is True if the flag is closed
         cal_bool = cal_reading % 2 == 1
@@ -211,7 +220,6 @@ class JointTransmissionListener():
         diag.values.append(KeyValue("Deadband", str(self._deadband)))
         diag.values.append(KeyValue("Mech State RX Count", str(self._rx_count)))
 
-
         # Check if we can find both the joint and actuator
         act_names = [x.name for x in mech_state.actuator_states]
         act_exists = self._actuator in act_names ;
@@ -275,7 +283,8 @@ class JointTransmissionListener():
         if calibrated:
             self._min_position = min(self._min_position, position)
         diag.values.append(KeyValue('Min Obs. Position', str(self._min_position)))
-        
+
+
         return self._ok, diag
 
 # Loads individual joint listeners

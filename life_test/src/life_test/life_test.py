@@ -32,7 +32,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Kevin Watts
+##\author Kevin Watts
+##\brief Panel for starting, stopping and logging life tests 
 
 import roslib
 roslib.load_manifest('life_test')
@@ -49,8 +50,7 @@ from wx import xrc
 
 import rospy
 
-from std_srvs.srv import * 
-
+from std_srvs.srv import * # Empty
 
 # Stuff from life_test package
 from msg import TestStatus, TestInfo
@@ -97,7 +97,7 @@ class TestMonitorPanel(wx.Panel):
         self._launch_button.Bind(wx.EVT_BUTTON, self.start_stop_test)
 
         self._test_bay_ctrl = xrc.XRCCTRL(self._panel, 'test_bay_ctrl')
-        self._test_bay_ctrl.SetItems(self._manager.room.get_bay_names(test.needs_power()))
+        self._test_bay_ctrl.SetItems(self._manager.room.get_bay_names(self._test.needs_power()))
         
         self._end_cond_type = xrc.XRCCTRL(self._panel, 'end_cond_type')
         self._end_cond_type.SetStringSelection('Continuous')
@@ -282,7 +282,7 @@ class TestMonitorPanel(wx.Panel):
 
     ##\brief Updates record, notifies operator if necessary
     def update_test_record(self, note = ''):
-        alert, msg = self._record.update(self.is_launched(), self._is_running, self._is_stale, note)
+        alert, msg = self._record.update(self.is_launched(), self._is_running, self._is_stale, note, self._test_msg)
 
         lst = [msg, note]
         message = string.join(lst, ' ')
@@ -387,7 +387,7 @@ class TestMonitorPanel(wx.Panel):
             msg.test_status = int(self._stat_level)
             msg.bay_name = str(self._bay.name)
             msg.machine = str(self._bay.machine)
-            if self._bay.board is not None:
+            if self._bay.board is not None and self._test.needs_power():
                 msg.board = self._bay.board
                 msg.breaker = self._bay.breaker
                 msg.power_status = self._power_stat
@@ -516,6 +516,7 @@ class TestMonitorPanel(wx.Panel):
     def update_controls(self, level = 4, msg = 'None'):
         self._update_status_bar(level, msg)
 
+        # These are updated here instead of the callback, because of the stale timer
         self._stat_level = level
         self._test_msg = msg
 
@@ -587,16 +588,22 @@ class TestMonitorPanel(wx.Panel):
 
         level_dict = { 0: 'OK', 1: 'Warn', 2: 'Error', 3: 'Stale' }
 
+        test_level = self._status_msg.test_ok
+        test_msg = self._status_msg.message
+
+        self._mutex.release()
+
         self._is_running = (self._status_msg.test_ok == 0)
         self._is_stale = False
+
         self.start_timer()
 
-        self.update_controls(self._status_msg.test_ok, self._status_msg.message)
+        self.update_controls(test_level, test_msg)
         self.update_test_record()
         self.stop_if_done()
 
 
-        self._mutex.release()
+
      
     
     def make_launch_script(self, bay, script, local_diag_topic):
@@ -716,7 +723,7 @@ class TestMonitorPanel(wx.Panel):
 
         # Machine, board stats
         self._machine_text.SetValue(self._bay.machine)
-        if self._bay.board is not None:
+        if self._bay.board is not None and self._test.needs_power():
             self._power_sn_text.SetValue(str(self._bay.board))
             self._power_breaker_text.SetValue(str(self._bay.breaker))
             self._power_board_text.SetValue("No data")
@@ -731,7 +738,7 @@ class TestMonitorPanel(wx.Panel):
             self._power_board_text.SetValue("No board")
             self._power_board_text.SetBackgroundColour("White")
             self._estop_status.SetBackgroundColour("White")
-            
+            self._estop_status.SetValue("No board")
 
         local_diag = '/' + self._bay.name + '/diagnostics'
 
@@ -752,6 +759,14 @@ class TestMonitorPanel(wx.Panel):
             self.update_test_record(traceback.format_exc())
             self._test_launcher.shutdown()
             self._test_launcher = None
+            self._power_sn_text.SetValue("N/A")
+            self._power_breaker_text.SetValue("N/A")
+            self._power_board_text.SetValue("No board")
+            self._power_board_text.SetBackgroundColour("White")
+            self._estop_status.SetBackgroundColour("White")
+            self._estop_status.SetValue("No board")
+
+            wx.MessageBox('Failed to launch. Check machine for connectivity. See log for error message.', 'Failure to launch', wx.OK|wx.ICON_ERROR, self)
             self._launch_button.Enable(True)
             return False
 

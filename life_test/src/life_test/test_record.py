@@ -107,7 +107,7 @@ class TestRecord:
             return self._cum_data[kys[0]]
         return self._cum_data[name]
             
-    def update(self, launched, running, stale, note):
+    def update(self, launched, running, stale, note, monitor_msg):
         if running and not launched:
             rospy.logerr('Reported impossible state of running and not launched')
             return 0, ''
@@ -165,7 +165,7 @@ class TestRecord:
         self._last_update_time = rospy.get_time()
 
         if alert or note != '' or  (running and self._last_log_time - rospy.get_time() > 7200):
-            self.write_csv_row(self._last_update_time, state, msg, note)
+            self.write_csv_row(self._last_update_time, state, msg, note, monitor_msg)
             self._log[rospy.get_time()] = msg + ' ' + note
             self._last_log_time = self._last_update_time
 
@@ -180,14 +180,14 @@ class TestRecord:
                 header.append('Cum. %s' % param.get_name())
                 self._cum_data[param.get_name()] = 0
         
-        header.extend(['Num. Halts', 'Num Events', 'Message'])
+        header.extend(['Num. Halts', 'Num Events', 'Monitor', 'Message'])
         return header
 
     def get_cum_data(self):
         return self._cum_data
             
 
-    def write_csv_row(self, update_time, state, msg, note):
+    def write_csv_row(self, update_time, state, msg, note, monitor_msg):
         log_msg = msg + ' ' + note
         log_msg = log_msg.replace(',', ';')
 
@@ -204,7 +204,7 @@ class TestRecord:
             if param.is_rate():
                 csv_row.append(self._cum_data[param.get_name()])
 
-        csv_row.extend( [self._num_halts, self._num_events, log_msg ])
+        csv_row.extend( [self._num_halts, self._num_events, monitor_msg, log_msg ])
         log_csv.writerow(csv_row)
 
       

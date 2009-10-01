@@ -1,5 +1,5 @@
 <launch>
-  <node pkg="life_test" type="fake_test.py"  />
+  <node pkg="life_test" type="fake_test.py" name="fake_test" machine="localhost" />
 
   <node pkg="life_test" type="test_monitor.py" name="monitor" machine="test_host" >
     <rosparam command="load" file="$(find life_test)/simple_test/fake_listeners.yaml" />
