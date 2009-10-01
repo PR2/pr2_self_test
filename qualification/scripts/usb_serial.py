@@ -56,7 +56,7 @@ class TestSerialPort:
         self.port = port
         self.serial = serial.Serial(port=port, baudrate=rate)
         self.timeout = timeout
-        self.error = [True] * 2
+        self.ok = [False] * 2
         self.thread = [None] * 2
         self.serial.timeout = 0
         while self.serial.read(1024) != '': # Clear the input buffer
@@ -71,30 +71,30 @@ class TestSerialPort:
     DIR = { 0: 'read', 1: 'write' }
 
     def start(self, direction, seed, length):
-        print "start %s %s"%(self.port, TestSerialPort.DIR[direction])
-        self.error[direction] = True
+        rospy.logout( "start %s %s"%(self.port, TestSerialPort.DIR[direction]))
+        self.ok[direction] = True
         self.thread[direction] = threading.Thread(target=self._run_test,args=[direction, seed, length])
         self.thread[direction].start()
 
     def join_is_error(self, direction):
-        print "join %s %s"%(self.port, TestSerialPort.DIR[direction])
+        rospy.logout( "join %s %s"%(self.port, TestSerialPort.DIR[direction]))
         self.thread[direction].join(self.timeout + 5)
         if self.thread[direction].isAlive():
-            print "Failed to join on %s test for %s"%(TestSerialPort.DIR[direction], self.port)
-            self.error[direction] = True
-        return self.error[direction]
+            rospy.logout( "Failed to join on %s test for %s"%(TestSerialPort.DIR[direction], self.port))
+            self.ok[direction] = False
+        return self.ok[direction]
 
     def _run_test(self, direction, seed, length):
-        print "run %s %s"%(self.port, TestSerialPort.DIR[direction])
+        rospy.logout( "run %s %s"%(self.port, TestSerialPort.DIR[direction]))
         anyletter = [chr(i) for i in range(0,256)] 
         data = ''.join([random.Random(seed).choice(anyletter) for i in range(0,length)]) 
         if direction == TestSerialPort.READ:
             indata = self.serial.read(length)  
             if len(indata) != length:
-                print "Read %i bytes instead of %i in %s"%(len(indata), length, self.port)
+                rospy.logout( "Read %i bytes instead of %i in %s"%(len(indata), length, self.port))
                 return
             if data != indata:
-                print "Input data did not match expectations for %s"%(self.port)
+                rospy.logout( "Input data did not match expectations for %s"%(self.port))
                 return
         elif direction == TestSerialPort.WRITE:
             outlen = self.serial.write(data)
@@ -104,12 +104,12 @@ class TestSerialPort:
             # upstream. Doesn't matter much for us, as if the bytes don't
             # go out, they won't come in.
             #if outlen != length:
-            #    print "Wrote %i bytes instead of %i in %s"%(outlen, length, self.port)
+            #    rospy.logout( "Wrote %i bytes instead of %i in %s"%(outlen, length, self.port))
             #    return
         else:
             raise ValueError
         # We only get here on success
-        self.error[direction] = False
+        self.ok[direction] = True
 
 
 class QualUSBSerial:
@@ -125,7 +125,6 @@ class QualUSBSerial:
         self.ports = []
         self.names = []
         
-
     def failure_call(self, exception_str = ''):
         rospy.logerr(exception_str)
         r = TestResultRequest()
@@ -134,7 +133,7 @@ class QualUSBSerial:
         r.plots = []
         r.result = TestResultRequest.RESULT_FAIL
         self.send_results(r)
-        print 'Test failed, waiting for shutdown'
+        rospy.logout( 'Test failed, waiting for shutdown')
         rospy.spin()
 
     def send_results(self, test_result):
@@ -146,6 +145,7 @@ class QualUSBSerial:
         self.data_sent = True
 
     def run_qual_test(self):
+                          
         bytes = 16384
         rate = 115200
         
@@ -161,8 +161,8 @@ class QualUSBSerial:
                 try:
                     ports.append(TestSerialPort(self.names[i], rate, timeout))
                 except serial.SerialException:
-                    print 'couldnt open port: %d' % i
-                    failure_call("Error opening serial port %s.\n%s" % (self.names[i], traceback.format_exc()))
+                    rospy.logout( 'couldnt open port: %d' % i)
+                    self.failure_call("Error opening serial port %s. Device may not be connected." % self.names[i])
 
                 seeds.append(random.random())
     
@@ -177,9 +177,9 @@ class QualUSBSerial:
                 self.writes.append(ports[i].join_is_error(TestSerialPort.READ))
 
         except serial.SerialException:
-            failure_call(traceback.format_exc())
+            self.failure_call(traceback.format_exc())
         except KeyboardInterrupt:
-            failure_call(traceback.format_exc())
+            self.failure_call(traceback.format_exc())
 
         r = TestResultRequest()
         r.text_summary = 'USB to Serial Test: %s' % self._passed_msg()
