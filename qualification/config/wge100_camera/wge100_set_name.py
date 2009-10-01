@@ -45,6 +45,7 @@ import subprocess
 import os
 import os.path
 import traceback
+import time
 from invent_client.invent_client import Invent
 from qualification.srv import ScriptDone, ScriptDoneRequest
 
@@ -102,19 +103,26 @@ try:
         failed("Could not get camera url from invent. Try setting the  serial and MAC")
                                             
     # Set the camera's name
-    p = subprocess.Popen(["rosrun", "wge100_camera", "set_name",
-        camera_url+"@"+progip, cameraname, cameraip ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    setnameout = p.communicate()
-    
-    msg = "Output from setname tool...\n<b>Standard output:</b>\n"+setnameout[0]+"\n\n<b>Standard error:</b>\n"+setnameout[1]
-
-    if "Success" in msg:
-        i.setKV(barcode, "Configured name", cameraname)
-        i.setKV(barcode, "Configured ip", cameraip)
-        passed(msg)
-    else:
-        i.setKV(barcode, "Configured name", "<configure failed>")
-        i.setKV(barcode, "Configured ip", "<configure failed>")
-        failed(msg)
+    msg = ""
+    reps = 0
+    while True: # Retry for up to 40 seconds because the arp cache may not have cleared
+        p = subprocess.Popen(["rosrun", "wge100_camera", "set_name",
+            camera_url+"@"+progip, cameraname, cameraip ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        setnameout = p.communicate()
+        
+        msg = msg+"Output from setname tool...\n<b>Standard output:</b>\n"+setnameout[0]+"\n\n<b>Standard error:</b>\n"+setnameout[1]
+        
+        if "Success" in msg:
+            i.setKV(barcode, "Configured name", cameraname)
+            i.setKV(barcode, "Configured ip", cameraip)
+            passed(msg)
+        else:
+            if reps < 8: # Retry if we haven't been doing this too long.
+                 reps = reps + 1
+                 time.sleep(5)
+                 continue
+            i.setKV(barcode, "Configured name", "<configure failed>")
+            i.setKV(barcode, "Configured ip", "<configure failed>")
+            failed(msg)
 except:
     failed('<b>Exception:</b>\n%s'%traceback.format_exc())

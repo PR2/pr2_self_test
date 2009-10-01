@@ -66,6 +66,9 @@ serial = int(barcode[5:12])
 
 if serial >= 1800000 and serial <= 1800015: # First 15 cameras followed a different system
     serial = serial - 1800000
+
+if serial == 2701004: # Another camera got its serial accidentally
+    serial = 1002701004
    
 url = "serial://%i"%serial
 
