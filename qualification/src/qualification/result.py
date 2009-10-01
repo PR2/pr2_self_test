@@ -532,6 +532,11 @@ class QualTestResult:
             pass_bool = pass_bool and res.get_pass_bool()
         return pass_bool
 
+    def get_test_result_str_invent(self):
+        if self.get_pass_bool():
+            return "PASS"
+        return "FAIL"
+
     def get_test_result_str(self):
         if len(self.get_subresults()) == 0 or not self.prestarts_ok():
             return "Fail"
@@ -865,7 +870,7 @@ em { font-style: normal; font-weight: bold; }\
 
         rospy.loginfo('Setting test status')
 
-        invent.setKV(self._serial, "Test Status", self.get_test_result_str())
+        invent.setKV(self._serial, "Test Status", self.get_test_result_str_invent())
 
         rospy.loginfo('Adding summary')
         invent.add_attachment(reference, prefix + "summary.html", "text/html", self.make_summary_page(False))
