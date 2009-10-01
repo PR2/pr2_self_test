@@ -137,8 +137,8 @@ class RobotCheckout:
     def wait_for_data(self):
         try:
             rospy.logout('Waiting for diagnostics')
-            # Wait at least 5 seconds for data
-            for i in range(0, 10):
+            # Wait at least 10 seconds for data
+            for i in range(0, 20):
                 if not rospy.is_shutdown():
                     sleep(0.5)
                     
