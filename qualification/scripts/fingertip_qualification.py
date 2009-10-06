@@ -208,7 +208,10 @@ class FingertipQualification:
             r.text_summary = 'Gripper tips connected'
             r.html_result = self._connected_data 
             r.html_result += '<hr size="2">\n' + self._write_params()
-            r.result = TestResultRequest.RESULT_PASS
+            if ok:
+                r.result = TestResultRequest.RESULT_PASS
+            else:
+                r.result = TestResultRequest.RESULT_FAIL
             self.send_results(r)
             return ok
 
