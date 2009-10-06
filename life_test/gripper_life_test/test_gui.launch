@@ -1,6 +1,7 @@
 <launch>
   <!-- Robot desc and etherCAT -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find life_test)/gripper_life_test/grip_pic.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find life_test)/gripper_life_test/gripper.urdf.xacro'" />
+  <param name="publish_rate_mechanism_state" value="50.0" type="double" />
   <node machine="test_host_root" pkg="pr2_etherCAT" type="pr2_etherCAT"
         args="-i eth0 -x robot_description" name="pr2_etherCAT" />
   <node pkg="pr2_mechanism_control" type="joints_to_diagnostics.py"

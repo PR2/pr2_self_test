@@ -82,9 +82,10 @@ def main():
             else:
                 turn_count = 0
 
-            if turn_count > 10:
+            if turn_count > 25:
                 eff = -1 * eff
                 pub.publish(Float64(eff))
+                turn_count = 0
 
     except  KeyboardInterrupt, e:
         pass
