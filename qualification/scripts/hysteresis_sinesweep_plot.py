@@ -203,11 +203,12 @@ class AnalysisApp:
       min_range_param  = self.data.arg_value[2]
       max_range_param  = self.data.arg_value[3]
       tol_percent      = self.data.arg_value[7]
+      sd_max_percent   = self.data.arg_value[8]
 
       # Process HTML result
       range_html, range_sum, range_result = self.hysteresis_range( min_encoder, max_encoder, min_range_param, max_range_param)
 
-      effort_html, effort_sum, effort_result = self.hysteresis_effort( min_effort_param, max_effort_param, neg_eff, pos_eff, tol_percent)
+      effort_html, effort_sum, effort_result = self.hysteresis_effort( min_effort_param, max_effort_param, neg_eff, pos_eff, tol_percent, sd_max_percent)
       
       vel_html = self.hysteresis_velocity(self.data.arg_value[4], pos_position, pos_vel, neg_position, neg_vel)
       regress_html = self.hysteresis_regression(pos_position, pos_eff, neg_position, neg_eff)
@@ -381,7 +382,8 @@ class AnalysisApp:
     return html, summary, result
 
   # Processes range data for hysteresis test
-  def hysteresis_effort(self, min_exp, max_exp, min_array, max_array, tol_percent):
+  def hysteresis_effort(self, min_exp, max_exp, min_array, max_array, 
+                        tol_percent, sd_max_percent):
     # Check 
     negative_msg = "OK"
     positive_msg = "OK"
@@ -395,7 +397,7 @@ class AnalysisApp:
     tolerance = abs(max_exp - min_exp) * tol_percent
 
     sd_denominator = abs(max_avg - min_avg)
-    sd_max = sd_denominator * 0.20
+    sd_max = sd_denominator * sd_max_percent
     
     max_ok = abs(max_avg - max_exp) < tolerance
     min_ok = abs(min_avg - min_exp) < tolerance

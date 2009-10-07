@@ -60,14 +60,14 @@ try:
     test_service = rospy.ServiceProxy(selftestname, SelfTest)
     result_service = rospy.ServiceProxy('test_result', TestResult)
     
-    rospy.wait_for_service(selftestname)
+    rospy.wait_for_service(selftestname, 15)
     sleep(5)
 
     try:
-    	result = test_service.call(SelfTestRequest(), 90)
+    	result = test_service.call(SelfTestRequest(), 60)
     except: 
         extramsg = "<p>Self test exited with an exception. It probably failed to run.</p>"
-	raise
+	raise extramsg
 	
     rospy.logout('Received self test service.')
     
@@ -84,7 +84,7 @@ try:
         node_id = result.id
     else:
         extramsg = '<p>Service %s returned with an empty reference ID.</p>\n' % selftestname
-        raise
+        raise extramsg
 
     # Add item reference to invent
     username = rospy.get_param('/invent/username', '')
