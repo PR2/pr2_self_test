@@ -53,7 +53,7 @@ from joint_qualification_controllers.srv import TestData, TestDataResponse
 
 import traceback
 
-class App:
+class AnalysisApp:
   def __init__(self):
     self.data_sent = False
     rospy.init_node("test_plotter")
@@ -202,12 +202,12 @@ class App:
       max_effort_param = self.data.arg_value[1]
       min_range_param  = self.data.arg_value[2]
       max_range_param  = self.data.arg_value[3]
-
+      tol_percent      = self.data.arg_value[7]
 
       # Process HTML result
       range_html, range_sum, range_result = self.hysteresis_range( min_encoder, max_encoder, min_range_param, max_range_param)
 
-      effort_html, effort_sum, effort_result = self.hysteresis_effort( min_effort_param, max_effort_param, neg_eff, pos_eff)
+      effort_html, effort_sum, effort_result = self.hysteresis_effort( min_effort_param, max_effort_param, neg_eff, pos_eff, tol_percent)
       
       vel_html = self.hysteresis_velocity(self.data.arg_value[4], pos_position, pos_vel, neg_position, neg_vel)
       regress_html = self.hysteresis_regression(pos_position, pos_eff, neg_position, neg_eff)
@@ -381,7 +381,7 @@ class App:
     return html, summary, result
 
   # Processes range data for hysteresis test
-  def hysteresis_effort(self, min_exp, max_exp, min_array, max_array):
+  def hysteresis_effort(self, min_exp, max_exp, min_array, max_array, tol_percent):
     # Check 
     negative_msg = "OK"
     positive_msg = "OK"
@@ -392,7 +392,7 @@ class App:
     min_sd = numpy.std(min_array)
 
     ##@todo Should have these be parameters instead of magic
-    tolerance = abs(max_exp - min_exp) * 0.15
+    tolerance = abs(max_exp - min_exp) * tol_percent
 
     sd_denominator = abs(max_avg - min_avg)
     sd_max = sd_denominator * 0.20
@@ -627,7 +627,7 @@ class App:
      
 if __name__ == "__main__":
   try:
-    app = App()
+    app = AnalysisApp()
     rospy.spin()
   except Exception, e:
     traceback.print_exc()
