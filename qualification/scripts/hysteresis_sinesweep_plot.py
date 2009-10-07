@@ -56,7 +56,7 @@ import traceback
 class App:
   def __init__(self):
     self.data_sent = False
-    rospy.init_node("/test_plotter")
+    rospy.init_node("test_plotter")
     self.data_topic = rospy.Service("/test_data", TestData, self.on_data)
     self.result_service = rospy.ServiceProxy('/test_result', TestResult)
     rospy.spin()

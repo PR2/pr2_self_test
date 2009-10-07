@@ -71,4 +71,7 @@
 	file="imu_test/test.xml" descrip="IMU Test" />
   <test serial="etherne" 
 	file="ethernet_test/test.xml" descrip="Ethernet Test" />
+
+  <test serial="motorte"
+        file="motor_test/test.xml" descrip="Motor + Gear Test" />
 </tests>
