@@ -1,6 +1,6 @@
 <launch>
   <node name="wge100_set_name" pkg="qualification" type="wge100_set_name.py" output="screen">
-    <param name="camera_name" type="str" value="stereo_wide_r" />
+    <param name="camera_name" type="str" value="wide_stereo_r" />
     <param name="camera_ip" type="str" value="10.68.0.46" />
     <param name="programming_ip" type="str" value="$(env WGE100_IP)" />
   </node>
