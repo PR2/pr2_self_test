@@ -37,8 +37,8 @@
 #include "opencv_latest/CvBridge.h"
 #include <stdio.h>
 #include <signal.h>
-#include <robot_mechanism_controllers/SetWaveform.h>
-#include <robot_mechanism_controllers/trigger_controller.h>
+#include <ethercat_trigger_controllers/SetWaveform.h>
+#include <ethercat_trigger_controllers/trigger_controller.h>
 #include <algorithm>
 #include <qualification/TestResult.h>
 #include <boost/format.hpp>
@@ -52,7 +52,7 @@ private:
   double rate_;
   std::string led_set_waveform_;
   controller::trigger_configuration led_config_;
-  robot_mechanism_controllers::SetWaveform::Response dummy_resp_;
+  ethercat_trigger_controllers::SetWaveform::Response dummy_resp_;
   std::vector<double> intensities_;
   std::vector<double> led_time_;
   std::vector<double> exp_time_;
@@ -100,7 +100,7 @@ public:
   {
   }
 
-  void SetWaveform(std::string s, robot_mechanism_controllers::SetWaveform::Request req)
+  void SetWaveform(std::string s, ethercat_trigger_controllers::SetWaveform::Request req)
   {
     ROS_DEBUG("Calling \"%s\"", s.c_str());
     if (!ros::service::call(s, req, dummy_resp_))
