@@ -184,11 +184,11 @@ class FingertipQualification:
         for i in range(0, self.num_sensors):
             tip0 = 'OK'
             tip1 = 'OK'
-            if self.l_finger_tip[i] == 0:
+            if self.l_finger_tip[i] == 0 or self.l_finger_tip[i] == -1:
                 ok = False
                 tip0 = 'No data'               
 
-            if self.r_finger_tip[i] == 0:
+            if self.r_finger_tip[i] == 0 or self.r_finger_tip[i] == -1:
                 ok = False
                 tip1 = 'No data'
 
@@ -205,12 +205,14 @@ class FingertipQualification:
         
         if self.check_connect_only:
             r = TestResultRequest()
-            r.text_summary = 'Gripper tips connected'
+
             r.html_result = self._connected_data 
             r.html_result += '<hr size="2">\n' + self._write_params()
             if ok:
+                r.text_summary = 'Gripper tips connected'
                 r.result = TestResultRequest.RESULT_PASS
             else:
+                r.text_summary = 'Gripper tips not connected'
                 r.result = TestResultRequest.RESULT_FAIL
             self.send_results(r)
             return ok
