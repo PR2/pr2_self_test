@@ -313,7 +313,8 @@ if __name__ == '__main__':
             prog_conf.program_boards()
         else: # Configure
             prog_conf.configure_boards(options.mcbs)
-
+    except KeyboardInterrupt:
+        pass
     except Exception, e:
         rospy.logerr(traceback.format_exc())
         prog_conf.finished(False, 'Caught exception in prog_conf loop. %s' % traceback.format_exc())
