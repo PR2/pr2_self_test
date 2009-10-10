@@ -70,6 +70,6 @@
   <test serial="6801050" 
 	file="imu_test/test.xml" descrip="IMU Test" />
  
-  <test serial="motorte"
+  <test serial="6802966"
         file="motor_test/test.xml" descrip="Motor + Gear Test" />
 </tests>
