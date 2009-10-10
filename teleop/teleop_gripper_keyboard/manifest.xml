@@ -1,0 +1,16 @@
+<package>
+  <description brief="teleop_gripper_keyboard">
+This node, when used with pr2_gripper_controller (currently residing in experimental controllers, allows keyboard control of the pr2 gripper.
+  </description>
+  <author>Matt Piccolli, Sachin Chitta</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/teleop_gripper_keyboard</url>
+
+  <depend package="roscpp" />
+  <depend package="roslib" />
+  <depend package="experimental_controllers" />
+
+</package>
+
+
