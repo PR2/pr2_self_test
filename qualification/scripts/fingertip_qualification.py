@@ -202,26 +202,27 @@ class FingertipQualification:
         connect_table += '</table>\n'
 
         self._mutex.release()
-        
-        if self.expect_no_connect:
-           r = TestResultRequest()
-
-            r.html_result = self._connected_data 
-            r.html_result += '<hr size="2">\n' + self._write_params()
-            if tips_bad:
-                r.text_summary = 'Gripper tips not connected - OK'
-                r.result = TestResultRequest.RESULT_PASS
-            else:
-                r.text_summary = 'Gripper tips connected, expected no connection'
-                r.result = TestResultRequest.RESULT_FAIL
-            self.send_results(r)
-            return tips_bad
 
         connect_str = 'OK'
         if not ok:
-            connect_str = 'Error'
+            connect_str = 'Not connected'
         self._connected_data = '<p align=center><b>Tip connections: %s</b></p><br>\n' % connect_str
         self._connected_data += connect_table
+        
+        if self.expect_no_connect:
+           r = TestResultRequest()
+           
+           r.html_result = self._connected_data 
+           r.html_result += '<hr size="2">\n' + self._write_params()
+           if tips_bad:
+               r.text_summary = 'Gripper tips not connected - OK'
+               r.result = TestResultRequest.RESULT_PASS
+           else:
+               r.text_summary = 'Gripper tips connected, expected no connection'
+               r.result = TestResultRequest.RESULT_FAIL
+           
+           self.send_results(r)
+           return tips_bad
         
         if self.check_connect_only:
             r = TestResultRequest()

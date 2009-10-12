@@ -1,7 +1,7 @@
 <test>
   <instructions>instructions_motor.html</instructions>
-  <pre_startup timeout="30" name="Power Cycle">../../scripts/power_cycle.launch</pre_startup>
+  <pre_startup timeout="30" name="Power On">../../scripts/power_cycle.launch</pre_startup>
   <startup name="Gripper Startup">gripper.launch</startup>
-  <subtest timeout="60" name="Gripper Motor Hystersis">hysteresis_gripper_motor.launch</subtest>
+  <subtest timeout="120" name="Gripper Motor Hystersis">hysteresis_gripper_motor.launch</subtest>
   <shutdown timeout="30" name="Power Shutdown">../../scripts/power_board_disable.launch</shutdown>
 </test>

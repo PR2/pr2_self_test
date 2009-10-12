@@ -43,8 +43,8 @@
 	file="gripper_test/test_post_burn.xml" descrip="Gripper Test - Post Burn-In" />
   <test serial="6804015"
         file="gripper_test/test_drop.xml" descrip="Gripper Drop Test Only" />
-  <test serial="6804015"
-        file="gripper_test/test_motor.xml" descrip="Gripper Motor Test" />
+  <test serial="6802764"
+        file="gripper_test/test_motor.xml" descrip="Gripper Motor Drivetrain Test" />
   
 
   <!-- Old color Forearm camera tests -->
