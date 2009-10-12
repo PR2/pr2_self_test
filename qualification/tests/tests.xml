@@ -38,11 +38,14 @@
 
   <!-- Gripper -->
   <test serial="6804015" 
-	file="gripper_test/test.xml" descrip="Gripper Test" />
+	file="gripper_test/test.xml" descrip="Gripper Test (Initial)" />
   <test serial="6804015" 
-	file="gripper_test/test_no_tip.xml" descrip="Gripper Test - No Tips" />
+	file="gripper_test/test_post_burn.xml" descrip="Gripper Test - Post Burn-In" />
   <test serial="6804015"
-        file="gripper_test/test_drop.xml" descrip="Gripper Drop Test" />
+        file="gripper_test/test_drop.xml" descrip="Gripper Drop Test Only" />
+  <test serial="6804015"
+        file="gripper_test/test_motor.xml" descrip="Gripper Motor Test" />
+  
 
   <!-- Old color Forearm camera tests -->
   <test serial="6805018"

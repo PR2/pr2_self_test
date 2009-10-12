@@ -1,5 +1,5 @@
 <test>
-  <instructions>instructions_no_tips.html</instructions>
+  <instructions>instructions_post_burn.html</instructions>
   <pre_startup timeout="30" name="Power Standby">../../scripts/power_board_standby.launch</pre_startup>
   <pre_startup timeout="60" name="Program MCB's">gripper_prog.launch</pre_startup>
   <pre_startup timeout="30" name="Power Cycle">../../scripts/power_cycle.launch</pre_startup>
@@ -7,6 +7,7 @@
   <startup name="Gripper Startup">gripper.launch</startup>
 
   <subtest name="Gripper Checkout">gripper_checkout.launch</subtest>
-  <subtest timeout="60" name="Gripper Hystersis">hysteresis_gripper.launch</subtest>
+  <subtest timeout="60" name="Gripper Hystersis">hysteresis_gripper_post_burn.launch</subtest>
+  <subtest name="Fingertips Off Test"  timeout="600">fingertip_no_qualification.launch</subtest>
   <shutdown timeout="30" name="Power Shutdown">../../scripts/power_board_disable.launch</shutdown>
 </test>

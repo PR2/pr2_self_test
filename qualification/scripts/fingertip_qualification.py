@@ -101,6 +101,7 @@ class FingertipQualification:
         
         # Don't look at tip values, just check the connections
         self.check_connect_only = rospy.get_param('~check_connect_only', False)
+        self.expect_no_connect  = rospy.get_param('~not_connected', False)
 
         self.data_sent = False
         self.result_service = rospy.ServiceProxy('/test_result', TestResult)
@@ -156,7 +157,6 @@ class FingertipQualification:
         sleep(1/self.fingertip_refresh*2)
         self._mutex.acquire()
 
-        ok = True
         if self.l_finger_tip is None or self.r_finger_tip is None:
             r = TestResultRequest()
             r.text_summary = 'No gripper tip data.'
@@ -179,6 +179,8 @@ class FingertipQualification:
             r.result = TestResultRequest.RESULT_FAIL
             self.send_results(r)
 
+        ok = True
+        tips_bad = True
         connect_table = '<table border="1" cellpadding="2" cellspacing="0">\n'
         connect_table += '<tr><td><b>Sensor</b></td><td><b>Tip 0</b></td><td><b>Tip 1</b></td></tr>\n'
         for i in range(0, self.num_sensors):
@@ -186,17 +188,35 @@ class FingertipQualification:
             tip1 = 'OK'
             if self.l_finger_tip[i] == 0 or self.l_finger_tip[i] == -1:
                 ok = False
-                tip0 = 'No data'               
+                tip0 = 'No data'  
+            else:
+                tips_bad = False
 
             if self.r_finger_tip[i] == 0 or self.r_finger_tip[i] == -1:
                 ok = False
                 tip1 = 'No data'
+            else:
+                tips_bad = False
 
             connect_table += '<tr><td>%d</td><td>%s</td><td>%s</td></tr>\n' % (i, tip0, tip1)
         connect_table += '</table>\n'
 
         self._mutex.release()
         
+        if self.expect_no_connect:
+           r = TestResultRequest()
+
+            r.html_result = self._connected_data 
+            r.html_result += '<hr size="2">\n' + self._write_params()
+            if tips_bad:
+                r.text_summary = 'Gripper tips not connected - OK'
+                r.result = TestResultRequest.RESULT_PASS
+            else:
+                r.text_summary = 'Gripper tips connected, expected no connection'
+                r.result = TestResultRequest.RESULT_FAIL
+            self.send_results(r)
+            return tips_bad
+
         connect_str = 'OK'
         if not ok:
             connect_str = 'Error'

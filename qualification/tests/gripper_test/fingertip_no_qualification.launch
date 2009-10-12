@@ -1,0 +1,42 @@
+<launch>
+  <rosparam file="$(find pr2_default_controllers)/gripper_effort_controller.yaml" command="load" ns="r_gripper_effort_controller" />
+  <node pkg="pr2_mechanism_control" type="spawner.py" name="grip_ctrl"
+        args="r_gripper_effort_controller" />  
+  
+  <node pkg="qualification" type="fingertip_qualification.py"
+        name="tip_analysis" output="screen">
+    
+    <param name="grasp_force_initial" type="double" value="-30.0" />
+    <param name="grasp_force_increment" type="double" value="-10.0" /> 
+    <param name="grasp_increments" type="int" value="8" /> 
+
+    <!-- Equation to fit -->
+    <param name="x^0" type="double" value="-28960"/>
+    <param name="x^1" type="double" value="-1492" />
+    <param name="x^2" type="double" value="-7.82" />
+    <param name="x^3" type="double" value="0" />
+
+    <!-- Tolerance on error of wrt expected values -->
+    <param name="tol_max_question" type="double" value="10.0"/>
+    <param name="tol_max_fail" type="double" value="15.0"/>
+    <param name="tol_avg_question" type="double" value="5.0"/>
+    <param name="tol_avg_fail" type="double" value="10.0"/>
+
+    <!-- Tolerance of differences bwt tips -->
+    <param name="diff_max_question" type="double" value="4.0" />
+    <param name="diff_max_fail" type="double" value="6.0" />
+    <param name="diff_avg_question" type="double" value="3.0" />
+    <param name="diff_avg_fail" type="double" value="5.0" />
+    <param name="diff_avg_abs_question" type="double" value="5.0" />
+    <param name="diff_avg_abs_fail" type="double" value="8.0" />
+    
+    <!-- Tip data -->
+    <param name="fingertip_refresh_hz" type="double" value="25.0"/>
+    <param name="num_sensors" type="int" value="22"/>
+    <param name="num_sensors_outside" type="int" value="7"/>
+
+    <!-- Check connections only, since the tips are bad -->
+    <param name="check_connect_only" type="bool" value="true" />
+    <param name="not_connected" type="bool" value="true" />
+  </node>
+</launch>
