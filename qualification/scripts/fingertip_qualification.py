@@ -508,10 +508,13 @@ if __name__ == '__main__':
         if not qual.check_connected():
             # We've failed and sent it in, now wait to be terminated
             rospy.spin()
+            sys.exit()
 
         # Only check connection, we've sent results already
         if qual.check_connect_only:
             rospy.spin()
+            import sys
+            sys.exit()
 
         for j in range(0, qual.num_increments):
             if rospy.is_shutdown():
@@ -522,7 +525,6 @@ if __name__ == '__main__':
             qual.record_increase()
             qual.open_gripper()
             qual.increment_value()
-
 
         qual.process_results()
     except KeyboardInterrupt:
