@@ -710,6 +710,8 @@ em { font-style: normal; font-weight: bold; }\
             sum = "Reconfigured %s as %s." % (self._serial, self._qual_test.getName())
         else:
             sum = "Qualification of %s, Result: %s" % (self._serial, self.get_test_result_str())
+            if self._note != '':
+                sum += " Notes: %s" % (self._note)
 
         return sum
 
