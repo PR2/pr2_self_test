@@ -11,8 +11,7 @@
   <!-- Checkout controller -->
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="CheckoutController" />
-    <param name="timeout" type="double" value="30.0" />
-    <param name="gazebo" type="bool" value="true" />
+    <param name="timeout" type="double" value="60.0" />
   </group>
   <node pkg="pr2_mechanism_control" type="spawner.py"
         args="test_controller" name="pr2_chk_ctrl" />
