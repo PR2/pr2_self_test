@@ -135,7 +135,7 @@ class AnalysisApp:
         r.text_summary = 'Mechanism didn\'t move. Check diagnostics.'
         r.html_result = "<p>No travel of mechanism, hysteresis did not complete. Check controller gains and encoder.</p><p>Test status: <b>FAIL</b>.</p>"
         r.html_result += '<p align=center><b>Test Parameters</b></p>' + param_html + '<hr size="2">\n'
-        self.send_result(r)
+        self.send_results(r)
         return
       
       # Find the index to do the average over
@@ -171,7 +171,7 @@ class AnalysisApp:
         r.text_summary = 'Incomplete data set. Check diagnostics.'
         r.html_result = "<p>Not enough data in one or more directions.</p><p>Test Status: <b>FAIL</b>.</p><p>Test status: <b>FAIL</b>.</p>"
         r.html_result += '<p align=center><b>Test Parameters</b></p>' + param_html + '<hr size="2">\n'
-        self.send_result(r)
+        self.send_results(r)
         return
 
       effort1 = numpy.average(effort1_array)

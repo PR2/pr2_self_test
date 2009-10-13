@@ -2,6 +2,6 @@
   <instructions>instructions.html</instructions>
   <pre_startup timeout="30" name="Power On">../../scripts/power_cycle.launch</pre_startup>
   <startup>motor.launch</startup>
-  <subtest timeout="60" name="Motor Hysteresis">hysteresis_motor.launch</subtest>
+  <subtest timeout="90" name="Motor Hysteresis">hysteresis_motor.launch</subtest>
   <shutdown timeout="30" name="Power Off">../../scripts/power_board_disable.launch</shutdown>
 </tests>
