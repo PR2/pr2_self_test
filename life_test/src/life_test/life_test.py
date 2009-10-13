@@ -176,6 +176,7 @@ class TestMonitorPanel(wx.Panel):
         self._test_msg = 'None'
         self._power_stat = "No data"
         self._estop_stat = False
+        self._stop_count = 0
 
         # Launches test, call stop to kill it
         self._test_launcher = None
@@ -282,7 +283,8 @@ class TestMonitorPanel(wx.Panel):
 
     ##\brief Updates record, notifies operator if necessary
     def update_test_record(self, note = ''):
-        alert, msg = self._record.update(self.is_launched(), self._is_running, self._is_stale, note, self._test_msg)
+        alert, msg = self._record.update(self.is_launched(), self._is_running, self._is_stale, 
+                                         note, self._test_msg)
 
         lst = [msg, note]
         message = string.join(lst, ' ')
@@ -325,6 +327,8 @@ class TestMonitorPanel(wx.Panel):
             self.update_invent()
         
     def update_invent(self):
+        self.invent_timer.Start()
+
         self._last_invent_time = rospy.get_time()
 
         # Don't log anything if we haven't launched
@@ -336,11 +340,11 @@ class TestMonitorPanel(wx.Panel):
         stats = "Stats: Total active time %s." % (hrs_str)
         
         if self.is_launched() and self._is_running:
-            note = "Test running %s. " % (self._test._name)
+            note = "Test running: %s. " % (self._test._name)
         elif self.is_launched() and not self._is_running:
-            note = "Test %s is halted. " % self._test._name
+            note = "%s is halted. " % self._test._name
         else:
-            note = "Test %s finished. CSV name: %s. " % (self._test._name, os.path.basename(self._record.csv_filename()))
+            note = "%s finished. CSV name: %s. " % (self._test._name, os.path.basename(self._record.csv_filename()))
 
         self._invent_note_id = self._manager._invent_client.setNote(self._serial, note + stats, self._invent_note_id)
 
@@ -567,12 +571,15 @@ class TestMonitorPanel(wx.Panel):
     def stop_if_done(self):
         remain = self.calc_remaining()
         
-        self._stop_count = 0
+        if remain < 0:
+            self._stop_count += 1
+        else:
+            self._stop_count = 0
 
         # Make sure we've had five consecutive seconds of 
         # negative time before we shutdown
         # Can this be part of test record?
-        if remain < 0:
+        if self._stop_count < 5 and not self._test_complete:
             self._test_complete = True
             self.stop_test()
             self._enable_controls()
@@ -660,7 +667,7 @@ class TestMonitorPanel(wx.Panel):
         self.stop_test()
         return True
 
-    def stop_test(self):
+    def stop_tes(self):
         if self.is_launched():
             self._launch_button.Enable(False)
             if self._bay.board is not None:
@@ -782,11 +789,9 @@ class TestMonitorPanel(wx.Panel):
         self._launch_button.SetLabel("Stop")
         return True
         
-    # Changed from halt_motors to halt_test for test monitor
     def on_halt_motors(self, event = None):
         try:
             self.update_test_record('Pausing test.')
-            # Call halt motors service on NAME_SPACE/pr2_etherCAT
             halt_srv = rospy.ServiceProxy(self._bay.name + '/halt_test', Empty)
             halt_srv()
 
@@ -807,7 +812,7 @@ class TestMonitorPanel(wx.Panel):
     # Notifier class needs test record, that's it
     # 
     def get_test_team(self):
-        # HACK!!! Don't email everyone it's debugging on NSF
+        # HACK!!! Don't email everyone if it's debugging on NSF
         if os.environ['USER'] == 'watts' and gethostname() == 'nsf':
             return 'watts@willowgarage.com'
 
@@ -832,7 +837,7 @@ class TestMonitorPanel(wx.Panel):
             sender = 'test.reports@willowgarage.com'
         
         try:
-            if not recipient:
+            if recipient is None:
                 recipient = self.get_test_team()
 
             msg = MIMEMultipart('alternative')

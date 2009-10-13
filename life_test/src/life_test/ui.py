@@ -327,7 +327,7 @@ class TestManagerFrame(wx.Frame):
         username_ctrl.SetMinSize(wx.Size(200, -1))
         password_ctrl.SetMinSize(wx.Size(200, -1))
 
-        while True:
+        while not rospy.is_shutdown():
             if (dialog.ShowModal() == wx.ID_OK):
                 username = username_ctrl.GetValue()
                 password = password_ctrl.GetValue()
@@ -542,6 +542,11 @@ class TestManagerFrame(wx.Frame):
             if (event.GetId() == wx.ID_EXIT):
                 self.Close()
                 return
+            if (event.GetId() == 1001):
+                self._invent_client = None
+                self.load_invent_client()
+                return
+
         if (event.GetEventObject() == self._tests_menu):
             if (event.GetId() == 2001):
                 self.load_tests_from_file()
