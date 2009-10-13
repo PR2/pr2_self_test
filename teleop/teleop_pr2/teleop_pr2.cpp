@@ -32,6 +32,7 @@
 ///\brief Converts joystick commands on /joy to commands to PR2 base, spine, head
 
 #include <cstdlib>
+#include <cstdio>
 #include <unistd.h>
 #include <math.h>
 #include <fcntl.h>
