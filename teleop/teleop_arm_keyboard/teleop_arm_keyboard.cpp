@@ -64,6 +64,7 @@
 
  **/
 
+#include <cstdio>
 #include <termios.h>
 #include <signal.h>
 #include <math.h>
