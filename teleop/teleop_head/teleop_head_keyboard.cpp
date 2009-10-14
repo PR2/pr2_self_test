@@ -34,6 +34,7 @@
 #include <signal.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <ros/ros.h>
 
