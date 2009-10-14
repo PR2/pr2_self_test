@@ -288,21 +288,24 @@ def encode_multipart_formdata(fields, files, BOUNDARY = '-----'+mimetools.choose
         L.append(value)
 
     for (key, filename, value) in files:
-        encoded = value.encode('base64')
+        #encoded = value.encode('base64')
+        encoded = value
         filetype = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
         L.append('--' + BOUNDARY)
         L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
         L.append('Content-Length: %s' % len(encoded))
         L.append('Content-Type: %s' % filetype)
-        L.append('Content-Transfer-Encoding: base64')
+        #L.append('Content-Transfer-Encoding: base64')
+        L.append('Content-Transfer-Encoding: binary')
         L.append('')
         L.append(encoded)
 
     L.append('--' + BOUNDARY + '--')
     L.append('')
-    body = CRLF.join(L)
+    body = CRLF.join([str(l) for l in L])
 
     content_type = 'multipart/form-data; boundary=%s' % BOUNDARY        # XXX what if no files are encoded
 
     return content_type, body
+
 
