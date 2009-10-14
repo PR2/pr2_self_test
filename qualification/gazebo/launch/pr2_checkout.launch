@@ -8,6 +8,9 @@
   <!-- Overrides visual verifier -->
   <node pkg="qualification" type="visual_ok.py" name="visual_ok" />
 
+  <!-- Publishes diagnostics for checkout script -->
+  <node pkg="pr2_mechanism_control" type="joints_to_diagnostics.py" name="joint_diag" />
+  
   <!-- Checkout controller -->
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="CheckoutController" />
