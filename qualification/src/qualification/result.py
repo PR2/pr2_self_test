@@ -885,7 +885,7 @@ em { font-style: normal; font-weight: bold; }\
             tar = f.read()
             invent.add_attachment(reference, 
                                   prefix + os.path.basename(self._tar_filename),
-                                  'applicaton/tar', tar)
+                                  'application/tar', tar)
 
             f.close()            
             return True, 'Wrote tar file, uploaded to inventory system.'
