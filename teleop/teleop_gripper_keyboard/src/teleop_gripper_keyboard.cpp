@@ -35,6 +35,8 @@
  * Author: Sachin Chitta and Matthew Piccoli
  */
 
+#include <cstdio>
+
 #include <ros/ros.h>
 #include <ros/time.h>
 #include <termios.h>
