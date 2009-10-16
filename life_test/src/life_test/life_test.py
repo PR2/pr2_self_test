@@ -578,7 +578,6 @@ class TestMonitorPanel(wx.Panel):
 
         # Make sure we've had five consecutive seconds of 
         # negative time before we shutdown
-        # Can this be part of test record?
         if self._stop_count > 5 and not self._test_complete:
             self._test_complete = True
             self.stop_test()
@@ -609,9 +608,6 @@ class TestMonitorPanel(wx.Panel):
         self.update_test_record()
         self.stop_if_done()
 
-
-
-     
     
     def make_launch_script(self, bay, script, local_diag_topic):
         launch = '<launch>\n'
@@ -708,6 +704,7 @@ class TestMonitorPanel(wx.Panel):
             return False
         
         self._launch_button.Enable(False)
+        self._test_complete = False
 
         bay_name = self._test_bay_ctrl.GetStringSelection()
         bay = self._manager.room.get_bay(bay_name)
