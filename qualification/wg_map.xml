@@ -9,7 +9,7 @@
 	     breaker1="False" breaker2="False" />
 
     <station gui="testl" host="testl" powerboard="1009" breaker0="True"
-             breaker1="False" breaker2="False" />
+             breaker1="True" breaker2="True" />
 
     <station gui="tests" host="tests" powerboard="1007" breaker0="True"
              breaker1="True" breaker2="True" />
