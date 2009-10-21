@@ -9,13 +9,9 @@
 
   <!-- Head  -->
   <test serial="6804040" 
-	file="head_test/test.xml" descrip="Head Alpha 1.0" />
-  <test serial="6804040" 
-	file="head_test/test_alpha2a.xml"  descrip="Head Alpha 2.0a (small tilt motor, big gearhead)" />
-  <test serial="6804040" 
-	file="head_test/test_alpha2b.xml"  descrip="Head Alpha 2.0b (big tilt motor)" />
-  <test serial="6804040" 
-	file="head_test/test_alpha2.xml"  descrip="Head Alpha 2.0 (sm tilt motor, gearhead)" />
+	file="head_test/test.xml" descrip="Head Test" />
+  <test serial="6802978"
+        file="head_test/test_head_pan_motor.xml" descrip="Head Pan Motor Assembly" />
 
   <!-- Laser tilt sled -->
   <test serial="6804001" 
@@ -41,8 +37,6 @@
 	file="gripper_test/test.xml" descrip="Gripper Test (Initial)" />
   <test serial="6804015" 
 	file="gripper_test/test_post_burn.xml" descrip="Gripper Test - Post Burn-In" />
-<!--  <test serial="6804015"
-        file="gripper_test/test_drop.xml" descrip="Gripper Drop Test Only" /> -->
   <test serial="6802764"
         file="gripper_test/test_motor.xml" descrip="Gripper Motor Drivetrain Test" />
   
@@ -74,5 +68,5 @@
 	file="imu_test/test.xml" descrip="IMU Test" />
  
   <test serial="6802966"
-        file="motor_test/test.xml" descrip="Motor + Gear Test" />
+        file="motor_test/test.xml" descrip="Caster Motor + Gear Test" />
 </tests>

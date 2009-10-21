@@ -1,0 +1,16 @@
+<launch>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find qualification)/tests/head_test/head_pan_motor.urdf.xacro'" />
+
+  <!-- Loads realtime machine and PR2_etherCAT -->
+  <include file="$(find qualification)/tests/init.machine" />
+  <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
+
+  <group ns="cal_motor" >
+    <param name="type" type="str" value="MotorJointCalibrationController" />
+    <param name="joint" type="str" value="head_pan_motor_joint" />
+  </group>
+  <node pkg="mechanism_bringup" type="calibrate.py"
+        args="cal_motor" name="cal_motor" output="screen" />
+
+
+</launch>

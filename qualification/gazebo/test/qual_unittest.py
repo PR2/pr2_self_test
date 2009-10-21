@@ -34,7 +34,7 @@
 
 ##\author Kevin Watts
 
-##\brief Tests loading of checkout controller on PR2 with gazebo
+##\brief Tests receipt of test status service call for qual tests
 
 DURATION = 120
 
@@ -87,13 +87,13 @@ class TestQualUnit(unittest.TestCase):
         return TestResultResponse()
 
     def test_qual_unit(self):
-
         start = rospy.get_time()
-        while self.srv is None:
+        while self.srv is None and not rospy.is_shutdown():
             sleep(5.0)
             if rospy.get_time() - start > DURATION:
                 break
         
+        self.assert_(not rospy.is_shutdown(), "Rospy shutdown")
         self.assert_(self.srv is not None, "No result from qualification test")
         self.assert_(self.success, "Qual test result was unsuccessful. Human OK: %s. Data: %s" % (self._human, self.srv.text_summary))
 
