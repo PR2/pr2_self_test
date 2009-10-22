@@ -1,9 +1,0 @@
-<launch>
-  <!-- Runs the test on or off the test cart. -->
-  <!-- May need to put in to to scripts folder -->
-  <node pkg="life_test" type="run_head_test.py" />
-  
-  <include file="$(find pr2_default_controllers)/head_position_controller.launch" />
-
-  <node pkg="life_test" type="laser_test.bash" />
-</launch>
