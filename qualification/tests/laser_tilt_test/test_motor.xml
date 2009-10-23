@@ -1,0 +1,10 @@
+<test>
+  <instructions>instructions_motor.html</instructions>
+  <pre_startup name="Power Standby" timeout="30">../../scripts/power_board_standby.launch</pre_startup>
+  <pre_startup name="Program MCB's" timeout="30">laser_tilt_prog.launch</pre_startup>
+  <pre_startup name="Power Cycle" timeout="30">../../scripts/power_cycle.launch</pre_startup>
+  <pre_startup name="Configure MCB's" timeout="30">../../config/laser_tilt_conf.launch</pre_startup>
+  <startup>laser_tilt_motor.launch</startup>
+  <subtest name="Hysteresis Motor Test" timeout="30">hysteresis_laser_tilt_motor.launch</subtest>
+  <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
+</test>

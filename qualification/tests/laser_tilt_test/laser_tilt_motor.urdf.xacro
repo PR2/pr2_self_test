@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<robot name="tilting_laser"
+       xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <joint name="laser_tilt_motor_joint" type="continuous">
+    <axis xyz="0 1 0" />
+    <limit effort="100" velocity="100"/>
+    <safety_controller k_velocity="10" />
+    <dynamics damping="0.0" friction="0.0" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="world"/>
+    <child link="laser_tilt_motor_link"/>
+  </joint>
+  <link name="laser_tilt_motor_link">
+    <inertial>
+      <mass value="1" /> 
+      <origin xyz=" 0 0 0 " />
+      <inertia  ixx="1.0" ixy="0.0" ixz="0.0"
+                iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial>
+    
+  </link>
+
+  <!-- Transmission uses laser_tilt_motor -->
+  <transmission type="SimpleTransmission" name="laser_tilt_motor_trans">
+    <actuator name="laser_tilt_motor" />
+    <joint name="laser_tilt_motor_joint" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+
+</robot>

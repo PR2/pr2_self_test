@@ -1,6 +1,6 @@
 <package>
-  <description brief='Qualification testing package'>
-    Tests components of the PR2 as individual components and assembled robots. Tests, analyzes and logs results of the qualification/self-tests.  </description>
+  <description brief='PR2 Hardware Qualification and Testing'>
+    Tests PR2 hardware as individual components and assembled robots. Tests, analyzes and logs results of the qualification/self-tests.  </description>
   <author>Kevin Watts (watts@willowgarage.com), Josh Faust (jfaust@willowgarage.com)</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
@@ -31,10 +31,11 @@
   <depend package="camera_focus" />
   <depend package="image_proc" />
   <depend package="pr2_defs" />
+  <depend package="pr2_description" />
   <depend package="gazebo" />
   <depend package="pr2_gazebo" />
   <depend package="sensor_msgs" />
-  <url>http://pr.willowgarage.com/wiki/qualification</url>
+  <url>http://www.ros.org/wiki/qualification</url>
   <sysdepend os="ubuntu" version="7.04-feisty" package="python-wxgtk2.8"/>
   <sysdepend os="ubuntu" version="8.04-hardy" package="python-wxgtk2.8"/>
   <sysdepend os="ubuntu" version="7.04-feisty" package="libwxgtk2.8-dev"/>
