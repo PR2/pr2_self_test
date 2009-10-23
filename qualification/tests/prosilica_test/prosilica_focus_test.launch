@@ -1,0 +1,7 @@
+<launch>
+  <node name="prosilica_focus_graph" pkg="qualification"
+        type="focus_prosilica.py" />
+
+  <node name="camera_focus_ok" pkg="qualification"
+        type="prosilica_focus_dialog.py" args="subtest" output="screen"/>
+</launch>

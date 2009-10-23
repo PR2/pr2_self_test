@@ -1,0 +1,17 @@
+<launch>
+  <group ns="prosilica" clear_params="true">
+    <include file="$(find prosilica_camera)/cam_settings.xml"/>
+    <param name="acquisition_mode" type="str" value="Continuous"/>
+    <param name="ip_address" type="str" value="10.68.0.20"/>
+    <param name="region_x" type="int" value="1000"/>
+    <param name="region_y" type="int" value="1000"/>
+    <param name="width" type="int" value="50"/>
+    <param name="height" type="int" value="50"/>
+  </group>
+
+  <node name="prosilica" pkg="prosilica_camera" type="prosilica_node" output="screen" respawn="false"/>
+  
+  <node name="prosilica_focus_graph" pkg="qualification" type="focus_prosilica.py" />
+
+  <node name="camera_focus_ok" pkg="qualification" type="prosilica_focus_dialog.py" output="screen"/>
+</launch>

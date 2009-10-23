@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="qualification" type="run_selftest.py" name="prosilica_selftest" >
+    <remap from="node_name" to="prosilica"/>
+  </node>
+</launch>

@@ -67,7 +67,13 @@
     file="wge100_camera/set_mac.launch" descrip="Focus + Set MAC and Serial (permanent)" />
 
   <config serial="6805018" powerboard="false"
-    file="wge100_camera/focus_camera.launch" descrip="Focus Camera" />
+          file="wge100_camera/focus_camera.launch" descrip="Focus Camera" />
+
+  <!-- Prosilica Camera -->
+  <config serial="6802409" powerboard="false"
+          file="prosilica_camera/prosilica_focus.launch" descrip="Focus Prosilica" />
+    <config serial="6802409" powerboard="false"
+            file="prosilica_camera/set_prosilica_ip.launch" descrip="Set Prosilica IP" />
   
   <!-- B/W head camera -->
   <config serial="6805027" powerboard="false"

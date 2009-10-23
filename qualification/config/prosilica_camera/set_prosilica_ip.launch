@@ -1,0 +1,5 @@
+<launch>
+  <node name="prosilica_ip" pkg="qualification" type="prestartup_caller.py"
+        args="prosilica_camera set_ip 10.68.0.20" output="screen"/>
+  
+</launch>

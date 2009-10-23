@@ -70,6 +70,8 @@
         file="serial_test/test.xml" descrip="USB to Serial Test" />
   <test serial="6801050" 
 	file="imu_test/test.xml" descrip="IMU Test" />
+  <test serial="6802409"
+        file="prosilica_test/test.xml" descrip="Prosilica Test" />
  
  
 </tests>
