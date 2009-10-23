@@ -1,5 +1,0 @@
-<launch>
-  <node pkg="qualification" type="drop_test.py" name="drop_test"
-        args="--pre $(find qualification)/tests/caster_test/drop_test/caster_pre_drop.html --post $(find qualification)/tests/caster_test/drop_test/caster_post_drop.html --name 'Caster Drop Test' 'Front Drop',$(find qualification)/tests/caster_test/drop_test/caster_front_drop.htm,2 'Bottom Drop',$(find qualification)/tests/caster_test/drop_test/caster_Bottom_drop.htm,2 'Side Drop',$(find qualification)/tests/caster_test/drop_test/caster_side_drop.htm,3" />
-
-</launch>

@@ -30,7 +30,7 @@
   <depend package="image_view" />
   <depend package="camera_focus" />
   <depend package="image_proc" />
-  <depend package="pr2_defs" />
+  <!-- depend package="pr2_defs" /> Not for Beta testing -->
   <depend package="pr2_description" />
   <depend package="gazebo" />
   <depend package="pr2_gazebo" />

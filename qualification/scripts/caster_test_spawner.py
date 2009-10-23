@@ -32,7 +32,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Kevin Watts
+##\author Kevin Watts
+##\brief Spawns controllers for caster test, used for generating controller name
 
 import roslib
 roslib.load_manifest('qualification')
@@ -40,14 +41,14 @@ import rospy, sys, time
 import os.path
 import signal
 
-from mechanism_control import mechanism
-from mechanism_msgs.srv import SpawnController, KillController, SwitchController
+from pr2_mechanism_control import mechanism
+from pr2_mechanism_msgs.srv import SpawnController, KillController, SwitchController
 
 from xml.dom.minidom import parse, parseString
 import xml.dom
 
 def print_usage(exit_code = 0):
-    print 'spawner.py [--stopped] <controller names>'
+    print 'caster_test_spawner.py [--stopped] <controller names>'
     sys.exit(exit_code)
 
 rospy.wait_for_service('spawn_controller')

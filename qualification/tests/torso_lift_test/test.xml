@@ -1,12 +1,11 @@
 <test> 
   <instructions>instructions.html</instructions>
-  <pre_startup>../../scripts/power_board_standby.launch</pre_startup>
-  <pre_startup>torso_prog.launch</pre_startup>
-  <pre_startup>../../scripts/power_cycle.launch</pre_startup>
-  <pre_startup>../../config/torso_conf.launch</pre_startup>
-  <shutdown>../../scripts/power_board_disable.launch</shutdown>
-
+  <pre_startup name="Power Standby" timeout="30">../../scripts/power_board_standby.launch</pre_startup>
+  <pre_startup name="Power Standby" timeout="30">torso_prog.launch</pre_startup>
+  <pre_startup name="Power Standby" timeout="30">../../scripts/power_cycle.launch</pre_startup>
+  <pre_startup name="Power Standby" timeout="30">../../config/torso_conf.launch</pre_startup>
   <startup>torso.launch</startup>
-  <subtest>torso_checkout.launch</subtest>
-  <subtest>hysteresis_torso_lift.launch</subtest>
+  <subtest name="Torso Checkout">torso_checkout.launch</subtest>
+  <subtest name="Torso Hysteresis" timeout="180">hysteresis_torso_lift.launch</subtest>
+  <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
 </test>

@@ -2,21 +2,24 @@
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="HysteresisController" />
     <param name="velocity" type="double" value="-0.01" />
-    <param name="max_effort" type="double" value="30" />
+    <param name="max_effort" type="double" value="25" />
     <!-- Lower efforts after burn in -->
     <param name="max_expected" type="double" value="10.0" />
     <param name="min_expected" type="double" value="-10.0" />
     <param name="max_position" type="double" value="0.0865" />
     <param name="min_position" type="double" value="0.001" />
     <param name="timeout" type="double" value="30" />
+    <param name="tolerance" type="double" value="0.15" />
+    <param name="sd_max" type="double" value="0.15" />
+    
 
     <group ns="velocity_controller" clear_params="true">
       <param name="type" type="string" value="JointVelocityController" />
       <param name="joint" type="string" value="r_gripper_joint" />
-      <param name="pid/p" type="double" value="2300.0" />
-      <param name="pid/i" type="double" value="12000.0" />
+      <param name="pid/p" type="double" value="2000.0" />
+      <param name="pid/i" type="double" value="10000.0" />
       <param name="pid/d" type="double" value="0.0" />
-      <param name="pid/i_clamp" type="double" value="13.0" />
+      <param name="pid/i_clamp" type="double" value="10.0" />
     </group>
   </group>
   

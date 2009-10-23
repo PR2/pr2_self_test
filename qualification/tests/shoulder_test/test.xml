@@ -1,15 +1,15 @@
 <test>
   <instructions>instructions.html</instructions>
-  <pre_startup>../../scripts/power_board_standby.launch</pre_startup>
-  <pre_startup>shoulder_prog.launch</pre_startup>
-  <pre_startup>../../scripts/power_cycle.launch</pre_startup>
-  <pre_startup>../../config/r_shoulder_conf.launch</pre_startup>
+  <pre_startup name="Power Standby" timeout="30">../../scripts/power_board_standby.launch</pre_startup>
+  <pre_startup name="Program MCB's" timeout="30">shoulder_prog.launch</pre_startup>
+  <pre_startup name="Power Cycle" timeout="30">../../scripts/power_cycle.launch</pre_startup>
+  <pre_startup name="Configure MCB's" timeout="30">../../config/r_shoulder_conf.launch</pre_startup>
   <startup>shoulder.launch</startup>
-  <shutdown>../../scripts/power_board_disable.launch</shutdown>
-  <subtest>shoulder_checkout.launch</subtest>
-  <subtest>sinesweep_shoulder_pan.launch</subtest>
-  <subtest>hysteresis_shoulder_pan.launch</subtest>
-  <subtest>hysteresis_shoulder_lift.launch</subtest>
-  <subtest>sinesweep_upper_arm_roll.launch</subtest>
-  <subtest>hysteresis_upper_arm_roll.launch</subtest>
+  <subtest name="Shoulder Checkout">shoulder_checkout.launch</subtest>
+  <subtest name="Shoulder Pan Hysteresis" timeout="30">hysteresis_shoulder_pan.launch</subtest>
+  <subtest name="Shoulder Pan Sinesweep" timeout="30">sinesweep_shoulder_pan.launch</subtest>
+  <subtest name="Shoulder Lift Hysteresis" timeout="30">hysteresis_shoulder_lift.launch</subtest>
+  <subtest name="Upperarm Roll Hysteresis" timeout="30">hysteresis_upper_arm_roll.launch</subtest>
+  <subtest name="Upperarm Roll Sinesweep" timeout="30">sinesweep_upper_arm_roll.launch</subtest>
+  <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
 </test>

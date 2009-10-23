@@ -6,8 +6,8 @@
     <param name="max_effort" type="double" value="0.75" />
     <param name="max_expected" type="double" value="0.5" />
     <param name="min_expected" type="double" value="-0.36" />
-    <param name="max_position" type="double" value="0.11" />
-    <param name="min_position" type="double" value="1.9" />
+    <param name="max_position" type="double" value="1.95" />
+    <param name="min_position" type="double" value="0.1" />
     <param name="timeout" type="double" value="30" />
 
     <group ns="velocity_controller" clear_params="true">
@@ -20,6 +20,6 @@
     </group>
   </group>
 
-  <node pkg="pr2_mechanism_control" type="spawner.py" args="test_controller" />
-  <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
+  <node pkg="pr2_mechanism_control" type="spawner.py" args="test_controller" name="spawner" />
+  <node pkg="qualification" type="hysteresis_sinesweep_plot.py" name="hyst_analysis" />
 </launch>

@@ -6,8 +6,9 @@
        xmlns:xacro="http://ros.org/wiki/xacro">
 
   <include filename="$(find pr2_description)/urdf/common.xacro" />
-  <include filename="$(find pr2_description)/urdf/head_v0/head.urdf.xacro" />
   <include filename="$(find pr2_description)/urdf/materials.urdf.xacro" />
+
+  <include filename="$(find pr2_description)/urdf/head_v0/head.urdf.xacro" />
   
   <xacro:pr2_head_v0 name="head" parent="base_link">
     <origin xyz="0 0 0" rpy="0 0 0" />
@@ -29,7 +30,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0 " /> 
       <geometry name="pr2_base_mesh_file">
-        <mesh scale="20 20 0.01" />
+        <box size="1 1 1" />
       </geometry>
     </visual>
     <collision>
@@ -42,5 +43,4 @@
   <gazebo reference="base_link" >
     <material>Gazebo/White</material>
   </gazebo>
-
 </robot>
