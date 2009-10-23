@@ -1,23 +1,27 @@
 <tests>
   <!-- Base and Spine -->
   <test serial="6804108" 
-	file="caster_test/test.xml" descrip="Caster Alpha 1.0"/>
-  <test serial="6804108" 
-	file="caster_test/test_alpha2.xml" descrip="Caster Alpha 2.0" />
+	file="caster_test/test.xml" descrip="Caster Test"/>
+  <test serial="6802966"
+        file="motor_test/test.xml" descrip="Caster Motor + Gear Test" />
+
   <test serial="torsoli" 
 	file="torso_lift_test/test.xml" descrip="Torso Lift Test" />  
 
+  
   <!-- Head  -->
   <test serial="6804040" 
 	file="head_test/test.xml" descrip="Head Test" />
   <test serial="6802978"
         file="head_test/test_head_pan_motor.xml" descrip="Head Pan Motor Assembly" />
+  <test serial="6802977"
+        file="head_test/test_head_tilt_motor.xml" descrip="Head Tilt Motor Assembly" />
 
   <!-- Laser tilt sled -->
   <test serial="6804001" 
-	file="laser_tilt_test/test.xml" descrip="Laser Tilt Alpha 1" />  
-  <test serial="6804001" 
-	file="laser_tilt_test/test_alpha2.xml" descrip="Laser Tilt Alpha 2" />  
+	file="laser_tilt_test/test.xml" descrip="Laser Tilt Test" />
+  <test serial="6802990"
+        file="laser_tilt_test/test_motor.xml" descrip="Laser Tilt Drivetrain Test" />
 
   <!-- Arm Tests -->
   <test serial="counter"
@@ -67,6 +71,5 @@
   <test serial="6801050" 
 	file="imu_test/test.xml" descrip="IMU Test" />
  
-  <test serial="6802966"
-        file="motor_test/test.xml" descrip="Caster Motor + Gear Test" />
+ 
 </tests>
