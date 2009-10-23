@@ -70,7 +70,7 @@ class TestRecord:
             if param.is_rate():
                 self._cum_data[param.get_name()] = 0
 
-        csv_name = strftime("%m%d%Y_%H%M%S", localtime(self._start_time)) + '_' + str(self._serial) + '_' + self._test_name + '.csv'
+        csv_name = strftime("%Y%m%d_%H%M%S", localtime(self._start_time)) + '_' + str(self._serial) + '_' + self._test_name + '.csv'
         csv_name = csv_name.replace(' ', '_').replace('/', '__')
         self.log_file = os.path.join(roslib.packages.get_pkg_dir('life_test'), 'logs/%s' % csv_name)
 

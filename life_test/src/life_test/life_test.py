@@ -151,7 +151,6 @@ class TestMonitorPanel(wx.Panel):
 
         self._power_disable_button = xrc.XRCCTRL(self._panel, 'power_disable_button')
         self._power_disable_button.Bind(wx.EVT_BUTTON, self.on_power_disable)
-
         
         # Bay data
         self._power_sn_text = xrc.XRCCTRL(self._panel, 'power_sn_text')
@@ -188,7 +187,7 @@ class TestMonitorPanel(wx.Panel):
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
         self.last_message_time = rospy.get_time()
-        self.timeout_interval = 10.0
+        self.timeout_interval = 15.0
         self._is_stale = True
 
         # Timeout for powerboard status, starts if power comes up
@@ -197,7 +196,6 @@ class TestMonitorPanel(wx.Panel):
         self.last_power_update = rospy.get_time()
         self.power_timeout = 5.0
         
-
         # Timer for invent logging
         self.invent_timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_invent_timer, self.invent_timer)
@@ -209,7 +207,6 @@ class TestMonitorPanel(wx.Panel):
  
         self.update_controls()
         self.on_end_choice()
-
 
     def create_monitor(self):
         # Give blank topic to prevent unregistering problems (ROS #1702)
@@ -276,6 +273,8 @@ class TestMonitorPanel(wx.Panel):
             self.update_invent()
             self.record_test_log()
             self.notify_operator(1, 'Closing.')
+            if self._bay is not None:
+                self._manager.test_stop(self._bay)
         except:
             rospy.logerr('Exception on close: %s' % traceback.format_exc())
 
@@ -360,7 +359,7 @@ class TestMonitorPanel(wx.Panel):
             self._manager._invent_client.add_attachment(self._serial, os.path.basename(self._record.csv_filename()), 'text/csv', csv_file)
             f.close()
             
-            summary_name = strftime("%m%d%Y_%H%M%S", localtime(self._record._start_time)) + '_summary.html'
+            summary_name = strftime("%Y%m%d_%H%M%S", localtime(self._record._start_time)) + '_summary.html'
             self._manager._invent_client.add_attachment(self._serial, summary_name, 'text/html', self.make_html_test_summary())
         except Exception, e:
             rospy.logerr('Unable to submit to invent. %s' % traceback.format_exc())
@@ -608,7 +607,6 @@ class TestMonitorPanel(wx.Panel):
         self.update_test_record()
         self.stop_if_done()
 
-    
     def make_launch_script(self, bay, script, local_diag_topic):
         launch = '<launch>\n'
         launch += '<group ns="%s" >' % bay.name
@@ -621,7 +619,7 @@ class TestMonitorPanel(wx.Panel):
         launch += '<machine name="test_host_root" user="root" address="%s" ' % bay.machine
         launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="never"/>'
 
-        # Default: User on remote
+        # Set default to remote machine
         launch += '<machine name="test_host" address="%s" default="true" ' % bay.machine
         launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)"  />'
         
@@ -689,6 +687,7 @@ class TestMonitorPanel(wx.Panel):
             self._launch_button.Enable(True)
             self._launch_button.SetLabel("Launch")
             self.update_controls()
+            self._bay = None
 
         if self._status_sub:
             self._status_sub.unregister()
@@ -696,8 +695,6 @@ class TestMonitorPanel(wx.Panel):
 
         self._is_running = False
         
-
-
     def launch_test(self):
         dialog = wx.MessageDialog(self, 'Are you sure you want to launch?', 'Confirm Launch', wx.OK|wx.CANCEL)
         if dialog.ShowModal() != wx.ID_OK:
