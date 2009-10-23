@@ -71,13 +71,13 @@ class LongRangeParams(TestParams):
     def __init__(self):
         TestParams.__init__(self)
 
-        self.ok_err       = .1
-        self.ok_maxerr    = .2
+        self.ok_err       = 4.0
+        self.ok_maxerr    = 5.0
 
         self.tgt_a        = 0
-        self.ok_a         = numpy.tan(5.0 * numpy.pi / 180) 
-        self.tgt_b        = 5.6
-        self.ok_b         = 1.0
+        self.ok_a         = numpy.tan(60.0 * numpy.pi / 180) 
+        self.tgt_b        = 9.0
+        self.ok_b         = 3.0
 
         ##\todo Set angles correctly
         self.min_ang      = -15 * numpy.pi / 180
@@ -90,12 +90,12 @@ class MidRangeParams(TestParams):
         # Transpose it since we're on the side
         self.transpose = True
 
-        self.ok_err       = .01
-        self.ok_maxerr    = .02
+        self.ok_err       = .05
+        self.ok_maxerr    = .1
         self.tgt_a        = 0
         self.ok_a         = numpy.tan(3.0 * numpy.pi / 180) 
-        self.tgt_b        = 2.0
-        self.ok_b         = .05
+        self.tgt_b        = 1.90
+        self.ok_b         = .10
         self.min_ang      = -110 * numpy.pi / 180
         self.max_ang      = -70 * numpy.pi / 180
 

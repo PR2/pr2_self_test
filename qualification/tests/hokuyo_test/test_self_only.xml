@@ -1,5 +1,5 @@
 <test>
+  <instructions>instructions_self_test.html</instructions>
   <startup>startup.launch</startup>
-  <instructions>instructions.html</instructions>
   <subtest name="Self Test" timeout="60">selftest.launch</subtest>
 </test>
