@@ -7,8 +7,8 @@ trans:
   pan_trans:
     joint: head_pan_joint
     actuator: head_pan_motor
-    max: 2.70
-    min: -2.70
+    max: 2.80
+    min: -2.80
     up_ref: 0.0
     deadband: 0.1
   tilt_trans:
@@ -18,7 +18,7 @@ trans:
     min: -0.60
     down_ref: 0.0
     deadband: 0.1
-  pan_trans:
+  laser_trans:
     joint: laser_tilt_mount_joint
     actuator: laser_tilt_mount_motor
     max: 1.57

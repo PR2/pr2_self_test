@@ -56,23 +56,13 @@
   <test serial="6804040" name="Head Life Test" 
 	short="Head" trac="289"
 	desc="Tests head on test cart, moving between [-0.4, 1.4] tilt, [-2.7, 2.7] pan."
-	script="head_test/life_test/test_gui.launch"
+	script="head_test/test_gui.launch"
 	type="Life Test" power="true" >
     <param name="Cycle rate" param_name="cycle_rate"
 	   desc="Cycle rate of head"
 	   val="2.0" rate="true" />
   </test>
   
-  <test serial="6804040" name="Head Impact Test" 
-	short="Head" trac="288"
-	desc="Impacts head, pan and tilt"
-	script="head_test/impact_test/test_gui.launch"
-	type="Impact Test" power="true" >
-    <param name="Cycle rate" param_name="cycle_rate"
-	   desc="Cycle rate of head"
-	   val="0.25" rate="true" />
-  </test>
-
   <test serial="6804139" name="Arm Cable Wrap Test"
 	short="Cable" trac="320/400"
 	desc="Tests arm cables."

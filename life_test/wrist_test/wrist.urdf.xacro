@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="wrist">
   <include filename="$(find pr2_defs)/calibration/default_cal.xml" />
-  <include filename="$(find pr2_defs)/defs/gripper/gripper_defs.urdf.xacro" />
+  <include filename="$(find pr2_defs)/defs/gripper_beta/gripper_defs.urdf.xacro" />
   <include filename="$(find pr2_defs)/defs/arm/arm_defs.urdf.xacro" />
   <include filename="$(find pr2_defs)/defs/arm/arm_transmission.xacro" />
   
@@ -11,12 +11,19 @@
   <pr2_forearm side="r" reflect="1" parent="base_link" />
   <pr2_forearm_transmission side="r" />
 
-  <!-- Needs to be set up for Betas
-  <pr2_gripper side="r" parent="base_link" screw_reduction="${4.0/1000.0}" gear_ratio="${29.16*22.0/16.0}" >
+  <pr2_gripper side="r" parent="r_wrist_roll_link" screw_reduction="${4.0/1000.0}"
+               gear_ratio="${(729.0/25.0)*(22.0/16.0)}"
+               theta0="${3.6029*M_PI/180.0}"
+               phi0="${29.7089*M_PI/180.0}"
+               t0="${-0.1914/1000.0}"
+               L0="${37.5528/1000.0}"
+               h="${0.0/1000.0}"
+               a="${68.3698/1000.0}"
+               b="${43.3849/1000.0}"
+               r="${91.5/1000.0}" >
     <origin xyz="0 0 0" rpy="0 0 0" />
   </pr2_gripper>
--->
-  
+
   <!-- Solid Base for visualizer -->
   <joint name="base_joint" type="fixed">
     <parent link="world" />

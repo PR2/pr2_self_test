@@ -11,7 +11,7 @@
   <rosparam command="load"
             file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
   <node pkg="mechanism_bringup" type="calibrate.py"
-        args="cal_r_wrist" name="cal_wrist" output="screen" />
+        args="cal_r_wrist cal_r_gripper" name="cal_wrist" output="screen" />
 
   <!-- Load wrist effort controllers -->
   <rosparam command="load"
@@ -32,7 +32,8 @@
   </node>
 
   <!-- WGE100 cam -->
+<!--
   <include file="$(find life_test)/wrist_test/wge100.launch" />
-
+-->
 
 </launch>

@@ -1,4 +1,7 @@
 <launch>
-  <!-- pr2_etherCAT -->
-  <node machine="realtime_root" pkg="pr2_etherCAT" type="pr2_etherCAT" args="-i eth0 -x /robot_description"/>
+  <param name="publish_rate_mechanism_state" type="double" value="100" />
+  <node machine="test_host_root" pkg="pr2_etherCAT" type="pr2_etherCAT"
+        args="-i eth0 -x robot_description" name="pr2_etherCAT" />
+  <node pkg="pr2_mechanism_control" type="joints_to_diagnostics.py"
+        name="joint_to_diag" machine="test_host" />
 </launch>

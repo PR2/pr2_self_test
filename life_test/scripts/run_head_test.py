@@ -32,39 +32,29 @@ PKG = "life_test"
 
 import roslib; roslib.load_manifest(PKG)
 
-import sys
-import os
-import string
 from time import sleep
 import random
 import rospy
 
-from mechanism_msgs.msg import JointStates, JointState
+from sensor_msgs.msg import JointState
+
+head_pub = None
 
 def point_head_client(pan, tilt):
-
-    ps = JointState()
-    ps.name = 'head_pan_joint'
-    ps.position = pan
-    ts = JointState()
-    ts.name ='head_tilt_joint'
-    ts.position = tilt
-    js = JointStates()
-    js.joints = [ps, ts]
-    head_angles.publish(js)
-
-    sleep(0.5)
+    js = JointState()
+    js.name = ['head_pan_joint', 'head_tilt_joint']
+    js.position = [ pan, tilt ]
+    head_pub.publish(js)
 
 if __name__ == "__main__":
-
-   head_angles = rospy.Publisher('head_controller/command', JointStates)
-   rospy.init_node('head_commander', anonymous=True)
+   rospy.init_node('head_commander')
+   head_pub = rospy.Publisher('head_controller/command', JointState)
    sleep(1)
+   rate = rospy.get_param('cycle_rate', 1.0)
+   my_rate = rospy.Rate(float(rate))
 
-   while 1:
+   while not rospy.is_shutdown():
        pan = random.uniform(-2.7, 2.7)
-       print pan
        tilt = random.uniform(-0.5, 1.35)
-       print tilt
        point_head_client(pan, tilt)
-
+       my_rate.sleep()

@@ -18,6 +18,4 @@ trans:
     deadband: 0.1
     max: 2.55
     min: 0.0
-camera:
-  type: CameraListener
-  file: camera_listener
+
