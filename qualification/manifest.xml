@@ -48,4 +48,5 @@
   <rosdep name="wxpython"/>
   <rosdep name="python-matplotlib"/>
   <rosdep name="python-serial"/>
+  <rosdep name="gnuplot"/>	
 </package>
