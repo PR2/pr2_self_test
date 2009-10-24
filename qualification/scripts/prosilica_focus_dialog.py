@@ -41,38 +41,25 @@ from qualification.srv import *
 
 import rospy
 
-finish = rospy.ServiceProxy('prestartup_done', ScriptDone)
 result = rospy.ServiceProxy('test_result', TestResult)
 
 
 app = wx.PySimpleApp()
 ret = wx.MessageBox("Did you successfully manage to focus the camera?", "Camera Focus", wx.YES_NO)
 if (ret == wx.NO):
-    done = ScriptDoneRequest()
-    done.result = ScriptDoneRequest.RESULT_FAIL
-    done.failure_msg = 'User was unable to focus the camera.'
-
     r = TestResultRequest()
     r.result = r.RESULT_FAIL
     r.text_summary = 'User unable to focus camera'
     r.html_result = '<p>Unable to focus camera. It may not have loaded properly.</p>\n'
 else:
-    done = ScriptDoneRequest()
-    done.result = ScriptDoneRequest.RESULT_OK
-    done.failure_msg = ''
-
     r = TestResultRequest()
     r.result = r.RESULT_PASS
     r.text_summary = 'Camera Focused'
     r.html_result = ''
     
 try:
-    if len(sys.argv) == 1:
-        rospy.wait_for_service('prestartup_done', 2)
-        finish.call(done)
-    else:
-        rospy.wait_for_service('test_result', 2)
-        result.call(r)
+    rospy.wait_for_service('test_result', 2)
+    result.call(r)
 except:
     # Timeout exceeded while waiting for service
     sys.exit(0)

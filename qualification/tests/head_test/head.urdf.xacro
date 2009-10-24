@@ -30,13 +30,13 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0 " /> 
       <geometry name="pr2_base_mesh_file">
-        <box size="1 1 1" />
+        <box size=".01 .01 .01" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0.0 0.0 0.0 " />
       <geometry name="base_collision_geom">
-        <box size="1 1 1" />
+        <box size=".01 .01 .01" />
       </geometry>
     </collision>
   </link>
