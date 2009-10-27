@@ -6,7 +6,7 @@
   <node machine="test_host_root" pkg="pr2_etherCAT" type="pr2_etherCAT"
         args="-i eth0 -x robot_description" name="pr2_etherCAT" >
   </node>
-  <node pkg="pr2_mechanism_control" type="joints_to_diagnostics.py"
+  <node pkg="pr2_controller_manager" type="joints_to_diagnostics.py"
         name="joint_to_diag" machine="test_host" />
 
   <!-- Calibration and velocity controllers -->
@@ -20,7 +20,7 @@
   
   <!-- Controller, velocity controller -->
   <rosparam command="load" file="$(find life_test)/caster_life_test/caster_controllers.yaml" />
-  <node pkg="pr2_mechanism_control" type="spawner.py"
+  <node pkg="pr2_controller_manager" type="spawner.py"
         args="caster_fl" name="$(anon caster_spawner)" />
 
   <!-- Commander -->

@@ -17,7 +17,7 @@
   </group>
     
   
-  <node pkg="pr2_mechanism_control" type="spawner.py" args="test_controller" />
+  <node pkg="pr2_controller_manager" type="spawner.py" args="test_controller" />
   
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
 </launch>

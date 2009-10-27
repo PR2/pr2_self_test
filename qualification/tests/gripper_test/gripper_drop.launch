@@ -3,7 +3,7 @@
         args="--pre $(find qualification)/tests/gripper_test/drop_test/gripper_pre_drop.htm --post $(find qualification)/tests/gripper_test/drop_test/gripper_post_drop.html --name 'Gripper Drop Test' 'Front Drop',$(find qualification)/tests/gripper_test/drop_test/gripper_front_drop.htm,2 'Face Drop',$(find qualification)/tests/gripper_test/drop_test/gripper_face_drop.htm,2 'Side Drop',$(find qualification)/tests/gripper_test/drop_test/gripper_side_drop.htm,3" />
 
   <!-- Turn on LED -->
-  <node pkg="pr2_mechanism_control" type="spawner.py" name="$(anon led_ctrl)"
+  <node pkg="pr2_controller_manager" type="spawner.py" name="$(anon led_ctrl)"
         args="r_gripper_led" />
 
   <!-- Turn on LED -->

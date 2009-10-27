@@ -9,14 +9,14 @@
   <node pkg="qualification" type="visual_ok.py" name="visual_ok" />
 
   <!-- Publishes diagnostics for checkout script -->
-  <node pkg="pr2_mechanism_control" type="joints_to_diagnostics.py" name="joint_diag" />
+  <node pkg="pr2_controller_manager" type="joints_to_diagnostics.py" name="joint_diag" />
   
   <!-- Checkout controller -->
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="CheckoutController" />
     <param name="timeout" type="double" value="60.0" />
   </group>
-  <node pkg="pr2_mechanism_control" type="spawner.py"
+  <node pkg="pr2_controller_manager" type="spawner.py"
         args="test_controller" name="pr2_chk_ctrl" />
 
   <!-- Test: asserts we have checkout service and that we passed -->

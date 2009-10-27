@@ -6,7 +6,7 @@
 
   <node pkg="qualification" type="visual_verifier.py" args="$(find qualification)/tests/wrist_test/view.vcg" />
 
-  <node pkg="pr2_mechanism_control" type="spawner.py" args="test_controller" />
+  <node pkg="pr2_controller_manager" type="spawner.py" args="test_controller" />
   
   <node pkg="qualification" type="robot_checkout.py" />
 </launch>
