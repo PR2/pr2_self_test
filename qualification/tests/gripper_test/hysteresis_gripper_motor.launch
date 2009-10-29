@@ -3,12 +3,12 @@
     <param name="type" type="string" value="HysteresisController" />
     <param name="velocity" type="double" value="-0.01" />
     <param name="max_effort" type="double" value="75" />
-    <param name="max_expected" type="double" value="12" />
-    <param name="min_expected" type="double" value="-12" />
+    <param name="max_expected" type="double" value="11.5" />
+    <param name="min_expected" type="double" value="-11.5" />
     <param name="max_position" type="double" value="0.087" />
     <param name="min_position" type="double" value="0.001" />
     <param name="timeout" type="double" value="120" />
-    <param name="tolerance" type="double" value="0.08" />
+    <param name="tolerance" type="double" value="0.25" />
     <param name="sd_max" type="double" value="0.10" />
 
     <group ns="velocity_controller" clear_params="true">
