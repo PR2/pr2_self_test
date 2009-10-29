@@ -13,6 +13,7 @@
   <url>http://www.ros.org/wiki/Life_Test</url>
 
   <depend package="pr2_defs" />
+  <depend package="pr2_description" />
   <depend package="pr2_default_controllers" />
   <depend package="pr2_etherCAT"/>
   <depend package="pr2_power_board"/>
@@ -28,4 +29,7 @@
   <depend package="geometry_msgs" />
   <depend package="robot_state_publisher" />
   <depend package="wge100_camera" />
+  <depend package="rospy" />
+  <depend package="sensor_msgs" />
+  <depend package="std_srvs" />
 </package>

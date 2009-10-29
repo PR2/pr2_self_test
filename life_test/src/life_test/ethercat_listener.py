@@ -33,7 +33,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Author: Kevin Watts
+##\author Kevin Watts
+##\brief Listens to /diagnostics, makes sure etherCAT state is OK
 PKG = 'life_test'
 
 import roslib

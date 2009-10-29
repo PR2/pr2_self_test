@@ -1,5 +1,5 @@
 #! /usr/bin/python
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,7 @@
 
 ##\brief Commands a gripper to open and close repeatedly
 
-import roslib
-roslib.load_manifest('life_test')
+import roslib; roslib.load_manifest('life_test')
 import rospy
 from std_msgs.msg import Float64
 from sensor_msgs.msg import JointState

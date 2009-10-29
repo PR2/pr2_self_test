@@ -194,10 +194,10 @@ class CasterSlipListener:
         diag.values.append(KeyValue("Turret Position", str(self.last_position.turret)))
         diag.values.append(KeyValue("R Wheel Position", str(self.last_position.r_wheel)))
         diag.values.append(KeyValue("L Wheel Position", str(self.last_position.l_wheel)))
-        diag.values.append(KeyValue("Max Pos. Right Slip", str(self._max_r_err_pos)))
         diag.values.append(KeyValue("Max Pos. Left Slip", str(self._max_l_err_pos)))
-        diag.values.append(KeyValue("Max Neg. Right Slip", str(self._max_r_err_neg)))
         diag.values.append(KeyValue("Max Neg. Left Slip", str(self._max_l_err_neg)))
+        diag.values.append(KeyValue("Max Pos. Right Slip", str(self._max_r_err_pos)))
+        diag.values.append(KeyValue("Max Neg. Right Slip", str(self._max_r_err_neg)))
         diag.values.append(KeyValue("Wheel Offset", str(WHEEL_OFFSET)))
         diag.values.append(KeyValue("Wheel Diameter", str(WHEEL_RADIUS)))
         diag.values.append(KeyValue("Allowed Slip", str(ALLOWED_SLIP)))
@@ -419,7 +419,7 @@ class JointTransmissionListener():
         diag.level = self.level
         diag.name = "Trans. Listener: %s" % self._joint
         diag.message = self.message
-        diag.values = [ ]
+        diag.values = []
 
         diag.values.append(KeyValue('Transmission Status', self.message))
         diag.values.append(KeyValue('Current Reading', self.reading_msg)) 
@@ -459,7 +459,6 @@ class TransmissionListener:
         self._halt_motors = rospy.ServiceProxy('halt_motors', Empty)
 
         self._mutex = threading.Lock()
-        #self._diag_stats = []
         self._ok = True
         self._last_msg_time = 0
         
