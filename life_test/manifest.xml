@@ -10,9 +10,8 @@
   <author>Kevin Watts</author>
   <review status="na" notes=""/>
   <license>BSD</license>
-  <url>http://www.ros.org/wiki/Life_Test</url>
-
-  <depend package="pr2_defs" />
+  <url>http://www.ros.org/wiki/life_test</url>
+  <!--depend package="pr2_defs" / -->
   <depend package="pr2_description" />
   <depend package="pr2_default_controllers" />
   <depend package="pr2_etherCAT"/>

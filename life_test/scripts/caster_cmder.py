@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,14 +28,14 @@
 
 # Author: Kevin Watts, original by Stuart Glaser
 
+PKG = 'life_test'
 import roslib
-roslib.load_manifest('life_test')
+roslib.load_manifest(PKG)
 import time
 import random
 import rospy
 from std_msgs.msg import Float64
 
-# BL for DallasBot caster
 ROTATION_JOINT = 'fl_caster_rotation_joint'
 TOPIC_PREFIX = 'caster_fl'
 SPEED = 100
@@ -48,13 +48,22 @@ class CasterCmd:
 
         self._count = 0
 
+        self._left = True # Makes it alternate between starting left, right
+ 
     ##\brief 1/5 duty cycle on turn, regular sequence
     def update(self):
         if self._count == 0:
-            self.steer = -1 * STEER_VEL
+            if self._left:
+                self.steer = -1 * STEER_VEL
+            else:
+                self.steer = STEER_VEL
             self.drive = 0
         elif self._count == 1:
-            self.steer = STEER_VEL
+            if self._left:
+                self.steer = STEER_VEL
+            else:
+                self.steer = -1 * STEER_VEL
+            self._left = not self._left
             self.drive = 0
         else:
             self.steer = 0
@@ -93,15 +102,13 @@ def main():
     pub_steer.publish(Float64(0.0))
     pub_drive.publish(Float64(0.0))
 
-    rate = float(rospy.get_param('cycle_rate', 1.0))
-
+    my_rate = rospy.Rate(float(rospy.get_param('cycle_rate', 1.0)))
     while not rospy.is_shutdown():
-        # Steers the caster to be straight
         pub_steer.publish(Float64(cmder.steer))
         pub_drive.publish(Float64(cmder.drive))
         
         cmder.update()
-        time.sleep(1 / rate)
+        my_rate.sleep()
 
 if __name__ == '__main__':
     main()

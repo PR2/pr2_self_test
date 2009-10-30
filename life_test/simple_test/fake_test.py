@@ -2,7 +2,7 @@
 #
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import sys
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from std_srvs.srv import *
-from pr2_mechanism_msgs.msg import MechanismState, JointState, ActuatorState
+from pr2_mechanism_msgs.msg import MechanismStatistics, JointStatistics, ActuatorStatistics
 
 import os
 import time
@@ -60,7 +60,7 @@ class FakeTestFrame(wx.Frame):
         wx.Frame.__init__(self, parent, wx.ID_ANY, 'Fake Test')
         
         self.diag_pub = rospy.Publisher('/diagnostics', DiagnosticArray)
-        self.mech_pub = rospy.Publisher('mechanism_state', MechanismState)
+        self.mech_pub = rospy.Publisher('mechanism_statistics', MechanismStatistics)
 
         self._mech_timer = wx.Timer(self, 2)
         self.Bind(wx.EVT_TIMER, self.on_mech_timer, self._mech_timer)
@@ -108,7 +108,7 @@ class FakeTestFrame(wx.Frame):
             sine = 0
             cosine = 0
 
-        jnt_st = JointState()
+        jnt_st = JointStatistics()
         jnt_st.name = 'fake_joint'
         jnt_st.position = float(2 * sine)
         jnt_st.velocity = float(2 * cosine)
@@ -116,34 +116,32 @@ class FakeTestFrame(wx.Frame):
         jnt_st.commanded_effort = float(-2 * sine)
         jnt_st.is_calibrated = 1
 
-        cont_st = JointState()
+        cont_st = JointStatistics()
         cont_st.name = 'cont_joint'
         cont_st.position = 5 * float(0.5 * sine)
         cont_st.velocity = 2.5 * float(0.5 * cosine)
         cont_st.is_calibrated = 1
 
-        cont_act_st = ActuatorState()
+        cont_act_st = ActuatorStatistics()
         cont_act_st.name = 'cont_motor'
         cont_act_st.calibration_reading = 14 
         wrapped_position = (cont_st.position % 6.28)
         if wrapped_position > 3.14 and self._cal_box.IsChecked():
             cont_act_st.calibration_reading = 13
         
-        act_st = ActuatorState()
+        act_st = ActuatorStatistics()
         act_st.name = 'fake_motor'
         act_st.calibration_reading = 13
         if sine > 0.0 and self._cal_box.IsChecked():
             act_st.calibration_reading = 14
 
-        mech_st = MechanismState()
-        mech_st.actuator_states = [ act_st, cont_act_st ]
-        mech_st.joint_states = [ jnt_st, cont_st ]
+        mech_st = MechanismStatistics()
+        mech_st.actuator_statistics = [ act_st, cont_act_st ]
+        mech_st.joint_statistics = [ jnt_st, cont_st ]
 
         self.mech_pub.publish(mech_st)
   
-
     def on_halt(self, srv):
-        print 'Halting'
         wx.CallAfter(self.set_level, 2)
         return EmptyResponse()
 
@@ -177,14 +175,13 @@ class FakeTestFrame(wx.Frame):
         if self._pub_check_box.IsChecked():
             self.publish_diag(level, str(choice))
 
-
     def publish_diag(self, level, choice):
         msg = DiagnosticArray()
         stat = DiagnosticStatus()
         msg.status.append(stat)
 
         stat.level = level
-        stat.name = 'EtherCAT Master' # So ghetto
+        stat.name = 'EtherCAT Master'
         stat.message = choice 
      
         self.diag_pub.publish(msg)

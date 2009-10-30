@@ -1,5 +1,5 @@
 <launch>
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find life_test)/wrist_test/wrist.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_description)/robots/wrist_gripper.urdf.xacro'" />
 
   <include file="$(find life_test)/pr2_etherCAT.launch" />
 

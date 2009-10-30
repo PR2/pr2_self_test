@@ -1,6 +1,7 @@
 <launch>
   <!-- Robot desc and etherCAT -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find life_test)/gripper_life_test/gripper.urdf.xacro'" />
+  <param name="robot_description"
+         command="$(find xacro)/xacro.py '$(find pr2_description)/robots/gripper.urdf.xacro'" />
 
   <include file="$(find life_test)/pr2_etherCAT.launch" />
 
@@ -26,6 +27,6 @@
   <!-- Monitor -->
   <node pkg="life_test" type="test_monitor.py"
         name="monitor" machine="test_host" >
-    <rosparam command="load" file="$(find life_test)/gripper_life_test/gripper_listeners.yaml" />
+    <rosparam command="load" file="$(find life_test)/gripper_test/gripper_listeners.yaml" />
   </node>
 </launch>

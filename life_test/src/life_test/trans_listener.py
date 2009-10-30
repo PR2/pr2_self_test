@@ -43,11 +43,9 @@ PKG = 'life_test'
 import roslib
 roslib.load_manifest(PKG)
 
-from pr2_mechanism_msgs.msg import MechanismState
+from pr2_mechanism_msgs.msg import MechanismStatistics
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from std_srvs.srv import *
-
-#import math
 
 import rospy
 
@@ -144,7 +142,7 @@ class CasterSlipListener:
 
         self._update_time = rospy.get_time()
 
-        position = CasterPosition(msg.joint_states)
+        position = CasterPosition(msg.joint_statistics)
 
         ok, r_err, l_err = check_position(position, self.last_position)
         if not ok:
@@ -369,17 +367,17 @@ class JointTransmissionListener():
         self._rx_count += 1
 
         # Check if we can find both the joint and actuator
-        act_names = [x.name for x in mech_state.actuator_states]
+        act_names = [x.name for x in mech_state.actuator_statistics]
         self.act_exists = self._actuator in act_names ;
         
         if self.act_exists:
-            self.cal_reading = mech_state.actuator_states[act_names.index(self._actuator)].calibration_reading
+            self.cal_reading = mech_state.actuator_statistics[act_names.index(self._actuator)].calibration_reading
 
-        joint_names = [x.name for x in mech_state.joint_states]
+        joint_names = [x.name for x in mech_state.joint_statistics]
         self.joint_exists = self._joint in joint_names
         if self.joint_exists :
-            self.position = mech_state.joint_states[joint_names.index(self._joint)].position
-            self.calibrated = (mech_state.joint_states[joint_names.index(self._joint)].is_calibrated == 1)
+            self.position = mech_state.joint_statistics[joint_names.index(self._joint)].position
+            self.calibrated = (mech_state.joint_statistics[joint_names.index(self._joint)].is_calibrated == 1)
             
         # First check existance of joint, actuator
         if not (self.act_exists and self.joint_exists):
@@ -455,7 +453,7 @@ class JointTransmissionListener():
 class TransmissionListener:
     def __init__(self):
         self._joint_monitors = []
-        self._mech_sub = rospy.Subscriber('mechanism_state', MechanismState, self._callback)
+        self._mech_sub = rospy.Subscriber('mechanism_statistics', MechanismStatistics, self._callback)
         self._halt_motors = rospy.ServiceProxy('halt_motors', Empty)
 
         self._mutex = threading.Lock()

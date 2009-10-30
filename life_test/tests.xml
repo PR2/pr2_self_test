@@ -18,8 +18,8 @@
 
   <test serial="6804015" name="Gripper Test"
         short="Gripper" trac="000"
-        desc="Test gripper moving in and out. Commands max efforts to gripper at 1 Hz.\nPlace dog toy within grasping range of gripper after first 24 hours. Test should run for 48 hours."
-        script="gripper_life_test/test_gui.launch" power="true"
+        desc="Test gripper moving in and out. Commands max efforts to gripper at 1 Hz. Place dog toy within grasping range of gripper after first 24 hours. Test should run for 48 hours."
+        script="gripper_test/test_gui.launch" power="true"
         type="Burn-in Test" >
     <param name="Rate" param_name="cycle_rate"
            desc="Frequency of test"
@@ -28,8 +28,8 @@
 
   <test serial="6804108" name="Caster Test"
         short="Caster" trac="001"
-        desc="Caster jerks around under pressure"
-        script="caster_life_test/test_gui.launch" power="true"
+        desc="Caster jerks around under pressure. Put pressure on caster BEFORE turning this test on."
+        script="caster_test/test_gui.launch" power="true"
         type="Burn-in Test" >
     <param name="Rate" param_name="cycle_rate"
            desc="Frequency of test"
