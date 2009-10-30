@@ -1,5 +1,5 @@
 <launch>
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find qualification)/tests/shoulder_test/shoulder.xml'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_description)/robots/shoulder.urdf.xacro'" />
   
   <!-- Loads realtime machine and PR2_etherCAT -->
   <include file="$(find qualification)/tests/init.machine" />

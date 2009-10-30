@@ -26,13 +26,14 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Kevin Watts
+##\author Kevin Watts
+##\brief Checks to make sure robot is calibrated, visualizer passes and all diagnostics are OK
 
+##\todo Compare against known joints and actuators
 
-# Next step: compare against known joints and actuators
-
+PKG = 'qualification'
 import roslib
-roslib.load_manifest('qualification')
+roslib.load_manifest(PKG)
 
 import rospy
 import sys, os
@@ -391,6 +392,8 @@ if __name__ == '__main__':
         sleep(1)
         checkout.wait_for_data()
         rospy.spin()
+    except KeyboardInterrupt:
+        print 'Shutting down'
     except Exception, e:
         print 'Caught exception in robot checkout.\n%s' % traceback.format_exc()
         rospy.logerr('Robot checkout exception.\n%s' % traceback.format_exc())

@@ -2,8 +2,8 @@
   <include file="$(find qualification)/tests/init.machine" />
 
   <!-- configure_mcbs -->
-  <node machine="realtime" pkg="qualification" type="mcb_prog_conf.py" args="-c -n 1 --motor=laser_tilt_mount_motor,0" />
+  <node machine="realtime" pkg="qualification" type="mcb_prog_conf.py" args="-c -n 1 --motor=laser_tilt_mount_motor,0" name="laser_tilt_conf" />
 
   <!-- Confirm configuation -->
-  <node pkg="qualification" type="confirm_conf.py" output="screen"/>
+  <node pkg="qualification" type="confirm_conf.py" name="confirm_conf" />
 </launch>
