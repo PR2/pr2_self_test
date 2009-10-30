@@ -14,6 +14,6 @@
   <node pkg="pr2_controller_manager" type="joints_to_diagnostics.py"
         name="joint_to_diag" />
 
-    <node pkg="pr2_mechanism_control" type="controllers_to_diagnostics.py"
+  <node pkg="pr2_controller_manager" type="controllers_to_diagnostics.py"
         name="ctrl_to_diag" />
 </launch>

@@ -21,7 +21,6 @@
 
   </link>
 
-  <!-- Transmission uses fl_caster_l_wheel_motor -->
   <transmission type="SimpleTransmission" name="motor_trans">
     <actuator name="r_gripper_motor" />
     <joint name="gripper_motor_joint" />
