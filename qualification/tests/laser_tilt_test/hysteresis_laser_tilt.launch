@@ -1,23 +1,23 @@
 <launch>
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="HysteresisController" />
-    <param name="velocity" type="double" value="2.0" />
-    <param name="max_effort" type="double" value="0.3" />
+    <param name="velocity" type="double" value="1.5" />
+    <param name="max_effort" type="double" value="0.65" />
     <param name="max_expected" type="double" value="0.12" />
     <param name="min_expected" type="double" value="-0.15" />
-    <param name="max_position" type="double" value="1.49" />
-    <param name="min_position" type="double" value="-0.74" />
+    <param name="max_position" type="double" value="1.39" />
+    <param name="min_position" type="double" value="-0.69" />
     <param name="timeout" type="double" value="30" />
     <param name="tolerance" type="double" value="0.20" />
-    <param name="sd_max" type="double" value="0.20" />
+    <param name="sd_max" type="double" value="0.50" />
 
     <group ns="velocity_controller" clear_params="true">
       <param name="type" type="string" value="JointVelocityController" />
       <param name="joint" type="string" value="laser_tilt_mount_joint" />
-      <param name="pid/p" type="double" value="0.6" />
-      <param name="pid/i" type="double" value="0.25" />
+      <param name="pid/p" type="double" value="0.2" />
+      <param name="pid/i" type="double" value="8.00" />
       <param name="pid/d" type="double" value="0.0" />
-      <param name="pid/i_clamp" type="double" value="0.15" />
+      <param name="pid/i_clamp" type="double" value="0.40" />
     </group>
   </group>
   

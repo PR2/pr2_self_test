@@ -19,7 +19,7 @@
     
   </link>
 
-  <!-- Transmission uses head_tilt_motor -->
+  <!-- Transmission uses fl_caster_l_wheel_motor -->
   <transmission type="SimpleTransmission" name="head_tilt_motor_trans">
     <actuator name="head_tilt_motor" />
     <joint name="head_tilt_motor_joint" />

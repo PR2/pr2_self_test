@@ -1,5 +1,5 @@
 <launch>
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find qualification)/tests/laser_tilt_test/laser_tilt_motor.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find qualification)/tests/head_test/head_tilt_motor.urdf.xacro'" />
 
   <!-- Loads realtime machine and PR2_etherCAT -->
   <include file="$(find qualification)/tests/init.machine" />
@@ -7,8 +7,10 @@
 
   <group ns="cal_motor" >
     <param name="type" type="str" value="MotorJointCalibrationController" />
-    <param name="joint" type="str" value="laser_tilt_motor_joint" />
+    <param name="joint" type="str" value="head_tilt_motor_joint" />
   </group>
   <node pkg="mechanism_bringup" type="calibrate.py"
         args="cal_motor" name="cal_motor" output="screen" />
+
+
 </launch>

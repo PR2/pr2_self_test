@@ -26,7 +26,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Kevin Watts
+##\author Kevin Watts
 
 PKG = "qualification"
 
@@ -377,8 +377,6 @@ class AnalysisApp:
 
     html += table
 
-
-
     return html, summary, result
 
   # Processes range data for hysteresis test
@@ -393,7 +391,6 @@ class AnalysisApp:
     max_sd = numpy.std(max_array)
     min_sd = numpy.std(min_array)
 
-    ##@todo Should have these be parameters instead of magic
     tolerance = abs(max_exp - min_exp) * tol_percent
 
     sd_denominator = abs(max_avg - min_avg)
@@ -483,8 +480,6 @@ class AnalysisApp:
     regress_table += '</table>\n'
 
     return regress_table
-
-
 
     # Add table of all test params
   def controller_params(self):
