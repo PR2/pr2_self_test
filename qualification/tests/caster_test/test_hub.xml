@@ -1,0 +1,12 @@
+<test>
+  <instructions>instructions_hub.html</instructions>
+  <pre_startup name="Power On" timeout="30"
+               >../../scripts/power_cycle.launch</pre_startup>
+  <pre_startup name="Configure MCB" timeout="90"
+               >fl_caster_hub_conf.launch</pre_startup>
+  <startup>caster_hub.launch</startup>
+  <subtest name="Turret-Only Hysteresis" timeout="60" pre="fl_caster_right.launch"
+           >hysteresis_caster_turret_hub.launch</subtest>
+  <shutdown name="Power Board Disable" timeout="30"
+            >../../scripts/power_board_disable.launch</shutdown>
+</test>

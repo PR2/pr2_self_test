@@ -9,21 +9,15 @@
     <parent link="world"/>
     <child link="head_tilt_motor_link"/>
   </joint>
-  <link name="head_tilt_motor_link">
-    <inertial>
-      <mass value="1" /> 
-      <origin xyz=" 0 0 0 " />
-      <inertia  ixx="1.0" ixy="0.0" ixz="0.0"
-                iyy="1.0" iyz="0.0" izz="1.0" />
-    </inertial>
-    
-  </link>
+  <link name="head_tilt_motor_link" />
+ 
 
-  <!-- Transmission uses fl_caster_l_wheel_motor -->
-  <transmission type="SimpleTransmission" name="head_tilt_motor_trans">
+  <transmission type="SimpleTransmission"
+                name="head_tilt_motor_trans">
     <actuator name="head_tilt_motor" />
     <joint name="head_tilt_motor_joint" />
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   
 </robot>
+

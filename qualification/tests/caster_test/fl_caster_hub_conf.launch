@@ -3,7 +3,7 @@
 
   <!-- configure_mcbs -->
   <node machine="realtime" pkg="qualification" type="mcb_prog_conf.py"
-        name="caster_conf" args="-c -n 1 --motor=fl_caster_l_wheel_motor,0" />
+        name="caster_hub_conf" args="-c -n 1 --motor=fl_caster_rotation_motor,0" />
 
   <node pkg="qualification" type="confirm_conf.py"
         name="confirm_conf" output="screen"/>

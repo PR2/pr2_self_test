@@ -41,8 +41,8 @@ import rospy, sys, time
 import os.path
 import signal
 
-from pr2_mechanism_control import mechanism
-from pr2_mechanism_msgs.srv import SpawnController, KillController, SwitchController
+#from pr2_mechanism_control import mechanism
+from pr2_mechanism_msgs.srv import LoadController, UnloadController, SwitchController
 
 from xml.dom.minidom import parse, parseString
 import xml.dom
@@ -51,9 +51,9 @@ def print_usage(exit_code = 0):
     print 'caster_test_spawner.py [--stopped] <controller names>'
     sys.exit(exit_code)
 
-rospy.wait_for_service('spawn_controller')
-spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
-kill_controller = rospy.ServiceProxy('kill_controller', KillController)
+rospy.wait_for_service('load_controller')
+load_controller = rospy.ServiceProxy('load_controller', LoadController)
+unload_controller = rospy.ServiceProxy('unload_controller', UnloadController)
 switch_controller = rospy.ServiceProxy('switch_controller', SwitchController)
 
 spawned = None
@@ -61,12 +61,14 @@ prev_handler = None
 
 def shutdown(sig, stackframe):
     global spawned
+
     if spawned is not None:
+        switch_controller([], [spawned], 2)
         for i in range(3):
             try:
-                rospy.logout("Trying to kill %s" % spawned)
-                kill_controller(spawned)
-                rospy.logout("Succeeded in killing %s" % spawned)
+                rospy.logout("Trying to unload %s" % spawned)
+                unload_controller(spawned)
+                rospy.logout("Succeeded in unloading %s" % spawned)
                 break
             except rospy.ServiceException:
                 raise
@@ -105,13 +107,13 @@ def main():
 
     global spawned
 
-    resp = spawn_controller(controller)
+    resp = load_controller(controller)
     if resp.ok != 0:
         spawned = controller
-        rospy.loginfo("Spawned controller: %s" % controller)
+        rospy.loginfo("Loaded controller: %s" % controller)
     else:
         time.sleep(1) # give error message a chance to get out
-        rospy.logerr("Failed to spawn %s" % controller)
+        rospy.logerr("Failed to load %s" % controller)
 
     resp = switch_controller([spawned], [], 2)
     if resp.ok != 0:

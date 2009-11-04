@@ -167,7 +167,7 @@ class AnalysisApp:
       # Make sure we have at least some points in both directions
       if effort1_array.size < 20 or effort2_array.size < 20:
         param_html = self.controller_params()
-        r.result = TestResultRequest.RESULT_HUMAN_REQUIRED # RESULT_FAIL
+        r.result = TestResultRequest.RESULT_FAIL
         r.text_summary = 'Incomplete data set. Check diagnostics.'
         r.html_result = "<p>Not enough data in one or more directions.</p><p>Test Status: <b>FAIL</b>.</p><p>Test status: <b>FAIL</b>.</p>"
         r.html_result += '<p align=center><b>Test Parameters</b></p>' + param_html + '<hr size="2">\n'

@@ -1,0 +1,20 @@
+<launch>
+  <!-- URDF for caster hub only -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_description)/robots/caster_hub.urdf.xacro'" />
+
+  <!-- Loads realtime machine and PR2_etherCAT -->
+  <include file="$(find qualification)/tests/init.machine" />
+  <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
+
+  <!-- Caster calibration -->
+  <group ns="cal_caster_fl_hub" >
+    <param name="type" type="string" value="JointUDCalibrationController" />
+    <param name="actuator" type="string" value="fl_caster_rotation_motor" />
+    <param name="joint" type="string" value="fl_caster_rotation_joint" />
+    <param name="transmission" type="string" value="fl_caster_rotation_trans" />
+    <param name="velocity" type="double" value="2.0" />
+    <param name="pid/p" type="double" value="6.0" />
+  </group>
+  <node pkg="mechanism_bringup" type="calibrate.py" output="screen"
+  	args="cal_caster_fl_hub" />
+</launch>

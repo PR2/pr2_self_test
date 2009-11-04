@@ -3,7 +3,9 @@
   <test serial="6804108" 
 	file="caster_test/test.xml" descrip="Caster Test"/>
   <test serial="6802966"
-        file="motor_test/test.xml" descrip="Caster Motor + Gear Test" />
+        file="caster_test/test_motor.xml" descrip="Caster Motor + Gear Test" />
+  <test serial="6802966"
+        file="caster_test/test_hub.xml" descrip="Caster Hub + Motor Test" />
 
   <test serial="torsoli" 
 	file="torso_lift_test/test.xml" descrip="Torso Lift Test" />  
