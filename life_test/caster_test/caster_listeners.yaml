@@ -4,6 +4,7 @@ ethercat:
 trans:
   type: TransmissionListener
   file: trans_listener
+  caster_slip: fl
   cont_trans:
     joint: fl_caster_rotation_joint
     actuator: fl_caster_rotation_motor
