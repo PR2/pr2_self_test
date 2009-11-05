@@ -1,5 +1,5 @@
 <launch>
-  <param name="mechanism_state_publish_rate" type="double" value="100" />
+  <param name="mechanism_statistics_publish_rate" type="double" value="100" />
   <node machine="test_host_root" pkg="pr2_etherCAT" type="pr2_etherCAT"
         args="-i eth0 -x robot_description" name="pr2_etherCAT" />
   <node pkg="pr2_controller_manager" type="joints_to_diagnostics.py"
