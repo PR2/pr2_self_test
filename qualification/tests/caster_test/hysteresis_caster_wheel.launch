@@ -3,26 +3,28 @@
     <param name="type" type="string" value="HysteresisController" />
     <param name="velocity" type="double" value="1.5" />
     <param name="max_effort" type="double" value="2.0" />
-    <param name="max_expected" type="double" value="0.25" />
-    <param name="min_expected" type="double" value="-0.25" />
+    <param name="max_expected" type="double" value="0.17" />
+    <param name="min_expected" type="double" value="-0.17" />
     <param name="max_position" type="double" value="0" />
     <param name="min_position" type="double" value="0" />
     <param name="timeout" type="double" value="20" />
-    <param name="tolerance" type="double" value="0.20" />
-    <param name="sd_max" type="double" value="0.20" />
+    <param name="tolerance" type="double" value="0.12" />
+    <param name="sd_max" type="double" value="0.10" />
    
     <group ns="velocity_controller" clear_params="true">
       <param name="type" type="string" value="JointVelocityController" />
       <param name="joint" type="string" value="none" />
-      <param name="pid/p" type="double" value="2.0" />
-      <param name="pid/i" type="double" value="0.1" />
+      <param name="pid/p" type="double" value="1.0" />
+      <param name="pid/i" type="double" value="5.0" />
       <param name="pid/d" type="double" value="0.0" />
-      <param name="pid/i_clamp" type="double" value="0.4" />
+      <param name="pid/i_clamp" type="double" value="0.25" />
     </group>
   </group>
 
-  <node pkg="qualification" type="caster_test_spawner.py" args="test_controller test_controller/velocity_controller/joint SIDE_caster_WHEEL_wheel_joint" />
+  <node pkg="qualification" type="caster_test_spawner.py"
+        name="caster_spawner"
+        args="test_controller test_controller/velocity_controller/joint SIDE_caster_WHEEL_wheel_joint" />
 
-
-  <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
+  <node pkg="qualification" type="hysteresis_sinesweep_plot.py"
+        name="hyst_analysis" args="hyst_analysis" />
 </launch>

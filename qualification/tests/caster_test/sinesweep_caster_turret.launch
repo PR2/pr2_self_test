@@ -4,7 +4,7 @@
     <param name="joint_name" type="string" value="none" />
 
     <!-- Analysis params -->
-    <param name="first_mode" type="double" value="17.6" />
+    <param name="first_mode" type="double" value="22.5" />
     <param name="second_mode" type="double" value="37.0" />
     <param name="error_tolerance" type="double" value="0.15" />
     
@@ -16,7 +16,9 @@
   
   </group>
 
-  <node pkg="qualification" type="caster_test_spawner.py" args="test_controller test_controller/joint_name SIDE_caster_rotation_joint" />
+  <node pkg="qualification" type="caster_test_spawner.py" name="caster_spawner"
+        args="test_controller test_controller/joint_name SIDE_caster_rotation_joint" />
   
-  <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
+  <node pkg="qualification" type="hysteresis_sinesweep_plot.py"
+        name="sine_analysis" />
 </launch>

@@ -9,5 +9,5 @@
   <!-- Caster calibration -->
   <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
   <node pkg="mechanism_bringup" type="calibrate.py" output="screen"
-  	args="cal_caster_fl" />
+  	args="cal_caster_fl" name="cal_caster_fl" />
 </launch>

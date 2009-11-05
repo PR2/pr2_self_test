@@ -33,6 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ##\author Kevin Watts
+##\brief Programs and configures MCB's during component qualification. 
 
 import roslib
 roslib.load_manifest('qualification')
@@ -66,12 +67,12 @@ class MCBProgramConfig:
         password = rospy.get_param('/invent/password', None)
 
         if username == None or password == None:
-            self.finished(False, 'Invalid username or password.')
+            self.finished(False, 'Invalid username or password. Cannot check MCB\'s.')
             return
 
         self.invent = Invent(username, password)
         if not self.invent.login():
-            self.finished(False, 'Unable to login to invent.')
+            self.finished(False, 'Unable to login to invent. Cannot check MCB\'s.')
             return 
 
         self.expected = expected
@@ -186,11 +187,11 @@ class MCBProgramConfig:
             rospy.loginfo('Checking serial %s' % serial)
             pf = self.invent.getKV(serial, 'Test Status')
             if pf == '':
-                msg = "No \"Test Status\" field for board %d, serial %d. Proceed anyway?" % (index, serial)
-                details = "No \"Test Status\" found in inventory system. This may be an older board."
-                user_ok = self.prompt_user(msg, details)
-                if user_ok:
-                    continue
+                #msg = "No \"Test Status\" field for board %d, serial %d. Proceed anyway?" % (index, serial)
+                #details = "No \"Test Status\" found in inventory system. This may be an older board."
+                #user_ok = self.prompt_user(msg, details)
+                #if user_ok:
+                #    continue
                 
                 self.finished(False, 'Board %d has no Test Status in inventory. Operator canceled. Serial: %s' % (index, serial))
                 return False
@@ -281,8 +282,6 @@ if __name__ == '__main__':
     parser.add_option("-n", "--number", type="int", dest="expected",
                       default = 0,
                       metavar="NUMBER", help="Number of MCB's")
-
-    # Should this be --motor=?
     parser.add_option("--motor", type="string", dest="mcbs", 
                       action="append", metavar="NAME,NUM", 
                       help="MCB's to configure by name and number")
@@ -290,7 +289,7 @@ if __name__ == '__main__':
     options, args = parser.parse_args()
     
     if options.program and options.configure:
-        parser.error("options \'program\' and \'configure\' are mutually exclusive")
+        parser.error("Options \'program\' and \'configure\' are mutually exclusive")
         
     if not options.program and not options.configure:
         parser.error("Must choose to program or configure boards")

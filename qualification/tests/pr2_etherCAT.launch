@@ -1,6 +1,6 @@
 <launch>
   <!-- pr2_etherCAT -->
-  <node machine="realtime" pkg="pr2_etherCAT" name="pr2_etherCAT"
+  <node machine="test_host_root" pkg="pr2_etherCAT" name="pr2_etherCAT"
         type="pr2_etherCAT" args="-i eth0 -x robot_description"/>
 
   <!-- Robot state publisher -->

@@ -544,19 +544,19 @@ class AnalysisApp:
 
       # Find second mode
       # Max after first mode
-      second_array = pxx[index + cutoff: pxx.size]
-      if len(second_array > 10):
-        index2 = numpy.argmax(second_array)
-        max_value = max(pxx[index - cutoff: pxx.size])
-        index2 = index2 + index + cutoff
-        axes2.plot([f[index2]], [pxx[index2]], 'r.', markersize = 10);
-        self.second_mode = f[index2]
-      else:
-        self.second_mode = 0
+      #second_array = pxx[index + cutoff: pxx.size]
+      #if len(second_array > 10):
+      #  index2 = numpy.argmax(second_array)
+      #  max_value = max(pxx[index - cutoff: pxx.size])
+      #  index2 = index2 + index + cutoff
+      #  axes2.plot([f[index2]], [pxx[index2]], 'r.', markersize = 10);
+      #  self.second_mode = f[index2]
+      #else:
+      #  self.second_mode = 0
       
       r.html_result, r.text_summary, tr = self.sine_sweep_analysis(image_title)
       axes2.axvline(x=self.data.arg_value[0], color='r') # Line at first mode
-      axes2.axvline(x=self.data.arg_value[1], color='r') # Line at second mode
+      #axes2.axvline(x=self.data.arg_value[1], color='r') # Line at second mode
       axes2.set_xlim(0, 100)
       axes2.set_ylim(0, min(max_value + 10, max_value * 1.25))
       axes2.set_xlabel('Frequency')
@@ -597,7 +597,7 @@ class AnalysisApp:
   
     # Parameters
     first_mode_param = self.data.arg_value[0]
-    second_mode_param = self.data.arg_value[1]
+    #second_mode_param = self.data.arg_value[1]
     mode_error_param = self.data.arg_value[2]
 
     html = ''
@@ -611,7 +611,7 @@ class AnalysisApp:
       summary += "First mode: OK."
       tr=True
     html += "<p>First mode measured: %f, expected: %f.<br>" % (self.first_mode, first_mode_param)
-    html += "<br>Second mode measured: %f, expected %f.</p>" % (self.second_mode, second_mode_param)
+    #html += "<br>Second mode measured: %f, expected %f.</p>" % (self.second_mode, second_mode_param)
 
     html += '<br><img src=\"IMG_PATH/%s.png\", width = 640, height = 480/><br>' % image_title
 
