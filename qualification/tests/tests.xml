@@ -76,6 +76,8 @@
 	file="imu_test/test.xml" descrip="IMU Test" />
   <test serial="6802409"
         file="prosilica_test/test.xml" descrip="Prosilica Test" />
+  <test serial="etherne"
+        file="ethernet_test/test.xml" descrip="Ethernet Test" />
  
  
 </tests>

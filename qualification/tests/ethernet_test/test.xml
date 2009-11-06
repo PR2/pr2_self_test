@@ -1,0 +1,6 @@
+<test>
+  <instructions>instructions.html</instructions>
+  <subtest name="Eth1 Test" timeout="60">eth1.launch</subtest>
+  <subtest name="Eth2 Test" timeout="60">eth2.launch</subtest>
+  <subtest name="Eth3 Test" timeout="60">eth3.launch</subtest>
+</test>
