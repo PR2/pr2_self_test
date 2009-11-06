@@ -6,6 +6,10 @@
   <pre_startup name="Configure MCB's" timeout="30">../../config/r_wrist_conf.launch</pre_startup>
   <startup>wrist.launch</startup>
   <subtest name="Wrist Checkout">wrist_checkout.launch</subtest>
+  <subtest name="Wrist Diff Check" timeout="45">wrist_diff_check.launch</subtest>
+  <subtest name="Flex Hysteresis" timeout="30">hysteresis_wrist_flex.launch</subtest>
+  <subtest name="Roll Hysteresis" timeout="30">hysteresis_wrist_roll.launch</subtest>
+  <subtest name="Wrist Drop Test">wrist_drop_test.launch</subtest>
   <subtest name="Flex Hysteresis" timeout="30">hysteresis_wrist_flex.launch</subtest>
   <subtest name="Roll Hysteresis" timeout="30">hysteresis_wrist_roll.launch</subtest>
   <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>

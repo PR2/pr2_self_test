@@ -22,6 +22,8 @@
   <!-- Laser tilt sled -->
   <test serial="6804001" 
 	file="laser_tilt_test/test.xml" descrip="Laser Tilt Test" />
+    <test serial="6804001" 
+	file="laser_tilt_test/test_drop.xml" descrip="Laser Tilt Drop Test" />
   <test serial="6802990"
         file="laser_tilt_test/test_motor.xml" descrip="Laser Tilt Drivetrain Test" />
 

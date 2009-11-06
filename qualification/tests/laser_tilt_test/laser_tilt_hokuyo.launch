@@ -1,0 +1,24 @@
+<launch>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_description)/robots/laser_tilt.urdf.xacro'" />
+
+  <!-- Loads realtime machine and PR2_etherCAT -->
+  <include file="$(find qualification)/tests/init.machine" />
+  <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
+
+  <!-- Laser Tilt Calibration -->
+  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
+  <node pkg="mechanism_bringup" type="calibrate.py" output="screen" 
+	args="cal_laser_tilt" name="laser_tilt_cal" />
+
+  <!-- Launch hokuyo with sled -->
+  <node machine="test_host" pkg="hokuyo_node"
+        type="hokuyo_node" name="tilt_hokuyo_node" args="scan:=tilt_scan">
+    <param name="port" type="string" value="/dev/ttyACM0" />
+    <param name="frameid" type="string" value="/laser_tilt_link" />
+    <param name="min_ang_degrees" type="double" value="-70.0" />
+    <param name="max_ang_degrees" type="double" value="70.0" />
+    <param name="skip" type="int" value="1" />
+    <param name="intensity" value="true" />
+  </node>
+  
+</launch>

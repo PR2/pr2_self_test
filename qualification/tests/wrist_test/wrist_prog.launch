@@ -6,5 +6,5 @@
 
   <!-- Confirm configuation -->
   <node pkg="qualification" type="confirm_conf.py"
-        name="confirm_conf" output="screen"/>
+        name="confirm_conf" />
 </launch>

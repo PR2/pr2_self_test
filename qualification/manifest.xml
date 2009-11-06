@@ -1,6 +1,7 @@
 <package>
   <description brief='PR2 Hardware Qualification and Testing'>
-    Tests PR2 hardware as individual components and assembled robots. Tests, analyzes and logs results of the qualification/self-tests.  </description>
+    Tests PR2 hardware as individual components and assembled robots. Tests, analyzes and logs results of the qualification/self-tests.
+  </description>
   <author>Kevin Watts (watts@willowgarage.com), Josh Faust (jfaust@willowgarage.com)</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
@@ -31,11 +32,13 @@
   <depend package="image_view" />
   <depend package="camera_focus" />
   <depend package="image_proc" />
-  <!-- depend package="pr2_defs" /> Not for Beta testing -->
   <depend package="pr2_description" />
   <depend package="gazebo" />
   <depend package="pr2_gazebo" />
   <depend package="sensor_msgs" />
+  <depend package="pr2_controller_manager" />
+  <depend package="mechanism_bringup" />
+  <depend package="robot_state_publisher" />
   <url>http://www.ros.org/wiki/qualification</url>
   <export>
     <cpp cflags="-I${prefix}/msg/cpp -I${prefix}/srv/cpp" />

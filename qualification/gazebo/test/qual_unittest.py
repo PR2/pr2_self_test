@@ -36,8 +36,6 @@
 
 ##\brief Tests receipt of test status service call for qual tests
 
-DURATION = 120
-
 PKG = 'qualification'
 import roslib; roslib.load_manifest(PKG)
 
@@ -49,7 +47,7 @@ from optparse import OptionParser
 
 from qualification.srv import TestResult, TestResultResponse
 
-DURATION = 600
+DURATION = 150
 
 class TestQualUnit(unittest.TestCase):
     def __init__(self, *args):
@@ -99,5 +97,4 @@ class TestQualUnit(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    print 'SYS ARGS:', sys.argv
     rostest.run(PKG, sys.argv[0], TestQualUnit, sys.argv)

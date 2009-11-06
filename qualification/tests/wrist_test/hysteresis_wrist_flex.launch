@@ -13,10 +13,10 @@
     <group ns="velocity_controller" clear_params="true">
       <param name="type" type="string" value="JointVelocityController" />
       <param name="joint" type="string" value="r_wrist_flex_joint" />
-      <param name="pid/p" type="double" value="2.5" />
-      <param name="pid/i" type="double" value="1.5" />
+      <param name="pid/p" type="double" value="2.0" />
+      <param name="pid/i" type="double" value="10.0" />
       <param name="pid/d" type="double" value="0.0" />
-      <param name="pid/i_clamp" type="double" value="0.1" />
+      <param name="pid/i_clamp" type="double" value="0.5" />
     </group>
   </group>
 

@@ -8,5 +8,5 @@
   <!-- Wrist Calibration -->
   <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
   <node pkg="mechanism_bringup" type="calibrate.py" output="screen" 
-	args="cal_r_wrist" />
+	args="cal_r_wrist" name="cal_r_wrist" />
 </launch>
