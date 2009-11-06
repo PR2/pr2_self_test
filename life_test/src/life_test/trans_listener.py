@@ -298,13 +298,15 @@ class JointTransmissionListener():
         if self._up_ref is not None:
             if abs(position - self._up_ref) < self._deadband:
                 return True # Don't know b/c in deadband
-            if abs((self._wrap - position) - self._up_ref) < self._deadband:
-                return True # This checks that we're not really close to the flag on the other side of the wrap
+            if self._wrap is not None:
+                if abs((self._wrap - position) - self._up_ref) < self._deadband:
+                    return True # This checks that we're not really close to the flag on the other side of the wrap
         if self._down_ref is not None:
             if abs(position - self._down_ref) < self._deadband:
-                return True 
-            if abs((self._wrap - position) - self._down_ref) < self._deadband:
-                return True 
+                return True
+            if self._wrap is not None:
+                if abs((self._wrap - position) - self._down_ref) < self._deadband:
+                    return True 
 
         # Check limits
         if self._max is not None and position > self._max:
