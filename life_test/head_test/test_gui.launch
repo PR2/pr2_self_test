@@ -1,11 +1,11 @@
 <launch>
 <!--  <param name="robot_description"
-         command="$(find xacro)/xacro.py '$(find pr2_description)/robots/head.urdf.xacro" />
+         command="$(find xacro)/xacro.py '$(find pr2_description)/robots/head.urdf.xacro'" />
   -->
 
 <!-- Use this for A2 unit testing -->
   <param name="robot_description"
-         command="$(find xacro)/xacro.py '$(find life_test)/head_test/head.urdf.xacro" />
+         command="$(find xacro)/xacro.py '$(find life_test)/head_test/head.urdf.xacro'" />
 
   <include file="$(find life_test)/pr2_etherCAT.launch" />
   
