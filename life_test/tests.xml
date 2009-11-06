@@ -62,6 +62,13 @@
 	   desc="Cycle rate of head"
 	   val="2.0" rate="true" />
   </test>
+
+  <test serial="6804001" name="Laser Tilt Life Test" 
+	short="Sled" trac="41"
+	desc="Tests laser tilt with Hokuyo wire connection."
+	script="laser_tilt_test/test_gui.launch"
+	type="Life Test" power="true" >
+  </test>
   
   <test serial="6804139" name="Arm Cable Wrap Test"
 	short="Cable" trac="320/400"

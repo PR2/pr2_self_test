@@ -1,6 +1,6 @@
 <launch>
   <param name="robot_description"
-         command="$(find xacro)/xacro.py '$(find pr2_description)/robots/laser_tilt.urdf.xacro" />
+         command="$(find xacro)/xacro.py '$(find pr2_description)/robots/laser_tilt.urdf.xacro'" />
   <include file="$(find life_test)/pr2_etherCAT.launch" />
   
   <!-- Laser Tilt Calibration -->
@@ -14,6 +14,17 @@
         args="$(find pr2_default_controllers)/laser_tilt_controller.xml" />
   <node pkg="life_test" type="laser_traj_cmd.py"
         name="laser_cmder" args="laser_tilt_controller" />
+
+  <!-- Launch hokuyo with sled -->
+  <node machine="test_host" pkg="hokuyo_node"
+        type="hokuyo_node" name="tilt_hokuyo_node" args="scan:=tilt_scan">
+    <param name="port" type="string" value="/dev/ttyACM0" />
+    <param name="frameid" type="string" value="/laser_tilt_link" />
+    <param name="min_ang_degrees" type="double" value="-70.0" />
+    <param name="max_ang_degrees" type="double" value="70.0" />
+    <param name="skip" type="int" value="1" />
+    <param name="intensity" value="true" />
+  </node>
 
   <!-- Monitor -->
   <node pkg="life_test" type="test_monitor.py" name="monitor" machine="test_host"> 

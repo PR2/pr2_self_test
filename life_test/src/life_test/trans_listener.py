@@ -405,6 +405,9 @@ class JointTransmissionListener():
         if not self._ok:
             self.message = 'Broken'
             self.level = 2
+        else:
+            self.message = 'OK'
+            self.level = 0
         
         if self.calibrated:
             self._max_position = max(self._max_position, self.position)

@@ -4,7 +4,7 @@
     <bay name="testi" machine="testi" />
   </room>
 
-  <room hostname="cmi" >
+  <room hostname="apn" >
     <!-- On test cart to side -->
     <bay name="testi" machine="testi" board="1001" breaker="1" />
     <bay name="testk" machine="testk" board="1001" breaker="0" />
