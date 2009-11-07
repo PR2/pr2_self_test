@@ -51,21 +51,19 @@ def ethernet_test():
     rospy.init_node(NAME)
     
     name = rospy.myargv()[1]
-    ip = rospy.myargv[2]
+    ip = rospy.myargv()[2]
     
     res = os.popen('ping -f -q -w 1 -s 32768 %s' % (ip)).readlines()
 
     r = TestResultRequest()
     r.plots = []
     
-    s = StringIO()
-
     if (len(res) > 1):
         tran = float(res[3].split()[0])
         recv = float(res[3].split()[3])
-
-        print >> s, 'Transmitted: %f'%(tran)
-        print >> s, 'Received: %f'%(recv)
+        
+        r.html_result = r.html_result + '<p>Flood Ping Transmitted: %f</p>'%(tran)
+        r.html_result = r.html_result + '<p>Flood Ping Received: %f</p>'%(recv)
 
         if ((tran - recv) <= 2):
           res = os.popen('netperf -H %s -t UDP_STREAM -l 1' % (ip)).readlines()
@@ -75,23 +73,29 @@ def ethernet_test():
           
           r.result = TestResultRequest.RESULT_PASS
           
-          if (speed > 900):
+          if (speed > 750):
             speed_str = 'Gigabit'
-          elif (speed > 90):
+          elif (speed > 100):
+            speed_str = 'Gigabit (slow)'
+            r.result = TestResultRequest.RESULT_FAIL
+          elif (speed > 75):
             speed_str = '100 Megabit'
+            r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
+          elif (speed > 10):
+            speed_str = '100 Megabit (slow)'
+            r.result = TestResultRequest.RESULT_FAIL
           else:
             speed_str = '< 10 Megabit'
+            r.result = TestResultRequest.RESULT_FAIL
           
           r.text_summary = speed_str
-          r.html_result = '<p>Speed: %f (%s).</p>'%(speed, speed_str)
+          r.html_result = r.html_result + '<p>Speed: %f (%s).</p>'%(speed, speed_str)
         else:
           r.text_summary = 'Too many packets lost.'
-          r.html_result = '<p>Too many packets lost.</p>'
+          r.html_result = r.html_result + '<p>Too many packets lost.</p>'
     else:
       r.text_summary = 'Running ping failed.'
-      r.html_result = '<p>Running ping failed!</p>'
-        
-    p.text = s.getvalue()
+      r.html_result = r.html_result + '<p>Running ping failed!</p>'
     
     # block until the test_result service is available
     rospy.wait_for_service('test_result')

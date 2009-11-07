@@ -8,6 +8,9 @@
     <station gui="nsf" host="nsf" powerboard="1001" breaker0="False"
 	     breaker1="False" breaker2="False" />
 
+    <station gui="aus" host="aus" powerboard="1001" breaker0="False"
+	     breaker1="False" breaker2="False" />
+
     <station gui="testl" host="testl" powerboard="1009" breaker0="True"
              breaker1="True" breaker2="True" />
 
