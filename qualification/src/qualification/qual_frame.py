@@ -32,7 +32,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-### Author: Kevin Watts
+##\author Kevin Watts
 
 import roslib
 import roslib.packages
@@ -462,18 +462,17 @@ class QualificationFrame(wx.Frame):
   ## Checks result of last prestartup script. Continues with prestartup or 
   ## runs startup/subtests if OK, fails if error.
   def prestartup_finished(self, srv):
-    if self._prestartup_launch != None:
-      self._prestartup_launch.shutdown()
-      self._prestartup_launch = None
-
     if self._prestartup_done_srv:
       self._prestartup_done_srv.shutdown()
       self._prestartup_done_srv = None
 
+    if self._prestartup_launch != None:
+      self._prestartup_launch.shutdown()
+      self._prestartup_launch = None
+
     if self._prestart_timer:
       self._prestart_timer.cancel()
       self._prestart_timer = None
-
 
     result_dict = { 0: 'OK', 1: 'FAIL', 2: 'ERROR' }
     self.log('Prestartup script finished. Result %s.' % (result_dict[srv.result]))
@@ -582,12 +581,12 @@ class QualificationFrame(wx.Frame):
         self.log('Subtest "%s" needs human response.'%(self._current_test.subtests[self._subtest_index].get_name()))
         self.show_plots(sub_result)
 
-  ## Displays results of qualification subtests 
+  ##\brief Displays results of qualification subtests 
   def show_plots(self, sub_result):
     self._plots_panel.show_plots(sub_result.make_result_page())
     self.set_top_panel(self._plots_panel)
 
-  ## Records final result of subtest. 
+  ##\brief Records final result of subtest. 
   ##@param pass_bool bool : Operator passed or failed subtest
   ##@param operator_notes str : Notes operator gave about subtest
   def subtest_result(self, pass_bool, operator_notes):
@@ -603,20 +602,20 @@ class QualificationFrame(wx.Frame):
     else:
       self.test_finished() # Terminate rest of test after failure
 
-  ## Retries subtest, logs retry results. 
+  ##\brief Retries subtest, logs retry results. 
   def retry_subtest(self, notes):
     self.log('Retrying subtest "%s"'%(self._current_test.subtests[self._subtest_index].get_name()))
     self._results.retry_subresult(self._subtest_index, notes)
     self.start_subtest(self._subtest_index)
 
-  ## Proceed to next subtest if we have one, or finish test.
+  ##\brief Proceed to next subtest if we have one, or finish test.
   def next_subtest(self):
     if (self._subtest_index + 1 >= len(self._current_test.subtests)):
       self.test_finished()
     else:
       self.start_subtest(self._subtest_index + 1)
     
-  ## Launches pre subtest scripts if any, blocks until complete.
+  ##\brief Launches pre subtest scripts if any, blocks until complete.
   def launch_pre_subtest(self):
     subtest = self._current_test.subtests[self._subtest_index]
 
@@ -630,7 +629,7 @@ class QualificationFrame(wx.Frame):
       else:
         pre_launcher.spin()      
 
-  ## Launches post subtest scripts if any, blocks until complete.
+  ##\brief Launches post subtest scripts if any, blocks until complete.
   def launch_post_subtest(self):
     subtest = self._current_test.subtests[self._subtest_index]
 
@@ -644,7 +643,7 @@ class QualificationFrame(wx.Frame):
       else:
         post_launcher.spin() 
   
-  ## Uses wg_hardware_roslaunch to launch file
+  ##\brief Uses roslaunch_caller to launch file
   ##@param file str : Full path of launch script
   def launch_file(self, file):
     self.log('Launching file %s'%(file))
@@ -655,7 +654,7 @@ class QualificationFrame(wx.Frame):
     
     return self.launch_script(launch_xml)
 
-  ## Uses wg_hardware_roslaunch to launch script
+  ##\brief Uses roslaunch_caller to launch script
   ##@param script str : XML string to launch
   def launch_script(self, script):
     launch = roslaunch_caller.ScriptRoslaunch(script, None)
@@ -741,7 +740,7 @@ class QualificationFrame(wx.Frame):
 
     self.log('Launches stopped.')
 
-  ## Launches shutdown script
+  ##\brief Launches shutdown script if we have one
   def test_finished(self):
     if (self._current_test is not None and self._current_test.getShutdownScript() != None):
       self.log('Running shutdown script...')
@@ -780,13 +779,13 @@ class QualificationFrame(wx.Frame):
       self.log('No shutdown script')
       self.test_cleanup()
 
-  ## Callback for shutdown script
+  ##\brief Callback for shutdown script
   ##@param srv qualification/ScriptDoneRequest : Result of shutdown script
   def shutdown_callback(self, srv):
     wx.CallAfter(self.shutdown_finished, srv)
     return ScriptDoneResponse()
 
-  ## Stops shutdown launch, cleans up test
+  ##\brief Stops shutdown launch, cleans up test
   def shutdown_finished(self, srv):
     self.log('Shutdown finished')
 
@@ -817,7 +816,7 @@ class QualificationFrame(wx.Frame):
 
     self.test_cleanup()
 
-  ## Stops all launches, shows results when done 
+  ##\brief Stops all launches, shows results when done 
   def test_cleanup(self):
     self.stop_launches()
     
@@ -830,7 +829,7 @@ class QualificationFrame(wx.Frame):
     
     self.show_results()
 
- ## Shows final results of qualification test
+  ##\brief Shows final results of qualification test
   def show_results(self):
     panel = ResultsPanel(self._top_panel, self._res, self)
     self.set_top_panel(panel)
@@ -841,7 +840,7 @@ class QualificationFrame(wx.Frame):
     else:
       self.reset()
 
-  ## Gets invent login from username/password
+  ##\brief Gets invent login from username/password
   def login_to_invent(self):
     dialog = self._res.LoadDialog(self, 'username_password_dialog')
     xrc.XRCCTRL(dialog, 'text').Wrap(300)
@@ -870,7 +869,7 @@ class QualificationFrame(wx.Frame):
       return False
 
 
-  ## Loads inventory object, prompts for username/password if needed
+  ##\brief Loads inventory object, prompts for username/password if needed
   def get_inventory_object(self):
     username = rospy.get_param('/invent/username', '')
     password = rospy.get_param('/invent/password', '')
@@ -888,7 +887,7 @@ class QualificationFrame(wx.Frame):
     else:
       return Invent(username, password)
 
-  ## Prompts user if they are sure they want to submit results
+  ##\brief Prompts user if they are sure they want to submit results
   def verify_submit(self):
     submit_check = 'Are you sure you want to submit?\n\n'
     submit_check += 'Press OK to submit or Cancel to recheck results.\n'
@@ -898,8 +897,9 @@ class QualificationFrame(wx.Frame):
                                     wx.OK|wx.CANCEL)
     return are_you_sure.ShowModal() == wx.ID_OK
     
-  ## Submits qualifications results to inventory, emails teams
-  ## Calls functions in result.py
+  ##\brief Submits qualifications results to inventory, emails teams
+  ##
+  ## Uses result.py functions
   def submit_results(self, notes, dir):
     if not self.verify_submit():
       return
@@ -921,11 +921,8 @@ class QualificationFrame(wx.Frame):
     res, log_str = self._results.log_results(invent)
     self.log(log_str)
     
-    print 'Logged results to invent'
-
     self._results._test_log = self._test_log
 
-    print 'Emailing results'
     if not self._results.email_qual_team():
       wx.MessageBox('Unable to email qualification results. Do you have \'sendmail\' installed?', 'Unable to email results', wx.OK|wx.ICON_ERROR, self)
       self.log('Unable to email summary.')
@@ -934,7 +931,7 @@ class QualificationFrame(wx.Frame):
     
     self.reset()
 
-  ## Records test cancel, shuts down test
+  ##\brief Records test cancel, shuts down test
   def cancel(self, error = False):
     if self._results is not None:
       if error:
@@ -944,7 +941,7 @@ class QualificationFrame(wx.Frame):
     
     self.test_finished()
   
-  ## Stops launches once we close window
+  ##\brief Stops launches once we close window
   def on_close(self, event):
     event.Skip()
     

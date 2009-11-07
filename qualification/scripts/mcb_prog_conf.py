@@ -94,6 +94,7 @@ class MCBProgramConfig:
             result.failure_msg = msg
                 
             rospy.wait_for_service('prestartup_done', 10)
+            rospy.loginfo('Calling prestartup done service')
             self.done_service.call(result)
             self.has_finished = True
         except Exception, e:
@@ -187,12 +188,6 @@ class MCBProgramConfig:
             rospy.loginfo('Checking serial %s' % serial)
             pf = self.invent.getKV(serial, 'Test Status')
             if pf == '':
-                #msg = "No \"Test Status\" field for board %d, serial %d. Proceed anyway?" % (index, serial)
-                #details = "No \"Test Status\" found in inventory system. This may be an older board."
-                #user_ok = self.prompt_user(msg, details)
-                #if user_ok:
-                #    continue
-                
                 self.finished(False, 'Board %d has no Test Status in inventory. Operator canceled. Serial: %s' % (index, serial))
                 return False
             elif pf != 'PASS':

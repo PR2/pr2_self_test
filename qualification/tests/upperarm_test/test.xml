@@ -7,8 +7,8 @@
   <startup>upperarm.launch</startup>
   <subtest name="Upperarm Checkout">upperarm_checkout.launch</subtest>
   <subtest name="Hysteresis Elbow Flex" timeout="30">hysteresis_elbow_flex.launch</subtest>
-  <subtest name="Sinesweep Elbow Flex" timeout="30">sinesweep_elbow_flex.launch</subtest>
+<!--  <subtest name="Sinesweep Elbow Flex" timeout="30">sinesweep_elbow_flex.launch</subtest> -->
   <subtest name="Hysteresis Forearm Roll" timeout="30">hysteresis_forearm_roll.launch</subtest>
-  <subtest name="Sinesweep Forearm Roll" timeout="30">sinesweep_forearm_roll.launch</subtest>
+<!--  <subtest name="Sinesweep Forearm Roll" timeout="30">sinesweep_forearm_roll.launch</subtest> -->
   <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
 </test>
