@@ -43,14 +43,6 @@
   <export>
     <cpp cflags="-I${prefix}/msg/cpp -I${prefix}/srv/cpp" />
   </export>
-  <sysdepend os="ubuntu" version="7.04-feisty" package="python-wxgtk2.8"/>
-  <sysdepend os="ubuntu" version="8.04-hardy" package="python-wxgtk2.8"/>
-  <sysdepend os="ubuntu" version="7.04-feisty" package="libwxgtk2.8-dev"/>
-  <sysdepend os="ubuntu" version="8.04-hardy" package="libwxgtk2.8-dev"/>
-  <sysdepend os="ubuntu" version="7.04-feisty" package="python-matplotlib"/>
-  <sysdepend os="ubuntu" version="8.04-hardy" package="python-matplotlib"/>
-  <sysdepend os="ubuntu" version="7.04-feisty" package="libusb-dev"/>
-  <sysdepend os="ubuntu" version="8.04-hardy" package="libusb-dev"/>
   <rosdep name="wxwidgets"/>
   <rosdep name="wxpython"/>
   <rosdep name="python-matplotlib"/>

@@ -1,7 +1,0 @@
-<launch>
-  <include find="$(find qualification)/tests/init.machine" />
-  
-  <node pkg="qualification" type="ethernet_test.py"
-        machine="test_host_root" name="ethernet_test"
-        args="eth3 10.144.1.2" />
-</launch>
