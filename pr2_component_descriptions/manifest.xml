@@ -1,0 +1,14 @@
+<package>
+  <description brief="URDF descriptions of PR2 components for testing">
+Robot descriptions in this package are used in PR2 hardware testing. This package relies on the URDF macros in pr2_description to make "robots" for PR2 components and PR2 configurations.
+  </description>
+  <author>Kevin Watts</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/pr2_component_descriptions</url>
+  <depend package="urdf"/>
+  <depend package="xacro"/>
+  <depend package="pr2_description"/>
+</package>
+
+
