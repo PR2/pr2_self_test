@@ -16,7 +16,7 @@
   
   </group>
 
-  <node pkg="qualification" type="caster_test_spawner.py" args="test_controller test_controller/joint_name SIDE_caster_WHEEL_wheel_joint" />
+  <node pkg="qualification" type="caster_test_spawner" args="test_controller test_controller/joint_name SIDE_caster_WHEEL_wheel_joint" />
   
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
 </launch>

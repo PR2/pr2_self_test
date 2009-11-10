@@ -7,7 +7,7 @@
   <node pkg="qualification" type="visual_verifier.py" name="visual_ok"
         args="$(find qualification)/tests/upperarm_test/view.vcg" />
   
-  <node pkg="pr2_controller_manager" type="spawner.py"
+  <node pkg="pr2_controller_manager" type="spawner"
         name="test_spawner" args="test_controller" />
   
   <node pkg="qualification" type="robot_checkout.py" name="upperarm_checkout" />

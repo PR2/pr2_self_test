@@ -22,7 +22,7 @@
   </group>
 
   
-  <node pkg="qualification" type="full_arm_test_spawner.py" output="screen" 
+  <node pkg="qualification" type="full_arm_test_spawner" output="screen" 
         args="test_controller SIDE_elbow_flex_joint test_controller/velocity_controller/joint" />
 
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />

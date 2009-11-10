@@ -16,7 +16,7 @@
     <param name="type" type="string" value="CheckoutController" />
     <param name="timeout" type="double" value="60.0" />
   </group>
-  <node pkg="pr2_controller_manager" type="spawner.py"
+  <node pkg="pr2_controller_manager" type="spawner"
         args="test_controller" name="pr2_chk_ctrl" />
 
   <!-- Test: asserts we have checkout service and that we passed -->

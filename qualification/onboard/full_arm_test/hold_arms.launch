@@ -156,6 +156,6 @@
     <param name="pid/i_clamp" type="double" value="1200.0" />
   </group>
   
-  <node pkg="pr2_controller_manager" type="spawner.py" args="r_gripper_joint_hold r_wrist_roll_joint_hold r_wrist_flex_joint_hold r_forearm_roll_joint_hold r_elbow_flex_joint_hold r_upper_arm_roll_joint_hold r_shoulder_lift_joint_hold r_shoulder_pan_joint_hold l_gripper_joint_hold l_wrist_roll_joint_hold l_wrist_flex_joint_hold l_forearm_roll_joint_hold l_elbow_flex_joint_hold l_upper_arm_roll_joint_hold l_shoulder_lift_joint_hold l_shoulder_pan_joint_hold" />
+  <node pkg="pr2_controller_manager" type="spawner" args="r_gripper_joint_hold r_wrist_roll_joint_hold r_wrist_flex_joint_hold r_forearm_roll_joint_hold r_elbow_flex_joint_hold r_upper_arm_roll_joint_hold r_shoulder_lift_joint_hold r_shoulder_pan_joint_hold l_gripper_joint_hold l_wrist_roll_joint_hold l_wrist_flex_joint_hold l_forearm_roll_joint_hold l_elbow_flex_joint_hold l_upper_arm_roll_joint_hold l_shoulder_lift_joint_hold l_shoulder_pan_joint_hold" />
 
 </launch>

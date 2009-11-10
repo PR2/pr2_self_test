@@ -15,6 +15,6 @@
     <param name="duration" type="double" value="10.0" />
   </group>
   
-  <node pkg="qualification" type="full_arm_test_spawner.py" args="test_controller _elbow_flex_joint test_controller/joint_name" /> 
+  <node pkg="qualification" type="full_arm_test_spawner" args="test_controller _elbow_flex_joint test_controller/joint_name" /> 
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
 </launch>

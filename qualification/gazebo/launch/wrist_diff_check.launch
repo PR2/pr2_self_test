@@ -44,7 +44,7 @@
     </group>
   </group>
 
-  <node pkg="pr2_controller_manager" type="spawner.py"
+  <node pkg="pr2_controller_manager" type="spawner"
         args="test_controller" name="wrist_diff_ctrl" />
 
   <!-- Test: asserts we have wrist diff service and that we passed -->

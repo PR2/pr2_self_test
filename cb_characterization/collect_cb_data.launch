@@ -28,7 +28,7 @@
   <param name="right_arm_trajectory_controller/r_gripper_l_finger_joint/goal_reached_threshold" type="double" value="0.1"/>
 
 
-  <node pkg="pr2_controller_manager" type="spawner.py"
+  <node pkg="pr2_controller_manager" type="spawner"
         args="$(find cb_characterization)/r_arm_traj_controller.xml"
 	output="screen" />
 

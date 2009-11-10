@@ -12,7 +12,7 @@
   <!-- Load wrist effort controllers -->
   <rosparam command="load"
             file="$(find pr2_default_controllers)/pr2_joint_effort_controllers.yaml" />
-  <node pkg="pr2_controller_manager" type="spawner.py"
+  <node pkg="pr2_controller_manager" type="spawner"
         args="r_wrist_flex_effort_controller r_wrist_roll_effort_controller r_gripper_effort_controller"
         name="$(anon wrist_spawner)" />
 

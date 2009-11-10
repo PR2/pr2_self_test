@@ -15,6 +15,6 @@
     <param name="duration" type="double" value="10.0" />
   </group>
 
-  <node pkg="pr2_controller_manager" type="spawner.py" args="test_controller" />
+  <node pkg="pr2_controller_manager" type="spawner" args="test_controller" />
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
 </launch>

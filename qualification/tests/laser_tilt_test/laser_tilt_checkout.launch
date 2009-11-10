@@ -8,7 +8,7 @@
   
   <node pkg="qualification" type="robot_checkout.py" name="checkout" />
 
-  <node pkg="pr2_controller_manager" type="spawner.py"
+  <node pkg="pr2_controller_manager" type="spawner"
         name="spawner" args="test_controller" />
 
 </launch>
