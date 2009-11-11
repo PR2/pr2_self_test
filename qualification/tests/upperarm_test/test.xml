@@ -8,5 +8,8 @@
   <subtest name="Upperarm Checkout">upperarm_checkout.launch</subtest>
   <subtest name="Hysteresis Elbow Flex" timeout="60">hysteresis_elbow_flex.launch</subtest>
   <subtest name="Hysteresis Forearm Roll" timeout="60">hysteresis_forearm_roll.launch</subtest>
+  <subtest name="Upperarm Drop Test">upperarm_drop_test.launch</subtest>
+  <subtest name="Hysteresis Elbow Flex Post-Drop" timeout="60">hysteresis_elbow_flex.launch</subtest>
+  <subtest name="Hysteresis Forearm Roll Post-Drop" timeout="60">hysteresis_forearm_roll.launch</subtest>
   <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
 </test>
