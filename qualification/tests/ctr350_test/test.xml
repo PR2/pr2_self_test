@@ -1,0 +1,6 @@
+<test>
+  <instructions>instructions.html</instructions>
+  <subtest name="Config CTR350 QUAL" timeout="60">config_ctr_qual.launch</subtest>
+  <!--<subtest name="Check Connectivity QUAL" timeout="60">ping_qual.launch</subtest>-->
+  <!--<subtest name="Config CTR350 PRLAN" timeout="60">config_ctr_prlan.launch</subtest>-->
+</test>

@@ -1,0 +1,3 @@
+<launch>
+  <node name="config_ctr_qual" pkg="qualification" type="config_ctr.py" args="QUAL"/>
+</launch>

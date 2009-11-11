@@ -78,6 +78,9 @@
         file="prosilica_test/test.xml" descrip="Prosilica Test" />
   <test serial="etherne"
         file="ethernet_test/test.xml" descrip="Ethernet Test" />
+
+  <test serial="xxxxx"
+        file="ctr350_test/test.xml" descrip="CTR350 Test" />
  
  
 </tests>
