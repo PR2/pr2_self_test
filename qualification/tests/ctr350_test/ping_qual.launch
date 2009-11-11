@@ -1,0 +1,3 @@
+<launch>
+  <node name="ping_qual" pkg="qualification" type="ping.py" args="10.68.0.99"/>
+</launch>

@@ -41,7 +41,7 @@ from qualification.srv import *
 
 import rospy 
 
-NAME = 'config_ctr'
+NAME = 'rebrand_ctr'
 
 import os
 import sys
@@ -56,16 +56,11 @@ if __name__ == "__main__":
     r = TestResultRequest()
     r.plots = []
 
-    ctr350_config_cmd = ['ctr350','-l','/usr/lib/ctr350/willow_default.gws','-n',essid]
-    ctr350_config = subprocess.Popen(ctr350_config_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (o,e) = ctr350_config.communicate()
-    if ctr350_config.returncode != 0:
-        r.html_result = "<p>Invocation of ctr350 on 192.168.0.1 failed with: %s</p>\n<p>Trying 10.68.0.250...</p>\n"%e
-        ctr350_config_cmd = ['ctr350','-l','/usr/lib/ctr350/willow_default.gws','-i','10.68.0.250','-p','willow','-n',essid]
-        ctr350_config = subprocess.Popen(ctr350_config_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (o,e) = ctr350_config.communicate()
+    ctr350_rebrand_cmd = ['ctr350','-i', '10.68.0.250','-p','willow','-n','PRLAN']
+    ctr350_rebrand = subprocess.Popen(ctr350_rebrand_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (o,e) = ctr350_rebrand.communicate()
 
-    if ctr350_config.returncode != 0:
+    if ctr350_rebrand.returncode != 0:
         r.html_result = r.html_result + "<p>Invocation of ctr350 on 10.68.0.250 failed with: %s</p>\n"%e
         r.result = TestResultRequest.RESULT_FAIL
         r.text_summary = "Utility failed"

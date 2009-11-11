@@ -79,7 +79,7 @@
   <test serial="etherne"
         file="ethernet_test/test.xml" descrip="Ethernet Test" />
 
-  <test serial="xxxxx"
+  <test serial="ctr350"
         file="ctr350_test/test.xml" descrip="CTR350 Test" />
  
  

@@ -41,7 +41,7 @@ from qualification.srv import *
 
 import rospy 
 
-NAME = 'config_ctr'
+NAME = 'check_for_ips'
 
 import os
 import sys
@@ -53,32 +53,26 @@ if __name__ == "__main__":
     
     essid = rospy.myargv()[1]
 
-    r = TestResultRequest()
-    r.plots = []
+    r = ScriptDoneRequest()
 
-    ctr350_config_cmd = ['ctr350','-l','/usr/lib/ctr350/willow_default.gws','-n',essid]
-    ctr350_config = subprocess.Popen(ctr350_config_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (o,e) = ctr350_config.communicate()
-    if ctr350_config.returncode != 0:
-        r.html_result = "<p>Invocation of ctr350 on 192.168.0.1 failed with: %s</p>\n<p>Trying 10.68.0.250...</p>\n"%e
-        ctr350_config_cmd = ['ctr350','-l','/usr/lib/ctr350/willow_default.gws','-i','10.68.0.250','-p','willow','-n',essid]
-        ctr350_config = subprocess.Popen(ctr350_config_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (o,e) = ctr350_config.communicate()
+    check_ip_cmd = ['ifconfig']
+    check_ip = subprocess.Popen(check_ip_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (o,e) = check_ip.communicate()
 
-    if ctr350_config.returncode != 0:
-        r.html_result = r.html_result + "<p>Invocation of ctr350 on 10.68.0.250 failed with: %s</p>\n"%e
-        r.result = TestResultRequest.RESULT_FAIL
-        r.text_summary = "Utility failed"
-    elif 'WAP has resumed successfully on: 10.68.0.250' not in o:
-        r.html_result = "<pre>%s</pre>"%o
-        r.result = TestResultRequest.RESULT_FAIL
-        r.text_summary = "Resume failed"
+    fail = False
+
+    for ip in rospy.myargv()[1:]:
+        if "inet addr:%s"%ip not in o:
+            fail = True
+
+    if fail:
+        r.result = ScriptDoneRequest.RESULT_ERROR
+        r.failure_msg = "Required IPs missing"
     else:
-        r.html_result = "<pre>%s</pre>"%o
-        r.result = TestResultRequest.RESULT_PASS
-        r.text_summary = "Configured"
+        r.result = ScriptDoneRequest.RESULT_OK
+        r.failure_msg = "Required IPs present"
     
     # block until the test_result service is available
-    rospy.wait_for_service('test_result')
-    result_service = rospy.ServiceProxy('test_result', TestResult)
+    rospy.wait_for_service('prestartup_done')
+    result_service = rospy.ServiceProxy('prestartup_done', ScriptDone)
     result_service.call(r)

@@ -41,7 +41,7 @@ from qualification.srv import *
 
 import rospy 
 
-NAME = 'config_ctr'
+NAME = 'ping'
 
 import os
 import sys
@@ -51,32 +51,27 @@ import subprocess
 if __name__ == "__main__":
     rospy.init_node(NAME)
     
-    essid = rospy.myargv()[1]
+    ip = rospy.myargv()[1]
 
     r = TestResultRequest()
     r.plots = []
 
-    ctr350_config_cmd = ['ctr350','-l','/usr/lib/ctr350/willow_default.gws','-n',essid]
-    ctr350_config = subprocess.Popen(ctr350_config_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (o,e) = ctr350_config.communicate()
-    if ctr350_config.returncode != 0:
-        r.html_result = "<p>Invocation of ctr350 on 192.168.0.1 failed with: %s</p>\n<p>Trying 10.68.0.250...</p>\n"%e
-        ctr350_config_cmd = ['ctr350','-l','/usr/lib/ctr350/willow_default.gws','-i','10.68.0.250','-p','willow','-n',essid]
-        ctr350_config = subprocess.Popen(ctr350_config_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (o,e) = ctr350_config.communicate()
+    success = False
 
-    if ctr350_config.returncode != 0:
-        r.html_result = r.html_result + "<p>Invocation of ctr350 on 10.68.0.250 failed with: %s</p>\n"%e
-        r.result = TestResultRequest.RESULT_FAIL
-        r.text_summary = "Utility failed"
-    elif 'WAP has resumed successfully on: 10.68.0.250' not in o:
-        r.html_result = "<pre>%s</pre>"%o
-        r.result = TestResultRequest.RESULT_FAIL
-        r.text_summary = "Resume failed"
-    else:
-        r.html_result = "<pre>%s</pre>"%o
+    for i in xrange(60):
+        ret = subprocess.call(['ping','-c','1',ip],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if ret == 0:
+            success = True
+            break
+
+    if success:
+        r.html_result = "<p>Successfully pinged %s</p>"%ip
         r.result = TestResultRequest.RESULT_PASS
-        r.text_summary = "Configured"
+        r.text_summary = "Ping successful"
+    else:
+        r.html_result = "<p>Failed to ping %s</p>"%ip
+        r.result = TestResultRequest.RESULT_FAIL
+        r.text_summary = "Ping Failed"
     
     # block until the test_result service is available
     rospy.wait_for_service('test_result')

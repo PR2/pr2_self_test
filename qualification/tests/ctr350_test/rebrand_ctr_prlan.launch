@@ -1,0 +1,3 @@
+<launch>
+  <node name="rebrand_ctr_prlan" pkg="qualification" type="rebrand_ctr.py" args="PRLAN"/>
+</launch>
