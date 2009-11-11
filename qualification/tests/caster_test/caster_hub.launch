@@ -1,6 +1,5 @@
 <launch>
-  <!-- URDF for caster hub only -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_description)/robots/caster_hub.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/caster_hub.urdf.xacro'" />
 
   <!-- Loads realtime machine and PR2_etherCAT -->
   <include file="$(find qualification)/tests/init.machine" />

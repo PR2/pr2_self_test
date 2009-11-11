@@ -1,6 +1,6 @@
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,15 +31,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Author: Kevin Watts
-
+##\author Kevin Watts
 
 import roslib
 roslib.load_manifest('life_test')
 
 import rospy
 
-# Should include parameters as a list here
 class LifeTest:
     def __init__(self, short_serial, test_name, short_name, 
                  trac, desc, test_type, launch_file, need_power, params):
@@ -61,11 +59,11 @@ class LifeTest:
 
     def get_title(self, serial):
         if len(serial) == 12: # Take last few digits of SN to ID part
-            return "%s #%s %s" % (self._short, self._trac,
+            return "%s %s" % (self._short, 
                                  serial[len(serial) - 5: 
                                         len(serial)])
         # Or just return the short name and the trac ticket
-        return "%s #%s" % (self._short, self._trac)
+        return self._short
 
     def needs_power(self):
         return self.need_power

@@ -49,6 +49,9 @@ import urllib2, cookielib
 import mimetypes
 import mimetools
 
+import neo_cgi, neo_util
+import simple_hdfhelp as hdfhelp
+
 import roslib
 roslib.load_manifest('invent_client')
 
@@ -59,7 +62,7 @@ roslib.load_manifest('invent_client')
 class Invent:
   ##@param username str : Username for WG invent system
   ##@param password str : Password for WG invent system
-  def __init__(self, username, password):
+  def __init__(self, username, password, debug=False):
     self.username = username
     self.password = password
 
@@ -70,11 +73,13 @@ class Invent:
     self._logged_time = 0
 
     self.site = "http://invent.willowgarage.com/invent/"
-    #self.site = "http://localhost/sinvent/"
+    if debug:
+      self.site = "http://cmi.willowgarage.com/invent/"
 
   def login(self):
     dt = time.time() - self._logged_time
     if self.loggedin==False or dt > 3600:
+      print "logging in"
       return self._login()
     return True
 
@@ -84,6 +89,8 @@ class Invent:
     username = self.username
     password = self.password
     url = self.site + "login/signin0.py?Action.Login=1&username=%(username)s&password=%(password)s" % locals()
+
+    print self.cj
 
     fp = self.opener.open(url)
     body = fp.read()
@@ -97,6 +104,28 @@ class Invent:
     self.loggedin = True
     self._logged_time = time.time()
     return True
+
+  def getAttachments(self, key):
+    self.login()
+
+    key = key.strip()
+
+    url = self.site + "invent/api.py?Action.getAttachments=1&key=%s" % (key,)
+    fp = self.opener.open(url)
+    body = fp.read()
+    fp.close()
+
+    print body
+
+    hdf = neo_util.HDF()
+    hdf.readString(body)
+
+    ret = {}
+    for k,o in hdfhelp.hdf_ko_iterator(hdf.getObj("CGI.cur.attachments")):
+      ret[o.getValue("name", "")] = o.getValue("aid", "")
+    
+    return ret
+    
 
   ## Return any references to an item. References are grouped by
   ## name, and are stored as NAME:REFERENCE,... under each item.
@@ -112,8 +141,6 @@ class Invent:
     body = fp.read()
     fp.close()
 
-    import neo_cgi, neo_util
-    import simple_hdfhelp as hdfhelp
     hdf = neo_util.HDF()
     hdf.readString(body)
 
@@ -229,7 +256,7 @@ class Invent:
   ##@param name str : Attachment filename
   ##@param mimetype MIMEType : MIMEType of file
   ##@param attachment any : Attachement data
-  def add_attachment(self, reference, name, mimetype, attachment):
+  def add_attachment(self, reference, name, mimetype, attachment, id=None):
     self.login()
 
     if not name:
@@ -242,6 +269,8 @@ class Invent:
     fields.append(('reference', reference))
     fields.append(('mimetype', mimetype))
     fields.append(('name', name))
+    if id is not None:
+      fields.append(('aid', id))
 
     files = []
     files.append(("attach", name, attachment))
@@ -249,6 +278,14 @@ class Invent:
     input = build_request(theURL, fields, files)
 
     response = self.opener.open(input).read()
+
+    pat = re.compile("rowid=([0-9]+)")
+    m = pat.search(response)
+    if m:
+      id = int(m.group(1))
+      return id
+    return None
+
 
 
 ## -------------------------------------------------------------

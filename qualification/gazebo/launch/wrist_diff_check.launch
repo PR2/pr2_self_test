@@ -1,9 +1,6 @@
 <launch>
   <!-- Gazebo and robot -->
   <include file="$(find qualification)/gazebo/robots/pr2_robot.launch" />
-  <!-- 
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_description)/robots/wrist.urdf.xacro'" />
--->
                  
   <!-- Analysis -->
   <node pkg="qualification" type="wrist_diff_analysis.py"

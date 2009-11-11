@@ -32,7 +32,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Kevin Watts and Ken Conley
+##\brief Kevin Watts and Ken Conley
 
 import roslib
 roslib.load_manifest('roslaunch_caller')
@@ -41,6 +41,7 @@ import roslaunch
 import roslaunch.core
 import roslaunch.parent
 import roslaunch.pmon
+import roslaunch.config
 
 import rospy
 
@@ -66,7 +67,7 @@ class ScriptRoslaunch(roslaunch.parent.ROSLaunchParent):
         super(ScriptRoslaunch, self).__init__(run_id, [], process_listeners=process_listeners)
         
     def _load_config(self):
-        self.config = roslaunch.parent.load_config_default([], self.port,
+        self.config = roslaunch.config.load_config_default([], self.port,
                                           roslaunch_strs=self.launch_strs)
     
 def launch_core():

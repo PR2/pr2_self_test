@@ -1,7 +1,7 @@
 <launch>
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="SineSweepController" />
-    <param name="joint_name" type="string" value="r_shoulder
+    <param name="joint_name" type="string" value="r_shoulder_lift_joint" />
 
     <!-- Analysis params -->
     <param name="first_mode" type="double" value="14" />

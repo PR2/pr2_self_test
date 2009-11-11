@@ -11,7 +11,7 @@
   <review status="na" notes=""/>
   <license>BSD</license>
   <url>http://www.ros.org/wiki/life_test</url>
-  <depend package="pr2_description" />
+  <depend package="pr2_component_descriptions" />
   <depend package="pr2_default_controllers" />
   <depend package="pr2_etherCAT"/>
   <depend package="pr2_power_board"/>
@@ -31,6 +31,7 @@
   <depend package="sensor_msgs" />
   <depend package="std_srvs" />
   <depend package="hokuyo_node" />
+  <depend package="roslaunch_parse_tester" />
    <export>
     <cpp cflags="-I${prefix}/msg/cpp" />
   </export>

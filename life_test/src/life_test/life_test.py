@@ -617,15 +617,15 @@ class TestMonitorPanel(wx.Panel):
         # Init machine
         # Root on remote 
         launch += '<machine name="test_host_root" user="root" address="%s" ' % bay.machine
-        launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="never"/>'
+        launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" timout="15" default="never"/>'
 
         # Set default to remote machine
         launch += '<machine name="test_host" address="%s" default="true" ' % bay.machine
-        launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)"  />'
+        launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" timeout="15"  />'
         
         # Local host
         launch += '<machine name="localhost" address="localhost" '
-        launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" default="false"/>'
+        launch += 'ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" timeout="20" default="false"/>'
 
         # Include our launch file
         launch += '<include file="$(find life_test)/%s" />' % script

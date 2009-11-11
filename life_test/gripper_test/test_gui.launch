@@ -1,7 +1,7 @@
 <launch>
   <!-- Robot desc and etherCAT -->
   <param name="robot_description"
-         command="$(find xacro)/xacro.py '$(find pr2_description)/robots/gripper.urdf.xacro'" />
+         command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/gripper.urdf.xacro'" />
 
   <include file="$(find life_test)/pr2_etherCAT.launch" />
 

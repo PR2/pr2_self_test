@@ -1,6 +1,6 @@
 <launch>
   <param name="robot_description"
-         command="$(find xacro)/xacro.py '$(find pr2_description)/robots/caster.urdf.xacro'" />
+         command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/caster.urdf.xacro'" />
 
   <include file="$(find life_test)/pr2_etherCAT.launch" />
 
