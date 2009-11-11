@@ -94,7 +94,7 @@ class FakeComponent:
         jnt_st.name = 'fake_joint'
         jnt_st.position = float(2 * sine)
         jnt_st.velocity = float(2 * cosine)
-        jnt_st.applied_effort = float(-2 * sine)
+        jnt_st.measured_effort = float(-2 * sine)
         jnt_st.commanded_effort = float(-2 * sine)
         jnt_st.is_calibrated = 1
 
@@ -106,16 +106,16 @@ class FakeComponent:
 
         cont_act_st = ActuatorStatistics()
         cont_act_st.name = 'cont_motor'
-        cont_act_st.calibration_reading = 14 
+        cont_act_st.calibration_reading = False 
         wrapped_position = (cont_st.position % 6.28)
         if wrapped_position > 3.14:
-            cont_act_st.calibration_reading = 13
+            cont_act_st.calibration_reading = True
         
         act_st = ActuatorStatistics()
         act_st.name = 'fake_motor'
-        act_st.calibration_reading = 13
+        act_st.calibration_reading = True
         if sine > 0.0:
-            act_st.calibration_reading = 14
+            act_st.calibration_reading = False
 
         mech_st = MechanismStatistics()
         mech_st.actuator_statistics = [ act_st, cont_act_st ]
