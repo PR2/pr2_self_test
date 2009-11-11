@@ -1,7 +1,7 @@
 #!/usr/bin/python                                                               
 # Software License Agreement (BSD License)                                      
 #                                                                               
-# Copyright (c) 2008, Willow Garage, Inc.                                       
+# Copyright (c) 2009, Willow Garage, Inc.                                       
 # All rights reserved.                                                          
 #                                                                               
 # Redistribution and use in source and binary forms, with or without            
@@ -32,10 +32,8 @@
 # POSSIBILITY OF SUCH DAMAGE.                                                   
 #                                                                               
 
-# Author: Kevin Watts                                                           
-
-# Moves elbow from max to min at 0.5Hz using postion controller
-# Part of packet drop test.
+##\author Kevin Watts                                                           
+##\brief Commands upperarm back and forth and rolls forearm
 
 import roslib
 roslib.load_manifest('life_test')
@@ -45,40 +43,14 @@ from time import sleep
 
 import rospy
 from std_msgs.msg import Float64
-from robot_srvs.srv import SpawnController, KillController
-
-
-def xml_for():
-    return "\
-<controller name=\"upperarm_life_controller\" type=\"JointPositionControllerNode\">\
-  <joint name=\"r_elbow_flex_joint\" >\
-     <pid p=\"50\" i=\"5\" d=\"0\" iClamp=\"1.0\" \>\
-  </joint>\
-</controller>"
-
-def xml_for_roll():
-    return "\
-<controller name=\"forearm_roll_controller\" type=\"JointEffortControllerNode\">\
-  <joint name=\"r_forearm_roll_joint\" />\
-</controller>"
-
-spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
-kill_controller = rospy.ServiceProxy('kill_controller', KillController)
-
 
 def main():
-    rospy.wait_for_service('spawn_controller')
-    rospy.init_node('ua_life_test', anonymous=True)
+    rospy.init_node('ua_cmder')
 
-    roll = False
-    if rospy.get_param('forearm_roll') == 'true':
-        roll = True
-        mechanism.spawn_controller(xml_for_roll(), 1)
+    roll = rospy.get_param('forearm_roll', True)
     
-    spawn_controller(xml_for(), 1)
-
-    arm_pos = rospy.Publisher('upperarm_life_controller/set_command', Float64)
-    fore_roll = rospy.Publisher('forearm_roll_controller/command', Float64)
+    arm_pos = rospy.Publisher('r_elbow_flex_position_controller/command', Float64)
+    fore_roll = rospy.Publisher('r_forearm_roll_effort_controller/command', Float64)
 
     try:
         while not rospy.is_shutdown():
@@ -88,17 +60,11 @@ def main():
             sleep(0.5)
             arm_pos.publish(Float64(-2.00))
             sleep(0.5)
+    except KeyboardInterrupt, e:
+        pass
     except Exception, e:
-        print "Caught exception!"
         import traceback
-        traceback.print_exc()
-    finally:
-        if roll:
-            fore_roll.publish(Float64(0.0))
-            kill_controller('forearm_roll_controller')
-
-        arm_pos.publish(Float64(0))
-        kill_controller('upperarm_life_controller')
+        rospy.logerr(traceback.format_exc())
 
 
 if __name__ == '__main__':

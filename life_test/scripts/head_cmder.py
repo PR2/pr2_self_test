@@ -1,5 +1,5 @@
-#! /usr/bin/python
-# Copyright (c) 2009, Willow Garage, Inc.
+#!/usr/bin/env python
+# Copyright (c) 2008, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,50 +26,35 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-##\brief Commands random efforts on the wrist flex and roll
-##\author Kevin Watts
+##\author Melonee Wise
+##\brief Commands PR2 head for burn in test
 
-import roslib
-roslib.load_manifest('life_test') 
-import rospy
+PKG = "life_test"
 
-from std_msgs.msg import Float64
+import roslib; roslib.load_manifest(PKG)
 
 import random
+import rospy
 
-def main():
-    rospy.init_node('wrist_cmder')
-    
-    pub_grip = rospy.Publisher("r_gripper_effort_controller/command", Float64)
-    pub_flex = rospy.Publisher("r_wrist_flex_effort_controller/command", Float64)
-    pub_roll = rospy.Publisher("r_wrist_roll_effort_controller/command", Float64)
-    
+from sensor_msgs.msg import JointState
 
-    effort_flex = float(rospy.get_param('flex_effort'))
-    effort_roll = float(rospy.get_param('roll_effort'))
-    effort_grip = -100 # Change to 0 once fake is installed? 
-    
-    freq = float(rospy.get_param('cycle_rate'))
-    
-    try:
-        rate = rospy.Rate(freq)
-        while not rospy.is_shutdown():
-            if random.randint(0, 1) == 1:
-                effort_flex = effort_flex * -1
+head_pub = None
 
-            if random.randint(0, 1) == 1:
-                effort_roll = effort_roll * -1
-                
-            pub_grip.publish(Float64(effort_grip))
-            pub_flex.publish(Float64(effort_flex))
-            pub_roll.publish(Float64(effort_roll))
+def point_head(pan, tilt):
+    js = JointState()
+    js.name = ['head_pan_joint', 'head_tilt_joint']
+    js.position = [ pan, tilt ]
+    head_pub.publish(js)
 
-            rate.sleep()
+if __name__ == "__main__":
+   rospy.init_node('head_commander')
+   head_pub = rospy.Publisher('head_controller/command', JointState)
 
-    except KeyboardInterrupt:
-        raise
-    except:
-        rospy.logerr('Wrist commander caught exception.\n%s' % traceback.format_exc())
-    
-if __name__ == '__main__':
-    main()
+   rate = rospy.get_param('cycle_rate', 1.0)
+   my_rate = rospy.Rate(float(rate))
+
+   while not rospy.is_shutdown():
+       pan = random.uniform(-2.7, 2.7)
+       tilt = random.uniform(-0.5, 1.35)
+       point_head(pan, tilt)
+       my_rate.sleep()

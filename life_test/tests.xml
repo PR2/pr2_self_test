@@ -70,30 +70,18 @@
 	type="Life Test" power="true" >
   </test>
   
-  <test serial="6804139" name="Arm Cable Wrap Test"
-	short="Cable" trac="320/400"
-	desc="Tests arm cables."
-	rate="1.0" script="arm_life_test/test_gui.launch"
-	type="Life Test" power="true" >
-    <param name="Forearm Roll" param_name="forearm_roll"
-	   desc="Forearm roll true/false"
-	   val="false" rate="false" />
-  </test>
-
-<!-- Add forearm roll cycle rate values -->
-  <test serial="6804139" name="Arm Cable Wrap Test - With Roll"
-	short="Cable" trac="320/400"
-	desc="Tests arm cables."
-	script="arm_life_test/test_gui.launch"
-	type="Life Test" power="true" >
+  <test serial="6804139" name="Upperarm Test"
+	short="Upperarm" trac="400"
+	desc="Tests upperarm."
+	rate="1.0" script="upperarm_test/test_gui.launch"
+	type="Burn-in Test" power="true" >
     <param name="Forearm Roll" param_name="forearm_roll"
 	   desc="Forearm roll true/false"
 	   val="true" rate="false" />
-    <param name="Forearm roll rate" param_name="fore_roll_rate"
-	   desc="Forearm roll rate"
-	   val="1.0" rate="true" />
   </test>
 
+
+  <!-- Not supported tests
   <test serial="6804178" name="Full Arm Counterbalance Test"
 	short="Full CB" trac="402"
 	desc="Moves arm up and down for full counterbalance workout."
@@ -113,5 +101,6 @@
 	   desc="Cycle rate of arm/CB"
 	   val="0.5" rate="true" />
   </test>
-
+  -->
+  
 </tests>
