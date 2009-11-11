@@ -11,7 +11,7 @@
     <station gui="aus" host="aus" powerboard="1001" breaker0="False"
 	     breaker1="False" breaker2="False" />
 
-    <station gui="avg" host="avg" powerboard="1001" breaker0="False"
+    <station gui="axg" host="axg" powerboard="1001" breaker0="False"
 	     breaker1="False" breaker2="False" />
 
     <station gui="testl" host="testl" powerboard="1009" breaker0="True"
