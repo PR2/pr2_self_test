@@ -1,0 +1,18 @@
+<html>
+<body>
+  <H2 align=center>Forearm Roll Motor Test</H2>
+  <H3>Running Test</H3>
+  <H4>This should be run on partially assembled motors only</H4>
+  <p>All motors must run through EE motor test before this test. Motors must have coupler and encoder installed before this test.</p>
+  <H3>Connecting Motor</H3>
+  <p><b>You must be grounded for the this step.</b></p>
+
+<p>Connect the green EtherCAT cable from the qualification bench to the MCB. Make sure the red and black power cable from the MCB to the power board is connected (this should always be there).</p>
+<H3>Testing the Motor</H3>
+  <p>This test will run the motor through a hysteresis test. Afterwards, it may ask you to examine the results. You will see a plot of motor effort versus position, and a plot of velocity versus position. If you examine this result, make sure of two things:<br>
+  <b>*</b> Motor effort is even, no rough patches.<br>
+  <b>*</b> The velocity plot does not touch zero. If it does, this could be caused by a scratch on the encoder.<br>
+ If you have any doubt about the quality of the motor, <b>press "Fail"</b>. Do not pass any component you are unsure of.</p>
+<p><b>Press 'Continue' to proceed.</b></p>
+</body>
+</html>

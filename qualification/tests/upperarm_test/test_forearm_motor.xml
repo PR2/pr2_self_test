@@ -1,0 +1,8 @@
+<test>
+  <instructions>instructions_forearm_motor.html</instructions>
+  <pre_startup name="Power Cycle" timeout="30">../../scripts/power_cycle.launch</pre_startup>
+  <pre_startup name="Configure MCB's" timeout="30">forearm_roll_conf.launch</pre_startup>
+  <startup>forearm_roll_motor.launch</startup>
+  <subtest name="Hysteresis Motor Test" timeout="30">hysteresis_forearm_roll_motor.launch</subtest>
+  <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
+</test>
