@@ -122,6 +122,23 @@ TEST(URDF, CheckRobotMotors)
   EXPECT_TRUE(test_result == 0);
 }
 
+TEST(URDF, CheckRobotGazebo)
+{
+  int test_result = 0;
+
+  char buf[MAXPATHLEN] = { 0 };
+  if( walker("gazebo_robots", buf, test_result ) == 0 )
+  {
+    printf( "Found: %s\n", buf );
+  }
+  else
+  {
+    puts( "Not found" );
+  }
+
+  EXPECT_TRUE(test_result == 0);
+}
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);
