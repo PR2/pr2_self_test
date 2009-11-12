@@ -36,6 +36,7 @@ if(disp)
 endif(disp)
 
 rosbuild_add_rostest(test/hysteresis_head_pan_gazebo.launch)
+rosbuild_add_rostest(test/hysteresis_caster_turret_gazebo.launch)
 rosbuild_add_rostest(test/sinesweep_head_pan_gazebo.launch)
 rosbuild_add_rostest(test/wrist_diff_check_gazebo.launch)
 
