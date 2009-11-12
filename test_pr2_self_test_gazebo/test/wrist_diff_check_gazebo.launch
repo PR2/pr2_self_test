@@ -7,7 +7,7 @@
   
   <!--  <node output="screen" -->  
   <!-- Test: asserts we have wrist diff service and that we passed -->
-   <test test-name="wrist_diff" time-limit="300" 
+   <test test-name="wrist_diff" time-limit="600" 
          pkg="test_pr2_self_test_gazebo" name="test_wrist_diff"
          type="check_pr2_self_test.py" args="--human_ok --fail_ok" />
 </launch>

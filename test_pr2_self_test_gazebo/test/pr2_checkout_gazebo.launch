@@ -7,5 +7,5 @@
   
   <!-- Test: asserts we have checkout service and that we passed -->
   <test test-name="pr2_checkout" pkg="test_pr2_self_test_gazebo" name="test_checkout"
-        type="check_pr2_self_test.py" time-limit="300" />
+        type="check_pr2_self_test.py" time-limit="600" />
 </launch>
