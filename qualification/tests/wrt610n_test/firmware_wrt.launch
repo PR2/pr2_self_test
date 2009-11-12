@@ -1,0 +1,3 @@
+<launch>
+  <node name="firmware_wrt" pkg="qualification" type="firmware_wrt.py"/>
+</launch>

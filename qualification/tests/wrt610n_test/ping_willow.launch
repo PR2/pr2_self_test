@@ -1,0 +1,3 @@
+<launch>
+  <node name="ping_willow" pkg="qualification" type="ping.py" args="157.22.19.22"/>
+</launch>
