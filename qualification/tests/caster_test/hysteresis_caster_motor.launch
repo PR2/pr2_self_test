@@ -13,7 +13,7 @@
 
     <group ns="velocity_controller" clear_params="true">
       <param name="type" type="string" value="JointVelocityController" />
-      <param name="joint" type="string" value="motor_joint" />
+      <param name="joint" type="string" value="caster_motor_joint" />
       <param name="pid/p" type="double" value="0.02" />
       <param name="pid/i" type="double" value="0.35" />
       <param name="pid/d" type="double" value="0.0" />
