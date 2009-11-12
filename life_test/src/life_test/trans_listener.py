@@ -61,7 +61,7 @@ R_WHEEL_NAME = 'fl_caster_r_wheel_joint'
 WHEEL_RADIUS = 0.074792
 WHEEL_OFFSET = 0.049
 
-ALLOWED_SLIP = 0.04 # Probably too big for update rate
+ALLOWED_SLIP = 0.03 # Needs verification (3cm/interval)
 UPDATE_INTERVAL = 0.25 
 
 class CasterPosition:
@@ -122,6 +122,12 @@ class CasterSlipListener:
         self._max_l_err_neg = None
         self._max_r_err_neg = None
 
+        self._max_l_err_pos_reset = None
+        self._max_r_err_pos_reset = None
+
+        self._max_l_err_neg_reset = None
+        self._max_r_err_neg_reset = None
+
         self._num_errors = 0
         self._num_errors_since_reset = 0
 
@@ -135,6 +141,12 @@ class CasterSlipListener:
     def reset(self):
         self._ok = True
         self._num_errors_since_reset = 0
+
+        self._max_l_err_pos_reset = None
+        self._max_r_err_pos_reset = None
+
+        self._max_l_err_neg_reset = None
+        self._max_r_err_neg_reset = None
 
     def update(self, msg):
         if rospy.get_time() - self._update_time < UPDATE_INTERVAL:
@@ -154,15 +166,19 @@ class CasterSlipListener:
             pass
         elif r_err > 0:
             self._max_r_err_pos = max(self._max_r_err_pos, abs(r_err))
+            self._max_r_err_pos_reset = max(self._max_r_err_pos_reset, abs(r_err))
         else:
             self._max_r_err_neg = max(self._max_r_err_neg, abs(r_err))
+            self._max_r_err_neg_reset = max(self._max_r_err_neg_reset, abs(r_err))
 
         if l_err is None:
             pass
         elif l_err > 0:
             self._max_l_err_pos = max(self._max_l_err_pos, abs(l_err))
+            self._max_l_err_pos_reset = max(self._max_l_err_pos_reset, abs(l_err))
         else:
             self._max_l_err_neg = max(self._max_l_err_neg, abs(l_err))
+            self._max_l_err_neg_reset = max(self._max_l_err_neg_reset, abs(l_err))
 
         self.last_position = position
 
@@ -196,6 +212,10 @@ class CasterSlipListener:
         diag.values.append(KeyValue("Max Neg. Left Slip", str(self._max_l_err_neg)))
         diag.values.append(KeyValue("Max Pos. Right Slip", str(self._max_r_err_pos)))
         diag.values.append(KeyValue("Max Neg. Right Slip", str(self._max_r_err_neg)))
+        diag.values.append(KeyValue("Max Pos. Left Slip (Reset)", str(self._max_l_err_pos_reset)))
+        diag.values.append(KeyValue("Max Neg. Left Slip (Reset)", str(self._max_l_err_neg_reset)))
+        diag.values.append(KeyValue("Max Pos. Right Slip (Reset)", str(self._max_r_err_pos_reset)))
+        diag.values.append(KeyValue("Max Neg. Right Slip (Reset)", str(self._max_r_err_neg_reset)))
         diag.values.append(KeyValue("Wheel Offset", str(WHEEL_OFFSET)))
         diag.values.append(KeyValue("Wheel Diameter", str(WHEEL_RADIUS)))
         diag.values.append(KeyValue("Allowed Slip", str(ALLOWED_SLIP)))
