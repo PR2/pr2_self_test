@@ -36,7 +36,7 @@
 
 ##\brief Tests receipt of test status service call for qual tests
 
-PKG = 'qualification'
+PKG = 'test_pr2_self_test_gazebo'
 import roslib; roslib.load_manifest(PKG)
 
 import unittest
@@ -55,8 +55,14 @@ class TestQualUnit(unittest.TestCase):
 
         parser = OptionParser(usage="usage ./%prog [options]", prog="qual_unittest.py")
         parser.add_option('--human_ok', action="store_true",
-                          dest="human", default=False,
-                          metavar="HUMAN", help="Result-HUMAN_REQUIRED is a pass")
+                          dest="human_ok", default=False,
+                          metavar="HUMAN_OK", help="Result-HUMAN_REQUIRED is a pass")
+        parser.add_option('--fail_ok', action="store_true",
+                          dest="fail_ok", default=False,
+                          metavar="FAIL_OK", help="Result-FAIL is a pass")
+        parser.add_option('--expect_fail', action="store_true",
+                          dest="expect_fail", default=False,
+                          metavar="EXPECT_FAIL", help="Result-FAIL is a pass. All others fail.")
         # Option comes with rostest, will fail w/o this line
         parser.add_option('--gtest_output', action="store",
                           dest="gtest")
@@ -70,14 +76,24 @@ class TestQualUnit(unittest.TestCase):
 
         options, args = parser.parse_args(rospy.myargv())
 
+        if options.human_ok and options.expect_fail:
+            parser.error("Options --human_ok and --expect_fail are mutually exclusive")
+        if options.fail_ok and options.expect_fail:
+            parser.error("Options --fail_ok and --expect_fail are mutually exclusive")
+
         rospy.Service('test_result', TestResult, self.result_cb)
 
-        self._human = options.human
+        self._human_ok = options.human_ok
+        self._fail_ok = options.fail_ok
+        self._expect_fail = options.expect_fail
     
     def result_cb(self, srv):
+        rospy.loginfo('Got result service: %s' % srv.text_summary)
         if srv.result == 0:
             self.success = True
-        elif srv.result == 2 and self._human:
+        elif srv.result == 2 and self._human_ok:
+            self.success = True
+        elif srv.result == 1 and (self._fail_ok or self._expect_fail):
             self.success = True
 
         self.srv = srv
@@ -93,7 +109,7 @@ class TestQualUnit(unittest.TestCase):
         
         self.assert_(not rospy.is_shutdown(), "Rospy shutdown")
         self.assert_(self.srv is not None, "No result from qualification test")
-        self.assert_(self.success, "Qual test result was unsuccessful. Human OK: %s. Data: %s" % (self._human, self.srv.text_summary))
+        self.assert_(self.success, "Qual test result was unsuccessful. Human OK: %s. Fail OK: %s. Expected fail: %s.\nData: %s" % (self._human_ok, self._fail_ok, self._expect_fail, self.srv.text_summary))
 
 
 if __name__ == '__main__':

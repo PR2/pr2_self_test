@@ -8,8 +8,8 @@
     <env name="OGRE_RESOURCE_PATH" value="$(find ogre)/ogre/lib/OGRE" />
   </node>
 
-  <!-- load pr2 -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_defs)/robots/pr2.urdf.xacro'" />
+  <!-- Load PR2 URDF -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_description)/robots/pr2.urdf.xacro'" />
   <node pkg="gazebo_tools" type="spawn_gazebo_model" name="spawn_pr2"
         args="robot_description" respawn="false"  />
 
@@ -19,5 +19,8 @@
     <param name="publish_frequency" type="double" value="50.0" />
     <param name="tf_prefix" type="string" value="" />
   </node>
-
+  
+  <!-- Publishes diagnostics for checkout script -->
+  <node pkg="pr2_controller_manager" type="joints_to_diagnostics.py" name="joint_diag" />
+  <node pkg="pr2_controller_manager" type="controllers_to_diagnostics.py" name="control_diag" />
 </launch>

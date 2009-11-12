@@ -1,4 +1,5 @@
 #!/usr/bin/python
+#
 # Copyright (c) 2008, Willow Garage, Inc.
 # All rights reserved.
 #
@@ -26,8 +27,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Josh Faust
-
+##\author Josh Faust
 
 import os
 import sys
@@ -42,8 +42,9 @@ else:
 
 import wx
 
+PKG = 'qualification'
 import roslib
-roslib.load_manifest('qualification')
+roslib.load_manifest(PKG)
 
 from optparse import OptionParser
 import shutil
@@ -58,6 +59,10 @@ import ogre_tools
 
 from qualification.srv import *
 
+from time import sleep
+
+import threading
+
 def call_done_service(result, msg):
   result_service = rospy.ServiceProxy('visual_check', ScriptDone)
   r = ScriptDoneRequest()
@@ -66,8 +71,26 @@ def call_done_service(result, msg):
   rospy.wait_for_service('visual_check', 5)
   result_service.call(r)
 
+# Calls the "OK" service after a timeout
+class VisualRunner(threading.Thread):
+  def __init__(self, app, timeout = None):
+    threading.Thread.__init__(self)
+    self.app = app
+    
+  def run(self):
+    start = rospy.get_time()
+    if timeout is None or timeout < 0:
+      return
+    while not rospy.is_shutdown():
+      if rospy.get_time() - start > timeout:
+        app.frame.on_close(None)
+        call_done_service(ScriptDoneRequest.RESULT_OK, 'Visual check passed by automatic runner.')
+        break
+      sleep(1.0)
+
+
 class VisualizerFrame(wx.Frame):
-  def __init__(self, parent, id=wx.ID_ANY, title='Standalone Visualizer', pos=wx.DefaultPosition, size=(800, 600), style=wx.DEFAULT_FRAME_STYLE):
+  def __init__(self, parent, id=wx.ID_ANY, title='Qualification Visualizer', pos=wx.DefaultPosition, size=(800, 600), style=wx.DEFAULT_FRAME_STYLE):
     wx.Frame.__init__(self, parent, id, title, pos, size, style)
     
     ogre_tools.initializeOgre()
@@ -138,24 +161,21 @@ class VisualizerApp(wx.App):
   
   def OnInit(self):
     try:
-      frame = VisualizerFrame(None, wx.ID_ANY, "Visual Verifier", wx.DefaultPosition, wx.Size( 800, 600 ) )
+      self.frame = VisualizerFrame(None, wx.ID_ANY, "Visual Verifier", wx.DefaultPosition, wx.Size( 800, 600 ) )
     
       if (not os.path.exists(self._filepath)):
         call_done_service(ScriptDoneRequest.RESULT_ERROR, 'Visual check recorded error, file does not exist!')
         rospy.logerr('Visual check recorded error, file does not exist!')
         return False
-        # print "File '%s' does not exist!"%(self._filepath)
-        #sys.exit(1)
     
-      frame.load_config_from_path(self._filepath)
-      frame.set_instructions(self._instructions)
-      frame.Show(True)
+      self.frame.load_config_from_path(self._filepath)
+      self.frame.set_instructions(self._instructions)
+      self.frame.Show(True)
       return True
     except:
-      # Fail here, because this could mean TF is giving NaN values (encoder failure...)
       traceback.print_exc()
-      call_done_service(ScriptDoneRequest.RESULT_ERROR, 'Visual check recorded error on initialization: %s' % traceback.format_exc())
       rospy.logerr('Error initializing rviz: %s' % traceback.format_exc())
+      call_done_service(ScriptDoneRequest.RESULT_ERROR, 'Visual check recorded error on initialization: %s' % traceback.format_exc())
       return False
 
   def OnExit(self):
@@ -167,8 +187,18 @@ if __name__ == "__main__":
     print 'Usage: visual_verifier.py \'path to config file\''
     sys.exit(1)
   
+  rospy.init_node('visual_verifier')
+
   try:
     app = VisualizerApp(sys.argv[1])
+
+    # Uses this timeout to automatically pass visual verifier
+    # Used in automated testing.
+    timeout = rospy.get_param('visual_runner_timeout', -1)
+    if timeout > 0:
+      runner = VisualRunner(app, timeout)
+      runner.start()
+
     app.MainLoop()
   except:
     call_done_service(ScriptDoneRequest.RESULT_ERROR, 'Visual check recorded error: %s' % traceback.format_exc())

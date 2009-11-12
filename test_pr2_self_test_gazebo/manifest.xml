@@ -1,0 +1,17 @@
+<package>
+  <description brief="Tests PR2 Self Test system using gazebo">
+This is used for regression testing of the pr2_self_test stack. Certain tests and subtests are launched in gazebo to run a full unit regression test on parts of the PR2 Self Test system.
+  </description>
+  <author>Kevin Watts</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/test_pr2_self_test_gazebo</url>
+  <depend package="gazebo" />
+  <depend package="pr2_gazebo" />
+  <depend package="rospy" />
+  <depend package="qualification" />
+  <depend package="pr2_description" />
+  <depend package="robot_state_publisher" />
+</package>
+
+
