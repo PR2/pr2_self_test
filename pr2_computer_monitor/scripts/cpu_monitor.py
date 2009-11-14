@@ -676,6 +676,7 @@ class CPUMonitor():
         update_status_stale(self._nfs_stat, self._last_nfs_time)
 
         msg = DiagnosticArray()
+        msg.header.stamp = rospy.get_rostime()
         msg.status.append(self._temp_stat)
         msg.status.append(self._usage_stat)
         msg.status.append(self._nfs_stat)

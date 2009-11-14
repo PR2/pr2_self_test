@@ -102,7 +102,10 @@ def ntp_monitor(ntp_hostname, offset=500, self_offset=500):
                 st.values = [ KeyValue("offset (us)", "N/A") ]
 
 
-        pub.publish(DiagnosticArray(None, [stat, self_stat]))
+        msg = DiagnosticArray()
+        msg.header.stamp = rospy.get_rostime()
+        msg.status = [stat, self_stat]
+        pub.publish(msg)
         time.sleep(1)
 
 def ntp_monitor_main(argv=sys.argv):

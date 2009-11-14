@@ -314,6 +314,7 @@ class hdMonitor():
         update_status_stale(self._temp_stat, self._last_temp_time)
         
         msg = DiagnosticArray()
+        msg.header.stamp = rospy.get_rostime()
         msg.status.append(self._temp_stat)
         if self._home_dir != '':
             update_status_stale(self._usage_stat, self._last_usage_time)
