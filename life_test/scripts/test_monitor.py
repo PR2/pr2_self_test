@@ -33,7 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Author: Kevin Watts
+##\author Kevin Watts
 
 PKG = 'life_test'
 
@@ -127,6 +127,7 @@ class TestMonitor:
             messages = [ 'No listeners' ]
 
         if len(array.status) > 0:
+            array.header.stamp = rospy.get_rostime()
             self._diag_pub.publish(array)
 
         test_stat = TestStatus()

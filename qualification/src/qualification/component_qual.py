@@ -32,7 +32,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-### Author: Kevin Watts
+##\author Kevin Watts
 
 import roslib
 import roslib.packages
@@ -66,6 +66,75 @@ from roslaunch_caller import roslaunch_caller
 TESTS_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'tests')
 CONFIG_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'config')
 
+def load_tests_from_map(tests, test_descripts_by_file):
+  # Load test directory
+  tests_xml_path = os.path.join(TESTS_DIR, 'tests.xml')
+  try:
+    doc = minidom.parse(tests_xml_path)
+  except IOError:
+    print >> sys.stderr, "Could not load tests description from '%s'"%(tests_xml_path)
+    return False  
+  
+  # Loads tests by serial number of part
+  test_elements = doc.getElementsByTagName('test')
+  for test in test_elements:
+    serial = test.attributes['serial'].value
+    test_file = test.attributes['file'].value
+    descrip = test.attributes['descrip'].value
+    if tests.has_key(serial):
+      tests[serial].append(test_file)
+    else:
+      tests[serial] = [ test_file ]
+      
+    test_descripts_by_file[test_file] = descrip
+    
+  return True
+
+def load_configs_from_map(config_files, config_descripts_by_file):
+  # Load part configuration scripts
+  config_xml_path = os.path.join(CONFIG_DIR, 'configs.xml')
+  try:
+    doc = minidom.parse(config_xml_path)
+  except IOError:
+    print >> sys.stderr, "Could not load configuation scripts from '%s'"%(config_xml_path)
+    return False
+    
+  config_elements = doc.getElementsByTagName('config')
+  for conf in config_elements:
+    try:
+      serial = conf.attributes['serial'].value
+      file = conf.attributes['file'].value
+      descrip = conf.attributes['descrip'].value
+      
+      powerboard = True
+      if conf.attributes.has_key('powerboard'):
+        powerboard = conf.attributes['powerboard'].value != "false"
+    except:
+      print 'Caught exception parsing configuration file'
+      traceback.print_exc()
+      return False
+
+    # Generate test XML. If we need power board, add prestartup/shutdown
+    # to turn on/off power
+    test = '<test>\n'
+    test += '<name>%s</name>\n' % descrip
+    if powerboard:
+      test += '<pre_startup name="Power Cycle">scripts/power_cycle.launch</pre_startup>\n'
+    test += '<pre_startup name="%s">config/%s</pre_startup>\n' % (descrip, file)
+    test += '<subtest name="%s Test">config/subtest_conf.launch</subtest>\n' % (descrip)
+    if powerboard:
+      test += '<shutdown name="Shutdown">scripts/power_board_disable.launch</shutdown>\n</test>'
+    else:
+      test += '</test>'
+      
+    if config_files.has_key(serial):
+      config_files[serial].append(test)
+    else:
+      config_files[serial] = [ test ]
+      
+    config_descripts_by_file[test] = descrip
+
+  return True
 
 class ConfigObject(QualTestObject):
   def __init__(self, name, serial):
@@ -84,9 +153,14 @@ class SerialPanel(wx.Panel):
     
     self._res = resource
 
-    self.load_tests_from_map()
-    self.load_configs_from_map()
+    self._tests = {}
+    self._test_descripts_by_file = {}
+    load_tests_from_map(self._tests, self._test_descripts_by_file)
 
+    self._configs = {}
+    self._config_descripts_by_file = {}
+    load_configs_from_map(self._configs, self._config_descripts_by_file)
+    
     self._panel = resource.LoadPanel(self, 'serial_panel')
     self._sizer = wx.BoxSizer(wx.HORIZONTAL)
     
@@ -95,7 +169,7 @@ class SerialPanel(wx.Panel):
     self.Layout()
     self.Fit()
 
-    # Test cart tab
+    # Component qualification tab
     self._test_button = xrc.XRCCTRL(self._panel, 'test_button')
     self._serial_text = xrc.XRCCTRL(self._panel, 'serial_text')
     
@@ -125,83 +199,21 @@ class SerialPanel(wx.Panel):
       print 'No conf script'
       return
 
-    launch_script = self.select_conf_to_load(serial)
-    name = self._config_descrips_by_file[launch_script]
+    config_str = self.select_conf_to_load(serial)
+    name = self._config_descripts_by_file[config_str]
     
     config_test = Test()
-    config_test.load(launch_script, roslib.packages.get_pkg_dir('qualification'))
+    if not config_test.load(config_str, roslib.packages.get_pkg_dir('qualification')):
+      wx.MessageBox('Unable to load configuration data and parameters. Check file and try again.','Failed to load test', wx.OK|wx.ICON_ERROR, self)
+      return 
     
     item = ConfigObject(name, serial)
 
     self._manager.begin_test(config_test, item)
 
-  def load_configs_from_map(self):
-    # Load part configuration scripts
-    config_xml_path = os.path.join(CONFIG_DIR, 'configs.xml')
-    self._configs = {}
-    try:
-      doc = minidom.parse(config_xml_path)
-    except IOError:
-      print >> sys.stderr, "Could not load configuation scripts from '%s'"%(config_xml_path)
-      sys.exit()
-    
-    self._config_descrips_by_file = {}
-    configs = doc.getElementsByTagName('config')
-    for conf in configs:
-      serial = conf.attributes['serial'].value
-      file = conf.attributes['file'].value
-      descrip = conf.attributes['descrip'].value
-
-      powerboard = True
-      if conf.attributes.has_key('powerboard'):
-        powerboard = conf.attributes['powerboard'].value != "false"
-
-      # Generate test XML. If we need power board, add prestartup/shutdown
-      # to turn on/off power
-      test = '<test>\n'
-      test += '<name>%s</name>\n' % descrip
-      if powerboard:
-        test += '<pre_startup name="Power Cycle">scripts/power_cycle.launch</pre_startup>\n'
-      test += '<pre_startup name="%s">config/%s</pre_startup>\n' % (descrip, file)
-      test += '<subtest name="%s Test">config/subtest_conf.launch</subtest>\n' % (descrip)
-      if powerboard:
-        test += '<shutdown name="Shutdown">scripts/power_board_disable.launch</shutdown>\n</test>'
-      else:
-        test += '</test>'
-
-      if self._configs.has_key(serial):
-        self._configs[serial].append(test)
-      else:
-        self._configs[serial] = [ test ]
-
-      self._config_descrips_by_file[test] = descrip
-
-  def load_tests_from_map(self):
-    # Load test directory
-    tests_xml_path = os.path.join(TESTS_DIR, 'tests.xml')
-    self._tests = {}
-    try:
-      doc = minidom.parse(tests_xml_path)
-    except IOError:
-      print >> sys.stderr, "Could not load tests description from '%s'"%(tests_xml_path)
-      sys.exit()
-
-    self._test_descripts_by_file = {}
-
-    # Loads tests by serial number of part
-    tests = doc.getElementsByTagName('test')
-    for test in tests:
-      serial = test.attributes['serial'].value
-      test_file = test.attributes['file'].value
-      descrip = test.attributes['descrip'].value
-      if self._tests.has_key(serial):
-        self._tests[serial].append(test_file)
-      else:
-        self._tests[serial] = [ test_file ]
-      
-      self._test_descripts_by_file[test_file] = descrip
 
 
+ 
   def has_conf_script(self, serial):
     return self._configs.has_key(serial[0:7])
 
@@ -214,7 +226,8 @@ class SerialPanel(wx.Panel):
     
     if not self.has_test(serial):
       wx.MessageBox('No test defined for that serial number.','Error - Invalid serial number', wx.OK|wx.ICON_ERROR, self)
-  
+      return
+
     short_serial = serial[0:7]
 
     test_folder_file = self._tests[short_serial][0]
@@ -226,13 +239,17 @@ class SerialPanel(wx.Panel):
       return
 
     # Hack to find directory of scripts
-    dir, sep, test_file = test_folder_file.partition('/')
+    ##\todo os.path.dirname()
+    #dir, sep, test_file = test_folder_file.partition('/')
     
-    test_dir = os.path.join(TESTS_DIR, dir)
-    test_str = open(os.path.join(TESTS_DIR, test_folder_file)).read()
+    test_path = os.path.join(os.path.join(TESTS_DIR, test_folder_file))
+    test_dir = os.path.dirname(test_path)
+    test_str = open(test_path).read()
 
     current_test = Test()
-    current_test.load(test_str, test_dir)
+    if not current_test.load(test_str, test_dir):
+      wx.MessageBox('Unable to load test data and parameters. Check file %s and try again.' % test_file,'Failed to load test', wx.OK|wx.ICON_ERROR, self)
+      return 
 
     # Item
     name = self._test_descripts_by_file[test_folder_file]
@@ -270,7 +287,7 @@ class SerialPanel(wx.Panel):
     # Load select_test_dialog
     configs_by_descrip = {}
     for conf in self._configs[short_serial]:
-      configs_by_descrip[self._config_descrips_by_file[conf]] = conf
+      configs_by_descrip[self._config_descripts_by_file[conf]] = conf
       
     msg = 'Select type to configure component.'
 

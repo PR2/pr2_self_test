@@ -32,7 +32,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Kevin Watts
+##\author Kevin Watts, Josh Faust
 
 PKG = 'qualification'
 
@@ -63,6 +63,43 @@ class SubTest:
     self._key = key
     self._timeout = timeout
 
+  ##\brief Check that key exists, launch files exist and are ".launch" files
+  def validate(self):
+    if self._key is None:
+      print 'Subtest key is none.'
+      return False
+
+    if self._test_script is None:
+      print 'Subtest has not launch script'
+      return False
+
+    if not os.path.exists(self._test_script):
+      print 'Subtest launch file does not exist: %s' % self._test_script
+      return False
+
+    if not self._test_script.endswith(".launch"):
+      print 'Given test script is not a launch file: %s' % self._test_script
+      return False
+    
+    if self._pre_script is not None:
+      if not os.path.exists(self._pre_script):
+        print 'Subtest pre-launch file is listed, but does not exist: %s' % self._pre_script
+        return False
+      if not self._pre_script.endswith(".launch"):
+        print 'Given pre launch script is not a launch file: %s' % self._pre_script
+        return False
+      
+    if self._post_script is not None:
+      if not os.path.exists(self._post_script):
+        print 'Subtest post-launch file is listed, but does not exist: %s' % self._post_script
+        return False
+      if not self._post_script.endswith(".launch"):
+        print 'Given post launch script is not a launch file: %s' % self._post_script
+        return False
+
+    return True
+  
+
   ## Returns subtest key to allow subtests to load in order
   def get_key(self):
     return self._key
@@ -75,13 +112,10 @@ class SubTest:
     if self._name:
       return self._name
 
-    if not self._key:
-      return os.path.basename(self._test_script)
-      # If key is none, generate name from pre, post, test scripts
-    return '%s%d' % (os.path.basename(self._test_script), self._key)
+    return '%s: %d' % (os.path.basename(self._test_script), self._key)
 
 
-## Holds pre-startup/shutdown scripts for qual tests
+##\brief Holds pre-startup/shutdown scripts for qual tests
 class TestScript:
   ##@param launch_file: Complete file name of launch file
   ##@param name str (optional): Human readable name of pre-startup script
@@ -91,12 +125,28 @@ class TestScript:
     self.name = name
     self.timeout = timeout
   
+  ##\brief Check that launch file exists and is ".launch" file
+  def validate(self):
+    if self.launch_file is None:
+      print 'No launch file found, invalid TestScript'
+      return False
+
+    if not os.path.exists(self.launch_file):
+      print 'TestScript launch file %s does not exist' % self.launch_file
+      return False
+
+    if not self.launch_file.endswith(".launch"):
+      print 'TestScript launch file %s is not a .launch file' % self.launch_file
+      return False
+
+    return True
+
   def get_timeout(self):
     return self.timeout
     
   ## Returns name, or launch filename if no name
   def get_name(self):
-    if self.name:
+    if self.name is not None:
       return self.name
 
     return os.path.basename(self.launch_file)
@@ -111,15 +161,55 @@ class Test:
     self._instructions_file = None
     self.pre_startup_scripts = []
     self.subtests = []
+
+  ##\brief Check that all prestartups, subtests, instructions, etc are real files
+  ##
+  ## This does not do any kind of parsing of the files themselves. It only
+  ## checks that they exist, and that all files are ".launch" files. Instructions
+  ## files must be ".html" files.
+  ##\return True if Test is valid.
+  def validate(self):
+    if len(self.subtests) == 0 and len(self.pre_startup_scripts) == 0:
+      print 'No subtests or prestartup scripts. Not loaded'
+      return False
+
+    if self._startup_script is not None and not self._startup_script.validate():
+      print 'Startup script does not exist: %s' % self._startup_script.launch_file
+      return False
+
+    if self._shutdown_script is not None and not self._shutdown_script.validate():
+      print 'Shutdown script does not exist: %s' % self._shutdown_script.launch_file
+      return False
+
+    if self._instructions_file is not None:
+      if not os.path.exists(self._instructions_file):
+        print 'Instructions file does not exist: %s' % self._instructions_file
+        return False
+      if not self._instructions_file.endswith('.html'):
+        print 'Instructions file %s is not a ".html" file' % self._instructions_file
+        return False
+
+    for prestart in self.pre_startup_scripts:
+      if not prestart.validate():
+        return False
+
+    for subtest in self.subtests:
+      if not subtest.validate():
+        return False
+
+    return True
+    
     
   ## Loads qual test from and XML string
   ##@param test_str: XML file to load, as string
   ##@param test_dir: Base directory of test, appended to qual tests
+  ##@return True if load succeeded
   def load(self, test_str, test_dir):
     try:
       self._doc = minidom.parseString(test_str)
     except IOError:
-      raise FailedLoadError
+      rospy.logerr('Unable to parse test string:\n%s' % test_str)
+      return False
     
     doc = self._doc
 
@@ -190,6 +280,8 @@ class Test:
         key = key_count
         key_count += 1
         self.subtests.append(SubTest(script, key, name, timeout, pre, post))
+
+    return True
                                         
   ## Makes a startup script using a pkg and a launch file
   ##@param pkg: Package of launch file

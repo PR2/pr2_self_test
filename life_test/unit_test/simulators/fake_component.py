@@ -120,6 +120,7 @@ class FakeComponent:
         mech_st = MechanismStatistics()
         mech_st.actuator_statistics = [ act_st, cont_act_st ]
         mech_st.joint_statistics = [ jnt_st, cont_st ]
+        mech_st.header.stamp = rospy.get_rostime()
 
         self.mech_pub.publish(mech_st)
 
@@ -145,6 +146,7 @@ class FakeComponent:
         stat_cam.message = 'OK'
 
         msg.status.append(stat_cam)
+        msg.header.stamp = rospy.get_rostime()
      
         self.diag_pub.publish(msg)
 

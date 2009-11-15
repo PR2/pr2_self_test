@@ -208,10 +208,15 @@ class AnalysisApp:
       # Process HTML result
       range_html, range_sum, range_result = self.hysteresis_range( min_encoder, max_encoder, min_range_param, max_range_param)
 
-      effort_html, effort_sum, effort_result = self.hysteresis_effort( min_effort_param, max_effort_param, neg_eff, pos_eff, tol_percent, sd_max_percent)
+      slope = self.data.arg_value[9]
+      if slope == 0:
+        effort_html, effort_sum, effort_result = self.hysteresis_effort( min_effort_param, max_effort_param, neg_eff, pos_eff, tol_percent, sd_max_percent)
+      else:
+        effort_html, effort_sum, effort_result = self.hysteresis_regression(pos_position, pos_eff, neg_position, neg_eff, slope, tol_percent, sd_max_percent)
+
       
       vel_html = self.hysteresis_velocity(self.data.arg_value[4], pos_position, pos_vel, neg_position, neg_vel)
-      regress_html = self.hysteresis_regression(pos_position, pos_eff, neg_position, neg_eff)
+
       param_html = self.controller_params()
 
       html = '<img src=\"IMG_PATH/%s1.png\", width = 640, height = 480/>' % image_title
@@ -221,7 +226,7 @@ class AnalysisApp:
       html += '<p align=center><b>Velocity Data</b></p>' 
       html += '<img src=\"IMG_PATH/%s2.png\", width = 640, height = 480/>' % image_title
       html += vel_html + '<hr size="2">\n'
-      html += '<p align=center><b>Regression Analysis</b></p>' + regress_html + '<hr size="2">\n'
+      #html += '<p align=center><b>Regression Analysis</b></p>' + regress_html + '<hr size="2">\n'
       html += '<p align=center><b>Test Parameters</b></p>' + param_html + '<hr size="2">\n'
 
       html += '<img src=\"IMG_PATH/%s3.png\", width = 640, height = 480/>' % image_title
@@ -460,26 +465,46 @@ class AnalysisApp:
     
     return html
 
-  def hysteresis_regression(self, pos_position, pos_effort, neg_position, neg_effort):
+  def hysteresis_regression(self, pos_position, pos_effort, neg_position, neg_effort, slope_exp, tolerance, sd_max):
+    A_pos = numpy.vstack([pos_position, numpy.ones(len(pos_position))]).T
+    A_neg = numpy.vstack([neg_position, numpy.ones(len(neg_position))]).T
+    
     # If we are given a slope, check it against the values
     coeff_max = numpy.polyfit(pos_position, pos_effort, 1)
     coeff_min = numpy.polyfit(neg_position, neg_effort, 1)
 
-    a_max = coeff_max[0]
-    b_max = coeff_max[1]
+    # y = ax + b
+    a_max, b_max = numpy.linalg.lstsq(A_pos, pos_effort)[0]
+    a_min, b_min = numpy.linalg.lstsq(A_neg, neg_effort)[0]
 
-    a_min = coeff_min[0]
-    b_min = coeff_min[1]
+    # Check min/max slopes close together
+    slope_avg = 0.5 * (a_max + a_min)
+    slope_diff = abs((a_max - a_min) / slope_avg)
+    slope_sd_tol = abs(slope_exp * sd_max)
+
+    # Check that slope value is close to expected
+    slope_err = abs(slope_exp - slope_avg)
+    
+    diff_ok = slope_diff < slope_sd_tol
+    avg_ok = slope_err < abs(tolerance * slope_avg)
+    slope_ok = diff_ok and avg_ok
+
+    ok_dict = {True: 'OK', False: 'FAIL'}
+
+    if slope_ok:
+      summary = "Slope: OK"
+    else:
+      summary = "Slope: FAIL"
     
     # Check if slope is significant....
-    regress_table = '<p>Simple linear regression on the effort and position plot data.</p><br>\n'
-    regress_table += '<table border="1" cellpadding="2" cellspacing="0">\n'
-    regress_table += '<tr><td><b>Name</b></td><td><b>Slope</b></td><td><b>Intercept</b></td>\n' # <td><b>R sq.</b></td><td><b>TT</b></td><td><b>Std. Err</b></td></tr>\n'
-    regress_table += '<tr><td>%s</td><td>%.3f</td><td>%.3f</td>\n' % ('Positive', b_max, a_max) # <td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n' % ('Positive', b_max, a_max, R_max, tt_max, err_max)
-    regress_table += '<tr><td>%s</td><td>%.3f</td><td>%.3f</td>\n' % ('Negative', b_min, a_min) # <td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n' % ('Positive', b_min, a_min, R_min, tt_min, err_min)
-    regress_table += '</table>\n'
+    regress_html = '<p>Simple linear regression on the effort and position plot data. Expected slope: %0.2f (%s). Difference in slopes: %0.2f (%s).</p><br>\n' % (slope_exp, avg_ok, slope_diff, diff_ok)
+    regress_html += '<table border="1" cellpadding="2" cellspacing="0">\n'
+    regress_html += '<tr><td><b>Name</b></td><td><b>Slope</b></td><td><b>Intercept</b></td>\n' 
+    regress_html += '<tr><td>%s</td><td>%.3f</td><td>%.3f</td>\n' % ('Positive', a_max, b_max) 
+    regress_html += '<tr><td>%s</td><td>%.3f</td><td>%.3f</td>\n' % ('Negative', a_min, b_min) 
+    regress_html += '</table>\n'
 
-    return regress_table
+    return regress_html, summary, slope_ok
 
     # Add table of all test params
   def controller_params(self):
