@@ -48,12 +48,6 @@ import re
 NAME = 'ntp_monitor'
 
 def ntp_monitor(ntp_hostname, offset=500, self_offset=500):
-    try:
-        offset = int(offset)
-        self_offset = int(self_offset)
-    except:
-        parser.error("offset must be a number")
-
     pub = rospy.Publisher("/diagnostics", DiagnosticArray)
     rospy.init_node(NAME, anonymous=True)
 
@@ -110,15 +104,28 @@ def ntp_monitor(ntp_hostname, offset=500, self_offset=500):
 
 def ntp_monitor_main(argv=sys.argv):
     import optparse
-    parser = optparse.OptionParser(usage="usage: ntp_monitor ntp-hostname [offset-tolerance=500] [self_offset-tolerance=500]")
-    options, args = parser.parse_args(argv[1:])
-    if (len(args) > 0 and len(args) <= 3):
-        apply(ntp_monitor, args)
+    parser = optparse.OptionParser(usage="usage: ntp_monitor ntp-hostname []")
+    parser.add_option("--offset-tolerance", dest="offset_tol",
+                      action="store", default=500,
+                      help="Offset from NTP host", metavar="OFFSET-TOL")
+    parser.add_option("--self_offset-tolerance", dest="self_offset_tol", 
+                      action="store", default=500,
+                      help="Offset from self", metavar="SELF_OFFSET-TOL")
+    options, args = parser.parse_args(rospy.myargv())
+    if (len(args) == 2):
+        try:
+            offset = int(options.offset_tol)
+            self_offset = int(options.self_offset_tol)
+        except:
+            parser.error("Offsets must be numbers")        
+        ntp_monitor(args[1], offset, self_offset)
     else:
-        parser.error("Invalid arguments")
+        parser.error("Invalid arguments. Must have HOSTNAME [args]. %s" % args)
 
 if __name__ == "__main__":
     try:
         ntp_monitor_main(rospy.myargv())
     except KeyboardInterrupt: pass
-    
+    except:
+        import traceback
+        traceback.print_exc()

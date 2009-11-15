@@ -445,6 +445,7 @@ class CPUMonitor():
 
         self._mutex = threading.Lock()
 
+        self._check_core_temps = rospy.get_param('check_core_temps', True)
         self._check_ipmi = rospy.get_param('check_ipmi_tool', True)
         self._enforce_speed = rospy.get_param('enforce_clock_speed', True)
         
@@ -592,10 +593,11 @@ class CPUMonitor():
             diag_msgs.extend(ipmi_msgs)
             diag_level = max(diag_level, ipmi_level)
 
-        core_vals, core_msgs, core_level = check_core_temps(self._temp_vals)
-        diag_vals.extend(core_vals)
-        diag_msgs.extend(core_msgs)
-        diag_level = max(diag_level, core_level)
+        if self._check_core_temps:
+            core_vals, core_msgs, core_level = check_core_temps(self._temp_vals)
+            diag_vals.extend(core_vals)
+            diag_msgs.extend(core_msgs)
+            diag_level = max(diag_level, core_level)
 
         clock_vals, clock_msgs, clock_level = check_clock_speed(self._enforce_speed)
         diag_vals.extend(clock_vals)
