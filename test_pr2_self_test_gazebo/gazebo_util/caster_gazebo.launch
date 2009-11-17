@@ -11,8 +11,8 @@
 
   <!-- Load PR2 URDF -->
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/gazebo_robots/caster_gazebo.urdf.xacro'" />
-  <node pkg="gazebo_tools" type="spawn_gazebo_model" name="spawn_pr2"
-        args="robot_description" respawn="false"  />
+  <node pkg="gazebo_tools" type="gazebo_model" name="spawn_pr2"
+        args="-p robot_description spawn" respawn="false"  />
 
   <!-- Robot state publisher -->
   <node pkg="robot_state_publisher" type="state_publisher"
