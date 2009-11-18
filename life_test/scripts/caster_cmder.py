@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+#
 # Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
@@ -26,7 +27,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Kevin Watts, original by Stuart Glaser
+##\author Kevin Watts
 
 PKG = 'life_test'
 import roslib
@@ -76,24 +77,7 @@ class CasterCmd:
         if self._count >= 10:
             self._count = 0
             
-
-    ##\brief 1/5 duty cycle on turn, random sequence
-    def update_rndm(self):
-        rndm = random.randint(0, 10)
-        if rndm == 10:
-            self.steer = -1 * STEER_VEL
-            self.drive = 0
-        elif rndm == 9:
-            self.steer = STEER_VEL
-            self.drive = 0
-        else:
-            self.steer = 0
-            if rndm % 2:
-                self.drive = SPEED
-            else:
-                self.drive = -1 * SPEED
-            
-        
+                    
 def main():
     rospy.init_node('caster_cmder')
     cmder = CasterCmd()
@@ -102,13 +86,14 @@ def main():
     pub_steer.publish(Float64(0.0))
     pub_drive.publish(Float64(0.0))
 
-    my_rate = rospy.Rate(float(rospy.get_param('cycle_rate', 1.0)))
+    my_interval = 1 / float(rospy.get_param('cycle_rate', 1.0))
     while not rospy.is_shutdown():
         pub_steer.publish(Float64(cmder.steer))
         pub_drive.publish(Float64(cmder.drive))
         
         cmder.update()
-        my_rate.sleep()
+        time.sleep(random.uniform(0.9 * my_interval, 1.1 * my_interval))
+        
 
 if __name__ == '__main__':
     main()
