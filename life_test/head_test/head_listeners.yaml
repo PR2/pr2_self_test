@@ -7,14 +7,14 @@ trans:
   pan_trans:
     joint: head_pan_joint
     actuator: head_pan_motor
-    max: 2.80
-    min: -2.80
+    max: 3.007
+    min: -3.007
     up_ref: 0.0
     deadband: 0.1
   tilt_trans:
     joint: head_tilt_joint
-    actuator: head_tilt_motor_alpha2b
-    max: 1.50
-    min: -0.60
+    actuator: head_tilt_motor
+    max: 1.40
+    min: -0.48
     down_ref: 0.0
     deadband: 0.1

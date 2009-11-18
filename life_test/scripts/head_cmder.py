@@ -44,6 +44,7 @@ def point_head(pan, tilt):
     js = JointState()
     js.name = ['head_pan_joint', 'head_tilt_joint']
     js.position = [ pan, tilt ]
+    js.header.stamp = rospy.get_rostime()
     head_pub.publish(js)
 
 if __name__ == "__main__":
@@ -55,6 +56,6 @@ if __name__ == "__main__":
 
    while not rospy.is_shutdown():
        pan = random.uniform(-2.7, 2.7)
-       tilt = random.uniform(-0.5, 1.35)
+       tilt = random.uniform(-0.32, 1.20)
        point_head(pan, tilt)
        my_rate.sleep()

@@ -2,17 +2,13 @@
  <param name="robot_description"
          command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/head.urdf.xacro'" />
 
-<!-- Use this for A2 unit testing -->
-<!--  <param name="robot_description"
-         command="$(find xacro)/xacro.py '$(find life_test)/head_test/head.urdf.xacro'" /> -->
-
   <include file="$(find life_test)/pr2_etherCAT.launch" />
   
   <!-- Head Calibration -->
   <rosparam command="load"
-            file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
+            file="$(find pr2_default_controllers)/pr2_calibration_controllers_beta.yaml" />
   <node pkg="mechanism_bringup" type="calibrate.py"
-        args="cal_laser_tilt cal_head_pan_alpha2 cal_head_tilt_alpha2b" output="screen" name="head_cal" />
+        args="cal_head_pan cal_head_tilt" output="screen" name="head_cal" />
 
   <!-- Head controllers -->
   <node pkg="life_test" type="head_cmder.py" name="head_cmder" />

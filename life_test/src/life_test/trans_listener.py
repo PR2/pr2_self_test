@@ -247,6 +247,7 @@ class JointTransmissionListener():
         self.position = None
         self.level = 0
         self.message = 'OK'
+        self.reading_msg = 'No data'
 
     ## Mandatory params: actuator, joint, deadband
     def create(self, params):
