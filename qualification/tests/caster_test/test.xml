@@ -11,24 +11,24 @@
   <startup>caster.launch</startup>
   <subtest name="Caster Checkout"
            >caster_checkout.launch</subtest>
-  <subtest name="Turret Hysteresis" timeout="30" pre="fl_caster_right.launch"
+  <subtest name="Turret Hysteresis" timeout="60" pre="fl_caster_right.launch"
            >hysteresis_caster_turret.launch</subtest>
-  <subtest name="Turret Sinesweep" timeout="30" pre="fl_caster_right.launch"
+  <subtest name="Turret Sinesweep" timeout="60" pre="fl_caster_right.launch"
            >sinesweep_caster_turret.launch</subtest>
-  <subtest name="Left Wheel Hysteresis" timeout="30" pre="fl_caster_left.launch"
+  <subtest name="Left Wheel Hysteresis" timeout="60" pre="fl_caster_left.launch"
            >hysteresis_caster_wheel.launch</subtest>
   <!--subtest name="Left Wheel Sinesweep" timeout="30" pre="fl_caster_left.launch"
            >sinesweep_caster_wheel.launch</subtest-->
-  <subtest name="Right Wheel Hysteresis" timeout="30" pre="fl_caster_right.launch"
+  <subtest name="Right Wheel Hysteresis" timeout="60" pre="fl_caster_right.launch"
            >hysteresis_caster_wheel.launch</subtest>
 <!--  <subtest name="Right Wheel Sinesweep" timeout="30" pre="fl_caster_right.launch"
            >sinesweep_caster_wheel.launch</subtest> -->
   <subtest name="Caster Drop Test">caster_drop_test.launch</subtest>
-  <subtest name="Turret Hysteresis Post-Drop" timeout="30" pre="fl_caster_right.launch"
+  <subtest name="Turret Hysteresis Post-Drop" timeout="60" pre="fl_caster_right.launch"
            >hysteresis_caster_turret.launch</subtest>
-  <subtest name="Left Wheel Hysteresis Post-Drop" timeout="30" pre="fl_caster_left.launch"
+  <subtest name="Left Wheel Hysteresis Post-Drop" timeout="60" pre="fl_caster_left.launch"
            >hysteresis_caster_wheel.launch</subtest>
-  <subtest name="Right Wheel Hysteresis Post-Drop" timeout="30" pre="fl_caster_right.launch"
+  <subtest name="Right Wheel Hysteresis Post-Drop" timeout="60" pre="fl_caster_right.launch"
            >hysteresis_caster_wheel.launch</subtest>
   <shutdown name="Power Board Disable" timeout="30"
             >../../scripts/power_board_disable.launch</shutdown>
