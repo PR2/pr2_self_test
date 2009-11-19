@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<robot name="caster"
+       xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+<!--
+  <include filename="$(find pr2_description)/urdf/common.xacro" />
+  <include filename="$(find pr2_description)/urdf/materials.urdf.xacro" />
+  <include filename="$(find pr2_description)/urdf/base_v0/base.urdf.xacro" />
+-->
+  <include filename="$(find pr2_component_descriptions)/urdf/base_link.urdf.xacro" />
+  
+  <include filename="$(find pr2_defs)/defs/materials.urdf.xacro"/>
+  <include filename="$(find pr2_defs)/defs/base/alpha2_base_defs.urdf.xacro"/>
+  <include filename="$(find pr2_defs)/defs/base/alpha2_base_transmission.xacro"/>
+
+  <macro name="pr2_wheel_alpha2_transmission_zombie" params="suffix parent reflect">
+    <transmission type="SimpleTransmission" name="${parent}_${suffix}_wheel_trans">
+      <actuator name="${parent}_${suffix}_wheel_motor" />
+      <joint name="${parent}_${suffix}_wheel_joint" />
+      <mechanicalReduction>${1 * reflect * 624/35 * 80/18}</mechanicalReduction>
+    </transmission>
+  </macro>
+
+
+
+  <macro name="pr2_wheel_alpha2_zombie" params="suffix parent reflect">
+
+    <joint name="${parent}_${suffix}_wheel_joint" type="continuous">
+      <axis xyz="0 1 0" />
+      <limit effort="100" velocity="100"/>
+      <safety_controller  k_velocity="10" />
+      <dynamics damping="0.0" friction="0.0" />
+      <origin xyz="0 ${reflect*caster_wheel_offset_y} 0" rpy="0 0 0" />
+      <parent link="${parent}_rotation_link"/>
+      <child link="${parent}_${suffix}_wheel_link"/>
+    </joint>
+    <link name="${parent}_${suffix}_wheel_link">
+      <inertial>
+        <mass value="0.44036" /> <!-- check jmh 20081205 -->
+        <origin xyz="0 0 0" />
+        <inertia  ixx="0.012411765597" ixy="-0.000711733678" ixz="0.00050272983"
+                  iyy="0.015218160428" iyz="-0.000004273467" izz="0.011763977943" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_defs/meshes/pr2_wheel.stl" scale="0.65 1.0 0.65"/>
+        </geometry>
+        
+        <material name="Caster_${suffix}" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${M_PI/2} 0 0" />
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_length}" />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- extensions -->
+    <pr2_wheel_alpha2_gazebo parent="${parent}" suffix="${suffix}" />
+    <pr2_wheel_alpha2_transmission_zombie parent="${parent}" suffix="${suffix}" reflect="${reflect}" />
+
+  </macro>
+
+    <macro name="pr2_caster_alpha2_zombie" params="suffix parent *origin ref_position">
+
+    <joint name="${suffix}_caster_rotation_joint" type="continuous">
+      <axis xyz="0 0 1" />
+      <limit effort="100" velocity="100"/>
+      <safety_controller  k_velocity="10" />
+      <calibration reference_position="${ref_position}" />
+      <dynamics damping="0.0" friction="0.0" />
+      <insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${suffix}_caster_rotation_link" />
+    </joint>
+    <link name="${suffix}_caster_rotation_link">
+
+      <inertial>
+        <mass value="3.473082"/>
+        <origin xyz="0 0 0.07" />
+        <inertia  ixx="0.012411765597" ixy="-0.000711733678" ixz="0.00050272983"
+                  iyy="0.015218160428" iyz="-0.000004273467" izz="0.011763977943" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://pr2_defs/meshes/caster.stl" />
+        </geometry>
+        
+        <material name="Green" />
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0.07" rpy="0.0 0.0 0.0" />
+        <geometry>
+          <box size="0.192 0.164 0.013" />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Double check these are right for the Alpha 2.0's -->
+    <pr2_wheel_alpha2_zombie parent="${suffix}_caster" suffix="l" reflect="1" />
+    <pr2_wheel_alpha2 parent="${suffix}_caster" suffix="r" reflect="-1" />
+
+    <!-- extensions -->
+    <pr2_caster_alpha2_transmission suffix="${suffix}" />
+  </macro>
+
+    <pr2_caster_alpha2_zombie suffix="fl" parent="base_link" ref_position="0.0" >
+      <origin xyz="0 0 0" rpy="0 3.14 0" />
+    </pr2_caster_alpha2_zombie>
+</robot>

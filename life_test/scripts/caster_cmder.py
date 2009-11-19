@@ -51,7 +51,7 @@ class CasterCmd:
 
         self._left = True # Makes it alternate between starting left, right
  
-    ##\brief 1/5 duty cycle on turn, regular sequence
+    ##\brief 8% duty cycle on turn, regular sequence
     def update(self):
         if self._count == 0:
             if self._left:
@@ -74,7 +74,7 @@ class CasterCmd:
                 self.drive = -1 * SPEED
 
         self._count += 1
-        if self._count >= 10:
+        if self._count >= 25:
             self._count = 0
             
                     
@@ -86,13 +86,14 @@ def main():
     pub_steer.publish(Float64(0.0))
     pub_drive.publish(Float64(0.0))
 
-    my_interval = 1 / float(rospy.get_param('cycle_rate', 1.0))
+    my_rate = rospy.Rate(float(rospy.get_param('cycle_rate', 1.0)))
     while not rospy.is_shutdown():
         pub_steer.publish(Float64(cmder.steer))
         pub_drive.publish(Float64(cmder.drive))
         
         cmder.update()
-        time.sleep(random.uniform(0.9 * my_interval, 1.1 * my_interval))
+        my_rate.sleep()
+        #time.sleep(random.uniform(0.9 * my_interval, 1.1 * my_interval))
         
 
 if __name__ == '__main__':

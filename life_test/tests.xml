@@ -36,6 +36,16 @@
            rate="true" val="2.0" />
   </test>
 
+  <test serial="6804108" name="Zombie Caster Test"
+        short="Caster" trac="001"
+        desc="Caster jerks around under pressure. Put pressure on caster BEFORE turning this test on."
+        script="caster_test/test_a2.launch" power="true"
+        type="Burn-in Test" >
+    <param name="Rate" param_name="cycle_rate"
+           desc="Frequency of test"
+           rate="true" val="2.0" />
+  </test>
+
   
   <test serial="6804213" name="Free Wrist Test" 
 	short="Wrist" trac="438"
