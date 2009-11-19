@@ -7,7 +7,5 @@ rosbuild_gensrv()
 # Test test_monitor, with trans, ethercat, camera listeners
 rosbuild_add_rostest(unit_test/launch/fake_monitor.launch)
 
-#execute_process(COMMAND rosrun roslaunch_parse_tester package_parse_test.py qualification --black_dir  RETURN_VARIABLE ret_var)
-#if(NOT "${ret_var}" STREQUAL 0)
-#  MESSAGE(FATAL_ERROR "Unable to parse all launch files. Error -> ${ret_var}")
-#endif(NOT "${ret_var}" STREQUAL 0)
+# Parse launch files except in arm_life_test
+rosbuild_add_pyunit(unit_test/test/check_launch_files.py)
