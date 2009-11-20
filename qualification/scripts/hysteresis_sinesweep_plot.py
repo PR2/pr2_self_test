@@ -386,7 +386,7 @@ class AnalysisApp:
 
   # Processes range data for hysteresis test
   def hysteresis_effort(self, min_exp, max_exp, min_array, max_array, 
-                        tol_percent, sd_max_percent):
+                        tol_percent, sd_tol_percent):
     # Check 
     negative_msg = "OK"
     positive_msg = "OK"
@@ -399,13 +399,13 @@ class AnalysisApp:
     tolerance = abs(max_exp - min_exp) * tol_percent
 
     sd_denominator = abs(max_avg - min_avg)
-    sd_max = sd_denominator * sd_max_percent
+    sd_tol = sd_denominator * sd_tol_percent
     
     max_ok = abs(max_avg - max_exp) < tolerance
     min_ok = abs(min_avg - min_exp) < tolerance
   
-    max_even = max_sd < sd_max
-    min_even = min_sd < sd_max
+    max_even = max_sd < sd_tol
+    min_even = min_sd < sd_tol
 
     summary = 'Effort: FAIL.'
     result = False
@@ -426,22 +426,32 @@ class AnalysisApp:
     sd_min_percent = abs(min_sd / sd_denominator) * 100
     sd_max_percent = abs(max_sd / sd_denominator) * 100
 
-    positive_msg = '<div class="error">FAIL</div>'
-    negative_msg = '<div class="error">FAIL</div>'
-    if not max_even and max_ok:
-      positive_msg = '<div class="warning">UNEVEN</div>'
-    if not min_even and min_ok:
-      negative_msg = '<div class="warning">UNEVEN</div>'
-    if max_ok and max_even:
-      positive_msg = '<div class="pass">OK</div>'
-    if min_ok and min_even:
-      negative_msg = '<div class="pass">OK</div>'
+    if max_even:
+      positive_sd_msg = '<div class="pass">OK</div>'
+    else:
+      positive_sd_msg = '<div class="warning">UNEVEN</div>'
 
-    html += '<p><table border="1" cellpadding="2" cellspacing="0">\n'
-    html += '<tr><td><b>Name</b></td><td><b>Average</b></td><td><b>SD %</b></td><td><b>Expected</b></td><td><b>Status</b></td></tr>\n'
-    html += '<tr><td>Positive</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>\n' % (max_avg, sd_max_percent, max_exp, positive_msg)  
-    html += '<tr><td>Negative</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>\n' % (min_avg, sd_min_percent, min_exp, negative_msg)  
-    html += '</table></p><br>\n'    
+    if min_even:
+      negative_sd_msg = '<div class="pass">OK</div>'
+    else:
+      negative_sd_msg = '<div class="warning">UNEVEN</div>'
+      
+    if max_ok:
+      positive_msg = '<div class="pass">OK</div>'
+    else:
+      positive_msg = '<div class="error">FAIL</div>'
+
+    if min_ok:
+      negative_msg = '<div class="pass">OK</div>'
+    else:
+      negative_msg = '<div class="error">FAIL</div>'
+
+    html += '<table border="1" cellpadding="2" cellspacing="0">\n'
+    html += '<tr><td><b>Name</b></td><td><b>Average</b></td><td><b>Expected</b></td><td><b>Status</b></td><td><b>SD %</b></td><td><b>Status</b></td></tr>\n'
+    html += '<tr><td>Positive</td><td>%.2f</td><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (max_avg, max_exp, positive_msg, sd_max_percent, positive_sd_msg)  
+    html += '<tr><td>Negative</td><td>%.2f</td><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (min_avg, min_exp, negative_msg, sd_min_percent, negative_sd_msg)  
+    html += '</table><br>\n'    
+    html += '<p>Effort tolerance: %.2f. SD tolerance: %.2f percent</p>\n' % (tolerance, sd_tol_percent)
 
     return html, summary, result
 

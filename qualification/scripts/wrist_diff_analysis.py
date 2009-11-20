@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#
 # Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
@@ -128,7 +129,7 @@ class WristDiffAnalysis:
 
         if roll_stat and flex_stat:
             r.result = TestResultRequest.RESULT_PASS
-        if flex_stat: ##\todo Remove this
+        elif flex_stat: ##\todo Remove this
             r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
         else:
             r.result = TestResultRequest.RESULT_FAIL
@@ -137,6 +138,7 @@ class WristDiffAnalysis:
         html += '<p>Flex effort should be close to zero during roll hysteresis.</p>\n'
         html += '<img src=\"IMG_PATH/%s.png\", width = 640, height = 480/>\n' % flex_plot.title
         html += flex_html
+        html += '<hr size="2">\n'
         html += '<H4 align=center>Roll Hysteresis</H4>\n'
         html += '<p>Wrist roll hysteresis. The efforts should be close to the expected values.</p>\n'
         html += '<img src=\"IMG_PATH/%s.png\", width = 640, height = 480/>\n' % roll_plot.title
@@ -156,7 +158,7 @@ class WristDiffAnalysis:
         if flex_stat and not roll_stat:
             return "Wrist roll hysteresis failed. Wrist flex effort OK."
         if not flex_stat and roll_stat:
-            return "Wrist roll hystereis OK. Wrist flex effort failed."
+            return "Wrist roll hysteresis OK. Wrist flex effort failed."
         return "Wrist roll hystereis and flex effort failed."
 
     # Add table of all test params
@@ -168,6 +170,17 @@ class WristDiffAnalysis:
        html += '<tr><td>Roll joint</td><td>%s</td></tr>\n' % srv.roll_joint
        for i in range(0, len(srv.arg_name)):
            html += '<tr><td>%s</td><td>%.2f</td></tr>\n' % (srv.arg_name[i], srv.arg_value[i])
+
+       html += '<tr><td>Flex P</td><td>%.2f</td></tr>\n' % srv.flex_pid[0]
+       html += '<tr><td>Flex I</td><td>%.2f</td></tr>\n' % srv.flex_pid[1]
+       html += '<tr><td>Flex D</td><td>%.2f</td></tr>\n' % srv.flex_pid[2]
+       html += '<tr><td>Flex I Clamp</td><td>%.2f</td></tr>\n' % srv.flex_pid[3]
+
+       html += '<tr><td>Roll P</td><td>%.2f</td></tr>\n' % srv.roll_pid[0]
+       html += '<tr><td>Roll I</td><td>%.2f</td></tr>\n' % srv.roll_pid[1]
+       html += '<tr><td>Roll D</td><td>%.2f</td></tr>\n' % srv.roll_pid[2]
+       html += '<tr><td>Roll I Clamp</td><td>%.2f</td></tr>\n' % srv.roll_pid[3]
+
        html += '</table>\n'
            
        return html
@@ -216,8 +229,9 @@ class WristDiffAnalysis:
         return True
 
     def flex_analysis(self, srv, data):
-        flex_tol = srv.arg_value[7]
-        flex_max_tol = srv.arg_value[8]
+        flex_tol = srv.arg_value[7] # Average values
+        flex_max_tol = srv.arg_value[8] # Max obs. val
+        flex_sd_tol = srv.arg_value[9] # Std. Dev. of effort
 
         flex_max = numpy.average(data.pos_flex_effort)
         flex_max_sd = numpy.std(data.pos_flex_effort)
@@ -242,6 +256,14 @@ class WristDiffAnalysis:
         if abs(flex_min_val) > flex_max_tol:
             min_val_msg = '<div class="error">FAIL</div>'
 
+        max_sd_msg = '<div class="pass">OK</div>'
+        if abs(flex_max_sd) > flex_sd_tol:
+            max_sd_msg = '<div class="error">FAIL</div>'
+
+        min_sd_msg = '<div class="pass">OK</div>'
+        if abs(flex_min_sd) > flex_sd_tol:
+            min_sd_msg = '<div class="error">FAIL</div>'
+
         ok = abs(flex_max) < flex_tol and abs(flex_min) < flex_tol
         ok = ok and abs(flex_min_val) < flex_max_tol and abs(flex_max_val) < flex_max_tol
 
@@ -249,20 +271,30 @@ class WristDiffAnalysis:
             html = '<p>Wrist flex effort is OK.</p>\n'
         else:
             html = '<p>Wrist flex effort failed. Check graphs.</p>\n'
+        html += '<p>Flex effort maximum values. Allowed maximum: %.2f</p>\n' % (flex_max_tol)
         html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Effort Avg</b></td><td><b>Effort Max</b></td><td><b>Max. Val. Status</b></td><td><b>Effort SD</b></td><td><b>SD Status</b></td></tr>\n'
-        html += '<tr><td>%.2f</td><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (flex_max, flex_max_val, max_val_msg, flex_max_sd, max_msg)
-        html += '<tr><td>%.2f</td><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (flex_min, flex_min_val, min_val_msg, flex_min_sd, min_msg)
+        html += '<tr><td></td><td><b>Effort</b></td><td><b>Status</b></td></tr>\n'
+        html += '<tr><td><b>Max Value</b></td><td>%.2f</td><td>%s</td></tr>\n' % (flex_max_val, max_val_msg)
+        html += '<tr><td><b>Min Value</b></td><td>%.2f</td><td>%s</td></tr>\n' % (flex_min_val, min_val_msg)
         html += '</table>\n'
+
+        html += '<br>\n'
+        html += '<p>Flex effort average and noise, both directions. Allowed absolute average: %.2f. Allowed noise: %.2f</p>\n' % (flex_tol, flex_sd_tol)
+        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
+        html += '<tr><td><b>Effort Avg</b></td><td><b>Status</b></td><td><b>Effort SD</b></td><td><b>SD Status</b></td></tr>\n'
+        html += '<tr><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (flex_max, max_msg, flex_max_sd, max_sd_msg)
+        html += '<tr><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (flex_min, min_msg, flex_min_sd, min_sd_msg)
+        html += '</table>\n'
+        
 
         return ok, html
 
   
     def roll_hysteresis_analysis(self, srv, data):
-        max_avg = numpy.average(data.pos_roll_position)
-        min_avg = numpy.average(data.neg_roll_position)
-        max_sd = numpy.std(data.pos_roll_position)
-        min_sd = numpy.std(data.neg_roll_position)
+        max_avg = numpy.average(data.pos_roll_effort)
+        min_avg = numpy.average(data.neg_roll_effort)
+        max_sd = numpy.std(data.pos_roll_effort)
+        min_sd = numpy.std(data.neg_roll_effort)
 
         tol_percent = srv.arg_value[2]
         sd_percent = srv.arg_value[3]
@@ -277,23 +309,25 @@ class WristDiffAnalysis:
         
         max_even = max_sd < sd_max
         min_even = min_sd < sd_max
-
-        max_msg = '<div class="pass">OK</div>'
-        if max_ok and not max_even:
+        
+        if max_ok and max_even:
+            max_msg = '<div class="pass">OK</div>'
+        elif max_ok and not max_even:
             max_msg = '<div class="warning">UNEVEN</div>'
         else:
             max_msg = '<div class="error">FAIL</div>'
 
-        min_msg = '<div class="pass">OK</div>'
-        if min_ok and not min_even:
+        if min_ok and min_even:
+            min_msg = '<div class="pass">OK</div>'
+        elif min_ok and not min_even:
             min_msg = '<div class="warning">UNEVEN</div>'
         else:
             min_msg = '<div class="error">FAIL</div>'
 
         html = '<table border="1" cellpadding="2" cellspacing="0">\n'
         html += '<tr><td><b>Name</b></td><td><b>Value</b></td><td><b>Expected</b></td><td><b>Tolerance</b></td><td><b>SD Percent</b></td><td><b>SD Max</b></td><td><b>Status</b></td></tr>\n'
-        html += '<tr><td>%s</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>\n' % ('Max Effort', max_avg, max_exp, tol_percent, max_sd, sd_percent, max_msg)
-        html += '<tr><td>%s</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>\n' % ('Min Effort', min_avg, min_exp, tol_percent, min_sd, sd_percent, min_msg)
+        html += '<tr><td>%s</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>\n' % ('Max Effort', max_avg, max_exp, tolerance, max_sd, sd_max, max_msg)
+        html += '<tr><td>%s</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>\n' % ('Min Effort', min_avg, min_exp, tolerance, min_sd, sd_max, min_msg)
         html += '</table>\n'
 
         if max_ok and min_ok and min_even and max_even:

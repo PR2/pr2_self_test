@@ -20,8 +20,9 @@
 
   <!-- Transmission uses elbow_flex_motor -->
   <transmission type="SimpleTransmission" name="elbow_flex_motor_trans">
-    <actuator name="elbow_flex_motor" />
+    <actuator name="r_elbow_flex_motor" />
     <joint name="elbow_flex_motor_joint" />
-    <mechanicalReduction>1</mechanicalReduction>
+    <!-- This is clearly wrong. Need exact number -->
+    <mechanicalReduction>4.31</mechanicalReduction>
   </transmission>
 </robot>

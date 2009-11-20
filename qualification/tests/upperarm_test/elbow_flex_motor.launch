@@ -7,7 +7,7 @@
 
   <group ns="cal_motor" >
     <param name="type" type="str" value="MotorJointCalibrationController" />
-    <param name="joint" type="str" value="laser_tilt_motor_joint" />
+    <param name="joint" type="str" value="elbow_flex_motor_joint" />
   </group>
   <node pkg="mechanism_bringup" type="calibrate.py"
         args="cal_motor" name="cal_motor" output="screen" />

@@ -55,6 +55,8 @@ from optparse import OptionParser
 
 import os
 
+##\todo Handle SIGINT so it'll die nicely
+
 def bool_to_msg(val):
     if val:
         return 'PASS'

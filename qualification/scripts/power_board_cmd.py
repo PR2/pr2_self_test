@@ -32,7 +32,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Kevin Watts
+##\author Kevin Watts
 
 import roslib
 roslib.load_manifest('qualification')
@@ -132,12 +132,9 @@ def main():
     done.result = ScriptDoneRequest.RESULT_ERROR
     done.failure_msg = 'Caught exception.\n%s' % traceback.format_exc()
 
-  try:
-    # If we're all done...
-    rospy.wait_for_service(options.service, 5)
-    done_proxy.call(done)
-  finally:
-    pass
+  rospy.wait_for_service(options.service, 5)
+  done_proxy.call(done)
+  
 
 if __name__ == '__main__':
   main()
