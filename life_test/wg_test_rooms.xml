@@ -36,7 +36,9 @@
     <bay name="testg" machine="testg" board="1013" breaker="2" />
     <bay name="testj" machine="testj" board="1013" breaker="2" />
 
-1005
+    <!-- Bottom rack -->
+    <bay name="testf" machine="testf" board="1005" breaker="0" />
+
     
   </room>
   
