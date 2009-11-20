@@ -11,7 +11,7 @@
 
   <include filename="$(find pr2_component_descriptions)/urdf/base_link.urdf.xacro" />
   
-  <xacro:pr2_torso_v0 name="torso" parent="base_link">
+  <xacro:pr2_torso_v0 name="torso_lift" parent="base_link">
     <origin xyz="0 0 0" rpy="0 0 0" />
   </xacro:pr2_torso_v0>
 </robot>
