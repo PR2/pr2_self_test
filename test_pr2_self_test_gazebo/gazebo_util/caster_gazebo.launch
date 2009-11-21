@@ -3,11 +3,7 @@
   <param name="/use_sim_time" value="true" />
 
   <!-- Runs without gazebo window -->
-  <node name="gazebo" pkg="gazebo" type="gazebo" args="$(find gazebo_worlds)/worlds/empty.world -r" respawn="false" >
-    <env name="LD_LIBRARY_PATH" value="$(find pr2_gazebo_plugins)/lib:$(find gazebo)/gazebo/lib:$(optenv LD_LIBRARY_PATH)" />
-    <env name="GAZEBO_RESOURCE_PATH" value="$(find pr2_ogre):$(find pr2_defs):$(find pr2_description):$(find gazebo_worlds):$(find gazebo)/gazebo/share/gazebo" />
-    <env name="OGRE_RESOURCE_PATH" value="$(find ogre)/ogre/lib/OGRE" />
-  </node>
+  <include file="$(find gazebo)/launch/empty_world_no_x.launch"/>
 
   <!-- Load PR2 URDF -->
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/gazebo_robots/caster_gazebo.urdf.xacro'" />
