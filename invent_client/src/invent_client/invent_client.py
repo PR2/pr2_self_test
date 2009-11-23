@@ -79,7 +79,7 @@ class Invent:
   def login(self):
     dt = time.time() - self._logged_time
     if self.loggedin==False or dt > 3600:
-      print "logging in"
+      # print "logging in" # Blaise: Removed. Libraries should not print to stdout.
       return self._login()
     return True
 
@@ -90,7 +90,7 @@ class Invent:
     password = self.password
     url = self.site + "login/signin0.py?Action.Login=1&username=%(username)s&password=%(password)s" % locals()
 
-    print self.cj
+    #print self.cj
 
     fp = self.opener.open(url)
     body = fp.read()
@@ -115,7 +115,7 @@ class Invent:
     body = fp.read()
     fp.close()
 
-    print body
+    #print body
 
     hdf = neo_util.HDF()
     hdf.readString(body)
