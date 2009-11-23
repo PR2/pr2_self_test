@@ -1,6 +1,6 @@
 <launch>
   <node name="wge100_board_config" pkg="wge100_camera" type="wge100_camera_node" respawn="true" output="screen">
-    <param name="camera_url" type="str" value="serial://0@$(env WGE100_IP)" />
+    <param name="camera_url" type="str" value="serial://0@10.68.0.10" />
     <param name="video_mode" type="str" value="640x480x30" />
     <param name="auto_exposure" type="bool" value="False" />
     <param name="exposure" type="double" value="0.02" />
