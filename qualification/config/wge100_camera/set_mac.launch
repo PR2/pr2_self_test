@@ -24,13 +24,13 @@
     <remap from="image" to="wge100_board_config/image_color"/>
   </node>
 
-  <node name="wge100_board_config_graph" pkg="camera_focus" type="focus" respawn="false" output="screen">
+  <!--node name="wge100_board_config_graph" pkg="camera_focus" type="focus" respawn="false" output="screen">
     <remap from="image" to="wge100_board_config/image_raw"/>
     <param name="startx" type="int" value="160"/>
     <param name="starty" type="int" value="120"/>
     <param name="endx" type="int" value="420"/>
     <param name="endy" type="int" value="280"/>
-  </node>
+  </node-->
 
   <node name="wge100_board_config_ok" pkg="qualification" type="wge100_board_config_dialog.py" output="screen">
     <param name="camera_path" type="str" value="wge100_board_config"/>

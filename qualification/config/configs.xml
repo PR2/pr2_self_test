@@ -50,7 +50,7 @@
     file="wge100_camera/set_name_forearm_camera_l.launch" descrip="Make Into Left Forearm" />
 
   <config serial="6805018" powerboard="false"
-    file="wge100_camera/set_mac.launch" descrip="Focus + Set MAC and Serial (permanent)" />
+    file="wge100_camera/set_mac.launch" descrip="Set MAC and Serial (permanent)" />
 
   <config serial="6805018" powerboard="false"
           file="wge100_camera/focus_camera.launch" descrip="Focus Camera" />
@@ -63,10 +63,10 @@
     file="wge100_camera/set_name_stereo_narrow_l.launch" descrip="Make Into Left Narrow Stereo" />
 
   <config serial="6805027" powerboard="false"
-    file="wge100_camera/set_mac_narrow.launch" descrip="Focus + Set MAC and Serial (permanent)" />
+    file="wge100_camera/set_mac.launch" descrip="Set MAC and Serial (permanent)" />
 
   <config serial="6805027" powerboard="false"
-    file="wge100_camera/focus_camera.launch" descrip="Focus Camera" />
+    file="wge100_camera/focus_camera_narrow.launch" descrip="Focus Camera" />
 
 
   <!-- Color Head/Forearm Camera -->
@@ -77,7 +77,7 @@
     file="wge100_camera/set_name_stereo_wide_l.launch" descrip="Make Into Left Wide Stereo" />
 
   <config serial="6805030" powerboard="false"
-    file="wge100_camera/set_mac.launch" descrip="Focus + Set MAC and Serial (permanent)" />
+    file="wge100_camera/set_mac.launch" descrip="Set MAC and Serial (permanent)" />
 
   <config serial="6805030" powerboard="false"
     file="wge100_camera/focus_camera.launch" descrip="Focus Camera" />

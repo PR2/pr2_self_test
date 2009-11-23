@@ -119,6 +119,8 @@ if i.getKV(barcode, 'board_configured') == 'yes':
 
 i.setKV(barcode, 'board_configured', 'unknown')
 
+os.system("rosrun wge100_camera reconfigure_cam serial://0@10.68.0.2")
+
 # Wait for service, and call it.
 print "Waiting for board_config service."
 rospy.wait_for_service('board_config', 10)

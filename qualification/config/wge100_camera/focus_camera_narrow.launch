@@ -1,6 +1,6 @@
 <launch>
   <node name="wge100_focus" pkg="wge100_camera" type="wge100_camera_node" respawn="true" output="screen">
-    <param name="camera_url" type="str" command="rosrun qualification wge100_get_url.py @$(env WGE100_IP)" />
+    <param name="camera_url" type="str" command="rosrun qualification wge100_get_url.py" />
     <param name="video_mode" type="str" value="640x480x30" />
     <param name="auto_exposure" type="bool" value="True" />
     <param name="exposure" type="double" value="0.02" />
