@@ -58,7 +58,7 @@ try:
     username = getparam('/invent/username')
     password = getparam('/invent/password')
     barcode = getparam('qual_item/serial')
-    
+     
     # Fail if invalid username/password
     i = Invent(username, password)
     if not i.login():
@@ -78,7 +78,7 @@ try:
     myargv = rospy.client.myargv()
     if len(myargv) == 2:
         camera_url = camera_url + myargv[1]
-    print camera_url
+    sys.stdout.write(camera_url) # Use write to avoid trailing characters.
     print >> sys.stderr, "Url is:", camera_url
                                             
 except:

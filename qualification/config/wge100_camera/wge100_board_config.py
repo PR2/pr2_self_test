@@ -40,6 +40,7 @@ import rospy.client
 from invent_client.invent_client import Invent;
 from wge100_camera.srv import BoardConfig
 import sys
+import os
 
 myargv = rospy.client.myargv()
 
@@ -119,8 +120,6 @@ if i.getKV(barcode, 'board_configured') == 'yes':
 
 i.setKV(barcode, 'board_configured', 'unknown')
 
-os.system("rosrun wge100_camera reconfigure_cam serial://0@10.68.0.2")
-
 # Wait for service, and call it.
 print "Waiting for board_config service."
 rospy.wait_for_service('board_config', 10)
@@ -129,4 +128,7 @@ rslt = board_config(serial, "".join([chr(x) for x in mac]) );
 print "Result is", rslt.success
 if rslt.success == 1:
     i.setKV(barcode, 'board_configured', 'yes')
+
+    os.system("rosrun wge100_camera reconfigure_cam serial://0@10.68.0.2")
+
 exit(rslt == 1) # Returns 0 on success
