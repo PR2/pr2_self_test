@@ -94,4 +94,6 @@
         file="wrt610n_test/test.xml" descrip="WRT610n Test" />
  
  
+  <test serial="6802418"
+        file="projector_test/test.xml" descrip="Projector (LED) Test" />
 </tests>

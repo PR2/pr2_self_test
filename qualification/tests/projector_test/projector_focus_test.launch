@@ -1,0 +1,34 @@
+<launch>
+
+
+  <node name="$(anon spawner-projector)" pkg="pr2_controller_manager" type="spawner" output="screen" args="proj_controller projector_trigger" />
+  <group ns="projector_trigger">
+    <param name="type" type="string" value="MultiTriggerController" />
+    <param name="digital_output" type="string" value="led_projector_digital_out_M" />
+    <param name="period" type="double" value="0.020" />
+    <param name="zero_offset" type="double" value="0.000" />
+    <param name="times" type="string" value="0.000 0.002" />
+    <param name="topics" type="string" value="up down" />
+    <param name="values" type="string" value="15 14" />
+  </group>
+  <group ns="proj_controller">
+    <param name="type" type="string" value="ProjectorController" />
+    <param name="actuator" type="string" value="led_projector" />
+    <param name="current" type="double" value="27.0" />
+  </group>
+  <node name="projector_monitor" pkg="qualification" type="projector_monitor.py" output="screen" required="true">
+    <param name="actuator" type="string" value="led_projector" />
+    <param name="duration" type="double" value="180.0" />
+    <param name="short_circuit_voltage" type="double" value="3.1" />
+    <param name="projector_voltage" type="double" value="3.9" />
+    <param name="diode_clamp_voltage" type="double" value="5.4"/>
+    <param name="measured_current" type="double" value="28.0" />
+    <param name="allowed_current_error" type="double" value="0.800" />
+    <param name="focus_dialog" type="bool" value="True" />
+    <param name="dmm_address" type="string" value="10.0.1.68" />
+    <param name="max_acceptable_temperature" type="double" value="40.0" />
+    <param name="max_temperature_rise" type="double" value="10.0" />
+  </node>
+
+
+</launch>

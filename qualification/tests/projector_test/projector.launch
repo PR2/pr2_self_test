@@ -1,0 +1,8 @@
+<launch>
+  <param name="robot_description" textfile="$(find qualification)/tests/projector_test/robot.urdf" />
+
+  <!-- Loads realtime machine and PR2_etherCAT -->
+  <include file="$(find qualification)/tests/init.machine" />
+  <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
+
+</launch>
