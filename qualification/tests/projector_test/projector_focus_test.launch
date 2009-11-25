@@ -17,17 +17,21 @@
     <param name="current" type="double" value="27.0" />
   </group>
   <node name="projector_monitor" pkg="qualification" type="projector_monitor.py" output="screen" required="true">
+    <!-- Electrical Montitor parameters -->
     <param name="actuator" type="string" value="led_projector" />
     <param name="duration" type="double" value="180.0" />
     <param name="short_circuit_voltage" type="double" value="3.1" />
-    <param name="projector_voltage" type="double" value="3.9" />
+    <param name="projector_voltage" type="double" value="4.1" />
     <param name="diode_clamp_voltage" type="double" value="5.4"/>
     <param name="measured_current" type="double" value="28.0" />
     <param name="allowed_current_error" type="double" value="0.800" />
-    <param name="focus_dialog" type="bool" value="True" />
+    <!-- Temperature Montitor parameters -->
     <param name="dmm_address" type="string" value="10.0.1.68" />
-    <param name="max_acceptable_temperature" type="double" value="40.0" />
-    <param name="max_temperature_rise" type="double" value="10.0" />
+    <param name="max_acceptable_temperature" type="double" value="45.0" />
+    <param name="max_temperature_rise" type="double" value="12.0" />
+    <param name="temperature_rise_time" type="double" value="180.0" />
+
+    <param name="focus_dialog" type="bool" value="True" />
   </node>
 
 

@@ -17,16 +17,22 @@
     <param name="current" type="double" value="1.0" />
   </group>
   <node name="projector_monitor" pkg="qualification" type="projector_monitor.py" output="screen" required="true">
+    <!-- Electrical Montitor parameters -->
     <param name="actuator" type="string" value="led_projector" />
-    <param name="duration" type="double" value="10.0" />
+    <param name="duration" type="double" value="15.0" />
     <param name="short_circuit_voltage" type="double" value="1.7" />
     <param name="projector_voltage" type="double" value="2.0" />
     <param name="diode_clamp_voltage" type="double" value="2.8"/>
     <param name="measured_current" type="double" value="1.9" />
     <param name="allowed_current_error" type="double" value="0.250" />
-    <param name="dmm_address" type="string" value="10.0.1.68" />
+ 
+    <!-- Temperature Montitor parameters -->
+    <!-- IP address of DMM that is used to measure LED temperature --> 
+    <param name="dmm_address" type="string" value="10.0.1.68" />     
     <param name="max_acceptable_temperature" type="double" value="40.0" />
-    <param name="max_temperature_rise" type="double" value="3.0" />
+    <!-- Allow temperature to rise 2C in 10 seconds --> 
+    <param name="temperature_rise_time" type="double" value="15.0" />
+    <param name="max_temperature_rise" type="double" value="2.0" />     
   </node>
 
 

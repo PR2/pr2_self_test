@@ -1,14 +1,39 @@
 <html>
 <body>
   <H2 align=center>Projector LED Test</H2>
+
+  <H3>Teststand Setup (Only needs to be done once)</H3>
+  Connect Projector MCB to powerboard output and EtherCAT.  Diode clamp should be between MCB and projector LED.
+  <br><img src="projector_teststand_setup.jpg" width="640" height="480" /><br>
+  <br>
+  Connect temperature sensor cable to DMM.
+  <br><img src="dmm_temperature_connections.jpg" width="640" height="480" /><br>
+  <br>
+  Connect DMM to network using Ethernet jack on back.  Test uses DMM1, change test configuration if different DMM is used.
+  <br><img src="dmm_ethernet_connections.jpg" width="640" height="480"/><br>
+
+  <H3>Projector LED Connections</H3>
+  <b> IMPORTANT </b> Verify Projector power leads are not reversed. 
+  <br><img src="projector_power_connections.jpg" width="480" height="640" /><br>
+  <br>
+  Connect temperature sensor cable to Projector LED. Connector is polarized.
+  <br><img src="projector_temperature_connections.jpg" width="640" height="480" /><br>
+  <br>
+
+  <H3>Tools</H3>
+  Last test step requires using set screws to adjust aperature and focus.  
+  Make sure torque is set correctly on torque tool.
+  <br><img src="torque_tool_plus_closeup.jpg"  /><br>
+
   <H3>Running Test</H3>
-  <H4>All projector LEDs should pass this test</H4>
-  <p> The test needs the LED (6802418) to be connected to a projector driver board (6805021) to run. </p>
-<H3>Connecting the Projector Board (6805021)</H3>
-<H4>Make sure power board output is off before completing this step</H4>
-<p> This step only needs to be be done for once.  Connect the driver board to the power board, and the ethercat chain. </p>
-<H3>Testing the Projector LED (6802418)</H3>
-<p> Connect Projector LED cable to Projector.  Cable should have 4-position Molex MicroFit. </p>
-<p> Run test.  Test is completely automated and requires no user intervention.  Test should take about 5-minutes. </p>
+  Qualifaction has two step takes about 1 minute.  Second test takes about 4 minutes. <br>
+  During second test you will be ask to focus projector LED.  
+  Place projector 1 meter from wall and adjust focus to get the sharpest image possible.  
+  <br><img src="projector_on_wall.jpg" width="480" height="640" /><br>
+  
+  Tighten set-screw after adjustment is complete. 
+  <br><img src="projector_set_screws.jpg" width="640" height="480" /><br>
+  
+
 </body>
 </html>
