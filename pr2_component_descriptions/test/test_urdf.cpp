@@ -80,7 +80,7 @@ int walker(std::string dir_str, char *result, int& test_result)
         getcwd( pwd, MAXPATHLEN );
         printf("\n\ntesting: %s\n",(std::string(pwd) + "/" + dir_str + "/" + dir_name).c_str());
         runExternalProcess("python `rospack find xacro`/xacro.py", std::string(pwd) + "/" + dir_str + "/" + dir_name + " > `rospack find pr2_defs`/test/tmp.urdf" );
-        test_result = test_result || runExternalProcess("`rospack find urdf`/bin/urdf_check", "`rospack find pr2_defs`/test/tmp.urdf");
+        test_result = test_result || runExternalProcess("`rospack find urdf`/bin/check_urdf", "`rospack find pr2_defs`/test/tmp.urdf");
       }
     }
   }
