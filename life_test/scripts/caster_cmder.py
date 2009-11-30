@@ -39,8 +39,8 @@ from std_msgs.msg import Float64
 
 ROTATION_JOINT = 'fl_caster_rotation_joint'
 TOPIC_PREFIX = 'caster_fl'
-SPEED = 100
-STEER_VEL = 100
+SPEED = 0.1 #Changed from 100, 11/20
+STEER_VEL = 6.0 #Changed from 100, 11/20
 
 class CasterCmd:
     def __init__(self):
@@ -55,7 +55,7 @@ class CasterCmd:
     def update(self):
         if self._count == 0:
             if self._left:
-                self.steer = -1 * STEER_VEL
+                self.steer = -0.9 * STEER_VEL
             else:
                 self.steer = STEER_VEL
             self.drive = 0

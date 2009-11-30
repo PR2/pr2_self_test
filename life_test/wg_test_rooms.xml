@@ -33,11 +33,13 @@
     <bay name="teste" machine="teste" board="1008" breaker="0" />
 
     <!-- Racks 5 and 6 not configured yet -->
-    <bay name="testg" machine="testg" board="1013" breaker="2" />
-    <bay name="testj" machine="testj" board="1013" breaker="2" />
+    <bay name="testb" machine="testb" board="1013" breaker="0" />
+
+    <bay name="testj" machine="testj" board="1005" breaker="2" />
 
     <!-- Bottom rack -->
     <bay name="testf" machine="testf" board="1005" breaker="0" />
+    <bay name="testg" machine="testg" board="1005" breaker="1" />
 
     
   </room>

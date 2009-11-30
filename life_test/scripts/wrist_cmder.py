@@ -41,20 +41,19 @@ import random
 
 def main():
     rospy.init_node('wrist_cmder')
-    
     pub_grip = rospy.Publisher("r_gripper_effort_controller/command", Float64)
     pub_flex = rospy.Publisher("r_wrist_flex_position_controller/command", Float64)
     pub_roll = rospy.Publisher("r_wrist_roll_effort_controller/command", Float64)
     
     effort_roll = float(rospy.get_param('roll_effort'))
-    effort_grip = -100 # Change to 0 once fake is installed? 
-    
+    effort_grip = 0
+        
     freq = float(rospy.get_param('cycle_rate'))
     
     try:
         my_rate = rospy.Rate(freq)
         while not rospy.is_shutdown():
-            position_flex = random.uniform(0.2, 1.8)
+            position_flex = random.uniform(0.2, 1.8) #(0.2, 1.5)
 
             if random.randint(0, 1) == 1:
                 effort_roll = effort_roll * -1

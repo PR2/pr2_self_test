@@ -14,6 +14,13 @@
   <node pkg="pr2_controller_manager" type="spawner"
         args="caster_fl" name="$(anon caster_spawner)" />
 
+  <!-- Monitor -->
+  <group ns="l_wheel_monitor">
+    <param name="type" type="string" value="JointMonitorController"/>
+    <param name="joint" type="string" value="fl_caster_l_wheel_joint"/>
+  </group>
+  <node pkg="pr2_controller_manager" type="spawner" args="l_wheel_monitor"/>
+
   <!-- Commander -->
   <node pkg="life_test" type="caster_cmder.py"
         name="caster_cmder" machine="test_host"/>
