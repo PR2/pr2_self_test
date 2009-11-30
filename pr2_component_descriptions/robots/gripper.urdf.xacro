@@ -10,6 +10,10 @@
   <include filename="$(find pr2_description)/urdf/gripper_v0/gripper.urdf.xacro" />
 
   <include filename="$(find pr2_component_descriptions)/urdf/base_link.urdf.xacro" />
+
+     <!-- generic simulator_gazebo plugins for starting mechanism control, ros time, ros battery -->
+  <include filename="$(find pr2_description)/gazebo/gazebo.urdf.xacro" />
+  
   
   <xacro:pr2_gripper_v0 side="r" parent="base_link"
                         screw_reduction="${4.0/1000.0}"

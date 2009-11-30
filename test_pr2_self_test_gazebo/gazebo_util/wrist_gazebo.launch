@@ -6,7 +6,7 @@
   <include file="$(find gazebo)/launch/empty_world_no_x.launch"/>
 
   <!-- Load PR2 URDF -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/caster.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/wrist.urdf.xacro'" />
   <node pkg="gazebo_tools" type="gazebo_model" name="spawn_pr2"
         args="-p robot_description spawn" respawn="false"  />
 

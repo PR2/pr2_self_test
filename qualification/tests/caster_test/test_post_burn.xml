@@ -1,0 +1,22 @@
+<test>
+  <instructions>instructions_post_burn.html</instructions>
+  <pre_startup name="Power Standby" timeout="30"
+               >../../scripts/power_board_standby.launch</pre_startup>
+  <pre_startup name="Program MCB's" timeout="180"
+               >caster_prog.launch</pre_startup>
+  <pre_startup name="Power Cycle" timeout="30"
+               >../../scripts/power_cycle.launch</pre_startup>
+  <pre_startup name="Configure MCB's" timeout="180"
+               >../../config/fl_caster_conf.launch</pre_startup>
+  <startup>caster.launch</startup>
+  <subtest name="Caster Checkout"
+           >caster_checkout.launch</subtest>
+  <subtest name="Turret Hysteresis" timeout="60" pre="fl_caster_right.launch"
+           >hysteresis_caster_turret_post_burn.launch</subtest>
+  <subtest name="Left Wheel Hysteresis" timeout="60" pre="fl_caster_left.launch"
+           >hysteresis_caster_wheel_post_burn.launch</subtest>
+  <subtest name="Right Wheel Hysteresis" timeout="60" pre="fl_caster_right.launch"
+           >hysteresis_caster_wheel_post_burn.launch</subtest>
+  <shutdown name="Power Board Disable" timeout="30"
+            >../../scripts/power_board_disable.launch</shutdown>
+</test>

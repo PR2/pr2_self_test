@@ -1,6 +1,6 @@
 <launch>
   <!-- Gazebo and robot -->
-  <include file="$(find test_pr2_self_test_gazebo)/gazebo_util/pr2_robot_gazebo.launch" />
+  <include file="$(find test_pr2_self_test_gazebo)/gazebo_util/wrist_gazebo.launch" />
 
   <!-- Used for wrist component production test --> 
   <include file="$(find qualification)/tests/wrist_test/wrist_diff_check.launch" />

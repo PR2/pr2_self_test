@@ -15,7 +15,7 @@
       <param name="type" type="string" value="JointVelocityController" />
       <param name="joint" type="string" value="none" />
       <param name="pid/p" type="double" value="1.0" />
-      <param name="pid/i" type="double" value="5.0" />
+      <param name="pid/i" type="double" value="3.0" />
       <param name="pid/d" type="double" value="0.0" />
       <param name="pid/i_clamp" type="double" value="0.25" />
     </group>

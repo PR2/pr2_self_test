@@ -2,7 +2,7 @@
 #
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -134,6 +134,7 @@ def main():
 
   rospy.wait_for_service(options.service, 5)
   done_proxy.call(done)
+  rospy.spin()
   
 
 if __name__ == '__main__':

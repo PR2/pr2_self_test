@@ -10,6 +10,10 @@
   <include filename="$(find pr2_description)/urdf/base_v0/base.urdf.xacro" />
   
   <include filename="$(find pr2_component_descriptions)/urdf/base_link.urdf.xacro" />
+
+   <!-- generic simulator_gazebo plugins for starting mechanism control, ros time, ros battery -->
+  <include filename="$(find pr2_description)/gazebo/gazebo.urdf.xacro" />
+  
   
   <xacro:pr2_caster_hub_v0 suffix="fl_caster" parent="base_link" ref_position="0.0" >
     <origin xyz="0 0 0" rpy="0 0 0" />

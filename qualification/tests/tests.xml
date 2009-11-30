@@ -2,6 +2,8 @@
   <!-- Base and Spine -->
   <test serial="6804108" 
 	file="caster_test/test.xml" descrip="Caster Test"/>
+  <test serial="6804108" 
+	file="caster_test/test_post_burn.xml" descrip="Caster Test - Post Burn-In"/>
   <test serial="6802966"
         file="caster_test/test_motor.xml" descrip="Caster Motor + Gear Test" />
   <test serial="6802966"

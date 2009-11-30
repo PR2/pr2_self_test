@@ -109,7 +109,7 @@ class TestQualUnit(unittest.TestCase):
         
         self.assert_(not rospy.is_shutdown(), "Rospy shutdown")
         self.assert_(self.srv is not None, "No result from qualification test")
-        self.assert_(self.success, "Qual test result was unsuccessful. Human OK: %s. Fail OK: %s. Expected fail: %s.\nData: %s" % (self._human_ok, self._fail_ok, self._expect_fail, self.srv.text_summary))
+        self.assert_(self.success, "Qual test result was unsuccessful. Human OK: %s. Fail OK: %s. Expected fail: %s.\nData: %s\n%s" % (self._human_ok, self._fail_ok, self._expect_fail, self.srv.text_summary, self.srv.html_result))
 
 
 if __name__ == '__main__':

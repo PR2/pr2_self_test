@@ -188,7 +188,10 @@ class DropTestFrame(wx.Frame):
 
     ##\brief Callback for diagnostics msgs
     def _diag_cb(self, msg):
-        self._mutex.acquire()
+        try:
+            self._mutex.acquire()
+        except:
+            return
 
         # Record that we have data
         if self._drop_packets == -1:
