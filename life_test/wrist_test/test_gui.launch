@@ -6,8 +6,12 @@
   <!-- Calibration -->
   <rosparam command="load"
             file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
+  <group ns="cal_r_fake_gripper" >
+    <param name="type" type="string" value="MotorJointCalibrationController" />
+    <param name="joint" type="string" value="r_gripper_fake_joint" />
+  </group>
   <node pkg="mechanism_bringup" type="calibrate.py"
-        args="cal_r_wrist cal_r_gripper" name="cal_wrist" output="screen" />
+        args="cal_r_wrist cal_r_fake_gripper" name="cal_wrist" output="screen" />
 
   <!-- Load wrist effort controllers -->
   <rosparam command="load"

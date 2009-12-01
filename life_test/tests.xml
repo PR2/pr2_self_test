@@ -55,12 +55,9 @@
     <param name="Rate" param_name="cycle_rate"
 	   desc="Frequency of commands"
 	   val="3.0" rate="true" />
-    <param name="Flex Effort" param_name="flex_effort"
-	   desc="Wrist Flex Effort"
-	   val="4.0" rate="false" />
     <param name="Roll Effort" param_name="roll_effort"
 	   desc="Wrist Roll Effort"
-	   val="3.0" rate="false" />
+	   val="4.0" rate="false" />
   </test>
 
   <test serial="6804040" name="Head Life Test" 
