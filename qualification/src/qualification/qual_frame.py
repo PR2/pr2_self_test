@@ -160,6 +160,7 @@ class PlotsPanel(wx.Panel):
     self._rxconsole_panel.setEnabled(True)
     self._notebook.AddPage(self._rxconsole_panel, "ROS Console")
     
+  ##\todo Make P/F/R buttons only enable when allowable
   def show_plots(self, result_page):
     self._notes_text.SetEditable(True)
     self._notebook.SetSelection(0)
@@ -576,7 +577,7 @@ class QualificationFrame(wx.Frame):
       if (msg.result == TestResultRequest.RESULT_PASS):
         self.subtest_result(True, '')
       elif (msg.result == TestResultRequest.RESULT_FAIL):
-        self.subtest_result(False, "Automated failure")
+        self.subtest_result(False, '')
       elif (msg.result == TestResultRequest.RESULT_HUMAN_REQUIRED):
         self.log('Subtest "%s" needs human response.'%(self._current_test.subtests[self._subtest_index].get_name()))
         self.show_plots(sub_result)
@@ -804,8 +805,6 @@ class QualificationFrame(wx.Frame):
     if self._shutdown_timer is not None:
       self._shutdown_timer.cancel()
       self._shutdown_timer = None
-
-    #shutdown_script = self._current_test.getShutdownScript()
 
     self._results.add_shutdown_result(srv)
 

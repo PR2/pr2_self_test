@@ -43,8 +43,9 @@
 	file="upperarm_test/test.xml" descrip="Upperarm Test" />
   <test serial="6801575" 
 	file="upperarm_test/test_elbow_motor.xml" descrip="Elbow Flex Motor Test" />
-<!--  <test serial="6804139" 
-	file="upperarm_test/test.xml" descrip="Upperarm Test" /> -->
+  <test serial="6803046" 
+	file="upperarm_test/test_forearm_motor.xml" descrip="Forearm Roll Motor Test" />
+
 
   <!-- Wrist test -->
   <test serial="6804213" 

@@ -2,7 +2,10 @@
   <include file="$(find qualification)/tests/init.machine" />
 
   <!-- configure_mcbs -->
-  <node machine="realtime" pkg="qualification" type="mcb_prog_conf.py" args="-c -n 3 --motor=bl_caster_r_wheel_motor,0 --motor=bl_caster_l_wheel_motor,1 --motor=bl_caster_rotation_motor,2" />
+  <node machine="realtime" pkg="qualification"
+        type="mcb_prog_conf.py" name="bl_caster_conf"
+        args="-c -n 3 --motor=bl_caster_r_wheel_motor,0 --motor=bl_caster_l_wheel_motor,1 --motor=bl_caster_rotation_motor,2" />
 
-  <node pkg="qualification" type="confirm_conf.py" output="screen"/>
+  <node pkg="qualification" type="confirm_conf.py"
+        name="confirm_conf" output="screen"/>
 </launch>

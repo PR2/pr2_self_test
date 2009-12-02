@@ -311,9 +311,11 @@ class Test:
 
   ## Name or basename or startup script
   def getName(self):
-    if self._name:
+    if self._name is not None:
       return self._name
-    return os.path.basename(self._startup_script)
+    if self._startup_script is not None:
+      return self._startup_script.get_name()
+    return ''
 
   ## Full path to startup script
   def getStartupScript(self):

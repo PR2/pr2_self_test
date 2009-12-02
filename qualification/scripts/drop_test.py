@@ -54,6 +54,7 @@ import threading
 from optparse import OptionParser
 
 import os
+import signal
 
 ##\todo Handle SIGINT so it'll die nicely
 
@@ -359,8 +360,8 @@ if __name__ == '__main__':
     if len(drops) == 0:
         parser.error('No drop instructions given. Unable to drop component')
         
-        
-    
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
     app = DropTestApp(options.name, options.predrop, options.postdrop, drops)
     try:
         app.MainLoop()

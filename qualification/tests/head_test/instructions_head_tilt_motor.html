@@ -5,9 +5,10 @@
   <p>All motors must run through EE motor test before this test. Motors must have caster coupler and gears installed before this test.</p>
   <H3>Connecting Motor</H3>
   <p><b>You must be grounded for the this step.</b></p>
-  <p>Make sure the encoder and motor power cables from the MCB to the motor are connected.</p>
+  <p>Make sure the encoder and motor power cables from the MCB to the motor are connected. <b>The tilt drive belt must be removed.</b></p>
+  <p>Connect the green EtherCAT cable from the qualification bench to the MCB. Make sure the red and black power cable from the MCB to the power board is connected.</p>
   <img src="tilt_motor_cables.jpg" width="640" height="480" />
-<p>Connect the green EtherCAT cable from the qualification bench to the MCB. Make sure the red and black power cable from the MCB to the power board is connected.</p>
+  <p><b>Remove the left ethercat cable from the MCB as shown.</b></p>
   <H3>Testing the Motor</H3>
   <p>This test will run the motor through a hysteresis test. Afterwards, it may ask you to examine the results. You will see a plot of motor effort versus position, and a plot of velocity versus position. If you examine this result, make sure of two things:<br>
   <b>*</b> Motor effort is even, no rough patches.<br>

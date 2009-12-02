@@ -378,7 +378,7 @@ class QualTestResult:
 
         self._tar_filename = None
 
-        self._results_name = '%s_%s' % (self._serial, self._start_time_filestr)
+        self._results_name = '%s_%s' % (self._start_time_filestr, self._serial)
 
         # Record that directory made
         self._results_dir = os.path.join(RESULTS_DIR, self._results_name)
@@ -709,7 +709,7 @@ em { font-style: normal; font-weight: bold; }\
         if self._config_only and self.get_pass_bool():
             sum = "Reconfigured %s as %s." % (self._serial, self._qual_test.getName())
         else:
-            sum = "Qualification of %s, Result: %s" % (self._serial, self.get_test_result_str())
+            sum = "Qualification of %s. Test name: %s. Result: %s." % (self._serial, self._qual_test.getName(), self.get_test_result_str())
             if self._note != '':
                 sum += " Notes: %s" % (self._note)
 
@@ -850,8 +850,8 @@ em { font-style: normal; font-weight: bold; }\
 
         if invent == None:
             return False, "Attempted to log results to inventory, but no invent client found."
-        if len(self.get_subresults()) == 0:
-            return False, "No subtest results found, not logging to invent."
+        #if len(self.get_subresults()) == 0:
+        #    return False, "No subtest results found, not logging to invent."
         if self.is_prestart_error():
             return False, "Test recorded internal error, not submitting to inventory system."
         
@@ -859,9 +859,9 @@ em { font-style: normal; font-weight: bold; }\
         
         reference = self._serial
             
-        rospy.loginfo('Writing invent note')
+        rospy.logdebug('Writing invent note')
 
-        invent.setNote(self._serial, self.line_summary())
+        #invent.setNote(self._serial, self.line_summary())
 
         if self._config_only:
             sub = self.get_subresult(0) # Only subresult of configuration
@@ -870,30 +870,28 @@ em { font-style: normal; font-weight: bold; }\
             invent.add_attachment(self._serial, prefix + sub.filename(), 'text/html', sub.make_result_page())
             return True, 'Logged reconfiguration in inventory system.'
 
-        rospy.loginfo('Setting test status')
+        rospy.logdebug('Setting test status')
 
         invent.setKV(self._serial, "Test Status", self.get_test_result_str_invent())
 
-        rospy.loginfo('Adding summary')
-        invent.add_attachment(reference, prefix + "summary.html", "text/html", self.make_summary_page(False))
+        #rospy.logdebug('Adding summary')
+        #invent.add_attachment(reference, prefix + "summary.html", "text/html", self.make_summary_page(False))
         
-        rospy.loginfo('adding attachment')
+        rospy.logdebug('Adding tarfile attachment')
  
         try:
             # Need to get tar to bit stream
             f = open(self._tar_filename, "rb")
             tar = f.read()
+            f.close()
             invent.add_attachment(reference, 
-                                  prefix + os.path.basename(self._tar_filename),
-                                  'application/tar', tar)
+                                  os.path.basename(self._tar_filename),
+                                  'application/tar', tar, self.line_summary())
 
-            f.close()            
             return True, 'Wrote tar file, uploaded to inventory system.'
         except Exception, e:
             import traceback
-            traceback.print_exc()
-            print "filename", self._tar_filename
-            print 'Caught exception uploading tar file. %s' % str(e)
+            rospy.logerr('Caught exception uploading tar file. %s' % traceback.format_exc())
             return False, 'Caught exception loading tar file to inventory. %s' % str(e)
          
 

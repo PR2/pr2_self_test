@@ -212,7 +212,7 @@ class AnalysisApp:
       if slope == 0:
         effort_html, effort_sum, effort_result = self.hysteresis_effort( min_effort_param, max_effort_param, neg_eff, pos_eff, tol_percent, sd_max_percent)
       else:
-        effort_html, effort_sum, effort_result = self.hysteresis_regression(pos_position, pos_eff, neg_position, neg_eff, slope, tol_percent, sd_max_percent)
+        effort_html, effort_sum, effort_result = self.hysteresis_regression(pos_position, pos_eff, neg_position, neg_eff, slope, tol_percent, sd_max_percent, max_effort_param, min_effort_param)
 
       
       vel_html = self.hysteresis_velocity(self.data.arg_value[4], pos_position, pos_vel, neg_position, neg_vel)
@@ -451,7 +451,7 @@ class AnalysisApp:
     html += '<tr><td>Positive</td><td>%.2f</td><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (max_avg, max_exp, positive_msg, sd_max_percent, positive_sd_msg)  
     html += '<tr><td>Negative</td><td>%.2f</td><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (min_avg, min_exp, negative_msg, sd_min_percent, negative_sd_msg)  
     html += '</table><br>\n'    
-    html += '<p>Effort tolerance: %.2f. SD tolerance: %.2f percent</p>\n' % (tolerance, sd_tol_percent)
+    html += '<p>Effort tolerance: %.2f. SD tolerance: %.2f percent</p>\n' % (tolerance, sd_tol_percent * 100)
 
     return html, summary, result
 
@@ -475,7 +475,7 @@ class AnalysisApp:
     
     return html
 
-  def hysteresis_regression(self, pos_position, pos_effort, neg_position, neg_effort, slope_exp, tolerance, sd_max):
+  def hysteresis_regression(self, pos_position, pos_effort, neg_position, neg_effort, slope_exp, tolerance, sd_max, max_expected, min_expected):
     A_pos = numpy.vstack([pos_position, numpy.ones(len(pos_position))]).T
     A_neg = numpy.vstack([neg_position, numpy.ones(len(neg_position))]).T
     
@@ -489,30 +489,46 @@ class AnalysisApp:
 
     # Check min/max slopes close together
     slope_avg = 0.5 * (a_max + a_min)
-    slope_diff = abs((a_max - a_min) / slope_avg)
+    slope_diff = abs((a_max - a_min)) # / slope_avg)
     slope_sd_tol = abs(slope_exp * sd_max)
 
     # Check that slope value is close to expected
     slope_err = abs(slope_exp - slope_avg)
     
     diff_ok = slope_diff < slope_sd_tol
-    avg_ok = slope_err < abs(tolerance * slope_avg)
-    slope_ok = diff_ok and avg_ok
+    pos_ok = abs(slope_exp - a_max) < slope_sd_tol
+    neg_ok = abs(slope_exp - a_min) < slope_sd_tol
+
+    tol_intercept = tolerance * (max_expected - min_expected)
+    pos_int_ok = abs(b_max - max_expected) < tol_intercept
+    neg_int_ok = abs(b_min - min_expected) < tol_intercept
+
+    slope_ok = diff_ok and pos_ok and neg_ok and pos_int_ok and neg_int_ok
 
     ok_dict = {True: 'OK', False: 'FAIL'}
 
     if slope_ok:
-      summary = "Slope: OK"
+      summary = "Effort: OK"
     else:
-      summary = "Slope: FAIL"
+      summary = "Effort: FAIL"
     
-    # Check if slope is significant....
-    regress_html = '<p>Simple linear regression on the effort and position plot data. Expected slope: %0.2f (%s). Difference in slopes: %0.2f (%s).</p><br>\n' % (slope_exp, avg_ok, slope_diff, diff_ok)
+    ##\todo Check if slope is significant....
+    regress_html = '<p>Simple linear regression on the effort and position plot data. See tables below for slopes, intercepts of effort plot. Both the positive and negative slopes must be in tolerance, and the difference between slopes must be acceptable.</p>\n'
+    #regress_html += '<p>Expected slope: %0.2f, tolerance: %0.2f (%s).<br>Difference in slopes: %0.2f, tolerance: %0.2f (%s).</p><br>\n' % (slope_exp, abs(tolerance * slope_avg), avg_ok, slope_diff, slope_sd_tol, diff_ok)
     regress_html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-    regress_html += '<tr><td><b>Name</b></td><td><b>Slope</b></td><td><b>Intercept</b></td>\n' 
-    regress_html += '<tr><td>%s</td><td>%.3f</td><td>%.3f</td>\n' % ('Positive', a_max, b_max) 
-    regress_html += '<tr><td>%s</td><td>%.3f</td><td>%.3f</td>\n' % ('Negative', a_min, b_min) 
+    regress_html += '<tr><td><b>Name</b></td><td><b>Slope</b></td><td><b>Expected</b><td><b>Tolerance</b></td><td><b>Passed</b></td>\n' 
+    regress_html += '<tr><td>Positive</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%s</td></tr>\n' % (a_max, slope_exp, slope_sd_tol, pos_ok)
+    regress_html += '<tr><td>Negative</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%s</td></tr>\n' % (a_min, slope_exp, slope_sd_tol, neg_ok)
+    regress_html += '<tr><td>Difference</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%s</td></tr>\n' % (a_max - a_min, 0, slope_sd_tol, diff_ok)
     regress_html += '</table>\n'
+
+    regress_html += '<p>Slope intercepts must be within tolerance of expected values, or the average effort is incorrect.</p>\n'
+    regress_html += '<table border="1" cellpadding="2" cellspacing="0">\n'
+    regress_html += '<tr><td><b>Name</b></td><td><b>Intercept</b></td><td><b>Expected</b><td><b>Tolerance</b></td><td><b>Passed</b></td>\n'
+    regress_html += '<tr><td>Positive</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%s</td></tr>\n' % (b_max, max_expected, tol_intercept, pos_int_ok)
+    regress_html += '<tr><td>Positive</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%s</td></tr>\n' % (b_min, min_expected, tol_intercept, neg_int_ok)
+    regress_html += '</table>\n'
+    
 
     return regress_html, summary, slope_ok
 

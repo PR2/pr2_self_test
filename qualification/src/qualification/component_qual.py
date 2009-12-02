@@ -34,9 +34,7 @@
 
 ##\author Kevin Watts
 
-import roslib
-import roslib.packages
-roslib.load_manifest('qualification')
+import roslib; roslib.load_manifest('qualification')
 
 import rospy
 
@@ -53,15 +51,16 @@ from xml.dom import minidom
 from qualification.test import *
 from qualification.qual_frame import *
 
-import traceback
+#import traceback
 
-import invent_client.invent_client
-from invent_client.invent_client import Invent
+#import invent_client.invent_client
+#from invent_client.invent_client import Invent
 
-import runtime_monitor
-from runtime_monitor.monitor_panel import MonitorPanel
+#import runtime_monitor
+#from runtime_monitor.monitor_panel import MonitorPanel
 
 from roslaunch_caller import roslaunch_caller 
+from roslaunch.core import RLException
 
 TESTS_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'tests')
 CONFIG_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'config')
@@ -72,6 +71,8 @@ def load_tests_from_map(tests, test_descripts_by_file):
   try:
     doc = minidom.parse(tests_xml_path)
   except IOError:
+    import traceback
+    traceback.print_exc()
     print >> sys.stderr, "Could not load tests description from '%s'"%(tests_xml_path)
     return False  
   
@@ -111,6 +112,7 @@ def load_configs_from_map(config_files, config_descripts_by_file):
         powerboard = conf.attributes['powerboard'].value != "false"
     except:
       print 'Caught exception parsing configuration file'
+      import traceback
       traceback.print_exc()
       return False
 
@@ -454,10 +456,13 @@ class QualificationApp(wx.App):
   def OnInit(self):
     try:
       self._core_launcher = roslaunch_caller.launch_core()
-    except Exception, e:
+    except RLException, e:
       sys.stderr.write('Failed to launch core. Another core may already be running.\n\n')
+      sys.exit(0)
+    except Exception, e:
+      import traceback
       traceback.print_exc()
-      sys.exit(5)
+      sys.exit(0)
       
     rospy.init_node("qualification")
     

@@ -2,7 +2,7 @@
 #
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ##\author Kevin Watts
-##\brief Programs and configures MCB's during component qualification. 
+##\brief Programs and configures MCB's during component qualification
 
 import roslib
 roslib.load_manifest('qualification')
@@ -141,7 +141,7 @@ class MCBProgramConfig:
 
                       
             if count == self.expected:
-                rospy.loginfo("Found %s MCB's, programming" % count)
+                rospy.logdebug("Found %s MCB's, programming" % count)
                 return True
             elif count == 0:
                 msg = "Found no MCB's! Check cables and power. Retry?"
@@ -185,7 +185,7 @@ class MCBProgramConfig:
     def check_boards(self):
         # Get invent username/password
         for index, serial in enumerate(self.serials):
-            rospy.loginfo('Checking serial %s' % serial)
+            rospy.logdebug('Checking serial %s' % serial)
             pf = self.invent.getKV(serial, 'Test Status')
             if pf == '':
                 self.finished(False, 'Board %d has no Test Status in inventory. Operator canceled. Serial: %s' % (index, serial))
@@ -257,6 +257,9 @@ class MCBProgramConfig:
 
         self.update_conf(mcbs)
 
+        #if not self.check_assembly():
+        #    self.finished(False, "Mismatch between given MCB's and listed items in inventory system. Component is not properly assembled in inventory. Found MCB serials: %s." % str(self.serials))
+
         self.finished(True, "Boards configured. Num. boards: %d. Serials: %s" % (self.expected, str(self.serials)))
         return
 
@@ -265,9 +268,28 @@ class MCBProgramConfig:
             conf_name = mcbs[index].split(',')[0]
             self.invent.setKV(serial, 'Configuration', conf_name)
 
+    def check_assembly(self):
+        test_component = rospy.get_param('/qual_item/serial', None)
+        if test_component is None:
+            rospy.logerr('Unable to find serial number of test component')
+            return False
+
+        sub_components = self.invent.get_sub_items(test_component)
+        if len(sub_components) == 0:
+            rospy.logerr('Unable to find any sub components for item %s' % test_component)
+            return False
+
+        rospy.loginfo('Found sub components: %s' % str(sub_components))
+
+        for serial in self.serials:
+            if not str(serial) in sub_components:
+                rospy.logerr('MCB serial %s was not listed under component %s in invent. Unit is incorrectly assembled in inventory system.' % (serial, test_component))
+                return False
+
+        return True
 
 if __name__ == '__main__':
-    parser = OptionParser(usage="usage ./%prog [options]", prog='mcb_prog_conf.py')
+    parser = OptionParser(usage="./%prog [options]", prog='mcb_prog_conf.py')
     parser.add_option("-p", "--program", action="store_true", 
                       dest="program", default=False, 
                       metavar="PROGRAM", help="Program mcbs?")

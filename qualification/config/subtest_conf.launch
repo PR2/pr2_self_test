@@ -1,4 +1,4 @@
 <launch>
-  <node pkg="qualification" type="conf_subtest.py" />
+  <node pkg="qualification" type="conf_subtest.py" name="conf_subtest" />
 
 </launch>

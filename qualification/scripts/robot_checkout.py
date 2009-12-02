@@ -146,14 +146,17 @@ class RobotCheckout:
             rospy.logout('Waiting for joint calibration')
             # Now start checking for robot data, done if we have it
             while not rospy.is_shutdown():
+                if self._has_visual_check and not self._visual_ok:
+                    self.checkout_robot()
+                    return
                 if self._has_robot_data and self._has_visual_check:
                     self.checkout_robot()
                     return
                 sleep(0.5)
                         
-            if not rospy.is_shutdown():
-                self.checkout_robot()
-                return
+            #if not rospy.is_shutdown():
+            #    self.checkout_robot()
+            #    return
         except Exception, e:
             self.send_failure_call('wait_for_data', traceback.format_exc())
 

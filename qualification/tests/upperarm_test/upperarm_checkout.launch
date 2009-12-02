@@ -10,5 +10,6 @@
   <node pkg="pr2_controller_manager" type="spawner"
         name="test_spawner" args="test_controller" />
   
-  <node pkg="qualification" type="robot_checkout.py" name="upperarm_checkout" />
+  <node pkg="qualification" type="robot_checkout.py"
+        name="upperarm_checkout" />
 </launch>

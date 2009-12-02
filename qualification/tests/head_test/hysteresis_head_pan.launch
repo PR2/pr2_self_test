@@ -3,22 +3,22 @@
     <param name="type" type="string" value="HysteresisController" />
     <param name="velocity" type="double" value="1.25" />
     <param name="max_effort" type="double" value="1.5" />
-    <param name="max_expected" type="double" value="0.4" />
+    <param name="max_expected" type="double" value="0.3" />
     <param name="min_expected" type="double" value="-0.65" />
-    <param name="max_position" type="double" value="2.88" />
-    <param name="min_position" type="double" value="-2.88" />
-    <param name="tolerance" type="double" value="0.15" />
-    <param name="sd_max" type="double" value="0.25" />
+    <param name="max_position" type="double" value="2.86" />
+    <param name="min_position" type="double" value="-2.86" />
+    <param name="tolerance" type="double" value="0.12" />
+    <param name="sd_max" type="double" value="0.15" />
     <param name="timeout" type="double" value="30" />
-    <param name="slope" type="double" value="0.0" />
+    <param name="slope" type="double" value="0.11" />
     
     <group ns="velocity_controller" clear_params="true">
       <param name="type" type="string" value="JointVelocityController" />
       <param name="joint" type="string" value="head_pan_joint" />
       <param name="pid/p" type="double" value="0.5" />
-      <param name="pid/i" type="double" value="10.0" />
+      <param name="pid/i" type="double" value="12.0" />
       <param name="pid/d" type="double" value="0.0" />
-      <param name="pid/i_clamp" type="double" value="1.0" />
+      <param name="pid/i_clamp" type="double" value="1.5" />
     </group>
       
   </group>

@@ -32,14 +32,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Scott Hassen
-
-
-#"""
-#usage: %(progname)s --username=... --password=... reference key value
-#
-#  * sets a key/value oo an item (referenced by 'reference')
-#"""
+##\author Scott Hassen
 
 
 import os, sys, string, time, getopt, re
@@ -52,8 +45,7 @@ import mimetools
 import neo_cgi, neo_util
 import simple_hdfhelp as hdfhelp
 
-import roslib
-roslib.load_manifest('invent_client')
+import roslib; roslib.load_manifest('invent_client')
 
 
 ## \brief Stores username and password, provides access to invent
@@ -76,6 +68,7 @@ class Invent:
     if debug:
       self.site = "http://cmi.willowgarage.com/invent/"
 
+  ##\brief Logs into Invent. Returns true if successful
   def login(self):
     dt = time.time() - self._logged_time
     if self.loggedin==False or dt > 3600:
@@ -89,8 +82,6 @@ class Invent:
     username = self.username
     password = self.password
     url = self.site + "login/signin0.py?Action.Login=1&username=%(username)s&password=%(password)s" % locals()
-
-    #print self.cj
 
     fp = self.opener.open(url)
     body = fp.read()
@@ -249,6 +240,7 @@ class Invent:
     return value
 
   ##\brief Adds attachment to component
+  ##
   ## Adds file as attachment to component. Attachment it encoded to unicode,
   ## then uploaded. Mimemtype is optional, but helps users view
   ## attachments in window. 
@@ -256,7 +248,7 @@ class Invent:
   ##@param name str : Attachment filename
   ##@param mimetype MIMEType : MIMEType of file
   ##@param attachment any : Attachement data
-  def add_attachment(self, reference, name, mimetype, attachment, id=None):
+  def add_attachment(self, reference, name, mimetype, attachment, note = None, id=None):
     self.login()
 
     if not name:
@@ -269,6 +261,8 @@ class Invent:
     fields.append(('reference', reference))
     fields.append(('mimetype', mimetype))
     fields.append(('name', name))
+    if note is not None:
+      fields.append(('note', note))
     if id is not None:
       fields.append(('aid', id))
 
@@ -281,11 +275,33 @@ class Invent:
 
     pat = re.compile("rowid=([0-9]+)")
     m = pat.search(response)
-    if m:
+    if m is not None:
       id = int(m.group(1))
       return id
     return None
 
+  ##\brief Returns list of sub items (references) for a particular parent
+  def get_sub_items(self, reference):
+    self.login()
+    
+    reference = reference.strip()
+
+    url = self.site + "invent/api.py?Action.getSubparts=1&reference=%s" % (reference)
+    fp = self.opener.open(url)
+    body = fp.read()
+    fp.close()
+
+    #print body
+
+    hdf = neo_util.HDF()
+    hdf.readString(body)
+
+    ret = []
+    for k,o in hdfhelp.hdf_ko_iterator(hdf.getObj("CGI.cur.items")):
+      ret.append(o.getValue("reference", ""))
+    
+    return ret
+      
 
 
 ## -------------------------------------------------------------

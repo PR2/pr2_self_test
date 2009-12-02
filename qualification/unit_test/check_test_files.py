@@ -56,7 +56,7 @@ class QualificationTestParser(unittest.TestCase):
 
     ##\brief All .launch files must pass roslaunch_parse_tester
     def test_launch_file_parse(self):
-        cmd = 'rosrun roslaunch_parse_tester package_parse_test.py %s --env=ROS_TEST_HOST,localhost --black_dir config/wge100_camera' % PKG
+        cmd = 'rosrun roslaunch_parse_tester package_parse_test.py %s --env=ROS_TEST_HOST,localhost --black_dir config/wge100_camera -a' % PKG
         p = subprocess.Popen(cmd, stdout = None, stderr = None, shell = True)
         p.communicate()
         retcode = p.returncode

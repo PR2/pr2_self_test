@@ -2,11 +2,9 @@
   <include file="$(find qualification)/tests/init.machine" />
 
   <!-- configure_mcbs -->
-  <node machine="realtime" pkg="qualification"
-        type="mcb_prog_conf.py" name="torso_conf"
-        args="-c -n 1 --motor=torso_lift_motor,0" />
+  <node machine="test_host_root" pkg="qualification" type="mcb_prog_conf.py"
+        name="r_forearm_roll_motor_conf" args="-c -n 1 --motor=r_forearm_roll_motor,0" />
 
-  <!-- Confirm configuation -->
   <node pkg="qualification" type="confirm_conf.py"
         name="confirm_conf" output="screen"/>
 </launch>

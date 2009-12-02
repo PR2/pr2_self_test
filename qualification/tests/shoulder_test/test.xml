@@ -1,4 +1,5 @@
 <test>
+  <name>Shoulder Test</name>
   <instructions>instructions.html</instructions>
   <pre_startup name="Power Standby" timeout="30">../../scripts/power_board_standby.launch</pre_startup>
   <pre_startup name="Program MCB's" timeout="30">shoulder_prog.launch</pre_startup>
@@ -7,9 +8,7 @@
   <startup>shoulder.launch</startup>
   <subtest name="Shoulder Checkout">shoulder_checkout.launch</subtest>
   <subtest name="Shoulder Pan Hysteresis" timeout="30">hysteresis_shoulder_pan.launch</subtest>
-  <subtest name="Shoulder Pan Sinesweep" timeout="30">sinesweep_shoulder_pan.launch</subtest>
   <subtest name="Shoulder Lift Hysteresis" timeout="30">hysteresis_shoulder_lift.launch</subtest>
   <subtest name="Upperarm Roll Hysteresis" timeout="30">hysteresis_upper_arm_roll.launch</subtest>
-  <subtest name="Upperarm Roll Sinesweep" timeout="30">sinesweep_upper_arm_roll.launch</subtest>
   <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
 </test>

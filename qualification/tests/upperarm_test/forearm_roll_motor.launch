@@ -5,10 +5,19 @@
   <include file="$(find qualification)/tests/init.machine" />
   <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
 
-  <group ns="cal_motor" >
-    <param name="type" type="str" value="MotorJointCalibrationController" />
-    <param name="joint" type="str" value="laser_tilt_motor_joint" />
+  <group ns="cal_r_forearm_roll_motor" >
+    <param name="type" type="string" value="JointCalibrationController" />
+    <param name="joint" type="string" value="r_forearm_roll_motor_joint" />
+    <param name="actuator" type="string" value="r_forearm_roll_motor" />
+    <param name="transmission" type="string" value="r_forearm_roll_trans" />
+    <param name="velocity" type="double" value="-1.2" />
+    <group ns="pid" >
+      <param name="p" type="double" value="5.0" />
+      <param name="i" type="double" value="0.0" />
+      <param name="d" type="double" value="0.0" />
+      <param name="i_clamp" type="double" value="0.0" />
+    </group>
   </group>
-  <node pkg="mechanism_bringup" type="calibrate.py"
-        args="cal_motor" name="cal_motor" output="screen" />
+    <node pkg="mechanism_bringup" type="calibrate.py"
+        args="cal_r_forearm_roll_motor" name="cal_r_forearm_roll_motor" output="screen" />
 </launch>

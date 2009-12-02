@@ -7,7 +7,7 @@
 
   <!-- Caster calibration -->
   <group ns="cal_caster_fl_hub" >
-    <param name="type" type="string" value="JointUDCalibrationController" />
+    <param name="type" type="string" value="JointCalibrationController" />
     <param name="actuator" type="string" value="fl_caster_rotation_motor" />
     <param name="joint" type="string" value="fl_caster_rotation_joint" />
     <param name="transmission" type="string" value="fl_caster_rotation_trans" />
@@ -15,5 +15,5 @@
     <param name="pid/p" type="double" value="6.0" />
   </group>
   <node pkg="mechanism_bringup" type="calibrate.py" output="screen"
-  	args="cal_caster_fl_hub" />
+  	args="cal_caster_fl_hub" name="cal_caster_hub" />
 </launch>

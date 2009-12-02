@@ -22,6 +22,7 @@
       
   </group>
   
-  <node pkg="pr2_controller_manager" type="spawner" args="test_controller" />
-  <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
+  <node pkg="pr2_controller_manager" type="spawner"
+        name="hyst_spawner" args="test_controller" />
+  <node pkg="qualification" type="hysteresis_sinesweep_plot.py" name="hyst_analysis" />
 </launch>
