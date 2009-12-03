@@ -9,16 +9,16 @@
     <param name="min_position" type="double" value="-0.39" />
     <param name="timeout" type="double" value="30" />
     <param name="tolerance" type="double" value="0.10" />
-    <param name="sd_max" type="double" value="0.12" />
+    <param name="sd_max" type="double" value="0.15" />
     <param name="slope" type="double" value="-1.9" />
     
     <group ns="velocity_controller" clear_params="true">
       <param name="type" type="string" value="JointVelocityController" />
       <param name="joint" type="string" value="head_tilt_joint" />
-      <param name="pid/p" type="double" value="2.0" />
-      <param name="pid/i" type="double" value="35.0" />
+      <param name="pid/p" type="double" value="3.0" />
+      <param name="pid/i" type="double" value="40.0" />
       <param name="pid/d" type="double" value="0.0" />
-      <param name="pid/i_clamp" type="double" value="5.0" />
+      <param name="pid/i_clamp" type="double" value="8.0" />
     </group>
   </group>
   
