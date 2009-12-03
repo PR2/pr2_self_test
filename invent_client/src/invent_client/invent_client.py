@@ -48,6 +48,27 @@ import simple_hdfhelp as hdfhelp
 import roslib; roslib.load_manifest('invent_client')
 
 
+class TestDataLoader:
+  def __init__(self, testname, timestamp, reference, note):
+    self.testname = testname
+    self.reference = reference
+    self.timestamp = timestamp
+
+    self.attachment = None
+    self.note = note
+    self.parameters = {}
+    self.measurements = {}
+
+  def set_parameter(self, key, value):
+    self.parameters[key] = value
+
+  def set_measurement(self, key, value, min, max):
+    self.measurements[key] = (value, min, max)
+
+  def set_attachment(self, content_type, attachment):
+    self.attachment = (content_type, attachment)
+
+
 ## \brief Stores username and password, provides access to invent
 ## Performs all action relating to inventory system
 ## Will login automatically before all functions if needed
@@ -72,7 +93,6 @@ class Invent:
   def login(self):
     dt = time.time() - self._logged_time
     if self.loggedin==False or dt > 3600:
-      # print "logging in" # Blaise: Removed. Libraries should not print to stdout.
       return self._login()
     return True
 
@@ -96,6 +116,9 @@ class Invent:
     self._logged_time = time.time()
     return True
 
+  def submit_test_data(self, test_data):
+    return True
+
   def getAttachments(self, key):
     self.login()
 
@@ -105,8 +128,6 @@ class Invent:
     fp = self.opener.open(url)
     body = fp.read()
     fp.close()
-
-    #print body
 
     hdf = neo_util.HDF()
     hdf.readString(body)
@@ -291,8 +312,6 @@ class Invent:
     body = fp.read()
     fp.close()
 
-    #print body
-
     hdf = neo_util.HDF()
     hdf.readString(body)
 
@@ -348,7 +367,6 @@ def encode_multipart_formdata(fields, files, BOUNDARY = '-----'+mimetools.choose
         L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
         L.append('Content-Length: %s' % len(encoded))
         L.append('Content-Type: %s' % filetype)
-        #L.append('Content-Transfer-Encoding: base64')
         L.append('Content-Transfer-Encoding: binary')
         L.append('')
         L.append(encoded)
