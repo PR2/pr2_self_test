@@ -1,0 +1,24 @@
+<launch>
+  <!-- Uses the same def as a torso robot -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/torso.urdf.xacro'" />
+
+  <!-- Loads realtime machine and PR2_etherCAT -->
+  <include file="$(find qualification)/tests/init.machine" />
+  <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
+
+  <!-- Torso Calibration -->
+  <group ns="torso_limit_calibration_controller">
+    <param name="type" type="string" value="JointLimitCalibrationController" />
+    <param name="joint" type="string" value="torso_lift_joint" />
+    <param name="actuator" type="string" value="torso_lift_motor" />
+    <param name="transmission" type="string" value="torso_lift_trans" />
+    <param name="velocity" type="double" value="-0.01" />
+    <group ns="pid" >
+      <param name="p" type="double" value="2000000" />
+      <param name="i" type="double" value="1000" />
+      <param name="i_clamp" type="double" value="1000" />
+    </group>
+  </group>
+  <node pkg="pr2_controller_manager" type="spawner" output="screen"
+        args="torso_limit_calibration_controller" />  
+</launch>

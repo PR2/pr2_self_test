@@ -13,8 +13,6 @@
            >caster_checkout.launch</subtest>
   <subtest name="Turret Hysteresis" timeout="60" pre="fl_caster_right.launch"
            >hysteresis_caster_turret.launch</subtest>
-  <subtest name="Turret Sinesweep" timeout="60" pre="fl_caster_right.launch"
-           >sinesweep_caster_turret.launch</subtest>
   <subtest name="Left Wheel Hysteresis" timeout="60" pre="fl_caster_left.launch"
            >hysteresis_caster_wheel.launch</subtest>
   <!--subtest name="Left Wheel Sinesweep" timeout="30" pre="fl_caster_left.launch"
