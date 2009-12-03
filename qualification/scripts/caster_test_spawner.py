@@ -51,10 +51,10 @@ def print_usage(exit_code = 0):
     print 'caster_test_spawner.py [--stopped] <controller names>'
     sys.exit(exit_code)
 
-rospy.wait_for_service('load_controller')
-load_controller = rospy.ServiceProxy('load_controller', LoadController)
-unload_controller = rospy.ServiceProxy('unload_controller', UnloadController)
-switch_controller = rospy.ServiceProxy('switch_controller', SwitchController)
+rospy.wait_for_service('pr2_controller_manager/load_controller')
+load_controller = rospy.ServiceProxy('pr2_controller_manager/load_controller', LoadController)
+unload_controller = rospy.ServiceProxy('pr2_controller_manager/unload_controller', UnloadController)
+switch_controller = rospy.ServiceProxy('pr2_controller_manager/switch_controller', SwitchController)
 
 spawned = None
 prev_handler = None
