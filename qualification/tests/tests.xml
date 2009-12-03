@@ -12,7 +12,7 @@
   <test serial="torsoli" 
 	file="torso_lift_test/test.xml" descrip="Torso Lift Test" />  
   <test serial="6804249" 
-	file="torso_drivetrain/test.xml" descrip="Torso Drivetrain Test" />  
+	file="torso_lift_test/test_drive.xml" descrip="Torso Drivetrain Test" />  
 
   
   <!-- Head  -->
