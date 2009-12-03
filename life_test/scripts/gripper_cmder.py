@@ -28,7 +28,7 @@
 
 ##\author Kevin Watts
 
-##\brief Commands a gripper to open and close repeatedly
+##\brief Commands a right gripper to open and close repeatedly
 
 import roslib; roslib.load_manifest('life_test')
 import rospy
@@ -63,7 +63,7 @@ def main():
     last_state = LastMessage('joint_state', JointState)
     try:
         pub = rospy.Publisher(control_topic, Float64)
-        while not last_state.msg and not rospy.is_shutdown(): pass
+        while not last_state.msg and not rospy.is_shutdown(): sleep(0.1)
         pub.publish(Float64(eff))
         while not rospy.is_shutdown():
             sleep(0.01)

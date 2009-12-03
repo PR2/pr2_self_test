@@ -20,7 +20,7 @@
         output="screen" />
 
   <!-- Commander -->
-  <node pkg="life_test" type="gripper_effort_controller.py"
+  <node pkg="life_test" type="gripper_cmder.py"
         args="r_gripper_effort_controller" machine="test_host"
         name="grip_cmder" />
 

@@ -26,10 +26,10 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.  
 
-# Author: Kevin Watts        
+##\author Kevin Watts
+##\brief Commands torso to go up and down repeatedly
 
 PKG = "life_test"
-
 import roslib; roslib.load_manifest(PKG)
 
 import sys
@@ -37,31 +37,31 @@ import rospy
 
 from time import sleep
 from std_msgs.msg import Float64
-from mechanism_msgs.srv import SpawnController, KillController
+from sensor_msgs.msg import JointState
 
 from optparse import OptionParser
 
-def xml_for():
-    return "\
-<controller name=\"torso_lift_controller\" type=\"JointPositionControllerNode\">\
-  <joint name=\"torso_lift_joint\" >\
-    <pid p=\"1000000\" d=\"0.0\" i=\"10000\" iClamp=\"1000000\" \>\
-  </joint>\
-</controller>" 
+class LastMessage():
+    def __init__(self, topic, msg_type):
+        self.msg = None
+        rospy.Subscriber(topic, msg_type, self.callback)
 
-  
-if __name__ == "__main__":
+    def last(self):
+        return self.msg
+
+    def callback(self, msg):
+        self.msg = msg
+ 
+def main():
     parser = OptionParser()
     parser.add_option("-l", "--low", dest="low_only", 
-                      help="Keep in lower end only", action="store_true", 
-                      default=True)
+                      help = "Keep in lower end only", action="store_true", 
+                      default = False)
 
     (options, args) = parser.parse_args()
 
     rospy.init_node('torso_life_test')
-    rospy.wait_for_service('spawn_controller')
-    spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
-    kill_controller = rospy.ServiceProxy('kill_controller', KillController)
+
 
 
     resp = spawn_controller(xml_for(), 1)
@@ -69,25 +69,41 @@ if __name__ == "__main__":
         print "Failed to spawn controller"
         sys.exit(1)
 
-    pub = rospy.Publisher("torso_lift_controller/set_command", Float64)
+    pub = rospy.Publisher("torso_lift_velocity_controller/command", Float64)
+    last_state = LastMessage('joint_state', JointState)
+    turn_count = 0
+    vel = 0.01
 
     try:
+        while not last_state.msg and not rospy.is_shutdown(): sleep(0.1)
         while not rospy.is_shutdown():
-            if options.low_only:
-                pub.publish(Float64(0.07))
-                sleep(3)
-                pub.publish(Float64(0.10))
-                sleep(3)
+            sleep(0.01)
+            jnt_states = last_state.last()
+            torso_idx = -1
+            for index, name in enumerate(jnt_states.name):
+                if name == 'torso_lift_joint':
+                    torso_idx = index
+                    break
+            if torso_idx < 0:
+                rospy.logwarn("The joint %s was not found in the joints states" % 'torso_lift_joint')
+
+            if abs(jnt_states.velocity[torso_idx]) < 0.0005:
+                turn_count += 1
             else:
-                # All the way up and down
-                pub.publish(Float64(0))
-                sleep(30)
-                pub.publish(Float64(0.32))
-                sleep(30)
-    finally:
-        for i in range(1,3):
-            try:
-                kill_controller('torso_lift_controller')
-                break
-            except:
-                pass
+                turn_count = 0
+
+            if turn_count > 25:
+                vel = -1 * vel
+                pub.publish(Float64(vel))
+                turn_count = 0
+
+    except  KeyboardInterrupt, e:
+        pass
+    except:
+        import traceback
+        rospy.logerr(traceback.format_exc())
+        traceback.print_exc()
+
+
+if __name__ == '__main__':
+    main()

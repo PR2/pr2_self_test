@@ -26,6 +26,16 @@
            rate="true" val="0.1" />
   </test>
 
+    <test serial="torsoli" name="Torso Test"
+        short="Gripper" trac="000"
+        desc="Test torso moving up and down."
+        script="torso_test/test_gui.launch" power="true"
+        type="Burn-in Test" >
+    <param name="Rate" param_name="cycle_rate"
+           desc="Frequency of test"
+           rate="true" val="0.03" />
+  </test>
+
   <test serial="6804108" name="Caster Test"
         short="Caster" trac="001"
         desc="Caster jerks around under pressure. Put pressure on caster BEFORE turning this test on."
