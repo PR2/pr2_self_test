@@ -1,15 +1,15 @@
 <launch> 
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="HysteresisController" />
-    <param name="velocity" type="double" value="1.5" />
+    <param name="velocity" type="double" value="1.25" />
     <param name="max_effort" type="double" value="0.75" />
-    <param name="max_expected" type="double" value="0.55" />
-    <param name="min_expected" type="double" value="-0.45" />
-    <param name="max_position" type="double" value="1.99" />
-    <param name="min_position" type="double" value="0.10" />
+    <param name="max_expected" type="double" value="0.67" />
+    <param name="min_expected" type="double" value="-0.57" />
+    <param name="max_position" type="double" value="1.97" />
+    <param name="min_position" type="double" value="0.12" />
     <param name="timeout" type="double" value="30" />
     <param name="tolerance" type="double" value="0.10" />
-    <param name="sd_max" type="double" value="0.25" />
+    <param name="sd_max" type="double" value="0.20" />
     
     <group ns="velocity_controller" clear_params="true">
       <param name="type" type="string" value="JointVelocityController" />
