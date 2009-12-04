@@ -55,11 +55,11 @@ def main():
     try:
         while not rospy.is_shutdown():
             if roll:
-                fore_roll.publish(Float64(1.0))
+                fore_roll.publish(Float64(-10.0))
             arm_pos.publish(Float64(-0.05))
-            sleep(0.5)
+            sleep(0.7)
             arm_pos.publish(Float64(-2.00))
-            sleep(0.5)
+            sleep(0.6)
     except KeyboardInterrupt, e:
         pass
     except Exception, e:

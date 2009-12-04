@@ -7,17 +7,15 @@ trans:
   roll_trans:
     joint: r_forearm_roll_joint
     actuator: r_forearm_roll_motor
-    up_ref: 0.0
-    down_ref: 3.1415926535897931
+    down_ref: 0.0
+    up_ref: 3.1415926535897931
     wrap: 6.2831853071795862
     deadband: 0.1
   flex_trans:
-    joint: r_wrist_flex_joint
-    actuator: r_wrist_l_motor
-    up_ref: -1.1606
+    joint: r_elbow_flex_joint
+    actuator: r_elbow_flex_motor
+    down_ref: -1.1606
     deadband: 0.1
-    min: -2.33
-    max: -0.05
-wge_100:
-  type: CameraListener
-  file: camera_listener
+    min: -2.45
+    max: 0.10
+
