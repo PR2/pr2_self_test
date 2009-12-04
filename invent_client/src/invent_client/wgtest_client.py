@@ -57,7 +57,6 @@ class TestData:
     self.attachment = None
     self.parameters = {}
     self.measurements = {}
-
     self.note = None
   
   def set_note(self, note):
@@ -68,6 +67,7 @@ class TestData:
 
   def set_measurement(self, key, value, min, max):
     self.measurements[key] = Value(value, min, max)
+    #self.measurements[key] = (value, min, max)
 
   def set_attachment(self, content_type, fn):
     self.attachment = {"content_type":content_type, "filename":fn}
@@ -77,7 +77,6 @@ class TestData:
 
     hdf = obj2hdf("test", self)
     data = hdf.writeString()
-    print data
 
     values = {'data': data}
     data = urllib.urlencode(values)
@@ -89,8 +88,6 @@ class TestData:
     
     runid = ohdf.getValue("runid", "")
     status = ohdf.getValue("status", "")
-
-    print runid, status
 
     if 0:
       attachment = open(self.attachment['filename'], "rb").read()
