@@ -63,6 +63,7 @@ if __name__ == '__main__':
   msg.status.append(stat)
 
   while not rospy.is_shutdown():
+    msg.header.stamp = rospy.get_rostime()
     pub.publish(msg)
     rospy.loginfo('Test node is printing things')
     sleep(1.0)

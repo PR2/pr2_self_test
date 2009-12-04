@@ -39,7 +39,7 @@ import sys
 import rospy
 from std_srvs.srv import Empty
 from qualification.srv import TestResult, TestResultRequest
-import qualification.msg
+from qualification.msg import Plot, TestParam, TestValue
 import time
 
 import rospy
@@ -61,18 +61,33 @@ test_service()
 
 r = TestResultRequest()
 r.plots = []
+r.params = []
+r.params.append(TestParam('P Gain', '5.0'))
+r.params.append(TestParam('I Gain', '1.0'))
+r.params.append(TestParam('D Gain', '0.0'))
+r.params.append(TestParam('I Clamp', '0.0'))
+
+r.values = []
+r.values.append(TestValue('Effort', '4.0', '2.0', '5.0'))
+r.values.append(TestValue('Low Range', '-2.0', '', '-1.5'))
+r.values.append(TestValue('High Range', '2.0', '1.5', ''))
+
+
 if (sys.argv[1] == "pass"):
   r.html_result = "<p>Test succeeded.</p>"
   r.text_summary = "Test passed."
   r.result = TestResultRequest.RESULT_PASS
+  r.values.append(TestValue('Velocity', '2.0', '1.5', '2.5'))
 elif (sys.argv[1] == "fail"):
   r.html_result = "<p>Test failed.</p>"
   r.result = TestResultRequest.RESULT_FAIL
   r.text_summary = "Test Failed."
+  r.values.append(TestValue('Velocity', '1.0', '1.5', '2.5'))
 else:
   r.text_summary = "Human input required."
   r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
-  
+  r.values.append(TestValue('Velocity', '1.5', '1.5', '2.5'))  
+
   plt.plot([1,2,3,4],[16, 9, 4, 1], 'ro')
   plt.xlabel("Pirates")
   plt.ylabel("Ninjas")
@@ -82,7 +97,7 @@ else:
   
   r.html_result = "<p>Does the correlation between pirates and ninjas make sense?</p>\n<br><img src=\"IMG_PATH/pirates_and_ninjas.png\", width = 640, height = 480 />"
   
-  p = qualification.msg.Plot()
+  p = Plot()
   r.plots.append(p)
   p.image = image
   p.image_format = "png"
@@ -91,4 +106,5 @@ else:
 # block until the test_result service is available
 rospy.wait_for_service('test_result')
 result_service.call(r)
+rospy.spin()
 

@@ -2,7 +2,7 @@
 
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,13 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Kevin Watts
+##\author Kevin Watts
 
 import roslib
 roslib.load_manifest('qualification')
 
-import sys, os, time, string, subprocess
-from xml.dom import minidom
+import sys, os #, time
+#from xml.dom import minidom
 
 import rospy
 
@@ -50,7 +50,7 @@ from time import strftime
 from PIL import Image
 from cStringIO import StringIO
 
-import tarfile
+import tarfile, tempfile
 import socket
 
 import smtplib
@@ -59,9 +59,22 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import Encoders
 
+from invent_client.invent_client import TestDataLoader
+
 
 RESULTS_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results')
 TEMP_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results/temp/')
+
+def write_temp_tar_file(results_dir):
+    temp_tar_file = tempfile.NamedTemporaryFile()
+
+    tar_st = tarfile.open(temp_tar_file.name, 'w:')
+    for filename in os.list_dir(results_dir):
+        tar_st.add(os.path.join(results_dir, filename), arcname=filename)
+
+    tar_st.close()
+    
+    return temp_tar_filename
 
 ##\brief Holds results from pre-startup and shutdown scripts
 class TestScriptResult:
@@ -108,7 +121,7 @@ class SubTestResultType:
         6: "Error" , 
         7: "Canceled" }
 
-    ##@param result TestResultRequest.result : 0 - Pass, 1 - Fail, 2 - Human req'd
+    ##\param result TestResultRequest.result : 0 - Pass, 1 - Fail, 2 - Human req'd
     def __init__(self, result):
         self._result = result
 
@@ -170,8 +183,8 @@ class SubTestResultType:
 ##
 ##
 class SubTestResult:
-    ##@param subtest test/SubTest : Subtest that completed
-    ##@param msg srv/TestResultRequest : Received msg from analysis
+    ##\param subtest test/SubTest : Subtest that completed
+    ##\param msg srv/TestResultRequest : Received msg from analysis
     def __init__(self, subtest, msg):
         self._subtest = subtest
         
@@ -195,6 +208,15 @@ class SubTestResult:
 
         self.write_images(TEMP_DIR)
 
+        self._params = msg.params
+        self._values = msg.values
+
+    def get_params(self):
+        return self._params
+
+    def get_values(self):
+        return self._values
+
     def retry_test(self, count):
         self._result.retry()
         self._retry_suffix = "_retry%d" % count
@@ -215,29 +237,36 @@ class SubTestResult:
     def set_note(self, txt):
         self._subresult_note = txt
 
+    def get_note(self):
+        return self._subresult_note
+
     def filename_base(self):
         return self._subtest.get_name().replace(' ', '_').replace('/', '__') + str(self._subtest.get_key()) + self._retry_suffix
 
     def filename(self):
-        return self.filename_base() + '.html'
+        return self.filename_base() + '/index.html'
 
     ##\brief Save images to file in designated folder
     ##
     ##\param path str : Filepath of all images
     def write_images(self, path):
+        dir_name = os.path.join(path, self.filename_base())
+        if not os.path.isdir(dir_name):
+            os.mkdir(dir_name)
+
         for plot in self._plots:
             stream = StringIO(plot.image)
             im  = Image.open(stream)
             
-            img_file = path + self.filename_base() + '_' + plot.title + '.' + plot.image_format
+            img_file = os.path.join(dir_name, plot.title + '.' + plot.image_format)
             im.save(img_file)
 
     def html_image_result(self, img_path):
         html = '<H5 ALIGN=CENTER>Result Details</H5>'
         
         # Put '<img src=\"IMG_PATH/%s.png\" /> % image_title' in html_result
-        html += self._text_result.replace('IMG_PATH/', img_path + self.filename_base() + '_')
-
+        html += self._text_result.replace('IMG_PATH', os.path.join(img_path, self.filename_base()))
+        
         return html
 
     ## Takes test title, status, summary, details and images and makes a 
@@ -262,28 +291,58 @@ em { font-style:normal; font-weight: bold; }\
         html += self.html_image_result(link_dir)
 
         html += '<hr size="3">\n'
-        html += self.html_test_params()
+        html += self._html_test_params()
+        html += '<hr size="3">\n'
+        html += self._html_test_values()
+        html += '<hr size="3">\n'
+        html += self._html_test_info()
         html += '<hr size="3">\n'        
 
         # Add link back to index if applicable
         # May want to make page "portable" so whole folder can move
         if back_link:
             if prev:
-                html += '<p align=center><a href="%s%s">Previous: %s</a></p>\n' % (link_dir, prev.filename(), prev.get_name())
+                prev_file = os.path.join(link_dir, prev.filename())
+                html += '<p align=center><a href="%s">Previous: %s</a></p>\n' % (prev_file, prev.get_name())
             
-            back_index_file = link_dir + 'index.html'
+            back_index_file = os.path.join(link_dir, 'index.html')
             html += '<p align=center><a href="%s">Back to Index</a></p>\n' % back_index_file
 
             if next:
-                html += '<p align=center><a href="%s%s">Next: %s</a></p>\n' % (link_dir, next.filename(), next.get_name())
+                next_file = os.path.join(link_dir, next.filename())
+                html += '<p align=center><a href="%s">Next: %s</a></p>\n' % (next_file, next.get_name())
            
 
         html += '</body></html>'
         
         return html 
 
-    def html_test_params(self):
-        html = '<H4 align=center>Subtest Parameters</H4>\n'
+
+    def _html_test_params(self):
+        html = ['<H4 align=center>Subtest Parameters</H4>\n']
+        
+        html.append('<table border="1" cellpadding="2" cellspacing="0">\n')
+        html.append('<tr><td><b>Parameter</b></td><td><b>Value</b></td></tr>\n')
+        for param in self._params:
+            html.append('<tr><td>%s</td><td>%s</td></tr>\n' % (param.key, param.value))
+        html.append('</table>\n')
+        
+        return ''.join(html)
+
+    def _html_test_values(self):
+        html = ['<H4 align=center>Subtest Measurements</H4>\n']
+        
+        html.append('<table border="1" cellpadding="2" cellspacing="0">\n')
+        html.append('<tr><td><b>Measurement</b></td><td><b>Value</b></td><td><b>Min</b></td><td><b>Max</b></td></tr>\n')
+        for value in self._values:
+            html.append('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n' % (value.key, value.value, value.min, value.max))
+        html.append('</table>\n')
+
+        return ''.join(html)
+
+
+    def _html_test_info(self):
+        html = '<H4 align=center>Subtest Information</H4>\n'
 
         html += '<table border="1" cellpadding="2" cellspacing="0">\n'
         html += '<tr><td><b>Parameter</b></td><td><b>Value</b></td></tr>\n'
@@ -339,6 +398,8 @@ em { font-style:normal; font-weight: bold; }\
 
         return '<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n' % (hyperlink, summary, result)
 
+
+    
 ##\brief Result of Qualification test. Stores and logs all data
 ##
 ##
@@ -378,7 +439,7 @@ class QualTestResult:
 
         self._tar_filename = None
 
-        self._results_name = '%s_%s' % (self._start_time_filestr, self._serial)
+        self._results_name = '%s_%s' % (self._serial, self._start_time_filestr)
 
         # Record that directory made
         self._results_dir = os.path.join(RESULTS_DIR, self._results_name)
@@ -415,7 +476,7 @@ class QualTestResult:
         # return sorted by index
         return vals
 
-    def get_subresults(self):
+    def get_subresults(self, reverse = False):
         kys = dict.keys(self._subresults_by_index)
         kys.sort()
         vals = []
@@ -423,9 +484,9 @@ class QualTestResult:
             vals.append(self._subresults_by_index[ky])
         
         # return sorted by index
-        return vals
+        return vals if not reverse else vals.reverse()
 
-    def get_retrys(self):
+    def get_retrys(self, reverse = False):
         kys = dict.keys(self._retrys_by_index)
         kys.sort()
         vals = []
@@ -433,7 +494,8 @@ class QualTestResult:
             vals.append(self._retrys_by_index[ky])
         
         # return sorted by index
-        return vals
+            
+        return vals if not reverse else vals.reverse()
 
     # Come up with better enforcement of get functions
     def get_subresult(self, index):
@@ -776,21 +838,23 @@ em { font-style: normal; font-weight: bold; }\
     def write_results_to_file(self, temp = True, local_link = False):
         # Write into temp or final dir
         # Temp for display in Qual GUI, final for storing for later
-        write_dir = TEMP_DIR
-        if not temp:
-            write_dir = self._results_dir
+        #write_dir = TEMP_DIR
+        #if not temp:
+        write_dir = TEMP_DIR if temp else self._results_dir
         
         # Use local links for image sources, etc if true
         link_dir = write_dir
+        header_link_dir = write_dir
         if local_link:
-            link_dir = ''
+            link_dir = '../'
+            header_link_dir = ''
 
-        if (not os.path.isdir(write_dir)):
+        if not os.path.isdir(write_dir):
             os.mkdir(write_dir)
               
-        index_path = write_dir + 'index.html'
+        index_path = os.path.join(write_dir, 'index.html')
         index = open(index_path, 'w')
-        index.write(self.make_summary_page(True, link_dir))
+        index.write(self.make_summary_page(True, header_link_dir))
         index.close()
         
         for i in self._subresults_by_index:
@@ -799,7 +863,10 @@ em { font-style: normal; font-weight: bold; }\
             prev = self.get_subresult(i - 1)
             next = self.get_subresult(i + 1)
 
-            st_path = write_dir + st.filename()
+            if not os.path.isdir(os.path.join(write_dir, st.filename_base())):
+                os.mkdir(os.path.join(write_dir, st.filename_base()))
+
+            st_path = os.path.join(write_dir, st.filename())
             st_file = open(st_path, 'w')
             st_file.write(st.make_result_page(True, link_dir, prev, next))
             st_file.close()
@@ -809,37 +876,38 @@ em { font-style: normal; font-weight: bold; }\
         for i in self._retrys_by_index:
             st = self.get_retry(i)
             
-            #prev = None
-            #next = None
-            #if i > 0:
             prev = self.get_retry(i - 1)
-            #if i < len(self._subresults_by_index):
             next = self.get_retry(i + 1)
 
-            # for st in self.get_subresults():
-            st_path = write_dir + st.filename()
+            if not os.path.isdir(os.path.join(write_dir, st.filename_base())):
+                os.mkdir(os.path.join(write_dir, st.filename_base()))
+
+            st_path = os.path.join(write_dir, st.filename())
             st_file = open(st_path, 'w')
             st_file.write(st.make_result_page(True, link_dir, prev, next))
             st_file.close()
 
             st.write_images(write_dir)
-        
+
+       
         # Make tar file of results
         if not temp:
-            self.write_tar_file()
+            self._write_tar_file()
         
-    # Dumps all files in results directory into tar file
-    def write_tar_file(self):
-        self._tar_filename = '%s/%s.tar' % (self._results_dir, self._results_name)
+    ##\brief Dumps all files in results directory into tar file
+    def _write_tar_file(self):
+        self._tar_filename = os.path.join(self._results_dir, self._results_name + '_data.tar')
         
         # Change filename to basename when adding to tar file
-#        tar = tarfile.open(self._tar_filename, 'w:gz')
         tar = tarfile.open(self._tar_filename, 'w:')
         for filename in os.listdir(self._results_dir):
             # Use only file base names in tar file
             fullname = os.path.join(self._results_dir, filename)
             tar.add(fullname, arcname=filename)
         tar.close()
+
+             
+        
 
     # Make invent results pretty, HTML links work
     def log_results(self, invent):
@@ -850,15 +918,10 @@ em { font-style: normal; font-weight: bold; }\
 
         if invent == None:
             return False, "Attempted to log results to inventory, but no invent client found."
-        #if len(self.get_subresults()) == 0:
-        #    return False, "No subtest results found, not logging to invent."
         if self.is_prestart_error():
             return False, "Test recorded internal error, not submitting to inventory system."
         
         prefix = self._start_time_filestr + "_" # Put prefix first so images sorted by date
-        
-        reference = self._serial
-            
         rospy.logdebug('Writing invent note')
 
         #invent.setNote(self._serial, self.line_summary())
@@ -867,24 +930,21 @@ em { font-style: normal; font-weight: bold; }\
             sub = self.get_subresult(0) # Only subresult of configuration
             if not sub:
                 return True, 'No subresult found!'
-            invent.add_attachment(self._serial, prefix + sub.filename(), 'text/html', sub.make_result_page())
+            invent.add_attachment(self._serial, sub.filename_base() + '.html', 'text/html', 
+                                  sub.make_result_page(), self.line_summary())
             return True, 'Logged reconfiguration in inventory system.'
 
         rospy.logdebug('Setting test status')
 
         invent.setKV(self._serial, "Test Status", self.get_test_result_str_invent())
-
-        #rospy.logdebug('Adding summary')
-        #invent.add_attachment(reference, prefix + "summary.html", "text/html", self.make_summary_page(False))
         
         rospy.logdebug('Adding tarfile attachment')
- 
         try:
             # Need to get tar to bit stream
             f = open(self._tar_filename, "rb")
             tar = f.read()
             f.close()
-            invent.add_attachment(reference, 
+            invent.add_attachment(self._serial,
                                   os.path.basename(self._tar_filename),
                                   'application/tar', tar, self.line_summary())
 
@@ -894,6 +954,32 @@ em { font-style: normal; font-weight: bold; }\
             rospy.logerr('Caught exception uploading tar file. %s' % traceback.format_exc())
             return False, 'Caught exception loading tar file to inventory. %s' % str(e)
          
+        try:
+            for st in (self._retrys + self._subresults):
+                # Make Test Data thing
+                td = TestDataLoader(self._qual_test.getName(), self._start_time, self._serial, st.get_note())
+                
+                for param in st.get_params():
+                    td.set_parameter(param.key, param.value)
+                for value in st.get_values():
+                    td.set_measurement(measurement.key, measurement.value, measurement.min, measurement.max)
+
+                # Add tarfile attachment
+                st_tarfile = write_temp_tar_file(os.path.join(self._results_dir, st.filename_base()))
+                f = open(st_tarfile.name, 'rb')
+                st_tar = f.read()
+                f.close()
+                td.set_attachment(st_tar, 'application/tar')
+
+                # submit
+                iv.submit_test_data(td)
+                st_tarfile.close()
+            return True
+        except:
+            import traceback
+            rospy.logerr('Caught exception uploading test parameters to invent.\n%s' % traceback.format_exc())
+            return False, 'Caught exception loading tar file to inventory. %s' % str(e)
+        
 
         
     def get_qual_team(self):
@@ -927,6 +1013,6 @@ em { font-style: normal; font-weight: bold; }\
             s.quit()
             return True
         except Exception, e:
-            print 'Unable to sent mail, caught exception!'
-            print e
+            import traceback
+            print 'Unable to sent mail, caught exception!\n%s' % traceback.format_exc()
             return False

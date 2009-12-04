@@ -6,4 +6,6 @@ string html_result
 string text_summary
 byte result
 Plot[] plots
+TestParam[] params
+TestValue[] values
 ---

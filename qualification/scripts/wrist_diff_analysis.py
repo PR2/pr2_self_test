@@ -38,7 +38,6 @@ import math
 
 import sys
 import os
-import string
 from time import sleep
 
 import rospy
@@ -49,25 +48,69 @@ from StringIO import StringIO
 
 from qualification.msg import Plot
 from qualification.srv import TestResult, TestResultRequest
+from qualification.analysis import *
 
 from joint_qualification_controllers.srv import WristDiffData, WristDiffDataResponse
 
 import traceback
 
-class WristRollHysteresisData:
+class WristRollHysteresisData(HysteresisData):
     def __init__(self, srv):
         left_min = int(0.05 * len(srv.left_turn.roll_position))
         left_max = int(0.95 * len(srv.left_turn.roll_position))
         right_min = int(0.05 * len(srv.right_turn.roll_position))
         right_max = int(0.95 * len(srv.right_turn.roll_position))
 
-        self.pos_roll_position = numpy.array(srv.left_turn.roll_position)[left_min: left_max]
-        self.pos_roll_effort   = numpy.array(srv.left_turn.roll_effort)  [left_min: left_max]
-        self.pos_flex_effort   = numpy.array(srv.left_turn.flex_effort)  [left_min: left_max]
+        self.pos_flex_effort = numpy.array(srv.left_turn.flex_effort) [left_min: left_max]
+        self.neg_flex_effort = numpy.array(srv.right_turn.flex_effort)[right_min: right_max]
 
-        self.neg_roll_position = numpy.array(srv.right_turn.roll_position)[right_min: right_max]
-        self.neg_roll_effort   = numpy.array(srv.right_turn.roll_effort)  [right_min: right_max]
-        self.neg_flex_effort   = numpy.array(srv.right_turn.flex_effort)  [right_min: right_max]
+        self.positive = HysteresisDirectionData(srv.left_turn.roll_position, srv.left_turn.roll_effort, srv.left_turn.roll_velocity)
+        self.negative = HysteresisDirectionData(srv.right_turn.roll_position, srv.right_turn.roll_effort, srv.right_turn.roll_velocity)
+
+
+class WristRollHysteresisParams(HysteresisParameters):
+    def __init__(self, srv):
+        self.joint_name  = srv.roll_joint
+        self.p_gain      = srv.roll_pid[0]
+        self.i_gain      = srv.roll_pid[1]
+        self.d_gain      = srv.roll_pid[2]
+        self.i_clamp     = srv.roll_pid[3]
+
+        self.velocity    = srv.arg_value[1]
+        self.tolerance   = srv.arg_value[2]
+        self.sd_max      = srv.arg_value[3]
+
+        self.timeout     = srv.arg_value[4]
+        self.pos_effort  = srv.arg_value[5]
+        self.neg_effort  = srv.arg_value[6]
+
+        self.range_max   = 0
+        self.range_min   = 0
+        self.slope       = 0
+
+        # Subclass params only
+        self.flex_joint   = srv.flex_joint
+        self.flex_tol     = srv.arg_value[7]
+        self.flex_max     = srv.arg_value[8]
+        self.flex_sd      = srv.arg_value[9]
+        self.flex_p_gain  = srv.flex_pid[0]
+        self.flex_i_gain  = srv.flex_pid[1]
+        self.flex_d_gain  = srv.flex_pid[2]
+        self.flex_i_clamp = srv.flex_pid[3]
+
+    def get_test_params(self):
+        test_params = HysteresisParameters.get_test_params(self)
+
+        test_params.append(TestParam("Flex Joint", self.flex_joint))
+        test_params.append(TestParam("Flex Tolerance", str(self.flex_tol)))
+        test_params.append(TestParam("Flex Max", str(self.flex_max)))
+        test_params.append(TestParam("Flex SD", str(self.flex_sd)))
+        test_params.append(TestParam("Flex P Gain", str(self.flex_p_gain)))
+        test_params.append(TestParam("Flex I Gain", str(self.flex_i_gain)))
+        test_params.append(TestParam("Flex D Gain", str(self.flex_d_gain)))
+        test_params.append(TestParam("Flex I Clamp", str(self.flex_i_clamp)))
+
+        return test_params
 
 class WristDiffAnalysis:
     def __init__(self):
@@ -116,37 +159,41 @@ class WristDiffAnalysis:
             self.send_results(r)
             return WristDiffDataResponse()
 
-        roll_stat, roll_html = self.roll_hysteresis_analysis(srv, data)
+        params = WristRollHysteresisParams(srv)
+        roll_result = effort_analysis(params, data)
         
-        flex_stat, flex_html = self.flex_analysis(srv, data)
+        flex_stat, flex_html = self.flex_analysis(params, data)
 
-        roll_plot = self.plot_roll_hysteresis(srv, data)
-        flex_plot = self.plot_flex_effort(srv, data)
+        roll_plot = plot_effort(params, data)
+        flex_plot = self.plot_flex_effort(params, data)
         r.plots.append(roll_plot)
         r.plots.append(flex_plot)
         
-        r.text_summary = self.make_summary(roll_stat, flex_stat)
+        r.text_summary = self.make_summary(roll_result.result, flex_stat)
 
-        if roll_stat and flex_stat:
+        if roll_result.result and flex_stat:
             r.result = TestResultRequest.RESULT_PASS
-        elif flex_stat: ##\todo Remove this
+        elif flex_stat: ##\todo Remove this after first 5 units
             r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
         else:
             r.result = TestResultRequest.RESULT_FAIL
 
-        html = '<H4 align=center>Flex Effort</H4>\n'
-        html += '<p>Flex effort should be close to zero during roll hysteresis.</p>\n'
-        html += '<img src=\"IMG_PATH/%s.png\", width = 640, height = 480/>\n' % flex_plot.title
-        html += flex_html
-        html += '<hr size="2">\n'
-        html += '<H4 align=center>Roll Hysteresis</H4>\n'
-        html += '<p>Wrist roll hysteresis. The efforts should be close to the expected values.</p>\n'
-        html += '<img src=\"IMG_PATH/%s.png\", width = 640, height = 480/>\n' % roll_plot.title
-        html += roll_html
-        html += '<hr size="2">\n'
-        html += params_html
+        result_html = ['<H4 align=center>Flex Effort</H4>\n']
+        result_html.append('<p>Flex effort should be close to zero during roll hysteresis.</p>\n')
+        result_html.append('<img src=\"IMG_PATH/%s.png\", width = 640, height = 480/>\n' % flex_plot.title)
+        result_html.append(flex_html)
+        result_html.append('<hr size="2">\n')
+        result_html.append('<H4 align=center>Roll Hysteresis</H4>\n')
+        result_html.append('<p>Wrist roll hysteresis. The efforts should be close to the expected values.</p>\n')
+        result_html.append('<img src=\"IMG_PATH/%s.png\", width = 640, height = 480/>\n' % roll_plot.title)
+        result_html.append(roll_result.html)
+        result_html.append('<hr size="2">\n')
+        result_html.append(params_html)
 
-        r.html_result = html 
+        r.html_result = ''.join(result_html)
+
+        r.params = params.get_test_params()
+        r.values = roll_result.values
 
         self.send_results(r)
 
@@ -163,32 +210,31 @@ class WristDiffAnalysis:
 
     # Add table of all test params
     def controller_params(self, srv):
-       html = '<p>Test parameters from controller.</p><br>\n'
-       html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-       html += '<tr><td><b>Name</b></td><td><b>Value</b></td></tr>\n'
-       html += '<tr><td>Flex joint</td><td>%s</td></tr>\n' % srv.flex_joint
-       html += '<tr><td>Roll joint</td><td>%s</td></tr>\n' % srv.roll_joint
-       for i in range(0, len(srv.arg_name)):
-           html += '<tr><td>%s</td><td>%.2f</td></tr>\n' % (srv.arg_name[i], srv.arg_value[i])
+        param_html = ['<p>Test parameters from controller.</p><br>\n']
+        param_html.append('<table border="1" cellpadding="2" cellspacing="0">\n')
+        param_html.append('<tr><td><b>Name</b></td><td><b>Value</b></td></tr>\n')
+        param_html.append('<tr><td>Flex joint</td><td>%s</td></tr>\n' % srv.flex_joint)
+        param_html.append('<tr><td>Roll joint</td><td>%s</td></tr>\n' % srv.roll_joint)
+        for i in range(0, len(srv.arg_name)):
+            param_html.append('<tr><td>%s</td><td>%.2f</td></tr>\n' % (srv.arg_name[i], srv.arg_value[i]))
+            
+        param_html.append('<tr><td>Flex P</td><td>%.2f</td></tr>\n' % srv.flex_pid[0])
+        param_html.append('<tr><td>Flex I</td><td>%.2f</td></tr>\n' % srv.flex_pid[1])
+        param_html.append('<tr><td>Flex D</td><td>%.2f</td></tr>\n' % srv.flex_pid[2])
+        param_html.append('<tr><td>Flex I Clamp</td><td>%.2f</td></tr>\n' % srv.flex_pid[3])
+        param_html.append('<tr><td>Roll P</td><td>%.2f</td></tr>\n' % srv.roll_pid[0])
+        param_html.append('<tr><td>Roll I</td><td>%.2f</td></tr>\n' % srv.roll_pid[1])
+        param_html.append('<tr><td>Roll D</td><td>%.2f</td></tr>\n' % srv.roll_pid[2])
+        param_html.append('<tr><td>Roll I Clamp</td><td>%.2f</td></tr>\n' % srv.roll_pid[3])
+        
+        param_html.append('</table>\n')
+        
+        return ''.join(param_html)
 
-       html += '<tr><td>Flex P</td><td>%.2f</td></tr>\n' % srv.flex_pid[0]
-       html += '<tr><td>Flex I</td><td>%.2f</td></tr>\n' % srv.flex_pid[1]
-       html += '<tr><td>Flex D</td><td>%.2f</td></tr>\n' % srv.flex_pid[2]
-       html += '<tr><td>Flex I Clamp</td><td>%.2f</td></tr>\n' % srv.flex_pid[3]
-
-       html += '<tr><td>Roll P</td><td>%.2f</td></tr>\n' % srv.roll_pid[0]
-       html += '<tr><td>Roll I</td><td>%.2f</td></tr>\n' % srv.roll_pid[1]
-       html += '<tr><td>Roll D</td><td>%.2f</td></tr>\n' % srv.roll_pid[2]
-       html += '<tr><td>Roll I Clamp</td><td>%.2f</td></tr>\n' % srv.roll_pid[3]
-
-       html += '</table>\n'
-           
-       return html
-
-    def plot_flex_effort(self, srv, data):
+    def plot_flex_effort(self, params, data):
         # Can move to separate plotting function
         # Plot the analyzed data
-        flex_max_tol = srv.arg_value[8]
+        flex_max_tol = params.flex_max
 
         fig = plot.figure(1)
         axes1 = fig.add_subplot(211)
@@ -197,13 +243,13 @@ class WristDiffAnalysis:
         axes1.set_ylabel('Effort (+ dir)')
         axes2.set_ylabel('Effort (- dir)')
 
-        axes1.plot(data.pos_roll_position, data.pos_flex_effort, 'b--', label='_nolegend_')
-        axes1.axhline(y = flex_max_tol, color = 'y', label='Error')
+        axes1.plot(data.positive.position, data.pos_flex_effort, 'b--', label='_nolegend_')
+        axes1.axhline(y = flex_max_tol, color = 'y', label='Max Value')
         axes1.axhline(y = - flex_max_tol, color = 'y', label='_nolegend_')
         axes1.axhline(y = 0, color = 'r', label='_nolegend_')
 
-        axes2.plot(data.neg_roll_position, data.neg_flex_effort, 'b--', label='_nolegend_')
-        axes2.axhline(y = flex_max_tol, color = 'y', label='Error')
+        axes2.plot(data.negative.position, data.neg_flex_effort, 'b--', label='_nolegend_')
+        axes2.axhline(y = flex_max_tol, color = 'y', label='Max Value')
         axes2.axhline(y = - flex_max_tol, color = 'y', label='_nolegend_')
         axes2.axhline(y = 0, color = 'r', label='_nolegend_')
 
@@ -223,16 +269,9 @@ class WristDiffAnalysis:
         return p
 
     def hysteresis_data_present(self, data):
-        print 'Right size: %d, Left size: %d' % (data.pos_roll_position.size, data.neg_roll_position.size)
-        if data.pos_roll_position.size < 100 or data.neg_roll_position.size < 100:
-            return False
-        return True
+        return data.positive.position.size > 100 and data.negative.position.size > 100
 
-    def flex_analysis(self, srv, data):
-        flex_tol = srv.arg_value[7] # Average values
-        flex_max_tol = srv.arg_value[8] # Max obs. val
-        flex_sd_tol = srv.arg_value[9] # Std. Dev. of effort
-
+    def flex_analysis(self, params, data):
         flex_max = numpy.average(data.pos_flex_effort)
         flex_max_sd = numpy.std(data.pos_flex_effort)
         flex_min = numpy.average(data.neg_flex_effort)
@@ -241,159 +280,60 @@ class WristDiffAnalysis:
         flex_min_val = min(numpy.min(data.pos_flex_effort), numpy.min(data.neg_flex_effort))
 
         max_msg = '<div class="pass">OK</div>'
-        if abs(flex_max) > flex_tol:
+        if abs(flex_max) > params.flex_tol:
             max_msg = '<div class="error">FAIL</div>'
 
         min_msg = '<div class="pass">OK</div>'
-        if abs(flex_min) > flex_tol:
+        if abs(flex_min) > params.flex_tol:
             min_msg = '<div class="error">FAIL</div>'
 
         max_val_msg = '<div class="pass">OK</div>'
-        if abs(flex_max_val) > flex_max_tol:
+        if abs(flex_max_val) > params.flex_max:
             max_val_msg = '<div class="error">FAIL</div>'
 
         min_val_msg = '<div class="pass">OK</div>'
-        if abs(flex_min_val) > flex_max_tol:
+        if abs(flex_min_val) > params.flex_max:
             min_val_msg = '<div class="error">FAIL</div>'
 
         max_sd_msg = '<div class="pass">OK</div>'
-        if abs(flex_max_sd) > flex_sd_tol:
+        if abs(flex_max_sd) > params.flex_sd:
             max_sd_msg = '<div class="error">FAIL</div>'
 
         min_sd_msg = '<div class="pass">OK</div>'
-        if abs(flex_min_sd) > flex_sd_tol:
+        if abs(flex_min_sd) > params.flex_sd:
             min_sd_msg = '<div class="error">FAIL</div>'
 
-        ok = abs(flex_max) < flex_tol and abs(flex_min) < flex_tol
-        ok = ok and abs(flex_min_val) < flex_max_tol and abs(flex_max_val) < flex_max_tol
+        ok = abs(flex_max) < params.flex_tol and abs(flex_min) < params.flex_tol
+        ok = ok and abs(flex_min_val) < params.flex_max and abs(flex_max_val) < params.flex_max
 
         if ok:
-            html = '<p>Wrist flex effort is OK.</p>\n'
+            html = ['<p>Wrist flex effort is OK.</p>\n']
         else:
-            html = '<p>Wrist flex effort failed. Check graphs.</p>\n'
-        html += '<p>Flex effort maximum values. Allowed maximum: %.2f</p>\n' % (flex_max_tol)
-        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td></td><td><b>Effort</b></td><td><b>Status</b></td></tr>\n'
-        html += '<tr><td><b>Max Value</b></td><td>%.2f</td><td>%s</td></tr>\n' % (flex_max_val, max_val_msg)
-        html += '<tr><td><b>Min Value</b></td><td>%.2f</td><td>%s</td></tr>\n' % (flex_min_val, min_val_msg)
-        html += '</table>\n'
+            html = ['<p>Wrist flex effort failed. Check graphs.</p>\n']
 
-        html += '<br>\n'
-        html += '<p>Flex effort average and noise, both directions. Allowed absolute average: %.2f. Allowed noise: %.2f</p>\n' % (flex_tol, flex_sd_tol)
-        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Effort Avg</b></td><td><b>Status</b></td><td><b>Effort SD</b></td><td><b>SD Status</b></td></tr>\n'
-        html += '<tr><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (flex_max, max_msg, flex_max_sd, max_sd_msg)
-        html += '<tr><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (flex_min, min_msg, flex_min_sd, min_sd_msg)
-        html += '</table>\n'
-        
+        html.append('<p>Flex effort maximum values. Allowed maximum: %.2f</p>\n' % (params.flex_max))
+        html.append('<table border="1" cellpadding="2" cellspacing="0">\n')
+        html.append('<tr><td></td><td><b>Effort</b></td><td><b>Status</b></td></tr>\n')
+        html.append('<tr><td><b>Max Value</b></td><td>%.2f</td><td>%s</td></tr>\n' % (flex_max_val, max_val_msg))
+        html.append('<tr><td><b>Min Value</b></td><td>%.2f</td><td>%s</td></tr>\n' % (flex_min_val, min_val_msg))
+        html.append('</table>\n')
 
-        return ok, html
-
-  
-    def roll_hysteresis_analysis(self, srv, data):
-        max_avg = numpy.average(data.pos_roll_effort)
-        min_avg = numpy.average(data.neg_roll_effort)
-        max_sd = numpy.std(data.pos_roll_effort)
-        min_sd = numpy.std(data.neg_roll_effort)
-
-        tol_percent = srv.arg_value[2]
-        sd_percent = srv.arg_value[3]
-
-        max_exp = srv.arg_value[5]
-        min_exp = srv.arg_value[6]
-        tolerance = tol_percent * abs(max_exp - min_exp)
-        sd_max = sd_percent * abs(max_exp - min_exp)
-
-        max_ok = abs(max_avg - max_exp) < tolerance
-        min_ok = abs(min_avg - min_exp) < tolerance
+        html.append('<br>\n')
+        html.append('<p>Flex effort average and noise, both directions. Allowed absolute average: %.2f. Allowed noise: %.2f</p>\n' % (params.flex_tol, params.flex_sd))
+        html.append('<table border="1" cellpadding="2" cellspacing="0">\n')
+        html.append('<tr><td><b>Effort Avg</b></td><td><b>Status</b></td><td><b>Effort SD</b></td><td><b>SD Status</b></td></tr>\n')
+        html.append('<tr><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (flex_max, max_msg, flex_max_sd, max_sd_msg))
+        html.append('<tr><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (flex_min, min_msg, flex_min_sd, min_sd_msg))
+        html.append('</table>\n')
         
-        max_even = max_sd < sd_max
-        min_even = min_sd < sd_max
-        
-        if max_ok and max_even:
-            max_msg = '<div class="pass">OK</div>'
-        elif max_ok and not max_even:
-            max_msg = '<div class="warning">UNEVEN</div>'
-        else:
-            max_msg = '<div class="error">FAIL</div>'
-
-        if min_ok and min_even:
-            min_msg = '<div class="pass">OK</div>'
-        elif min_ok and not min_even:
-            min_msg = '<div class="warning">UNEVEN</div>'
-        else:
-            min_msg = '<div class="error">FAIL</div>'
-
-        html = '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Name</b></td><td><b>Value</b></td><td><b>Expected</b></td><td><b>Tolerance</b></td><td><b>SD Percent</b></td><td><b>SD Max</b></td><td><b>Status</b></td></tr>\n'
-        html += '<tr><td>%s</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>\n' % ('Max Effort', max_avg, max_exp, tolerance, max_sd, sd_max, max_msg)
-        html += '<tr><td>%s</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>\n' % ('Min Effort', min_avg, min_exp, tolerance, min_sd, sd_max, min_msg)
-        html += '</table>\n'
-
-        if max_ok and min_ok and min_even and max_even:
-            return True, "<p>Hysteresis data was OK</p>\n" + html
-        if max_ok and min_ok:
-            return False, "<p>Hysteresis effort was uneven.</p>\n" + html
-        else:
-            return False, "<p>Roll hysteresis failed.</p>\n" + html
-
-    def plot_roll_hysteresis(self, srv, data):
-        max_sd = srv.arg_value[3]
-        max_avg = srv.arg_value[5]
-        min_avg = srv.arg_value[6]
- 
-        # Can move to separate plotting function
-        # Plot the analyzed data
-        fig = plot.figure(1)
-        axes1 = fig.add_subplot(211)
-        axes2 = fig.add_subplot(212)
-        axes2.set_xlabel('Position')
-        axes1.set_ylabel('Effort (+ dir)')
-        axes2.set_ylabel('Effort (- dir)')
-        axes1.plot(data.pos_roll_position, data.pos_roll_effort, 'b--', label='_nolegend_')
-        axes2.plot(data.neg_roll_position, data.neg_roll_effort, 'b--', label='_nolegend_')
-        # Add error bars for SD
-        axes1.axhline(y = max_avg, color = 'r', label='Average')
-        axes1.axhline(y = max_avg + max_sd, color = 'y', label='Error bars')
-        axes1.axhline(y = max_avg - max_sd, color = 'y', label='_nolegend_')
-        
-        axes2.axhline(y = min_avg, color = 'r', label='Average')
-        axes2.axhline(y = min_avg + max_sd, color = 'y', label='Error')
-        axes2.axhline(y = min_avg - max_sd, color = 'y', label='_nolegend_')
-        
-        # Add expected efforts to both plots
-        axes1.axhline(y = max_avg, color = 'g', label='_nolegend_')
-        axes2.axhline(y = min_avg, color = 'g', label='Expected')
-        
-        fig.text(.3, .95, 'Wrist Roll Hysteresis')
-        axes1.legend(shadow=True)
-        
-        stream = StringIO()
-        plot.savefig(stream, format = "png")
-        image = stream.getvalue()
-        
-        p = Plot()
-        p.title = "wrist_diff_roll_hysteresis"
-        p.image = image
-        p.image_format = "png"
-        
-        plot.close()
-        
-        return p
-
-        
+        return ok, ''.join(html)
+         
 if __name__ == '__main__':
     wda = WristDiffAnalysis()
-    sleep(1)
-    rospy.loginfo("Starting analysis node")
     try:
-        rospy.loginfo("Spinning")
         rospy.spin()
-        rospy.loginfo("Analysis node stopped spinning")
     except KeyboardInterrupt, e:
-        rospy.loginfo("Keyboard interrupt in analysis")
         pass
     except:
-        print 'Exception'
         rospy.logerr("Exception in analysis: %s", traceback.format_exc())
         wda.test_failed_service_call(traceback.format_exc())

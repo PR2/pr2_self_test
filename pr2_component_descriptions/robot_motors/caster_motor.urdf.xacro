@@ -9,7 +9,7 @@
     <parent link="world"/>
     <child link="caster_motor_link"/>
   </joint>
-  <link name="caster_motor_link">
+  <link name="caster_motor_link" >
     <inertial>
       <mass value="1" /> 
       <origin xyz=" 0 0 0 " />

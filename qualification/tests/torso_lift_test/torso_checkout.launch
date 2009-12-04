@@ -4,9 +4,11 @@
     <param name="timeout" type="double" value="60.0" />
   </group>
 
-  <node pkg="qualification" type="visual_verifier.py" args="$(find qualification)/tests/torso_lift_test/view.vcg" />
+  <node pkg="qualification" type="visual_verifier.py" name="torso_viz"
+        args="$(find qualification)/tests/torso_lift_test/view.vcg" />
   
-  <node pkg="pr2_controller_manager" type="spawner" args="test_controller" />
+  <node pkg="pr2_controller_manager" type="spawner"
+        args="test_controller" name="test_spawer"  />
   
-  <node pkg="qualification" type="robot_checkout.py" />
+  <node pkg="qualification" type="robot_checkout.py" name="torso_checkout" />
 </launch>
