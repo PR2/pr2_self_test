@@ -21,6 +21,8 @@ def py2hdf(k, v, hdf=None):
 
   if type(v) == str:
     hdf.setValue(k, v)
+  elif type(v) == unicode:
+    hdf.setValue(k, str(v))
   elif type(v) in (int, float, long):
     hdf.setValue(k, str(v))
   elif type(v) in (list, tuple):
