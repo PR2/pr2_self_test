@@ -58,12 +58,16 @@ class TestData:
     self.parameters = {}
     self.measurements = {}
 
+    self.note = None
+  
+  def set_note(self, note):
+    self.note = note
+
   def set_parameter(self, key, value):
     self.parameters[key] = value
 
   def set_measurement(self, key, value, min, max):
     self.measurements[key] = Value(value, min, max)
-    #self.measurements[key] = (value, min, max)
 
   def set_attachment(self, content_type, fn):
     self.attachment = {"content_type":content_type, "filename":fn}
@@ -95,7 +99,9 @@ class TestData:
                             self.attachment['content_type'],
                             attachment)
 
-    return True
+    if status == '1':
+      return True
+    return False
 
 
 def test(client):
