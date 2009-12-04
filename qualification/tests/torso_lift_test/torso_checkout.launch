@@ -1,7 +1,7 @@
 <launch>
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="CheckoutController" />
-    <param name="timeout" type="double" value="30.0" />
+    <param name="timeout" type="double" value="60.0" />
   </group>
 
   <node pkg="qualification" type="visual_verifier.py" args="$(find qualification)/tests/torso_lift_test/view.vcg" />

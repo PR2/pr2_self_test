@@ -77,16 +77,6 @@ class DiagnosticItem:
 class RobotCheckout:
     def __init__(self):
         rospy.init_node('robot_checkout')
-
-        self.robot_data = rospy.Service('robot_checkout', RobotData, self.on_robot_data)
-        self.result_srv = rospy.ServiceProxy('test_result', TestResult)
-        self.has_sent_result = False
-
-        self.diagnostics = rospy.Subscriber('diagnostics', DiagnosticArray, self.on_diagnostic_msg)
-
-        self.visual_srv = rospy.Service('visual_check', ScriptDone, self.on_visual_check)
-        
-        rospy.logout('Subscribed to diagnostics, advertised robot data')
         
         self._calibrated = False
         self._joints = {}
@@ -115,6 +105,14 @@ class RobotCheckout:
 
         self._timeout = True
         self._check_time = 0
+
+        self.has_sent_result = False
+
+        self.robot_data = rospy.Service('robot_checkout', RobotData, self.on_robot_data)
+        self.result_srv = rospy.ServiceProxy('test_result', TestResult)
+
+        self.diagnostics = rospy.Subscriber('diagnostics', DiagnosticArray, self.on_diagnostic_msg)
+        self.visual_srv = rospy.Service('visual_check', ScriptDone, self.on_visual_check)
         
     def send_failure_call(self, caller = 'No caller', except_str = ''):
         if self.has_sent_result:
@@ -169,7 +167,7 @@ class RobotCheckout:
                 else:
                     self._name_to_diagnostic[stat.name].update_item(stat.level, stat.message)
         except Exception, e:
-            rospy.logerr('Caught exception processing diagnostic msg.\nEx: %s' % str(e))
+            rospy.logerr('Caught exception processing diagnostic msg.\nEx: %s' % traceback.format_exc())
             self.send_failure_call('on_diagnostic_msg', traceback.format_exc())
 
     def on_visual_check(self, srv):

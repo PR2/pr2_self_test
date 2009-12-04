@@ -1,21 +1,23 @@
 <launch>
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="HysteresisController" />
-    <param name="velocity" type="double" value="0.01" />
-    <param name="max_effort" type="double" value="10200.0" />
+    <param name="velocity" type="double" value="-0.01" />
+    <param name="max_effort" type="double" value="10000.0" />
     <param name="max_expected" type="double" value="1800" />
     <param name="min_expected" type="double" value="-1400" />
-    <param name="max_position" type="double" value="0.05" />
-    <param name="min_position" type="double" value="0.30" />
-    <param name="timeout" type="double" value="180" />
+    <param name="max_position" type="double" value="0.30" />
+    <param name="min_position" type="double" value="0.05" />
+    <param name="timeout" type="double" value="240" />
+    <param name="tolerance" type="double" value=".20" />
+    <param name="sd_max" type="double" value=".10" />
 
     <group ns="velocity_controller" clear_params="true">
       <param name="type" type="string" value="JointVelocityController" />
       <param name="joint" type="string" value="torso_lift_joint" />
-      <param name="pid/p" type="double" value="2000000.0" />
-      <param name="pid/i" type="double" value="1000" />
+      <param name="pid/p" type="double" value="100000.0" />
+      <param name="pid/i" type="double" value="1000000" />
       <param name="pid/d" type="double" value="0.0" />
-      <param name="pid/i_clamp" type="double" value="1200" />
+      <param name="pid/i_clamp" type="double" value="12000" />
     </group>
   </group>
     

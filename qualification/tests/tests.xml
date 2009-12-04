@@ -9,9 +9,9 @@
   <test serial="6802966"
         file="caster_test/test_hub.xml" descrip="Caster Hub + Motor Test" />
 
-  <test serial="torsoli" 
+  <test serial="6802478" 
 	file="torso_lift_test/test.xml" descrip="Torso Lift Test" />  
-  <test serial="6804249" 
+  <test serial="6804080" 
 	file="torso_lift_test/test_drive.xml" descrip="Torso Drivetrain Test" />  
 
   
