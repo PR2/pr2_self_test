@@ -29,7 +29,9 @@ def py2hdf(k, v, hdf=None):
       n = n + 1
       py2hdf("%s.%d" % (k,n), item, hdf)
   elif type(v) == dict:
+    n = 0
     for _k,_v in sorted(v.iteritems()):
+      _k = _k.replace(" ", "_")
       py2hdf(k + "." + _k, _v, hdf)
   elif type(v) == types.InstanceType:
     py2hdf(k, v.__dict__, hdf)
@@ -69,6 +71,7 @@ class TestData:
 
     hdf = obj2hdf("test", self)
     data = hdf.writeString()
+    print data
 
     values = {'data': data}
     data = urllib.urlencode(values)
@@ -97,17 +100,20 @@ def test(client):
   import random
 
 #  for k in range(10000):
-  for k in range(1):
+  #for k in range(1):
+  if 1:
     td = TestData("caster/qual/right/hyst", time.time(), "680410801000")
-    td.set_parameter('gain', 4.2)
-    td.set_parameter('gain2', 8.9)
-    for j in range(random.randint(1,5)):
-      td.set_measurement('hystersis_%d' % j, random.uniform(1,10), 2., 8.)
+    td.set_parameter('gain 1', 4.2)
+    td.set_parameter('gain 2', 8.9)
+##    for j in range(random.randint(1,5)):
+    if 1:
+      j = 1
+      td.set_measurement('hystersis %d' % j, random.uniform(1,10), 2., 8.)
 
     td.set_attachment("text/html", "test.html")
 
     td.submit(client)
-    print td
+
   
 
 def usage(progname):
