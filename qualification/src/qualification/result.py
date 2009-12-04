@@ -37,8 +37,7 @@
 import roslib
 roslib.load_manifest('qualification')
 
-import sys, os #, time
-#from xml.dom import minidom
+import sys, os
 
 import rospy
 
@@ -59,22 +58,24 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import Encoders
 
-from invent_client.invent_client import TestDataLoader
+from invent_client.wgtest_client import TestData
 
-
+##\todo These might go in /hwlog instead, ask Eric
 RESULTS_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results')
+
+##\todo Put temps in temp file, properly delete them
 TEMP_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results/temp/')
 
 def write_temp_tar_file(results_dir):
     temp_tar_file = tempfile.NamedTemporaryFile()
 
     tar_st = tarfile.open(temp_tar_file.name, 'w:')
-    for filename in os.list_dir(results_dir):
+    for filename in os.listdir(results_dir):
         tar_st.add(os.path.join(results_dir, filename), arcname=filename)
 
     tar_st.close()
     
-    return temp_tar_filename
+    return temp_tar_file
 
 ##\brief Holds results from pre-startup and shutdown scripts
 class TestScriptResult:
@@ -264,13 +265,14 @@ class SubTestResult:
     def html_image_result(self, img_path):
         html = '<H5 ALIGN=CENTER>Result Details</H5>'
         
-        # Put '<img src=\"IMG_PATH/%s.png\" /> % image_title' in html_result
+        # Users must put '<img src=\"IMG_PATH/%s.png\" /> % image_title' in html_result
         html += self._text_result.replace('IMG_PATH', os.path.join(img_path, self.filename_base()))
         
         return html
 
     ## Takes test title, status, summary, details and images and makes a 
     ## readable and complete results page.
+    ##\todo Append strings to add, do parse test on output
     def make_result_page(self, back_link = False, link_dir = TEMP_DIR, prev = None, next = None):
         html = "<html><head><title>Qualification Test Results: %s</title>\
 <style type=\"text/css\">\
@@ -316,7 +318,6 @@ em { font-style:normal; font-weight: bold; }\
         html += '</body></html>'
         
         return html 
-
 
     def _html_test_params(self):
         html = ['<H4 align=center>Subtest Parameters</H4>\n']
@@ -483,19 +484,26 @@ class QualTestResult:
         for ky in kys:
             vals.append(self._subresults_by_index[ky])
         
+        #subs = sorted(self._subresults_by_index.items())
+        if reverse:
+            vals = vals.reverse()
         # return sorted by index
-        return vals if not reverse else vals.reverse()
+        return vals
 
     def get_retrys(self, reverse = False):
-        kys = dict.keys(self._retrys_by_index)
-        kys.sort()
-        vals = []
-        for ky in kys:
-            vals.append(self._retrys_by_index[ky])
+        #kys = dict.keys(self._retrys_by_index)
+        #kys.sort()
+        #vals = []
+        #for ky in kys:
+        #    vals.append(self._retrys_by_index[ky])
         
         # return sorted by index
-            
-        return vals if not reverse else vals.reverse()
+         
+        retrys = sorted(self._retrys_by_index.items())
+        if reverse:
+            retrys = retrys.reverse()
+        return retrys #.reverse() if reverse else retrys
+        #return vals if not reverse else vals.reverse()
 
     # Come up with better enforcement of get functions
     def get_subresult(self, index):
@@ -630,7 +638,7 @@ class QualTestResult:
             return "Operator Pass"
         return "Pass"
 
-
+    ##\todo Append strings, make parse tests
     def make_summary_page(self, link = True, link_dir = TEMP_DIR):
         html = "<html><head>\n"
         html += "<title>Qualification Test Result for %s as %s: %s</title>\n" % (self._serial, self._item_name, self._start_time_name)
@@ -924,8 +932,6 @@ em { font-style: normal; font-weight: bold; }\
         prefix = self._start_time_filestr + "_" # Put prefix first so images sorted by date
         rospy.logdebug('Writing invent note')
 
-        #invent.setNote(self._serial, self.line_summary())
-
         if self._config_only:
             sub = self.get_subresult(0) # Only subresult of configuration
             if not sub:
@@ -947,39 +953,43 @@ em { font-style: normal; font-weight: bold; }\
             invent.add_attachment(self._serial,
                                   os.path.basename(self._tar_filename),
                                   'application/tar', tar, self.line_summary())
-
-            return True, 'Wrote tar file, uploaded to inventory system.'
         except Exception, e:
             import traceback
             rospy.logerr('Caught exception uploading tar file. %s' % traceback.format_exc())
             return False, 'Caught exception loading tar file to inventory. %s' % str(e)
          
+        
         try:
-            for st in (self._retrys + self._subresults):
-                # Make Test Data thing
-                td = TestDataLoader(self._qual_test.getName(), self._start_time, self._serial, st.get_note())
-                
+            for st in (self.get_retrys() + self.get_subresults()):
+                ##\todo Fix name to good name
+                ##\todo change to start time
+                td = TestData(st.get_name(), rospy.get_time(), self._serial)
+                td.set_note(st.get_note())
                 for param in st.get_params():
                     td.set_parameter(param.key, param.value)
                 for value in st.get_values():
-                    td.set_measurement(measurement.key, measurement.value, measurement.min, measurement.max)
+                    td.set_measurement(value.key, value.value, value.min, value.max)
 
                 # Add tarfile attachment
-                st_tarfile = write_temp_tar_file(os.path.join(self._results_dir, st.filename_base()))
-                f = open(st_tarfile.name, 'rb')
-                st_tar = f.read()
-                f.close()
-                td.set_attachment(st_tar, 'application/tar')
+                st_tarfile = None
+                try:
+                    st_tarfile = write_temp_tar_file(os.path.join(self._results_dir, st.filename_base()))
+                    td.set_attachment('application/tar', st_tarfile.name)
+                    td.submit(invent)
+                except:
+                    import traceback
+                    rospy.logerr(traceback.format_exc())
+                finally:
+                    if st_tarfile:
+                        st_tarfile.close() # Delete temp tarfile
 
-                # submit
-                iv.submit_test_data(td)
-                st_tarfile.close()
-            return True
+            return True, 'Wrote tar file, uploaded to inventory system.'
         except:
             import traceback
             rospy.logerr('Caught exception uploading test parameters to invent.\n%s' % traceback.format_exc())
-            return False, 'Caught exception loading tar file to inventory. %s' % str(e)
-        
+            return False, 'Caught exception loading tar file to inventory.'
+
+            
 
         
     def get_qual_team(self):
