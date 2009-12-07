@@ -66,13 +66,13 @@ class TeleopPR2
   ros::Time last_recieved_joy_message_time_;
   ros::Duration joy_msg_timeout_;
 
-  ros::NodeHandle n_;
+  ros::NodeHandle n_, n_private_;
   ros::Publisher vel_pub_;
   ros::Publisher head_pub_;
   ros::Publisher torso_pub_;
   ros::Subscriber joy_sub_;
 
-  TeleopPR2(bool deadman_no_publish = false) : max_vx(0.6), max_vy(0.6), max_vw(0.8), max_vx_run(0.6), max_vy_run(0.6), max_vw_run(0.8), max_pan(2.7), max_tilt(1.4), min_tilt(-0.4), pan_step(0.02), tilt_step(0.015), deadman_no_publish_(deadman_no_publish), deadman_(false)
+  TeleopPR2(bool deadman_no_publish = false) : max_vx(0.6), max_vy(0.6), max_vw(0.8), max_vx_run(0.6), max_vy_run(0.6), max_vw_run(0.8), max_pan(2.7), max_tilt(1.4), min_tilt(-0.4), pan_step(0.02), tilt_step(0.015), deadman_no_publish_(deadman_no_publish), deadman_(false), n_private_"~")
   { }
 
   void init()
@@ -80,38 +80,38 @@ class TeleopPR2
         torso_vel.data = 0;
         cmd.linear.x = cmd.linear.y = cmd.angular.z = 0;
         req_pan = req_tilt = 0;
-        n_.param("max_vx", max_vx, max_vx);
-        n_.param("max_vy", max_vy, max_vy);
-        n_.param("max_vw", max_vw, max_vw);
+        n_private_.param("max_vx", max_vx, max_vx);
+        n_private_.param("max_vy", max_vy, max_vy);
+        n_private_.param("max_vw", max_vw, max_vw);
         
         // Set max speed while running
-        n_.param("max_vx_run", max_vx_run, max_vx_run);
-        n_.param("max_vy_run", max_vy_run, max_vy_run);
-        n_.param("max_vw_run", max_vw_run, max_vw_run);
+        n_private_.param("max_vx_run", max_vx_run, max_vx_run);
+        n_private_.param("max_vy_run", max_vy_run, max_vy_run);
+        n_private_.param("max_vw_run", max_vw_run, max_vw_run);
 
         // Head pan/tilt parameters
-        n_.param("max_pan", max_pan, max_pan);
-        n_.param("max_tilt", max_tilt, max_tilt);
-        n_.param("min_tilt", min_tilt, min_tilt);
+        n_private_.param("max_pan", max_pan, max_pan);
+        n_private_.param("max_tilt", max_tilt, max_tilt);
+        n_private_.param("min_tilt", min_tilt, min_tilt);
         
-        n_.param("tilt_step", tilt_step, tilt_step);
-        n_.param("pan_step", pan_step, pan_step);
+        n_private_.param("tilt_step", tilt_step, tilt_step);
+        n_private_.param("pan_step", pan_step, pan_step);
         
-        n_.param("axis_pan", axis_pan, 0);
-        n_.param("axis_tilt", axis_tilt, 2);
+        n_private_.param("axis_pan", axis_pan, 0);
+        n_private_.param("axis_tilt", axis_tilt, 2);
 
-        n_.param("axis_vx", axis_vx, 3);
-        n_.param("axis_vw", axis_vw, 0);
-        n_.param("axis_vy", axis_vy, 2);
+        n_private_.param("axis_vx", axis_vx, 3);
+        n_private_.param("axis_vw", axis_vw, 0);
+        n_private_.param("axis_vy", axis_vy, 2);
         
-        n_.param("deadman_button", deadman_button, 0);
-        n_.param("run_button", run_button, 0);
-        n_.param("torso_dn_button", torso_dn_button, 0);
-        n_.param("torso_up_button", torso_up_button, 0);
-        n_.param("head_button", head_button, 0);
+        n_private_.param("deadman_button", deadman_button, 0);
+        n_private_.param("run_button", run_button, 0);
+        n_private_.param("torso_dn_button", torso_dn_button, 0);
+        n_private_.param("torso_up_button", torso_up_button, 0);
+        n_private_.param("head_button", head_button, 0);
 
 	double joy_msg_timeout;
-        n_.param("joy_msg_timeout", joy_msg_timeout, -1.0); //default to no timeout
+        n_private_.param("joy_msg_timeout", joy_msg_timeout, -1.0); //default to no timeout
 	if (joy_msg_timeout <= 0)
 	  {
 	    joy_msg_timeout_ = ros::Duration().fromSec(9999999);//DURATION_MAX;
