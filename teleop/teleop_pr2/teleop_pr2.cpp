@@ -72,7 +72,7 @@ class TeleopPR2
   ros::Publisher torso_pub_;
   ros::Subscriber joy_sub_;
 
-  TeleopPR2(bool deadman_no_publish = false) : max_vx(0.6), max_vy(0.6), max_vw(0.8), max_vx_run(0.6), max_vy_run(0.6), max_vw_run(0.8), max_pan(2.7), max_tilt(1.4), min_tilt(-0.4), pan_step(0.02), tilt_step(0.015), deadman_no_publish_(deadman_no_publish), deadman_(false), n_private_"~")
+  TeleopPR2(bool deadman_no_publish = false) : max_vx(0.6), max_vy(0.6), max_vw(0.8), max_vx_run(0.6), max_vy_run(0.6), max_vw_run(0.8), max_pan(2.7), max_tilt(1.4), min_tilt(-0.4), pan_step(0.02), tilt_step(0.015), deadman_no_publish_(deadman_no_publish), deadman_(false), n_private_("~")
   { }
 
   void init()
