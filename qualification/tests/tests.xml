@@ -18,6 +18,8 @@
   <!-- Head  -->
   <test serial="6804040" 
 	file="head_test/test.xml" descrip="Head Test" />
+  <test serial="6804040" 
+	file="head_test/test_post_burn.xml" descrip="Head Test - Post Burn In" />
   <test serial="6802978"
         file="head_test/test_head_pan_motor.xml" descrip="Head Pan Motor Assembly" />
   <test serial="6802977"
