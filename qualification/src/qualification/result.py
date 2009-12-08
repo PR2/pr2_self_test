@@ -491,19 +491,16 @@ class QualTestResult:
         return vals
 
     def get_retrys(self, reverse = False):
-        #kys = dict.keys(self._retrys_by_index)
-        #kys.sort()
-        #vals = []
-        #for ky in kys:
-        #    vals.append(self._retrys_by_index[ky])
-        
-        # return sorted by index
-         
-        retrys = sorted(self._retrys_by_index.items())
+        kys = dict.keys(self._retrys_by_index)
+        kys.sort()
+        vals = []
+        for ky in kys:
+            vals.append(self._retrys_by_index[ky])
+                 
+        #retrys = sorted(self._retrys_by_index.items())
         if reverse:
-            retrys = retrys.reverse()
-        return retrys #.reverse() if reverse else retrys
-        #return vals if not reverse else vals.reverse()
+            vals = vals.reverse()
+        return vals
 
     # Come up with better enforcement of get functions
     def get_subresult(self, index):
