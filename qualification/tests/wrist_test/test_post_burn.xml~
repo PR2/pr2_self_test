@@ -1,9 +1,0 @@
-<test> 
-  <instructions>instructions_power_burn.html</instructions>
-  <pre_startup name="Power On" timeout="30">../../scripts/power_cycle.launch</pre_startup>
-  <startup>wrist.launch</startup>
-  <subtest name="Wrist Checkout">wrist_checkout.launch</subtest>
-  <subtest name="Wrist Diff Check" timeout="45">wrist_diff_check_post_burn.launch</subtest>
-  <subtest name="Flex Hysteresis" timeout="30">hysteresis_wrist_flex_post_burn.launch</subtest>
-  <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
-</test>
