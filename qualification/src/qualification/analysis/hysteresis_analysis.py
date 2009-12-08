@@ -97,8 +97,18 @@ class HysteresisParameters:
         test_params.append(TestParam("Slope", str(self.slope)))
         test_params.append(TestParam("Timeout", str(self.timeout)))
         test_params.append(TestParam("Velocity", str(self.velocity)))
+        test_params.append(TestParam("Effort SD Max", str(self.sd_max)))
+        test_params.append(TestParam("Effort Tolerance", str(self.tolerance)))
 
         # Need to write PID gains
+        if self.p_gain is not None:
+            test_params.append(TestParam("P Gain", str(self.p_gain)))
+        if self.i_gain is not None:
+            test_params.append(TestParam("I Gain", str(self.i_gain)))
+        if self.d_gain is not None:
+            test_params.append(TestParam("D Gain", str(self.d_gain)))
+        if self.i_clamp is not None:
+            test_params.append(TestParam("I Clamp", str(self.i_clamp)))
 
         return test_params
 
@@ -108,6 +118,9 @@ def get_test_value(name, value, min, max):
     
 class HysteresisDirectionData:
     def __init__(self, position, effort, velocity):
+        self._range_max = max(position)
+        self._range_min = min(position)
+
         min_index = int(0.05 * len(position))
         max_index = int(0.95 * len(position))
 
@@ -119,6 +132,9 @@ class HysteresisData:
     def __init__(self, positive_data, negative_data):
         self.positive = positive_data
         self.negative = negative_data
+
+        self.range_max = max(self.positive._range_max, self.negative._range_max)
+        self.range_min = min(self.positive._range_min, self.negative._range_min)
 
 class HysteresisAnalysisResult:
     def __init__(self):
@@ -135,8 +151,8 @@ def range_analysis(params, data):
         result.result = True
         return result
 
-    min_obs = min(min(data.positive.position), min(data.negative.position))
-    max_obs = max(max(data.positive.position), max(data.negative.position))
+    min_obs = data.range_min  #min(min(data.positive.position), min(data.negative.position))
+    max_obs = data.range_max #max(max(data.positive.position), max(data.negative.position))
 
     fail = '<div class="error">FAIL</div>'
     ok = '<div class="pass">OK</div>'
@@ -333,7 +349,7 @@ def regression_analysis(params, data):
     html.append('<table border="1" cellpadding="2" cellspacing="0">\n')
     html.append('<tr><td><b>Name</b></td><td><b>Intercept</b></td><td><b>Expected</b><td><b>Tolerance</b></td><td><b>Passed</b></td>\n')
     html.append('<tr><td>Positive</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%s</td></tr>\n' % (b_max, params.pos_effort, tol_intercept, ok_dict[pos_int_ok]))
-    html.append('<tr><td>Positive</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%s</td></tr>\n' % (b_min, params.neg_effort, tol_intercept, ok_dict[neg_int_ok]))
+    html.append('<tr><td>Negative</td><td>%.3f</td><td>%.3f</td><td>%.3f</td><td>%s</td></tr>\n' % (b_min, params.neg_effort, tol_intercept, ok_dict[neg_int_ok]))
     html.append('</table>\n')
     
     result.html = ''.join(html)
@@ -368,8 +384,7 @@ def plot_effort(params, data):
     axes2.axhline(y = min_avg, color = 'r', label='Average')
     axes2.axhline(y = min_avg - min_sd, color = 'y', label='Error bars')
     axes2.axhline(y = min_avg + min_sd, color = 'y', label='_nolegend_')
-    
-        
+            
     # Add expected efforts to both plots
     axes1.axhline(y = params.pos_effort, color = 'g', label='Expected')
     axes2.axhline(y = params.neg_effort, color = 'g', label='Expected')

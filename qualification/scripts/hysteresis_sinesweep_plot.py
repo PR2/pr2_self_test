@@ -160,7 +160,10 @@ class AnalysisApp:
       params.velocity   = self.data.arg_value[4]
       params.max_effort = self.data.arg_value[6]
       params.joint_name = self.data.joint_name
-      
+      params.p_gain     = self.data.arg_value[10]
+      params.i_gain     = self.data.arg_value[11]
+      params.d_gain     = self.data.arg_value[12]
+      params.i_clamp    = self.data.arg_value[13]
 
       # Process HTML result
       range_result = range_analysis(params, hyst_data)
