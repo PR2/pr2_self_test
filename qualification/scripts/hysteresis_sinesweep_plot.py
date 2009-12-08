@@ -204,7 +204,7 @@ class AnalysisApp:
         r.text_summary = 'Hysteresis range failed.'
         r.result = TestResultRequest.RESULT_FAIL
       else:
-        r.text_summary = 'Hysteresis result: FAIL. ' + range_sum + ' ' + effort_sum
+        r.text_summary = 'Hysteresis result: FAIL. ' + range_result.summary + ' ' + effort_result.summary
         r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
 
       self.send_results(r)
