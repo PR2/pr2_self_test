@@ -197,10 +197,10 @@ class AnalysisApp:
       
       r.params = params.get_test_params()
 
-      if range_result and effort_result:
+      if range_result.result and effort_result.result:
         r.text_summary = 'Hysteresis result: OK'
         r.result = TestResultRequest.RESULT_PASS
-      elif not range_result:
+      elif not range_result.result:
         r.text_summary = 'Hysteresis range failed.'
         r.result = TestResultRequest.RESULT_FAIL
       else:

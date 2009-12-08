@@ -8,9 +8,10 @@
   <subtest name="Wrist Checkout">wrist_checkout.launch</subtest>
   <subtest name="Wrist Diff Check" timeout="45">wrist_diff_check.launch</subtest>
   <subtest name="Flex Hysteresis" timeout="30">hysteresis_wrist_flex.launch</subtest>
-  <subtest name="Roll Hysteresis" timeout="30">hysteresis_wrist_roll.launch</subtest>
+<!--  <subtest name="Roll Hysteresis" timeout="30">hysteresis_wrist_roll.launch</subtest> -->
   <subtest name="Wrist Drop Test">wrist_drop_test.launch</subtest>
-  <subtest name="Flex Hysteresis" timeout="30">hysteresis_wrist_flex.launch</subtest>
-  <subtest name="Roll Hysteresis" timeout="30">hysteresis_wrist_roll.launch</subtest>
+  <subtest name="Flex Hysteresis Post-Drop" timeout="30">hysteresis_wrist_flex.launch</subtest>
+<!--  <subtest name="Roll Hysteresis" timeout="30">hysteresis_wrist_roll.launch</subtest> -->
+  <subtest name="Wrist Diff Check Post-Drop" timeout="45">wrist_diff_check.launch</subtest>
   <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
 </test>
