@@ -18,6 +18,8 @@ def obj2hdf(prefix, obj, hdf=None):
 
 def py2hdf(k, v, hdf=None):
   if not hdf: hdf = neo_util.HDF()
+  if k[-1] == ".":
+    raise ValueError, "py2hdf: illegal key in object: %s" % repr(k)
 
   if type(v) == str:
     hdf.setValue(k, v)
@@ -57,10 +59,6 @@ class TestData:
     self.attachment = None
     self.parameters = {}
     self.measurements = {}
-    self.note = None
-  
-  def set_note(self, note):
-    self.note = note
 
   def set_parameter(self, key, value):
     self.parameters[key] = value
@@ -77,6 +75,7 @@ class TestData:
 
     hdf = obj2hdf("test", self)
     data = hdf.writeString()
+    print data
 
     values = {'data': data}
     data = urllib.urlencode(values)
@@ -89,6 +88,8 @@ class TestData:
     runid = ohdf.getValue("runid", "")
     status = ohdf.getValue("status", "")
 
+    print runid, status
+
     if 0:
       attachment = open(self.attachment['filename'], "rb").read()
       client.add_attachment(self.reference, 
@@ -96,9 +97,7 @@ class TestData:
                             self.attachment['content_type'],
                             attachment)
 
-    if status == '1':
-      return True
-    return False
+    return True
 
 
 def test(client):
