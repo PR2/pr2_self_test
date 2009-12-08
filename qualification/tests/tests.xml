@@ -52,6 +52,8 @@
   <!-- Wrist test -->
   <test serial="6804213" 
 	file="wrist_test/test.xml" descrip="Wrist Test" />
+  <test serial="6804213" 
+	file="wrist_test/test_post_burn.xml" descrip="Wrist Test (Post Burn-in)" />
 
   <!-- Gripper -->
   <test serial="6804015" 

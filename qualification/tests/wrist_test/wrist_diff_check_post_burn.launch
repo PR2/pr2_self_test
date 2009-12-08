@@ -1,0 +1,16 @@
+<launch>
+  <include file="$(find qualification)/tests/wrist_test/wrist_diff_check.launch" />
+
+  <!-- Wrist diff controller -->
+  <group ns="test_controller" clear_params="true">
+    <param name="roll_velocity" type="double" value="1.5" />
+    <param name="flex_position" type="double" value="1.0" />
+    <param name="tolerance" type="double" value="0.10" />
+    <param name="sd_max" type="double" value="0.15" />
+    <param name="left_effort" type="double" value="0.56" />
+    <param name="right_effort" type="double" value="-0.56" />
+    <param name="flex_tolerance" type="double" value="0.1" />
+    <param name="flex_max" type="double" value="0.18" />
+    <param name="flex_sd" type="double" value="0.1" />
+  </group>
+</launch>
