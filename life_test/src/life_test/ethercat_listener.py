@@ -54,8 +54,8 @@ class EthercatListener:
 
         self._ok = True
         self._update_time = 0
-        self._reset_motors = rospy.ServiceProxy('reset_motors', Empty)
-        self._halt_motors = rospy.ServiceProxy('halt_motors', Empty)
+        self._reset_motors = rospy.ServiceProxy('pr2_etherCAT/reset_motors', Empty)
+        self._halt_motors = rospy.ServiceProxy('pr2_etherCAT/halt_motors', Empty)
 
     # Doesn't do anything
     def create(self, params):

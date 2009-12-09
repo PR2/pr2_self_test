@@ -84,8 +84,8 @@ class FakeTestFrame(wx.Frame):
 
         self._cal_box = xrc.XRCCTRL(self._panel, 'calibration_box')
         
-        self._reset_srv = rospy.Service('reset_motors', Empty, self.on_reset)
-        self._halt_srv = rospy.Service('halt_motors', Empty, self.on_halt)
+        self._reset_srv = rospy.Service('pr2_etherCAT/reset_motors', Empty, self.on_reset)
+        self._halt_srv = rospy.Service('pr2_etherCAT/halt_motors', Empty, self.on_halt)
 
         self.set_enum_ctrl()
         self.set_range_ctrl()

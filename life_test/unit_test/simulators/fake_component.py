@@ -58,8 +58,8 @@ class FakeComponent:
         rospy.init_node('fake_component')
         self.diag_pub = rospy.Publisher('/diagnostics', DiagnosticArray)
         self.mech_pub = rospy.Publisher('mechanism_statistics', MechanismStatistics)
-        self._reset_srv = rospy.Service('reset_motors', Empty, self.on_reset)
-        self._halt_srv = rospy.Service('halt_motors', Empty, self.on_halt)
+        self._reset_srv = rospy.Service('pr2_etherCAT/reset_motors', Empty, self.on_reset)
+        self._halt_srv = rospy.Service('pr2_etherCAT/halt_motors', Empty, self.on_halt)
 
         self._mutex = threading.Lock()
         self._ok = True
