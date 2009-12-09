@@ -248,6 +248,7 @@ class TeleopPR2
       if (head_button != 0)
       {
         sensor_msgs::JointState joint_cmds;
+	joint_cmds.header.stamp = ros::Time::now();
         joint_cmds.set_name_size(2);
         joint_cmds.set_position_size(2);
         
@@ -281,6 +282,7 @@ class TeleopPR2
         if (head_button != 0)
         {
           sensor_msgs::JointState joint_cmds;
+	  joint_cmds.header.stamp = ros::Time::now();
           joint_cmds.set_name_size(2);
           joint_cmds.set_position_size(2);
           joint_cmds.name[0] ="head_pan_joint";
