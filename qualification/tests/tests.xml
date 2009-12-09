@@ -101,7 +101,7 @@
   <test serial="6802354"
         file="ctr350_test/test.xml" descrip="CTR350 Test" />
 
-  <test serial="wrt610n"
+  <test serial="6801917"
         file="wrt610n_test/test.xml" descrip="WRT610n Test" />
  
  
