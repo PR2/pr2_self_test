@@ -38,6 +38,7 @@ import rospy
 from std_msgs.msg import Float64
 
 import random
+from time import sleep
 
 def main():
     rospy.init_node('wrist_cmder')
@@ -49,6 +50,8 @@ def main():
     effort_grip = 0
         
     freq = float(rospy.get_param('cycle_rate'))
+
+    sleep(5.0)
     
     try:
         my_rate = rospy.Rate(freq)
