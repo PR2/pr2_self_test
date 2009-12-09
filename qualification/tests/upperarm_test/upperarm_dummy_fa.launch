@@ -1,0 +1,22 @@
+<launch>
+  <param name="robot_description"
+         command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/upperarm_wrist.urdf.xacro'" />
+
+  <!-- Loads realtime machine and PR2_etherCAT -->
+  <include file="$(find qualification)/tests/init.machine" />
+  <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
+
+  <!-- Upperarm Calibration -->
+  <group ns="cal_r_fake_forearm" >
+    <param name="type" type="string" value="MotorJointCalibrationController" />
+    <param name="joint" type="string" value="r_dummy_forearm_joint" />
+  </group>
+
+  <rosparam command="load"
+            file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
+  <node pkg="mechanism_bringup" type="calibrate.py" output="screen" 
+	args="cal_r_elbow_flex cal_r_forearm_roll cal_r_fake_forearm" name="cal_upper_arm" />
+
+  <!-- Uses eth3 to run wge100 camera -->
+  <include file="$(find qualification)/tests/upperarm_test/ua_wge100.launch" />
+</launch>

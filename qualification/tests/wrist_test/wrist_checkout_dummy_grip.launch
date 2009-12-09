@@ -3,16 +3,16 @@
     <param name="type" type="string" value="CheckoutController" />
     <param name="timeout" type="double" value="30.0" />
   </group>
-  
-  <node pkg="qualification" type="visual_verifier.py" name="visual_ok"
-        args="$(find qualification)/tests/upperarm_test/view.vcg" />
-  
+
+  <node pkg="qualification" type="visual_verifier.py" name="visualizer"
+        args="$(find qualification)/tests/wrist_test/view.vcg" />
+
   <node pkg="pr2_controller_manager" type="spawner"
-        name="test_spawner" args="test_controller" />
+        name="wrist_checkout_spawner" args="test_controller" />
   
   <node pkg="qualification" type="robot_checkout.py"
-        name="upperarm_checkout" >
+        name="wrist_checkout" >
     <rosparam command="load"
-              file="$(find qualification)/tests/upperarm_test/upperarm_check_data.yaml" />
+              file="$(find qualification)/tests/wrist_test/wrist_check_data_dummy_grip.yaml" />
   </node>
 </launch>

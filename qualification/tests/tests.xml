@@ -45,6 +45,8 @@
   <!-- Upperarm tests -->
   <test serial="6804139" 
 	file="upperarm_test/test.xml" descrip="Upperarm Test" />
+    <test serial="6804139" 
+	file="upperarm_test/test_dummy_fa.xml" descrip="Upperarm Test (Dummy Gripper)" />
   <test serial="6801575" 
 	file="upperarm_test/test_elbow_motor.xml" descrip="Elbow Flex Motor Test" />
   <test serial="6803046" 

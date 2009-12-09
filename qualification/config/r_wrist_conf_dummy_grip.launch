@@ -1,0 +1,12 @@
+<launch>
+  <include file="$(find qualification)/tests/init.machine" />
+
+  <!-- configure_mcbs -->
+  <node machine="realtime" pkg="qualification"
+        name="r_wrist_conf" type="mcb_prog_conf.py"
+        args="-c -n 3 --motor=r_wrist_l_motor,0 --motor=r_wrist_r_motor,1 --motor=r_gripper_motor,2" />
+
+  <!-- Confirm configuation -->
+  <node pkg="qualification" type="confirm_conf.py"
+        name="confirm_conf" output="screen"/>
+</launch>

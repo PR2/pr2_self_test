@@ -1,0 +1,3 @@
+motors: [
+  'r_elbow_flex_motor',
+  'r_forearm_roll_motor']

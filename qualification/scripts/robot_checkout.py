@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+#
 # Copyright (c) 2008, Willow Garage, Inc.
 # All rights reserved.
 #
@@ -36,13 +37,9 @@ import roslib
 roslib.load_manifest(PKG)
 
 import rospy
-import sys, os
-from time import sleep, mktime
+#import sys, os
+from time import sleep
 
-import threading
-from datetime import datetime
-
-import wx
 
 from diagnostic_msgs.msg import DiagnosticArray
 from qualification.msg import Plot
@@ -63,14 +60,14 @@ class DiagnosticItem:
         self._name = name
         self._level = level
         self._message = message
-        self._update_time = mktime(datetime.now().timetuple()) # Track update time
+        self._update_time = rospy.get_time()
 
     def check_stale(self):
-        if mktime(datetime.now().timetuple())- self._update_time > 3.0:
+        if rospy.get_time() - self._update_time > 3.0:
             self._level = 3
 
     def update_item(self, level, message):
-        self._update_time = mktime(datetime.now().timetuple())
+        self._update_time = rospy.get_time()
         self._level = level
         self._message = message
 
@@ -79,14 +76,12 @@ class RobotCheckout:
         rospy.init_node('robot_checkout')
         
         self._calibrated = False
-        self._joints = {}
         self._joints_ok = False
         
-        self._actuators = {}
         self._has_robot_data = False
         self._has_visual_check = False
 
-        self._mutex = threading.Lock()
+        #self._mutex = threading.Lock()
         self._messages = []
         self._name_to_diagnostic = {}
         
@@ -107,6 +102,10 @@ class RobotCheckout:
         self._check_time = 0
 
         self.has_sent_result = False
+
+        self._expected_actuators = rospy.get_param('~motors', None)
+        if self._expected_actuators is None:
+            rospy.logwarn('Not given list of expected actuators! Deprecation warning')
 
         self.robot_data = rospy.Service('robot_checkout', RobotData, self.on_robot_data)
         self.result_srv = rospy.ServiceProxy('test_result', TestResult)
@@ -296,28 +295,52 @@ class RobotCheckout:
         try:
             self._acts_ok = True
 
-            html = '<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">\n'
-            html += '<tr><td><b>Index</b></td><td><b>Name</b></td><td><b>Enabled</b></td><td><b>ID</b></td></tr>\n'
+            found_acts = []
+
+            html = ['<p><b>Actuator Data</b></p><br>\n']
+            if self._expected_actuators is None:
+                html.append('<p>WARNING: No list of expected actuators was given. In the future, this will cause a failure.</p>\n')
+            html.append('<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">\n')
+            html.append('<tr><td><b>Index</b></td><td><b>Name</b></td><td><b>Enabled</b></td><td><b>ID</b></td><td><b>Expected</b></td></tr>\n')
             for act_data in act_datas:
                 index = act_data.index
-                name = act_data.name
-                id = act_data.id
+                name  = act_data.name
+                id    = act_data.id
                 if act_data.enabled:
                     enabled = '<div class=\"pass\">OK</div>'
                 else:
                     enabled = '<div class=\"warn\">FAIL</div>'
                     self._acts_ok = False
-                html += '<tr><td>%d</td><td>%s</td><td>%s</td><td>%d</td></tr>\n' % (index, name, enabled, id)
-            
-            html += '</table>\n'
+
+                expect = 'N/A'
+                found_acts.append(act_data.name)
+                # Compare found against expected
+                if self._expected_actuators is not None:
+                    expect = 'True'
+                    if not act_data.name in self._expected_actuators:
+                        expect = 'False'
+                        self._acts_ok = False
+                        
+
+                html.append('<tr><td>%d</td><td>%s</td><td>%s</td><td>%d</td><td>%s</td></tr>\n' % (index, name, enabled, id, expect))
+
+            # Compare expected against found
+            if self._expected_actuators is not None:
+                for name in self._expected_actuators:
+                    if not name in found_acts:
+                        html.append('<tr><td>N/A</td><td>%s</td><td>Not Found</td><td>False</td></tr>\n' % (name, expect))
+                        self._acts_ok = False
+
+            html.append('</table>\n')
             
             if self._acts_ok:
                 self._act_sum = 'Acutators: OK. ' 
             else:
                 self._act_sum = 'Actuators: FAIL! '
 
-            self._act_html = '<p><b>Actuator Data</b></p><p>%s</p><br>\n' % self._act_sum
-            self._act_html += html
+            
+
+            self._act_html = ''.join(html)
 
         except Exception, e:
             self.send_failure_call('actuator_data', traceback.format_exc())
@@ -394,9 +417,8 @@ if __name__ == '__main__':
         checkout.wait_for_data()
         rospy.spin()
     except KeyboardInterrupt:
-        print 'Shutting down'
+        pass
     except Exception, e:
         print 'Caught exception in robot checkout.\n%s' % traceback.format_exc()
         rospy.logerr('Robot checkout exception.\n%s' % traceback.format_exc())
 
-    print 'Quitting robot checkout'

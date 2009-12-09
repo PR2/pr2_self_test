@@ -1,4 +1,4 @@
-<test>
+<test name="Caster Test (Pre burn-in)" >
   <instructions>instructions.html</instructions>
   <pre_startup name="Power Standby" timeout="30"
                >../../scripts/power_board_standby.launch</pre_startup>

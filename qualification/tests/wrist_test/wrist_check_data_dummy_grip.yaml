@@ -1,0 +1,4 @@
+motors: [
+  'r_wrist_l_motor',
+  'r_wrist_r_motor',
+  'r_gripper_motor']
