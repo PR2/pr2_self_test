@@ -6,9 +6,8 @@
 
   <room hostname="apn" >
     <!-- On test cart to side -->
-    <bay name="testi" machine="testi" board="1001" breaker="1" />
+    <bay name="testi" machine="testi" board="1001" breaker="2" />
     <bay name="testk" machine="testk" board="1001" breaker="0" />
-
 
     <!-- Right side -->
     <!-- Top rack -->
@@ -28,19 +27,19 @@
 
     <!-- Left side -->
     <!-- Fourth from top -->
-    <bay name="testa" machine="testa" board="1008" breaker="2" />
+    <bay name="testh" machine="testh" board="1008" breaker="2" />
     <bay name="testd" machine="testd" board="1008" breaker="1" />
     <bay name="teste" machine="teste" board="1008" breaker="0" />
 
     <!-- Racks 5 and 6 not configured yet -->
     <bay name="testb" machine="testb" board="1013" breaker="0" />
-
-    <bay name="testj" machine="testj" board="1005" breaker="2" />
+    <!-- Middle machine is shot -->
+    <bay name="testa" machine="testa" board="1013" breaker="2" />
 
     <!-- Bottom rack -->
     <bay name="testf" machine="testf" board="1005" breaker="0" />
     <bay name="testg" machine="testg" board="1005" breaker="1" />
-
+    <bay name="testj" machine="testj" board="1005" breaker="2" />
     
   </room>
   
