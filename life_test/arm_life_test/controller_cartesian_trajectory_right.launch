@@ -35,10 +35,10 @@
     <param name="tip_name" type="string" value="r_gripper_tool_frame" />
     <param name="output" type="string" value="r_arm_cartesian_twist_controller" />
 
-    <param name="p" value="20.0" />
-    <param name="i" value="0.1" />
-    <param name="d" value="0.0" />
-    <param name="i_clamp" value="0.5" />
+    <param name="pid/p" value="20.0" />
+    <param name="pid/i" value="0.1" />
+    <param name="pid/d" value="0.0" />
+    <param name="pid/i_clamp" value="0.5" />
   </group>
 
 <!-- Cartesian trajectory controller -->
@@ -54,6 +54,6 @@
     <param name="max_acc_rot" value="0.6" />
   </group>
 
-  <node pkg="pr2_controller_manager" type="spawner" args="r_arm_cartesian_wrench_controller r_arm_cartesian_twist_controller r_arm_cartesian_pose_controller r_arm_cartesian_trajectory_controller" output="screen" />
+  <node pkg="pr2_controller_manager" type="spawner" args="r_arm_cartesian_wrench_controller r_arm_cartesian_twist_controller r_arm_cartesian_pose_controller r_arm_cartesian_trajectory_controller" output="screen" name="trajector_controller_spawner" />
 
   </launch>
