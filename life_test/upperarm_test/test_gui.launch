@@ -20,9 +20,7 @@
   <node machine="test_host" pkg="life_test" type="upperarm_cmder.py" />
 
   <!-- WGE100 cam -->
-<!--
   <include file="$(find life_test)/upperarm_test/wge100.launch" />
-  -->
 
   <!-- Monitor (with transmission checker) -->
   <node pkg="life_test" type="test_monitor.py"
