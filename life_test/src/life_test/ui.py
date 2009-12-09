@@ -525,8 +525,11 @@ class TestManagerFrame(wx.Frame):
         self._current_log = []
 
     def on_close(self, event):
-        # Would try/catch here work?
-        # Make it safe for bad shutdown
+        if event.CanVeto():
+            dialog = wx.MessageDialog(self, 'DON\'T SHUT THIS WINDOW DOWN. PRESS CANCEL TO GET BACK TO WORK.', 'Confirm Shutdown', wx.OK|wx.CANCEL)
+            if dialog.ShowModal() != wx.ID_OK:
+                event.Veto()
+                return
 
         # Maybe make it so all tests have to be stopped to close...
 
