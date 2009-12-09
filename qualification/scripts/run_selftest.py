@@ -50,21 +50,25 @@ node_name = 'node'
 node_id = 'NONE'
 extramsg = ""
 
-from invent_client.invent_client import Invent
+
+
+
 
 try:
     node_name = rospy.resolve_name('node_name')
     selftestname = node_name + '/self_test'
     rospy.logout('Testing %s' % selftestname)
-    
-    test_service = rospy.ServiceProxy(selftestname, SelfTest)
+
     result_service = rospy.ServiceProxy('test_result', TestResult)
-    
+    test_service = rospy.ServiceProxy(selftestname, SelfTest)
+
+    add_ref = len(rospy.myargv()) > 1 and rospy.myargv()[1] == '--add_ref'
+
     rospy.wait_for_service(selftestname, 15)
     sleep(5)
 
     try:
-    	result = test_service.call(SelfTestRequest(), 60)
+    	result = test_service.call(SelfTestRequest())
     except: 
         extramsg = "<p>Self test exited with an exception. It probably failed to run.</p>"
 	raise extramsg
@@ -87,17 +91,23 @@ try:
         raise extramsg
 
     # Add item reference to invent
-    username = rospy.get_param('/invent/username', '')
-    password = rospy.get_param('/invent/password', '')
-    serial = rospy.get_param('/qual_item/serial', None)
-    iv = Invent(username, password)
-    if not iv.login() or serial == None:
-        extramsg = '<p>Unable to login to invent to store item reference. Serial: %s. Reference: %s.</p>\n' % (serial, node_id)
-        raise
-    iv.addItemReference(serial, '', node_id)
+    if add_ref:
+        from invent_client.invent_client import Invent
+        username = rospy.get_param('/invent/username', '')
+        password = rospy.get_param('/invent/password', '')
+        serial = rospy.get_param('/qual_item/serial', None)
+        
+        iv = Invent(username, password)
+        if not iv.login() or serial == None:
+            extramsg = '<p>Unable to login to invent to store item reference. Serial: %s. Reference: %s.</p>\n' % (serial, node_id)
+            raise
+
+        iv.addItemReference(serial, '', node_id)
 
 
     html = "<p><b>Item ID: %s, using node name %s.</b></p>\n" % (node_id, node_name)
+    if add_ref:
+        html += '<p>Added item reference %s to inventory system under %s.</p>\n' % (node_id, rospy.get_param('/qual_item/serial', ''))
 
     statdict = {0: 'OK', 1: 'WARN', 2: 'ERROR'}
     
@@ -124,7 +134,10 @@ try:
     
     rospy.wait_for_service('test_result')
     result_service.call(r)
+    rospy.spin()
 
+except KeyboardInterrupt:
+    pass
 except Exception, e:
     msg = 'Caught exception testing device id %s, node name %s.' % (node_id, node_name)
     rospy.logerr(msg)

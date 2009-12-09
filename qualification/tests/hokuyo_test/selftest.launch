@@ -1,5 +1,6 @@
 <launch>
-  <node pkg="qualification" type="run_selftest.py" name="hokuyo_selftest" >
+  <node pkg="qualification" type="run_selftest.py"
+        name="hokuyo_selftest" args="--add_ref" >
     <remap from="node_name" to="hokuyo"/>
   </node>
 </launch>
