@@ -9,5 +9,5 @@ trans:
     actuator: torso_lift_motor
     max: 0.315
     min: -0.005
-    down_ref: 0.0536
+    down_ref: 0.00536
     deadband: 0.02

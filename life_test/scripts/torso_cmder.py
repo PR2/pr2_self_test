@@ -62,18 +62,11 @@ def main():
 
     rospy.init_node('torso_life_test')
 
-
-
-    resp = spawn_controller(xml_for(), 1)
-    if len(resp.ok) < 1 or not resp.ok[0]:
-        print "Failed to spawn controller"
-        sys.exit(1)
-
     pub = rospy.Publisher("torso_lift_velocity_controller/command", Float64)
-    last_state = LastMessage('joint_state', JointState)
+    last_state = LastMessage('joint_states', JointState)
     turn_count = 0
     vel = 0.01
-
+    
     try:
         while not last_state.msg and not rospy.is_shutdown(): sleep(0.1)
         while not rospy.is_shutdown():

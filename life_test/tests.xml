@@ -26,8 +26,8 @@
            rate="true" val="0.1" />
   </test>
 
-    <test serial="torsoli" name="Torso Test"
-        short="Gripper" trac="000"
+    <test serial="6802478" name="Torso Test"
+        short="Torso" trac="000"
         desc="Test torso moving up and down."
         script="torso_test/test_gui.launch" power="true"
         type="Burn-in Test" >
