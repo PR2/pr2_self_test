@@ -8,7 +8,7 @@
   <!-- Load PR2 URDF -->
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_description)/robots/pr2.urdf.xacro'" />
   <node pkg="gazebo_tools" type="gazebo_model" name="spawn_pr2"
-        args="-p robot_description spawn" respawn="false"  />
+        args="-z 0.051 -p robot_description spawn" respawn="false"  />
 
   <!-- Robot state publisher -->
   <node pkg="robot_state_publisher" type="state_publisher"
