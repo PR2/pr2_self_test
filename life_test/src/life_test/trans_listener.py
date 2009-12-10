@@ -491,12 +491,6 @@ class TransmissionListener:
         self._last_msg_time = 0
         
     def create(self, params):
-        try:
-            rospy.wait_for_service('halt_motors', 5)
-        except:
-            rospy.logerr('Wait for service \'halt_motors\' timed out in Transmission Listener.')
-            return False
-
         for joint, joint_param in params.iteritems():
             # Ignore setup params
             if joint == 'type' or joint == 'file':
