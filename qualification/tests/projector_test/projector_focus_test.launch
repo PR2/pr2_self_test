@@ -21,7 +21,7 @@
     <param name="actuator" type="string" value="led_projector" />
     <param name="duration" type="double" value="180.0" />
     <param name="short_circuit_voltage" type="double" value="3.1" />
-    <param name="projector_voltage" type="double" value="4.1" />
+    <param name="projector_voltage" type="double" value="4.2" />
     <param name="diode_clamp_voltage" type="double" value="5.4"/>
     <param name="measured_current" type="double" value="28.0" />
     <param name="allowed_current_error" type="double" value="0.800" />
