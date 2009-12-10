@@ -43,7 +43,7 @@ import rospy
 import cv
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
-from opencv_latest.cv_bridge import CvBridge, CvBridgeError
+from cv_bridge import CvBridge, CvBridgeError
 import subprocess
 from prosilica_camera.srv import PolledImage, PolledImageRequest, PolledImageResponse
 from time import sleep

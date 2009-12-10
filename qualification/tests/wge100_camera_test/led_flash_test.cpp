@@ -34,7 +34,7 @@
 
 #include "ros/node_handle.h"
 #include "sensor_msgs/Image.h"
-#include "opencv_latest/CvBridge.h"
+#include "cv_bridge/CvBridge.h"
 #include <stdio.h>
 #include <signal.h>
 #include <ethercat_trigger_controllers/SetWaveform.h>

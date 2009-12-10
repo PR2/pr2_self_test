@@ -26,7 +26,8 @@
   <depend package="invent_client" />
   <depend package="roslaunch_caller" />
   <depend package="wge100_camera" />
-  <depend package="opencv_latest" />
+  <depend package="opencv2" />
+  <depend package="cv_bridge" />
   <depend package="rxtools" />
   <depend package="realtime_tools" />
   <depend package="image_view" />
