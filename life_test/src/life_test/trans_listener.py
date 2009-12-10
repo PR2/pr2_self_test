@@ -484,7 +484,7 @@ class TransmissionListener:
     def __init__(self):
         self._joint_monitors = []
         self._mech_sub = rospy.Subscriber('mechanism_statistics', MechanismStatistics, self._callback)
-        self._halt_motors = rospy.ServiceProxy('halt_motors', Empty)
+        self._halt_motors = rospy.ServiceProxy('pr2_etherCAT/halt_motors', Empty)
 
         self._mutex = threading.Lock()
         self._ok = True
