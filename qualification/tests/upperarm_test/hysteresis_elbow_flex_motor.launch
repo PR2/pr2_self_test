@@ -18,7 +18,7 @@
       <param name="pid/p" type="double" value="0.004" />
       <param name="pid/i" type="double" value="0.08" />
       <param name="pid/d" type="double" value="0.0" />
-      <param name="pid/i_clamp" type="double" value="0.03" />
+      <param name="pid/i_clamp" type="double" value="0.06" />
     </group>
   </group>
   
