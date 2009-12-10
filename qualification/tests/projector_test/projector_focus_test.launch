@@ -26,7 +26,7 @@
     <param name="measured_current" type="double" value="28.0" />
     <param name="allowed_current_error" type="double" value="0.800" />
     <!-- Temperature Montitor parameters -->
-    <param name="dmm_address" type="string" value="10.0.1.68" />
+    <param name="dmm_address" type="string" value="DMM1" />
     <param name="max_acceptable_temperature" type="double" value="45.0" />
     <param name="max_temperature_rise" type="double" value="12.0" />
     <param name="temperature_rise_time" type="double" value="180.0" />

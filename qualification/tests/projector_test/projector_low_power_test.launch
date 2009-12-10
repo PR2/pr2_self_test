@@ -28,7 +28,7 @@
  
     <!-- Temperature Montitor parameters -->
     <!-- IP address of DMM that is used to measure LED temperature --> 
-    <param name="dmm_address" type="string" value="10.0.1.68" />     
+    <param name="dmm_address" type="string" value="DMM1" />     
     <param name="max_acceptable_temperature" type="double" value="40.0" />
     <!-- Allow temperature to rise 2C in 10 seconds --> 
     <param name="temperature_rise_time" type="double" value="15.0" />
