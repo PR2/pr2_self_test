@@ -1,0 +1,9 @@
+<test name="Upperarm Test (Post-Burn)" >
+  <instructions>instructions.html</instructions>
+  <pre_startup name="Power On" timeout="30">../../scripts/power_on.launch</pre_startup>
+  <startup>upperarm.launch</startup>
+  <subtest name="Upperarm Checkout">upperarm_checkout.launch</subtest>
+  <subtest name="Hysteresis Elbow Flex" timeout="60">hysteresis_elbow_flex_post_burn.launch</subtest>
+  <subtest name="Hysteresis Forearm Roll" timeout="60">hysteresis_forearm_roll_post_burn.launch</subtest>
+  <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
+</test>

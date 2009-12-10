@@ -1,0 +1,14 @@
+<launch>
+  <include file="$(find qualification)/tests/upperarm_test/hysteresis_forearm_roll.launch" />
+
+  <group ns="test_controller" >
+    <param name="max_effort" type="double" value="2.0" />
+    <param name="max_expected" type="double" value="0.27" />
+    <param name="min_expected" type="double" value="-0.27" />
+    <param name="max_position" type="double" value="0" />
+    <param name="min_position" type="double" value="0" />
+    <param name="timeout" type="double" value="30" />
+    <param name="tolerance" type="double" value="0.08" />
+    <param name="sd_max" type="double" value="0.16" />
+  </group>
+</launch>

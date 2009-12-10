@@ -183,11 +183,13 @@ class AnalysisApp:
       r.plots = [effort_plot, vel_plot]
 
       html = '<img src=\"IMG_PATH/%s.png\", width = 640, height = 480/>' % effort_plot.title
+      html += '<p>Legend: Red - Average Effort. Yellow - Error Bars. Green - Expected Effort.</p>\n'
       html += '<p align=center><b>Range Data</b></p>' + range_result.html + '<hr size="2">\n'
       html += '<p align=center><b>Effort Data</b></p>' + effort_result.html + '<hr size="2">\n'
 
       html += '<p align=center><b>Velocity Data</b></p>' 
       html += '<img src=\"IMG_PATH/%s.png\", width = 640, height = 480/>' % vel_plot.title
+
       html += vel_html + '<hr size="2">\n'
       html += '<p align=center><b>Test Parameters</b></p>' + param_html + '<hr size="2">\n'
 

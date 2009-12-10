@@ -1,13 +1,13 @@
 <launch>
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="HysteresisController" />
-    <param name="velocity" type="double" value="-0.01" />
+    <param name="velocity" type="double" value="-0.005" />
     <param name="max_effort" type="double" value="10000.0" />
     <param name="max_expected" type="double" value="1800" />
     <param name="min_expected" type="double" value="-1400" />
     <param name="max_position" type="double" value="0.30" />
     <param name="min_position" type="double" value="0.05" />
-    <param name="timeout" type="double" value="240" />
+    <param name="timeout" type="double" value="480" />
     <param name="tolerance" type="double" value=".20" />
     <param name="sd_max" type="double" value=".10" />
 
@@ -21,7 +21,9 @@
     </group>
   </group>
     
-  <node pkg="pr2_controller_manager" type="spawner" args="test_controller" />
-  <node pkg="qualification" type="hysteresis_sinesweep_plot.py" />
+  <node pkg="pr2_controller_manager" type="spawner"
+        args="test_controller" name="hyst_spawner" />
+  <node pkg="qualification" type="hysteresis_sinesweep_plot.py"
+        name="hyst_analysis" />
 
 </launch>

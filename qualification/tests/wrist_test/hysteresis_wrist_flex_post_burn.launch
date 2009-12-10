@@ -5,8 +5,6 @@
     <param name="max_effort" type="double" value="0.75" />
     <param name="max_expected" type="double" value="0.45" />
     <param name="min_expected" type="double" value="-0.45" />
-    <param name="max_position" type="double" value="1.97" />
-    <param name="min_position" type="double" value="0.125" />
     <param name="tolerance" type="double" value="0.10" />
     <param name="sd_max" type="double" value="0.15" />
   </group>

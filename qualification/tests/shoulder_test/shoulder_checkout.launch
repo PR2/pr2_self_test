@@ -8,5 +8,8 @@
   
   <node pkg="pr2_controller_manager" type="spawner" args="test_controller" />
   
-  <node pkg="qualification" type="robot_checkout.py" />
+  <node pkg="qualification" type="robot_checkout.py" name="shoulder_checkout" >
+    <rosparam command="load"
+              file="$(find qualification)/tests/shoulder_test/shoulder_check_data.yaml" />
+  </node>
 </launch>

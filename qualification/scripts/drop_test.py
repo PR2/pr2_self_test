@@ -365,6 +365,7 @@ if __name__ == '__main__':
     app = DropTestApp(options.name, options.predrop, options.postdrop, drops)
     try:
         app.MainLoop()
+        rospy.spin()
     except KeyboardInterrupt:
         raise
     except:

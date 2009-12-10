@@ -4,7 +4,7 @@
     <param name="type" type="string" value="WristDifferenceController" />
     <param name="timeout" type="double" value="30.0" />
     <param name="roll_velocity" type="double" value="1.5" />
-    <param name="flex_position" type="double" value="1.0" />
+    <param name="flex_position" type="double" value="-1.0" />
     <param name="tolerance" type="double" value="0.10" />
     <param name="sd_max" type="double" value="0.15" />
     <param name="left_effort" type="double" value="0.56" />

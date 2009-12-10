@@ -11,7 +11,7 @@
     <param name="joint" type="string" value="r_gripper_fake_joint" />
   </group>
   <!-- Wrist Calibration -->
-  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
+  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers_beta.yaml" />
   <node pkg="mechanism_bringup" type="calibrate.py" output="screen" 
 	args="cal_r_wrist cal_r_fake_gripper" name="cal_r_wrist" />
 </launch>

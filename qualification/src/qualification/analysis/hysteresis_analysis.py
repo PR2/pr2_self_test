@@ -390,7 +390,7 @@ def plot_effort(params, data):
     axes2.axhline(y = params.neg_effort, color = 'g', label='Expected')
     
     fig.text(.3, .95, params.joint_name + ' Hysteresis Efforts')
-    axes1.legend(shadow=True)
+    #axes1.legend(shadow=True)
 
     stream = StringIO()
     plot.savefig(stream, format = "png")

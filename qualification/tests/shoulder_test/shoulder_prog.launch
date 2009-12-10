@@ -1,8 +1,10 @@
 <launch>
   <include file="$(find qualification)/tests/init.machine" />
 
-  <node machine="realtime" pkg="qualification" type="mcb_prog_conf.py" args="-p -n 3" />
+  <node machine="test_host_root" pkg="qualification" name="shoulder_prog"
+        type="mcb_prog_conf.py" args="-p -n 3" />
   
   <!-- Confirm configuation -->
-  <node pkg="qualification" type="confirm_conf.py" output="screen"/>
+  <node pkg="qualification" type="confirm_conf.py"
+        name="confirm_prog" />
 </launch>

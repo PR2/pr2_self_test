@@ -6,6 +6,6 @@
   <pre_startup name="Torso Conf" timeout="30">../../config/torso_conf.launch</pre_startup>
   <startup>torso.launch</startup>
   <subtest name="Torso Checkout">torso_checkout.launch</subtest>
-  <subtest name="Torso Hysteresis" timeout="240">hysteresis_torso_lift.launch</subtest>
+  <subtest name="Torso Hysteresis" timeout="300">hysteresis_torso_lift.launch</subtest>
   <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
 </test>
