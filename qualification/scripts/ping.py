@@ -47,11 +47,20 @@ import os
 import sys
 from StringIO import StringIO
 import subprocess
+from optparse import OptionParser
+
 
 if __name__ == "__main__":
     rospy.init_node(NAME)
     
-    ip = rospy.myargv()[1]
+    check_eula = True
+    
+    parser = OptionParser(usage="usage: ping.py [--eula] <ip-addr>")
+    parser.add_option("--eula", action="store_true", dest="eula")
+
+    (options,args) = parser.parse_args()
+
+    ip = args[0]
 
     r = TestResultRequest()
     r.plots = []
@@ -63,6 +72,9 @@ if __name__ == "__main__":
         if ret == 0:
             success = True
             break
+        else:
+            if options.eula:
+                subprocess.call(['wgeula'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     if success:
         r.html_result = "<p>Successfully pinged %s</p>"%ip
