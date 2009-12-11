@@ -7,11 +7,12 @@
   <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
 
   <!-- Upperarm Calibration -->
-  <group ns="cal_r_fake_forearm" >
+  <!--
+      <group ns="cal_r_fake_forearm" >
     <param name="type" type="string" value="MotorJointCalibrationController" />
     <param name="joint" type="string" value="r_dummy_forearm_joint" />
   </group>
-
+-->
   <rosparam command="load"
             file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
   <node pkg="mechanism_bringup" type="calibrate.py" output="screen" 
