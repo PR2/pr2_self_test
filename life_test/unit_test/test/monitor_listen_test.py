@@ -36,7 +36,7 @@
 
 ##\brief Tests receipt of test monitor messages from life tests
 
-DURATION = 5
+DURATION = 10
 
 PKG = 'life_test'
 import roslib; roslib.load_manifest(PKG)
@@ -61,11 +61,14 @@ class TestMonitorUnit(unittest.TestCase):
                           dest="gtest")
 
         self._mutex = threading.Lock()
-        self._ignore_time = 5
+        rospy.init_node('test_monitor_listener')
+        self._ignore_time = 3
+        self._start_time = rospy.get_time()
         self._ok = True
         self._message = None
+        self._level = 0
 
-        rospy.init_node('test_monitor_listener')
+
         self._start = rospy.get_time()
 
         options, args = parser.parse_args(rospy.myargv())
@@ -73,9 +76,14 @@ class TestMonitorUnit(unittest.TestCase):
         rospy.Subscriber('test_status', TestStatus, self.cb)
     
     def cb(self, msg):
+        if rospy.get_time() - self._start_time < self._ignore_time:
+            return
+
         self._mutex.acquire()
         self._ok = self._ok and (msg.test_ok == 0)
-        self._message = msg.message
+        if self._ok or (not self._ok and msg.test_ok != 0):
+            self._message = msg.message
+            self._level = msg.test_ok
         self._mutex.release()
 
     def test_qual_unit(self):
@@ -87,7 +95,7 @@ class TestMonitorUnit(unittest.TestCase):
         self._mutex.acquire()
         self.assert_(not rospy.is_shutdown(), "Rospy shutdown")
         self.assert_(self._message is not None, "No data from test monitor")
-        self.assert_(self._ok, "Test Monitor reports error. %s" % self._message)
+        self.assert_(self._ok, "Test Monitor reports error. Level: %d, Message: %s" % (self._level, self._message))
         self._mutex.release()
 
 if __name__ == '__main__':

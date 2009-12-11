@@ -159,5 +159,6 @@ if __name__ == '__main__':
     fc = FakeComponent()
     my_rate = rospy.Rate(100)
     while not rospy.is_shutdown():
-        my_rate.sleep()
         fc.publish()
+        my_rate.sleep()
+
