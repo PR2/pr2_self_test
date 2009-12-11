@@ -48,7 +48,7 @@
     <test serial="6804139" 
 	file="upperarm_test/test_post_burn.xml" descrip="Upperarm Test (Post Burn)" />
     <test serial="6804139" 
-	file="upperarm_test/test_dummy_fa.xml" descrip="Upperarm Test (Dummy Gripper)" />
+	file="upperarm_test/test_dummy_fa.xml" descrip="Upperarm Test (Dummy Forearm)" />
   <test serial="6801575" 
 	file="upperarm_test/test_elbow_motor.xml" descrip="Elbow Flex Motor Test" />
   <test serial="6803046" 
