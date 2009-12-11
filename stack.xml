@@ -1,0 +1,11 @@
+<stack name="pr2" version="0.0.1">
+  <description brief="pr2 unsorted">
+
+    A bunch of unsorted pr2-related packages.
+
+  </description>
+  <author>bots</author>
+  <license>BSD,BSD and GPL,LGPL,Creative Commons (Attribution-NonCommercial-ShareAlike)</license>  
+  <review status="unreviewed" notes=""/>
+  <depend stack="ros"/>
+</stack>
