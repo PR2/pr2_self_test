@@ -4,7 +4,16 @@
 
   <include file="$(find qualification)/tests/head_test/hysteresis_head_tilt.launch" />
 
+  <group ns="test_controller" >
+    <group ns="velocity_controller" >
+      <param name="pid/p" type="double" value="20" />
+      <param name="pid/i" type="double" value="100" />
+      <param name="pid/d" type="double" value="0" />
+      <param name="pid/i_clamp" type="double" value="15" />
+    </group>
+  </group>
+  
   <!-- Test: asserts we have checkout service and that we passed or human'd -->
   <test type="check_pr2_self_test.py" pkg="test_pr2_self_test_gazebo" name="test_hysteresis"
-        args="--expect_fail" test-name="pr2_head_tilt_hysteresis" time-limit="600" />
+        args="--human_ok" test-name="pr2_head_tilt_hysteresis" time-limit="300" />
 </launch>

@@ -3,7 +3,8 @@
   <param name="/use_sim_time" value="true" />
 
   <!-- Runs without gazebo window -->
-  <include file="$(find gazebo)/launch/empty_world_no_x.launch"/>
+  <!--   <include file="$(find gazebo)/launch/empty_world_no_x.launch"/>  -->
+  <include file="$(find gazebo)/launch/empty_world.launch"/>
 
   <!-- Load PR2 URDF -->
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_description)/robots/pr2.urdf.xacro'" />
@@ -16,6 +17,9 @@
     <param name="publish_frequency" type="double" value="50.0" />
     <param name="tf_prefix" type="string" value="" />
   </node>
+
+  <node pkg="rostopic" type="rostopic" name="fake_joint_calibration"
+        args="pub /calibrated std_msgs/Bool true" />
   
   <!-- Publishes diagnostics for checkout script -->
   <node pkg="pr2_controller_manager" type="joints_to_diagnostics.py" name="joint_diag" />
