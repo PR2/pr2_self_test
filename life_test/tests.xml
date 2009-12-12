@@ -87,6 +87,16 @@
 	   val="true" rate="false" />
   </test>
 
+    <test serial="6804204" name="Shoulder Test"
+	short="Shoulder" trac="400"
+	desc="Tests shoulder with dummy UA."
+	rate="1.0" script="shoulder_test/test_gui.launch"
+	type="Burn-in Test" power="true" >
+    <param name="Cycle Rate" param_name="cycle_rate"
+	   desc="Rate"
+	   val="1.0" rate="true" />
+  </test>
+
 
   <!-- Not supported tests
   <test serial="6804178" name="Full Arm Counterbalance Test"
