@@ -8,7 +8,6 @@
   <include filename="$(find pr2_description)/urdf/common.xacro" />
   <include filename="$(find pr2_description)/urdf/materials.urdf.xacro" />
   <include filename="$(find pr2_description)/urdf/forearm_v0/forearm.urdf.xacro" />
-  <include filename="$(find pr2_description)/urdf/gripper_v0/gripper.urdf.xacro" />
 
   <include filename="$(find pr2_component_descriptions)/urdf/base_link.urdf.xacro" />
 
@@ -21,7 +20,7 @@
   </xacro:pr2_forearm_v0>
 
   <!-- Dummy gripper used in burn in test -->
-  <joint name="r_gripper_fake_joint" type="continuous">
+  <joint name="r_gripper_fake_joint" type="fixed" >
     <axis xyz="0 1 0" />
     <limit effort="0" velocity="100"/>
     <safety_controller k_velocity="10" />
@@ -44,12 +43,5 @@
       </geometry>
     </visual> 
   </link>
-
-  <!-- Transmission uses r_gripper_motor -->
-  <transmission type="SimpleTransmission" name="r_gripper_fake_trans">
-    <actuator name="r_gripper_motor" />
-    <joint name="r_gripper_fake_joint" />
-    <mechanicalReduction>1</mechanicalReduction>
-  </transmission>
 
 </robot>
