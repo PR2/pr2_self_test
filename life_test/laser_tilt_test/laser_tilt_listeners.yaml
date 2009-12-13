@@ -1,7 +1,7 @@
 ethercat:
   type: EthercatListener
   file: ethercat_listener
-ethercat:
+hokuyo:
   type: HokuyoListener
   file: hokuyo_listener
   name: tilt_hokuyo_node
