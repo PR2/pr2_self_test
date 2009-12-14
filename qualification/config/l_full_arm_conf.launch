@@ -1,0 +1,12 @@
+<launch>
+  <include file="$(find qualification)/tests/init.machine" />
+
+  <!-- configure_mcbs -->
+  <node machine="test_host_root" pkg="qualification"
+        type="mcb_prog_conf.py" name="l_full_arm_conf"
+        args="-c -n 8 --motor=l_shoulder_pan_motor,0 --motor=l_shoulder_lift_motor,1 --motor=l_upper_arm_roll_motor,2 --motor=l_elbow_flex_motor,3 --motor=l_forearm_roll_motor,4 --motor=l_wrist_l_motor,5 --motor=l_wrist_r_motor,6 --motor=l_gripper_motor,7" />
+
+  <!-- Confirm configuation -->
+  <node pkg="qualification" type="confirm_conf.py"
+        name="confirm_conf" output="screen"/>
+</launch>
