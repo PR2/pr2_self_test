@@ -4,3 +4,5 @@ hddtemp:
   ubuntu: hddtemp
 sysstat:
   ubuntu: sysstat
+python-serial:
+  ubuntu: python-serial
