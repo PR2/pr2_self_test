@@ -61,7 +61,7 @@ def main():
   done.failure_msg = ''
 
   try:
-    rospy.wait_for_service('power_board_control', 5)
+    rospy.wait_for_service('power_board/control', 5)
   except:
     rospy.logerr('Service wait timed out! %s' % traceback.format_exc())
     # Timeout exceeded, return fail
@@ -100,7 +100,7 @@ def main():
     done_proxy.call(done)
     time.sleep(2)
 
-  control_proxy = rospy.ServiceProxy('power_board_control', PowerBoardCommand)
+  control_proxy = rospy.ServiceProxy('power_board/control', PowerBoardCommand)
 
   is_first = True
   try:
