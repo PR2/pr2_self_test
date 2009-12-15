@@ -15,6 +15,6 @@
   <include filename="$(find pr2_description)/gazebo/gazebo.urdf.xacro" />
     
   <xacro:pr2_forearm_v0 side="r" reflect="-1" parent="base_link">
-    <origin xyz="0 0 0" rpy="0 0 0" />
+    <origin xyz="0 0 2" rpy="0 0 0" />
   </xacro:pr2_forearm_v0>
 </robot>
