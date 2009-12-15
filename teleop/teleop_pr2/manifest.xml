@@ -1,6 +1,6 @@
 <package>
   <description brief="Contains executable for teleoperation of PR2">
-  Teleop PR2 moves the PR2 from joystick commands. 
+  Teleop PR2 moves the PR2 from joystick commands.
   Teleop PR2 Keyboard moves using keyboard commands.
   </description>
   <author>Kevin Watts</author>
@@ -13,5 +13,6 @@
   <depend package="sensor_msgs" />
   <depend package="pr2_default_controllers" />
   <depend package="pr2_calibration_controllers" />
+  <depend package="pr2_mechanism_controllers" />
   <depend package="roscpp" />
 </package>
