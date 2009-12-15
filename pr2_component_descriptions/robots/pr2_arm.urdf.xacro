@@ -8,6 +8,9 @@
   <include filename="$(find pr2_description)/urdf/common.xacro" />
   <include filename="$(find pr2_description)/urdf/materials.urdf.xacro" />
   <include filename="$(find pr2_description)/urdf/shoulder_v0/shoulder.urdf.xacro" />
+  <include filename="$(find pr2_description)/urdf/upper_arm_v0/upper_arm.urdf.xacro" />
+  <include filename="$(find pr2_description)/urdf/forearm_v0/forearm.urdf.xacro" />
+  <include filename="$(find pr2_description)/urdf/gripper_v0/gripper.urdf.xacro" />
 
   <include filename="$(find pr2_component_descriptions)/urdf/base_link.urdf.xacro" />
 
@@ -18,36 +21,21 @@
     <origin xyz="0 0 0" rpy="0 0 0" />
   </xacro:pr2_shoulder_v0>
 
-  <!-- Dummy FA used in burn in test -->
-  <joint name="r_dummy_upper_arm_joint" type="fixed">
-    <axis xyz="0 1 0" />
-    <limit effort="0" velocity="100"/>
-    <safety_controller k_velocity="10" />
-    <dynamics damping="0.0" friction="0.0" />
-    <origin xyz="0 0 0" rpy="0 0 0" />
-    <parent link="r_upper_arm_roll_link"/>
-    <child link="r_dummy_upper_arm_link"/>
-  </joint>
-  <link name="r_dummy_upper_arm_link">
-    <inertial>
-      <mass value="1" />
-      <origin xyz=" 0 0 0 " />
-      <inertia  ixx="1.0" ixy="0.0" ixz="0.0"
-                iyy="1.0" iyz="0.0" izz="1.0" />
-    </inertial>
-    <visual>
-      <origin xyz="0.12 0 0" rpy="0 0 0" />
-      <geometry>
-	<box size="0.60 0.06 0.15" />
-      </geometry>
-    </visual> 
-  </link>
+  <xacro:pr2_upper_arm_v0 side="r" reflect="-1" parent="r_upper_arm_roll_link"/>
+  <xacro:pr2_forearm_v0 side="r" reflect="-1" parent="r_forearm_roll_link"/>
 
-<!--
-  <transmission type="SimpleTransmission" name="r_dummy_upperarm_trans">
-    <actuator name="r_elbow_flex_motor" />
-    <joint name="r_dummy_upper_arm_joint" />
-    <mechanicalReduction>1</mechanicalReduction>
-  </transmission>
- -->
+  <xacro:pr2_gripper_v0 side="r" parent="r_wrist_roll_link"
+               screw_reduction="${4.0/1000.0}"
+               gear_ratio="${(729.0/25.0)*(22.0/16.0)}"
+               theta0="${3.6029*M_PI/180.0}"
+               phi0="${29.7089*M_PI/180.0}"
+               t0="${-0.1914/1000.0}"
+               L0="${37.5528/1000.0}"
+               h="${0.0/1000.0}"
+               a="${68.3698/1000.0}"
+               b="${43.3849/1000.0}"
+               r="${91.5/1000.0}" >
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:pr2_gripper_v0>
+
 </robot>
