@@ -60,6 +60,8 @@ class TestData:
     self.parameters = {}
     self.measurements = {}
 
+    self.note = None
+
   def set_parameter(self, key, value):
     self.parameters[key] = value
 
@@ -69,6 +71,9 @@ class TestData:
 
   def set_attachment(self, content_type, fn):
     self.attachment = {"content_type":content_type, "filename":fn}
+
+  def set_note(self, note):
+    self.note = note
 
   def submit(self, client):
     url = client.site + 'wgtest/api.py?Action.Add_TestData=1'
