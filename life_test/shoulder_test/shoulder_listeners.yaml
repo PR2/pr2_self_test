@@ -9,8 +9,8 @@ trans:
     actuator: r_shoulder_pan_motor
     up_ref: -0.7853916339
     deadband: 0.1
-    min: -2.40
-    max: 0.735
+    min: -2.50
+    max: 0.745
   lift_trans:
     joint: r_shoulder_lift_joint
     actuator: r_shoulder_lift_motor

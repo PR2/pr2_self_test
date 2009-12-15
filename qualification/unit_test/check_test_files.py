@@ -42,7 +42,9 @@ import rostest, unittest
 from qualification.component_qual import load_tests_from_map, load_configs_from_map
 from qualification.test import Test
 
-import os, sys, subprocess
+from roslaunch_parse_tester.package_parse import ROSLaunchPackageParser
+
+import os
 
 ##\brief Parses launch, tests.xml and configs.xml files in qualification
 class QualificationTestParser(unittest.TestCase):
@@ -56,11 +58,17 @@ class QualificationTestParser(unittest.TestCase):
 
     ##\brief All .launch files must pass roslaunch_parse_tester
     def test_launch_file_parse(self):
-        cmd = 'rosrun roslaunch_parse_tester package_parse_test.py %s --env=ROS_TEST_HOST,localhost --black_dir config/wge100_camera --black_dir onboard/robots -a' % PKG
-        p = subprocess.Popen(cmd, stdout = None, stderr = None, shell = True)
-        p.communicate()
-        retcode = p.returncode
-        self.assert_(retcode == 0, "Launch files failed to parse. Run roslaunch_parse_tester to check output")
+        env = {'ROS_TEST_HOST': 'localhost'}
+        black_dirs = ['config/wge100_camera', 'onboard', 'tests/wge100_camera_test']
+
+        
+        launch_file_parser = ROSLaunchPackageParser(PKG, environment = env, black_dirs = black_dirs,
+                                                    assign_machines = True, node_check = True, 
+                                                    quiet = False) 
+        #                                            config_err_check = True)
+        
+        launches_ok = launch_file_parser.check_package()
+        self.assert_(launches_ok, "Launch files failed to parse. Run roslaunch_parse_tester to check output")
 
     ##\brief All test.xml files must load properly
     def test_check_tests_parsed(self):

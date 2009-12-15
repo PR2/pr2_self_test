@@ -41,6 +41,9 @@ import rostest, unittest
 
 import subprocess
 
+from roslaunch_parse_tester.package_parse import ROSLaunchPackageParser
+
+
 ##\brief Parses launch, tests.xml and configs.xml files in qualification
 class LifeTestLaunchParser(unittest.TestCase):
     def setUp(self):
@@ -48,11 +51,14 @@ class LifeTestLaunchParser(unittest.TestCase):
 
     ##\brief All .launch files must pass roslaunch_parse_tester
     def test_launch_file_parse(self):
-        cmd = 'rosrun roslaunch_parse_tester package_parse_test.py %s --black_dir arm_life_test' % PKG
-        p = subprocess.Popen(cmd, stdout = None, stderr = None, shell = True)
-        p.communicate()
-        retcode = p.returncode
-        self.assert_(retcode == 0, "Launch files failed to parse. Run roslaunch_parse_tester to check output")
+        black_dirs = ['arm_life_test']
+        
+        launch_file_parser = ROSLaunchPackageParser(PKG, black_dirs = black_dirs, 
+                                                    node_check = True)
+        
+        launch_ok = launch_file_parser.check_package()
+        
+        self.assert_(launch_ok, "Launch files failed to parse. Run roslaunch_parse_tester to check output")
 
 
     def tearDown(self):
