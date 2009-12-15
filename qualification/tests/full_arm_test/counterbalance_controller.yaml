@@ -1,0 +1,21 @@
+test_controller:
+  type: CounterbalanceTestController
+  settle_time: 2.0
+  dither_points: 1000
+  timeout: 180
+  
+  lift:
+    joint: r_shoulder_lift_joint
+    type: JointPositionController
+    pid/p: 60.0
+    pid/i: 10.0
+    pid/d: 2.0
+    pid/i_clamp: 4.0
+    min: -0.4
+    max: 1.21
+    delta: 0.2
+    dither: 4.0
+    mse: 3.0
+    avg_abs: 2.0
+  
+    

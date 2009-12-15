@@ -5,8 +5,8 @@
     <param name="max_effort" type="double" value="10000.0" />
     <param name="max_expected" type="double" value="1800" />
     <param name="min_expected" type="double" value="-1400" />
-    <param name="max_position" type="double" value="0.30" />
-    <param name="min_position" type="double" value="0.05" />
+    <param name="max_position" type="double" value="0.303" />
+    <param name="min_position" type="double" value="0.005" />
     <param name="timeout" type="double" value="480" />
     <param name="tolerance" type="double" value=".20" />
     <param name="sd_max" type="double" value=".10" />

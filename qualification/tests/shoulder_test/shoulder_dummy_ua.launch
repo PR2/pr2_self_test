@@ -1,0 +1,17 @@
+<launch>
+  <param name="robot_description"
+         command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/shoulder_dummy_ua.urdf.xacro'" />
+  
+  <!-- Loads realtime machine and PR2_etherCAT -->
+  <include file="$(find qualification)/tests/init.machine" />
+  <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
+
+  <!-- Shoulder Calibration -->
+  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers_beta.yaml" />
+  <node pkg="mechanism_bringup" type="calibrate.py"
+        output="screen" name="cal_shoulder"
+        args="cal_r_shoulder_pan cal_r_shoulder_lift cal_r_upper_arm_roll" />
+
+    <!-- Uses eth3 to run wge100 camera -->
+  <include file="$(find qualification)/tests/upperarm_test/ua_wge100.launch" />
+</launch>

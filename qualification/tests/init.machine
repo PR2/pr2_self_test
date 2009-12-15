@@ -1,5 +1,5 @@
 <launch>
-  <!-- Old machine name -->
+  <!-- Old test host machine name -->
   <machine name="realtime" user="root" address="$(env ROS_TEST_HOST)"
            ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)"
            default="never"/>

@@ -12,6 +12,6 @@
   
   <node pkg="qualification" type="robot_checkout.py" name="shoulder_checkout" >
     <rosparam command="load"
-              file="$(find qualification)/tests/shoulder_test/shoulder_check_data.yaml" />
+              file="$(find qualification)/tests/shoulder_test/shoulder_check_data_dummy_ua.yaml" />
   </node>
 </launch>

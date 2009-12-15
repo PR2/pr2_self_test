@@ -1,0 +1,8 @@
+<launch>
+   <!-- Self Test -->
+   <node pkg="qualification" type="run_selftest.py"
+         name="wge100_self_test" >
+        <remap from="node_name" to="wge100" />
+  </node>
+
+</launch>

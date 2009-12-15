@@ -1,7 +1,6 @@
 <launch>
   <group ns="test_controller" clear_params="true">
     <param name="type" type="string" value="HysteresisController" />
-    
     <param name="velocity" type="double" value="1.5" />
     <param name="max_effort" type="double" value="2.0" />
     <param name="max_expected" type="double" value="0.004" />
@@ -24,6 +23,6 @@
   
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py"
         name="hyst_analysis" />
-  <node pkg="pr2_controller_manager" type="spawner.py"
+  <node pkg="pr2_controller_manager" type="spawner"
         args="test_controller" name="hyst_spawner" />
 </launch>

@@ -4,9 +4,12 @@
     <param name="timeout" type="double" value="30.0" />
   </group>
 
-    <node pkg="qualification" type="visual_verifier.py" args="$(find qualification)/tests/full_arm_test/view.vcg" />
+  <node pkg="qualification" type="visual_verifier.py" name="visualizer"
+        args="$(find qualification)/tests/full_arm_test/view.vcg" />
     
-    <node pkg="pr2_controller_manager" type="spawner" args="test_controller" />
+  <node pkg="pr2_controller_manager" type="spawner"
+        name="checkout_spawner" args="test_controller" />
     
-  <node pkg="qualification" type="robot_checkout.py" />
+  <node pkg="qualification" type="robot_checkout.py"
+        name="robot_checkout" />
 </launch>

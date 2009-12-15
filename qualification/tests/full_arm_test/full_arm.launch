@@ -1,5 +1,5 @@
 <launch>
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find qualification)/tests/full_arm_test/full_arm.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/pr2_arm.urdf.xacro'" />
 
   <!-- Load this parameter to make everything compatible with full_arm_test -->
   <param name="full_arm_test/side" value="r" type="str" />

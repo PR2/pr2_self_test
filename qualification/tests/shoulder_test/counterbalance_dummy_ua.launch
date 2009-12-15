@@ -2,9 +2,9 @@
   <rosparam command="load"
             file="$(find pr2_default_controllers)/pr2_joint_position_controllers.yaml" />
   <rosparam command="load"
-            file="$(find qualification)/tests/full_arm_test/counterbalance_controller.yaml" />
+            file="$(find qualification)/tests/shoulder_test/counterbalance_controller_dummy_ua.yaml" />
   <node pkg="pr2_controller_manager" type="spawner" name="arm_spawner"
-        args="--wait-for=calibrated torso_lift_position_controller r_shoulder_pan_position_controller r_upper_arm_roll_position_controller r_elbow_flex_position_controller r_forearm_roll_position_controller r_wrist_flex_position_controller r_wrist_roll_position_controller" />
+        args="--wait-for=calibrated r_shoulder_pan_position_controller r_upper_arm_roll_position_controller" />
   <node pkg="qualification" type="full_arm_holder.py"
         name="arm_holder" args="--wait-for=calibrated" />
   
@@ -13,5 +13,5 @@
         name="cb_test_spawner" />
 
   <node pkg="qualification" type="counterbalance_analysis.py"
-        name="cb_analysis" />
+        name="cb_analysis" output="screen" />
 </launch>
