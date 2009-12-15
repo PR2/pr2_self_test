@@ -1,23 +1,6 @@
 <launch>
-  <!-- start gazebo with an empty plane -->
-  <param name="/use_sim_time" value="true" />
-
-  <!-- Runs without gazebo window -->
-  <include file="$(find gazebo)/launch/empty_world_no_x.launch"/>
-
-  <!-- Load PR2 URDF -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/wrist.urdf.xacro'" />
-  <node pkg="gazebo_tools" type="gazebo_model" name="spawn_pr2"
-        args="-p robot_description spawn" respawn="false"  />
-
-  <!-- Robot state publisher -->
-  <node pkg="robot_state_publisher" type="state_publisher"
-        name="robot_state_publisher">
-    <param name="publish_frequency" type="double" value="50.0" />
-    <param name="tf_prefix" type="string" value="" />
-  </node>
+  <include file="$(find test_pr2_self_test_gazebo)/gazebo_util/gazebo_base.launch" />
   
-  <!-- Publishes diagnostics for checkout script -->
-  <node pkg="pr2_controller_manager" type="joints_to_diagnostics.py" name="joint_diag" />
-  <node pkg="pr2_controller_manager" type="controllers_to_diagnostics.py" name="control_diag" />
+  <!-- Load Wrist URDF -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/wrist.urdf.xacro'" />
 </launch>

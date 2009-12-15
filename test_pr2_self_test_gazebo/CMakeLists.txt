@@ -16,14 +16,16 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #set the default path for built libraries to the "lib" directory
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
+rosbuild_add_pyunit(scripts/check_launch_files.py)
+
 rosbuild_check_for_display(disp)
-#if(disp)
-#  rosbuild_add_rostest(test/pr2_checkout_gazebo.launch)
-#  rosbuild_add_rostest(test/hysteresis_head_pan_gazebo.launch)
-#  rosbuild_add_rostest(test/hysteresis_caster_turret_gazebo.launch)
-#  rosbuild_add_rostest(test/hysteresis_head_tilt_gazebo.launch)
-#  rosbuild_add_rostest(test/wrist_diff_check_gazebo.launch)
-#endif(disp)
+if(disp)
+  rosbuild_add_rostest(test/pr2_checkout_gazebo.launch)
+  rosbuild_add_rostest(test/hysteresis_head_pan_gazebo.launch)
+  rosbuild_add_rostest(test/hysteresis_caster_turret_gazebo.launch)
+  #rosbuild_add_rostest(test/hysteresis_head_tilt_gazebo.launch)
+  rosbuild_add_rostest(test/wrist_diff_check_gazebo.launch)
+endif(disp)
 
 
 

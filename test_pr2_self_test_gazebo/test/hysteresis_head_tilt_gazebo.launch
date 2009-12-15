@@ -5,6 +5,8 @@
   <include file="$(find qualification)/tests/head_test/hysteresis_head_tilt.launch" />
 
   <group ns="test_controller" >
+    <param name="max_position" type="double" value="1.3" />
+    <param name="min_position" type="double" value="-0.35" />
     <group ns="velocity_controller" >
       <param name="pid/p" type="double" value="20" />
       <param name="pid/i" type="double" value="100" />
