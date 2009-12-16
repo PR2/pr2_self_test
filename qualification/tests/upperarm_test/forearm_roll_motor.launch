@@ -18,6 +18,6 @@
       <param name="i_clamp" type="double" value="0.0" />
     </group>
   </group>
-    <node pkg="mechanism_bringup" type="calibrate.py"
+    <node pkg="pr2_calibration" type="calibrate.py"
         args="cal_r_forearm_roll_motor" name="cal_r_forearm_roll_motor" output="screen" />
 </launch>

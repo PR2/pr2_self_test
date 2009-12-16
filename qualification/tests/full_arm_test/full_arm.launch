@@ -9,7 +9,7 @@
 
   <!-- Calibration -->
   <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
-  <node pkg="mechanism_bringup" type="calibrate.py" output="screen" 
+  <node pkg="pr2_calibration" type="calibrate.py" output="screen" 
 	args="cal_r_shoulder_pan cal_r_shoulder_lift cal_r_upper_arm_roll cal_r_elbow_flex cal_r_forearm_roll cal_r_wrist cal_r_gripper" />
  
 </launch>

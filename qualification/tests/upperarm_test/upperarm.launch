@@ -9,6 +9,6 @@
   <!-- Upperarm Calibration -->
   <rosparam command="load"
             file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
-  <node pkg="mechanism_bringup" type="calibrate.py" output="screen" 
+  <node pkg="pr2_calibration" type="calibrate.py" output="screen" 
 	args="cal_r_elbow_flex cal_r_forearm_roll" name="cal_upper_arm" />
 </launch>

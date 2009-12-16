@@ -36,7 +36,7 @@
   <depend package="pr2_component_descriptions" />
   <depend package="sensor_msgs" />
   <depend package="pr2_controller_manager" />
-  <depend package="mechanism_bringup" />
+  <depend package="pr2_calibration" />
   <depend package="robot_state_publisher" />
   <depend package="roslaunch_parse_tester" />
   <url>http://www.ros.org/wiki/qualification</url>

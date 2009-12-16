@@ -18,7 +18,7 @@
   <depend package="pr2_mechanism_controllers"/>
   <depend package="robot_mechanism_controllers" />
   <depend package="pr2_controller_manager" />
-  <depend package="mechanism_bringup" />
+  <depend package="pr2_calibration" />
   <depend package="runtime_monitor" />
   <depend package="invent_client" />
   <depend package="diagnostic_msgs" />

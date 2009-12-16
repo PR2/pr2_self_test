@@ -7,6 +7,6 @@
 
   <!-- Calibration --> 
   <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers_beta.yaml" />
-  <node pkg="mechanism_bringup" type="calibrate.py" output="screen"
+  <node pkg="pr2_calibration" type="calibrate.py" output="screen"
         name="cal_head" args="cal_head_pan cal_head_tilt" />
 </launch>

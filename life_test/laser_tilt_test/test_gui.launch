@@ -6,7 +6,7 @@
   <!-- Laser Tilt Calibration -->
   <rosparam command="load"
             file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
-  <node pkg="mechanism_bringup" type="calibrate.py"
+  <node pkg="pr2_calibration" type="calibrate.py"
         args="cal_laser_tilt" output="screen" name="laser_tilt_cal" />
 
   <!-- Laser tilt controllers -->
