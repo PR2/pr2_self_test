@@ -4,7 +4,7 @@
 
   <!-- Runs without gazebo window -->
   <include file="$(find gazebo)/launch/empty_world_no_x.launch"/>  
-<!--  <include file="$(find gazebo)/launch/empty_world.launch"/> -->
+<!--  <include file="$(find gazebo)/launch/empty_world.launch"/>  -->
 
   <!-- Load robot description -->
   <node pkg="gazebo_tools" type="gazebo_model" name="spawn_pr2"
