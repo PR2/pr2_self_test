@@ -7,7 +7,7 @@
   <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
 
   <!-- Caster calibration -->
-  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
+  <rosparam command="load" file="$(find pr2_controller_configuration)/pr2_calibration_controllers.yaml" />
   <node pkg="pr2_bringup" type="calibrate.py" output="screen"
   	args="cal_caster_fl" name="cal_caster_fl" />
 </launch>

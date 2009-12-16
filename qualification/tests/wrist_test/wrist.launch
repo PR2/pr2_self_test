@@ -6,7 +6,7 @@
   <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
 
   <!-- Wrist Calibration -->
-  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers_beta.yaml" />
+  <rosparam command="load" file="$(find pr2_controller_configuration)/pr2_calibration_controllers.yaml" />
   <node pkg="pr2_bringup" type="calibrate.py" output="screen" 
 	args="cal_r_wrist" name="cal_r_wrist" />
 </launch>

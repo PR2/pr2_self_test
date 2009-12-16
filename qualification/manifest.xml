@@ -19,7 +19,6 @@
   <depend package="ethercat_hardware" />
   <depend package="runtime_monitor" />
   <depend package="rviz" />
-  <depend package="pr2_ogre" />
   <depend package="pr2_power_board" />
   <depend package="pr2_alpha" />
   <depend package="pr2_head_cart" />
@@ -29,13 +28,13 @@
   <depend package="opencv2" />
   <depend package="cv_bridge" />
   <depend package="rxtools" />
-  <depend package="realtime_tools" />
   <depend package="image_view" />
   <depend package="camera_focus" />
   <depend package="image_proc" />
   <depend package="pr2_component_descriptions" />
   <depend package="sensor_msgs" />
   <depend package="pr2_controller_manager" />
+  <depend package="pr2_controller_configuration" />
   <depend package="pr2_bringup" />
   <depend package="robot_state_publisher" />
   <depend package="roslaunch_parse_tester" />

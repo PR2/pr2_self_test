@@ -1,17 +1,5 @@
 <launch>
+  <include file="$(find qualification)/tests/wrist_test/wrist.launch" />
+
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/wrist_gripper.urdf.xacro'" />
-
-  <!-- Loads realtime machine and PR2_etherCAT -->
-  <include file="$(find qualification)/tests/init.machine" />
-  <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
-
-
-   <group ns="cal_r_fake_gripper" >
-    <param name="type" type="string" value="MotorJointCalibrationController" />
-    <param name="joint" type="string" value="r_gripper_fake_joint" />
-  </group>
-  <!-- Wrist Calibration -->
-  <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers_beta.yaml" />
-  <node pkg="pr2_bringup" type="calibrate.py" output="screen" 
-	args="cal_r_wrist cal_r_fake_gripper" name="cal_r_wrist" />
 </launch>
