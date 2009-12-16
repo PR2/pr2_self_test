@@ -1,0 +1,6 @@
+<launch>
+  <include file="$(find test_pr2_self_test_gazebo)/gazebo_util/gazebo_base.launch" />
+  
+  <!-- Load Shoulder/Dummy UA URDF -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/shoulder_dummy_ua.urdf.xacro'" />
+</launch>

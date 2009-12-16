@@ -1,0 +1,13 @@
+<launch>
+  <!-- Gazebo and robot -->
+  <include file="$(find test_pr2_self_test_gazebo)/gazebo_util/shoulder_dummy_ua_gazebo.launch" />
+
+  <!-- Used for wrist component production test --> 
+  <include file="$(find qualification)/tests/shoulder_test/counterbalance_dummy_ua.launch" />
+  
+  <!-- Test: asserts we have wrist diff service and that we passed -->
+   <test test-name="counterbalance_dummy_ua" time-limit="180" retry="2"
+         pkg="test_pr2_self_test_gazebo" name="test_counterbalance_dummy_ua"
+         type="check_pr2_self_test.py" />
+   
+</launch>
