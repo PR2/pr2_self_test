@@ -34,13 +34,13 @@
 #
 
 ##\author Kevin Watts
-##\brief Listens to /diagnostics, makes sure etherCAT state is OK
+##\brief Listens to pr2_etherCAT/motors_halted, makes sure etherCAT state is OK
 PKG = 'life_test'
 
 import roslib
 roslib.load_manifest(PKG)
 
-from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+from std_msgs.msg import Bool
 from std_srvs.srv import *
 
 import rospy
@@ -49,11 +49,11 @@ import threading
 
 class EthercatListener:
     def __init__(self):
-        self._diag_sub = rospy.Subscriber('/diagnostics', DiagnosticArray, self._diag_callback)
+        self._diag_sub = rospy.Subscriber('pr2_etherCAT/motors_halted', Bool, self._motors_cb)
         self._mutex = threading.Lock()
 
         self._ok = True
-        self._update_time = 0
+        self._update_time = -1
         self._reset_motors = rospy.ServiceProxy('pr2_etherCAT/reset_motors', Empty)
         self._halt_motors = rospy.ServiceProxy('pr2_etherCAT/halt_motors', Empty)
 
@@ -67,13 +67,10 @@ class EthercatListener:
     def reset(self):
         self._reset_motors()
 
-    def _diag_callback(self, msg):
+    def _motors_cb(self, msg):
         self._mutex.acquire()
-        for stat in msg.status:
-            if stat.name == 'EtherCAT Master':
-                self._ok = (stat.level == 0)
-                self._update_time = rospy.get_time()
-                break
+        self._ok = msg.data
+        self._update_time = rospy.get_time()
         self._mutex.release()
     
     def check_ok(self):
@@ -82,12 +79,12 @@ class EthercatListener:
         stat = 0
         if not self._ok:
             stat = 2
-            msg = 'EtherCAT Error'
+            msg = 'Motors Halted'
 
         if rospy.get_time() - self._update_time > 3:
             stat = 3
             msg = 'EtherCAT Stale'
-            if self._update_time == 0:
+            if self._update_time == -1:
                 msg = 'No EtherCAT Data'
         
         self._mutex.release()

@@ -41,6 +41,7 @@ import roslib; roslib.load_manifest(PKG)
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from std_srvs.srv import *
+from std_msgs.msg import Bool
 from pr2_mechanism_msgs.msg import MechanismStatistics, JointStatistics, ActuatorStatistics
 
 import os
@@ -57,6 +58,8 @@ class FakeComponent:
     def __init__(self):
         rospy.init_node('fake_component')
         self.diag_pub = rospy.Publisher('/diagnostics', DiagnosticArray)
+        self.motors_pub = rospy.Publisher('pr2_etherCAT/motors_halted', Bool)
+        
         self.mech_pub = rospy.Publisher('mechanism_statistics', MechanismStatistics)
         self._reset_srv = rospy.Service('pr2_etherCAT/reset_motors', Empty, self.on_reset)
         self._halt_srv = rospy.Service('pr2_etherCAT/halt_motors', Empty, self.on_halt)
@@ -149,6 +152,8 @@ class FakeComponent:
         msg.header.stamp = rospy.get_rostime()
      
         self.diag_pub.publish(msg)
+
+        self.motors_pub.publish(Bool(True))
 
     def publish(self):
         self.publish_mech_stats()
