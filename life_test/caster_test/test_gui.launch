@@ -6,7 +6,7 @@
 
   <!-- Calibration and velocity controllers -->
   <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
-  <node pkg="pr2_calibration" type="calibrate.py"
+  <node pkg="pr2_bringup" type="calibrate.py"
         args="cal_caster_fl" name="cal_caster" output="screen" />
   
   <!-- Controller, velocity controller -->

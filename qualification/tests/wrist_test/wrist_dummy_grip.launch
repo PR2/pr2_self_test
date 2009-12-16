@@ -12,6 +12,6 @@
   </group>
   <!-- Wrist Calibration -->
   <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers_beta.yaml" />
-  <node pkg="pr2_calibration" type="calibrate.py" output="screen" 
+  <node pkg="pr2_bringup" type="calibrate.py" output="screen" 
 	args="cal_r_wrist cal_r_fake_gripper" name="cal_r_wrist" />
 </launch>

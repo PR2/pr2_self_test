@@ -14,6 +14,6 @@
     <param name="velocity" type="double" value="2.0" />
     <param name="pid/p" type="double" value="6.0" />
   </group>
-  <node pkg="pr2_calibration" type="calibrate.py" output="screen"
+  <node pkg="pr2_bringup" type="calibrate.py" output="screen"
   	args="cal_caster_fl_hub" name="cal_caster_hub" />
 </launch>

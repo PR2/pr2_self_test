@@ -10,7 +10,7 @@
     <param name="type" type="string" value="MotorJointCalibrationController" />
     <param name="joint" type="string" value="r_gripper_fake_joint" />
   </group>
-  <node pkg="pr2_calibration" type="calibrate.py"
+  <node pkg="pr2_bringup" type="calibrate.py"
         args="cal_r_wrist cal_r_fake_gripper" name="cal_wrist" output="screen" />
 
   <!-- Load wrist effort controllers -->

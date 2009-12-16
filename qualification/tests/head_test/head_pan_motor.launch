@@ -9,7 +9,7 @@
     <param name="type" type="str" value="MotorJointCalibrationController" />
     <param name="joint" type="str" value="head_pan_motor_joint" />
   </group>
-  <node pkg="pr2_calibration" type="calibrate.py"
+  <node pkg="pr2_bringup" type="calibrate.py"
         args="cal_motor" name="cal_motor" output="screen" />
 
 

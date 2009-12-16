@@ -7,6 +7,6 @@
 
   <!-- Torso Calibration -->
   <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers.yaml" />
-  <node pkg="pr2_calibration" type="calibrate.py" output="screen" 
+  <node pkg="pr2_bringup" type="calibrate.py" output="screen" 
 	args="cal_torso_lift" name="cal_torso_lift" />
 </launch>

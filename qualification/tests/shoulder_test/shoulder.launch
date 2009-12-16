@@ -8,7 +8,7 @@
 
   <!-- Shoulder Calibration -->
   <rosparam command="load" file="$(find pr2_default_controllers)/pr2_calibration_controllers_beta.yaml" />
-  <node pkg="pr2_calibration" type="calibrate.py"
+  <node pkg="pr2_bringup" type="calibrate.py"
         output="screen" name="cal_shoulder"
         args="cal_r_shoulder_pan cal_r_shoulder_lift cal_r_upper_arm_roll" />
 </launch>
