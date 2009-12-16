@@ -83,7 +83,7 @@ class VisualRunner(threading.Thread):
       return
     while not rospy.is_shutdown():
       if rospy.get_time() - start > timeout:
-        app.frame.on_close(None)
+        app.frame.Close()
         call_done_service(ScriptDoneRequest.RESULT_OK, 'Visual check passed by automatic runner.')
         break
       sleep(1.0)
