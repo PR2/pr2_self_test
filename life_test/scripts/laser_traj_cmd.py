@@ -48,7 +48,7 @@ from time import sleep
 
 def print_usage(exit_code = 0):
     print '''Usage:
-    send_periodic_cmd.py [controller]
+    laser_traj_cmd.py [controller]
 '''
     sys.exit(exit_code)
 

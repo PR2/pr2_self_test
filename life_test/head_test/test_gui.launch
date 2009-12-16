@@ -6,14 +6,17 @@
   
   <!-- Head Calibration -->
   <rosparam command="load"
-            file="$(find pr2_default_controllers)/pr2_calibration_controllers_beta.yaml" />
+            file="$(find pr2_controller_configuration)/pr2_calibration_controllers.yaml" />
   <node pkg="pr2_bringup" type="calibrate.py"
         args="cal_head_pan cal_head_tilt" output="screen" name="head_cal" />
 
   <!-- Head controllers -->
   <node pkg="life_test" type="head_cmder.py" name="head_cmder" />
-  <include file="$(find pr2_default_controllers)/head_position_controller.launch" />
-
+  <rosparam command="load"
+            file="$(find pr2_controller_configuration)/pr2_head_controller.yaml" />
+  <node name="head_position_controller_spawner" pkg="pr2_controller_manager"
+        type="spawner" args="head_controller" />
+  
   <!-- Monitor -->
   <node pkg="life_test" type="test_monitor.py" name="monitor" machine="test_host"> 
     <rosparam command="load" file="$(find life_test)/head_test/head_listeners.yaml" />

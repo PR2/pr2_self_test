@@ -12,7 +12,7 @@
   <license>BSD</license>
   <url>http://www.ros.org/wiki/life_test</url>
   <depend package="pr2_component_descriptions" />
-  <depend package="pr2_default_controllers" />
+  <depend package="pr2_controller_configuration" />
   <depend package="pr2_etherCAT"/>
   <depend package="pr2_power_board"/>
   <depend package="pr2_mechanism_controllers"/>
