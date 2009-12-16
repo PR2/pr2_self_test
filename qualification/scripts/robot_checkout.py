@@ -388,7 +388,9 @@ class RobotCheckout:
                 elif type == 'Fixed':
                     safe = '<div class=\"pass\">Fixed</div>'
                 elif type =='Planar' and name=='base_joint':
-                    safe = 'Base'
+                    safe = '<div class=\"pass\">Base Joint</div>'
+                elif jnt_data.name.find('finger') > 0:
+                    safe == '<div class=\"pass\">Finger Joint</div>'
                 else:
                     safe = '<div class=\"warn\">NO</div>'
                     self._joints_ok = False
