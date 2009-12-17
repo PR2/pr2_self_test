@@ -45,6 +45,7 @@
   
   <room hostname="testi" >
     <bay name="testi" machine="testi" board="1001" breaker="2" />
+    <bay name="testm" machine="testm" board="1001" breaker="1" />
     <bay name="testk" machine="testk" board="1001" breaker="0" />
   </room>
   
