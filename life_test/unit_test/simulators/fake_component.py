@@ -153,7 +153,7 @@ class FakeComponent:
      
         self.diag_pub.publish(msg)
 
-        self.motors_pub.publish(Bool(True))
+        self.motors_pub.publish(Bool(False))
 
     def publish(self):
         self.publish_mech_stats()

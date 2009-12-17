@@ -32,7 +32,10 @@
   <depend package="std_srvs" />
   <depend package="hokuyo_node" />
   <depend package="roslaunch_parse_tester" />
-   <export>
+
+  <!-- Slip ring test -->
+  <depend package="joint_qualification_controllers" />
+  <export>
     <cpp cflags="-I${prefix}/msg/cpp" />
   </export>
 </package>

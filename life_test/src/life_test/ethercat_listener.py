@@ -69,7 +69,7 @@ class EthercatListener:
 
     def _motors_cb(self, msg):
         self._mutex.acquire()
-        self._ok = msg.data
+        self._ok = not msg.data
         self._update_time = rospy.get_time()
         self._mutex.release()
     
