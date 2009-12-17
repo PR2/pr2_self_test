@@ -260,7 +260,7 @@ def effort_analysis(params, data):
     html.append('<tr><td>Positive</td><td>%.2f</td><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (max_avg, params.pos_effort, positive_msg, sd_max_percent, positive_sd_msg))
     html.append('<tr><td>Negative</td><td>%.2f</td><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>\n' % (min_avg, params.neg_effort, negative_msg, sd_min_percent, negative_sd_msg)) 
     html.append('</table><br>\n')
-    html.append('<p>Effort tolerance: %.2f. SD tolerance: %.2f percent</p>\n' % (tolerance, params.sd_max * 100))
+    html.append('<p>Effort tolerance: %.2f. SD tolerance: %.1f percent</p>\n' % (tolerance, params.sd_max * 100))
 
     result.html = ''.join(html)
     result.summary = summary
