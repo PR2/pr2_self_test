@@ -31,10 +31,9 @@ import roslib; roslib.load_manifest('life_test')
 
 import random, time
 import rospy
-from std_msgs.msg import *
 from geometry_msgs.msg import PoseStamped
 
-pub = rospy.Publisher('r_arm_cartesian_pose_controller/command', PoseStamped)
+pub = rospy.Publisher('r_arm_cartesian_trajectory_controller/command', PoseStamped)
 
 
 def p(x, y, z, rx, ry, rz, w):
@@ -49,28 +48,19 @@ def p(x, y, z, rx, ry, rz, w):
   m.pose.orientation.z = rz
   m.pose.orientation.w = w
   pub.publish(m)
-rospy.init_node('pub', anonymous=True)
 
-POINTS_UP = [
-  (0.5, -0.5, 2.6, 0.5, -0.7, 0.0, 0.7),
-  (0.6, -0.2, 2.6, 0.0, -0.7, 0.0, 0.7),
-  (0.2, -0.8, 2.6, 0.0, -0.7, 0.0, 0.7),
-  (0.4, -0.4, 2.6, 0.5, 0.25, 0.0, 0.25),
+rospy.init_node('random_poses_right')
+
+POINTS = [
+  (0.5, -0.5, 0.8, 0.5, 0.0, 0.0, 0.5),
+  (0.6, -0.2, 0.4, 0.0, 0.0, 0.5, 0.5),
+  (0.2, -0.8, 0.4, 0.0, 0.5, 0.0, 0.5),
+  (0.5, -0.5, 1.2, 0.5, 0.0, 0.0, 0.5),
+  (0.6, -0.2, 1.2, 0.0, 0.0, 0.5, 0.5),
+  (0.2, -0.8, 1.2, 0.0, 0.5, 0.0, 0.5),
 ]
 
-POINTS_DN = [
-  (0.6, -0.5, -0.4, 0.0, -0.7, 0.0, 0.7),
-  (0.8, -0.2, -0.4, 0.0, -0.7, 0.0, 0.7),
-  (0.5, -0.8, -0.4, 0.0, -0.7, 0.0, 0.7),
-  (0.5, -0.4, -0.4, 0.5, 0.25, 0.0, 0.25),
- ]
-
-# Alternates between up and down to work CB
 while not rospy.is_shutdown():
-  for i in range(15):
-    time.sleep(random.uniform(0.1, 0.1))
-    p(*POINTS_UP[random.randint(0, len(POINTS_UP)-1)])
+  time.sleep(random.uniform(0.5, 1.0))
+  p(*POINTS[random.randint(0, len(POINTS)-1)])
 
-  for i in range(10):
-    time.sleep(random.uniform(0.1, 0.1))
-    p(*POINTS_DN[random.randint(0, len(POINTS_DN)-1)])

@@ -87,7 +87,6 @@
 	   val="true" rate="false" />
   </test>
 
-
   <test serial="6804152" name="Forearm/Slip Ring Test"
 	short="Slip Ring" trac="400"
 	desc="Tests forearm roll and slip ring packet drop"
@@ -98,7 +97,7 @@
 	   val="true" rate="false" />
   </test>
 
-    <test serial="6804204" name="Shoulder Test"
+  <test serial="6804204" name="Shoulder Test"
 	short="Shoulder" trac="400"
 	desc="Tests shoulder with dummy UA."
 	rate="1.0" script="shoulder_test/test_gui.launch"
@@ -108,27 +107,17 @@
 	   val="1.0" rate="true" />
   </test>
 
-
-  <!-- Not supported tests
-  <test serial="6804178" name="Full Arm Counterbalance Test"
-	short="Full CB" trac="402"
-	desc="Moves arm up and down for full counterbalance workout."
-	script="arm_life_test/test_gui_cb.launch"
-	type="Life Test" power="true" >
-    <param name="Cycle rate" param_name="cycle_rate"
-	   desc="Cycle rate of arm/CB"
-	   val="0.5" rate="true" />
-    </test>
-
-  <test serial="6804178" name="Full Arm CB Test - Dummy Forearm"
-	short="Dummy CB" trac="402"
-	desc="Moves arm up and down for full counterbalance workout."
-	script="arm_life_test/test_gui_cb_forearm.launch"
-	type="Life Test" power="true" >
-    <param name="Cycle rate" param_name="cycle_rate"
-	   desc="Cycle rate of arm/CB"
-	   val="0.5" rate="true" />
+  <test serial="6804204" name="Full Arm Test"
+	short="Arm" trac="400"
+	desc="Tests fully assembled arm"
+	rate="1.0" script="arm_test/test_gui.launch"
+	type="Burn-in Test" power="true" >
+    <param name="Cycle Rate" param_name="cycle_rate"
+	   desc="Rate"
+	   val="1.0" rate="true" />
   </test>
-  -->
+
+
+
   
 </tests>

@@ -1,0 +1,26 @@
+<launch>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/pr2_arm.urdf.xacro'" />
+
+  <include file="$(find life_test)/pr2_etherCAT.launch" />
+
+  <!-- Calibration -->
+  <rosparam command="load"
+            file="$(find pr2_controller_configuration)/pr2_calibration_controllers.yaml" />
+  <node pkg="pr2_bringup" type="calibrate.py"
+        args="cal_r_shoulder_pan cal_r_shoulder_lift cal_r_upper_arm_roll cal_r_elbow_flex cal_r_forearm_roll cal_r_wrist cal_r_gripper"
+        name="cal_arm" output="screen" />
+
+  <!-- Controllers -->
+  <include file="$(find life_test)/arm_test/controller_cartesian_trajectory_right.launch" />
+  <node pkg="life_test" type="random_poses_right.py" name="random_poses" />
+
+  <!-- WGE100 cam -->
+<!--  <include file="$(find life_test)/wge100.launch" /> -->
+
+  <!-- Monitor (with transmission checker) -->
+  <node pkg="life_test" type="test_monitor.py"
+        name="monitor" machine="test_host" >
+    <rosparam command="load"
+              file="$(find life_test)/arm_test/arm_listeners.yaml" />
+  </node>
+</launch>
