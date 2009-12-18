@@ -29,7 +29,7 @@
  */
 
 #include <ros/ros.h>
-#include <pr2_mechanism_controllers/Pr2GripperCommand.h>
+#include <pr2_controllers_msgs/Pr2GripperCommand.h>
 #include <joy/Joy.h>
 
 class TeleopGripper
@@ -48,7 +48,7 @@ public:
     private_nh_.param("open_button",   open_button_,   1);
     private_nh_.param("close_button",  close_button_,  2);
 
-    pub_ = nh_.advertise<pr2_mechanism_controllers::Pr2GripperCommand>("command", 1, false);
+    pub_ = nh_.advertise<pr2_controllers_msgs::Pr2GripperCommand>("command", 1, false);
     sub_ = nh_.subscribe("joy", 1, &TeleopGripper::joyCallback, this);
 
     ROS_DEBUG("teleop_gripper started");
@@ -62,7 +62,7 @@ public:
         open_button_ < 0 ||
         close_button_ < 0)
     {
-      ROS_ERROR("Array lookup error: Joystick message has %u elems. Open Index [%u]. Close Index [%u]", joy->buttons.size(), open_button_, close_button_);
+      ROS_ERROR("Array lookup error: Joystick message has %u elems. Open Index [%u]. Close Index [%u]", (unsigned int)joy->buttons.size(), open_button_, close_button_);
       return;
     }
 
@@ -89,8 +89,8 @@ private:
   int open_button_;
 
 
-  pr2_mechanism_controllers::Pr2GripperCommand open_cmd_;
-  pr2_mechanism_controllers::Pr2GripperCommand close_cmd_;
+  pr2_controllers_msgs::Pr2GripperCommand open_cmd_;
+  pr2_controllers_msgs::Pr2GripperCommand close_cmd_;
 };
 
 int main(int argc, char** argv)

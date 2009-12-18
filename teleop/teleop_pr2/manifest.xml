@@ -14,5 +14,6 @@
   <depend package="pr2_default_controllers" />
   <depend package="pr2_calibration_controllers" />
   <depend package="pr2_mechanism_controllers" />
+  <depend package="pr2_controllers_msgs" />
   <depend package="roscpp" />
 </package>
