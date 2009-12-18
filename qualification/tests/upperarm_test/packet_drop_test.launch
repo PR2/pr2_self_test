@@ -1,0 +1,9 @@
+<launch>
+  <include file="$(find qualification)/tests/init.machine" />
+
+  <!-- Packet drop test node -->
+  <node pkg="ectools" type="ecstats" name="ecstats"
+        machine="test_host_root" args="-j4 -ieth2" />
+
+  <node pkg="qualification" type="ecstats_test.py" name="ecstats_test" />
+</launch>

@@ -437,6 +437,7 @@ class ComponentQualFrame(QualificationFrame):
 
       return
 
+    ##\todo Fix powerboard breakers (always look True)
     for station in stations:
       if station.attributes['gui'].value == gui_name:
         rospy.set_param('/qualification/powerboard/serial', station.attributes['powerboard'].value) 

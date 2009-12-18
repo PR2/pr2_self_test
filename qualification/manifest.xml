@@ -38,6 +38,7 @@
   <depend package="pr2_bringup" />
   <depend package="robot_state_publisher" />
   <depend package="roslaunch_parse_tester" />
+  <depend package="ectools" />
   <url>http://www.ros.org/wiki/qualification</url>
   <export>
     <cpp cflags="-I${prefix}/msg/cpp -I${prefix}/srv/cpp" />
