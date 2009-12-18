@@ -1,0 +1,7 @@
+<launch>
+  <include file="$(find test_pr2_self_test_gazebo)/gazebo_util/gazebo_base.launch" />
+
+  <!-- Load PR2 URDF -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/pr2_arm.urdf.xacro'" />
+</launch>
