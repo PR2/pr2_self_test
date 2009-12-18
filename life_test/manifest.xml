@@ -35,6 +35,7 @@
 
   <!-- Slip ring test -->
   <depend package="joint_qualification_controllers" />
+  <depend package="ectools" />
   <export>
     <cpp cflags="-I${prefix}/msg/cpp" />
   </export>

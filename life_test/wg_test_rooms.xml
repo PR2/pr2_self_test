@@ -49,7 +49,11 @@
     <bay name="testk" machine="testk" board="1001" breaker="0" />
   </room>
   
-
+  <room hostname="cmi" >
+    <bay name="testp" machine="testp" board="1011" breaker="0" />
+    <bay name="testc" machine="testc" board="1011" breaker="1" />
+    <bay name="testn" machine="testn" board="1011" breaker="2" />
+  </room>
 
   
 

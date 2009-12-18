@@ -36,7 +36,7 @@
 
 ##\brief Tests receipt of test monitor messages from life tests
 
-DURATION = 10
+DURATION = 15
 
 PKG = 'life_test'
 import roslib; roslib.load_manifest(PKG)

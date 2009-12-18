@@ -88,10 +88,13 @@ class TestMonitor:
 
         my_params = rospy.get_param("~")
 
+        self._listeners_ok = True
+
         for ns, listener_param in my_params.iteritems():
             if not create_listener(listener_param, self._listeners):
-                rospy.logfatal('Listener failed to initialize. Exiting.')
-                sys.exit()
+                rospy.logerr('Listener failed to initialize. Namespace: %s' % ns)
+                self._listeners_ok = False
+
 
         self._status_pub = rospy.Publisher('test_status', TestStatus)
         self._diag_pub = rospy.Publisher('/diagnostics', DiagnosticArray)
@@ -101,12 +104,18 @@ class TestMonitor:
 
     def reset_test(self, srv):
         for listener in self._listeners:
-            listener.reset()
+            try:
+                listener.reset()
+            except:
+                rospy.logerr('Listener failed to reset!')
         return EmptyResponse()
 
     def halt_test(self, srv):
         for listener in self._listeners:
-            listener.halt()
+            try:
+                listener.halt()
+            except:
+                rospy.logerr('Listener failed to halt!')
         return EmptyResponse()
 
     def publish_status(self):
@@ -115,7 +124,12 @@ class TestMonitor:
 
         array = DiagnosticArray()
         for listener in self._listeners:
-            stat, msg, diags = listener.check_ok()
+            try:
+                stat, msg, diags = listener.check_ok()
+            except:
+                rospy.logerr('Listener failed to check status. %s' % traceback.format_exc())
+                stat, msg, diags = (2, 'Error', None)
+
             status = max(status, stat)
             if msg != '':
                 messages.append(msg)
@@ -125,6 +139,10 @@ class TestMonitor:
         if len(self._listeners) == 0:
             status = 3
             messages = [ 'No listeners' ]
+
+        if not self._listeners_ok:
+            status = 2
+            messages = ['Listener Startup Error']
 
         if len(array.status) > 0:
             array.header.stamp = rospy.get_rostime()

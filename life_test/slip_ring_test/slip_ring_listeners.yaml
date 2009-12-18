@@ -11,13 +11,6 @@ trans:
     down_ref: 3.1415926535897931
     wrap: 6.2831853071795862
     deadband: 0.1
-  flex_trans:
-    joint: r_elbow_flex_joint
-    actuator: r_elbow_flex_motor
-    down_ref: -1.1606
-    deadband: 0.1
-    min: -2.45
-    max: 0.10
-camera:
-  type: CameraListener
-  file: camera_listener
+ecstats:
+  type: ECStatsListener
+  file: ecstats_listener

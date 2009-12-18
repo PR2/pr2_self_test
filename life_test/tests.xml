@@ -87,6 +87,17 @@
 	   val="true" rate="false" />
   </test>
 
+
+  <test serial="6804152" name="Forearm/Slip Ring Test"
+	short="Slip Ring" trac="400"
+	desc="Tests forearm roll and slip ring packet drop"
+	rate="1.0" script="slip_ring_test/test_gui.launch"
+	type="Burn-in Test" power="true" >
+    <param name="Forearm Roll" param_name="forearm_roll"
+	   desc="Forearm roll true/false"
+	   val="true" rate="false" />
+  </test>
+
     <test serial="6804204" name="Shoulder Test"
 	short="Shoulder" trac="400"
 	desc="Tests shoulder with dummy UA."

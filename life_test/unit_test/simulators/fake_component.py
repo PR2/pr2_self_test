@@ -43,6 +43,7 @@ from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from std_srvs.srv import *
 from std_msgs.msg import Bool
 from pr2_mechanism_msgs.msg import MechanismStatistics, JointStatistics, ActuatorStatistics
+from ectools.msg import ecstats
 
 import os
 import time
@@ -59,8 +60,9 @@ class FakeComponent:
         rospy.init_node('fake_component')
         self.diag_pub = rospy.Publisher('/diagnostics', DiagnosticArray)
         self.motors_pub = rospy.Publisher('pr2_etherCAT/motors_halted', Bool)
-        
+        self.ecstat_pub = rospy.Publisher('ecstats', ecstats)
         self.mech_pub = rospy.Publisher('mechanism_statistics', MechanismStatistics)
+
         self._reset_srv = rospy.Service('pr2_etherCAT/reset_motors', Empty, self.on_reset)
         self._halt_srv = rospy.Service('pr2_etherCAT/halt_motors', Empty, self.on_halt)
 
@@ -70,6 +72,9 @@ class FakeComponent:
         self._start_time = rospy.get_time()
 
         self._last_diag_pub = rospy.get_time()
+        self._last_ecstats_pub = rospy.get_time()
+
+        self._total_sent = 0
 
     def on_halt(self, srv):
         self._mutex.acquire()
@@ -127,6 +132,23 @@ class FakeComponent:
 
         self.mech_pub.publish(mech_st)
 
+    def publish_ecstats(self):
+        self._total_sent += 20
+
+        ecstat = ecstats()
+        ecstat.has_link = True
+        ecstat.max_device_count = 0
+        ecstat.total_sent_packets = self._total_sent
+        ecstat.interval_sent_packets = 100
+        ecstat.total_dropped_packets = 0
+        ecstat.interval_dropped_packets = 0
+        ecstat.total_bandwidth_mbps = 100
+        ecstat.interval_bandwidth_mbps = 100
+
+        self.ecstat_pub.publish(ecstat)
+
+        self._last_ecstats_pub = rospy.get_time()
+
     def publish_diag(self):
         ok = False
         self._mutex.acquire()
@@ -155,10 +177,14 @@ class FakeComponent:
 
         self.motors_pub.publish(Bool(False))
 
+        self._last_diag_pub = rospy.get_time()
+
     def publish(self):
         self.publish_mech_stats()
         if rospy.get_time() - self._last_diag_pub > 1.0:
             self.publish_diag()
+        if rospy.get_time() - self._last_ecstats_pub > 0.2:
+            self.publish_ecstats()
 
 if __name__ == '__main__':
     fc = FakeComponent()

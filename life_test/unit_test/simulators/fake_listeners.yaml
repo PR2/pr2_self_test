@@ -21,3 +21,6 @@ trans:
 cam:
   type: CameraListener
   file: camera_listener
+ecstats:
+  type: ECStatsListener
+  file: ecstats_listener

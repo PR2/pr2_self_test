@@ -49,7 +49,8 @@ def p(x, y, z, rx, ry, rz, w):
   m.pose.orientation.z = rz
   m.pose.orientation.w = w
   pub.publish(m)
-rospy.init_node('pub', anonymous=True)
+
+rospy.init_node('random_poses_right')
 
 POINTS = [
   (0.5, -0.5, 0.8, 0.5, 0.0, 0.0, 0.5),
@@ -61,5 +62,6 @@ POINTS = [
 ]
 
 while not rospy.is_shutdown():
-  time.sleep(random.uniform(0.1, 0.1))
+  time.sleep(random.uniform(0.5, 1.0))
   p(*POINTS[random.randint(0, len(POINTS)-1)])
+
