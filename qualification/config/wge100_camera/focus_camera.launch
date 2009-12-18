@@ -13,10 +13,7 @@
     <param name="trig_phase" type="int" value="0" />
   </node>
 
-  <node name="wge100_focus_proc" pkg="image_proc" type="image_proc" respawn="false" output="screen">
-    <remap from="camera" to="wge100_focus"/>
-    <param name="do_colorize" type="bool" value="True"/>
-  </node>
+  <node ns=="wge100_focus" name="wge100_focus_proc" pkg="image_proc" type="image_proc" respawn="false" output="screen"/>
   
   <node pkg="image_view" type="image_view" respawn="false" name="wge100_focus_image_view">
     <param name="autosize" type="bool" value="True"/>
