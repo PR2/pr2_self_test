@@ -42,10 +42,10 @@ trans:
   wrist_flex_trans:
     joint: r_wrist_flex_joint
     actuator: r_wrist_l_motor
-    up_ref: 0.54105
+    down_ref: -0.54105
     deadband: 0.1
-    max: 2.55
-    min: 0.0
+    min: -2.55
+    max: 0.0
   wrist_roll_trans:
     joint: r_wrist_roll_joint
     actuator: r_wrist_r_motor
@@ -58,3 +58,6 @@ trans:
     actuator: r_gripper_motor
     max: 0.09
     min: -0.001
+camera:
+  type: CameraListener
+  file: camera_listener

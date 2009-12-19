@@ -2,14 +2,14 @@
   <!-- Cartesian wrench controller -->
   <group ns="r_arm_cartesian_wrench_controller" clear_params="true">
     <param name="type" type="string" value="CartesianWrenchController" />
-    <param name="root_name" type="string" value="base_link" />
+    <param name="root_name" type="string" value="torso_lift_link" />
     <param name="tip_name" type="string" value="r_gripper_tool_frame" />
   </group>
 
   <!-- Cartesian twist controller -->
   <group ns="r_arm_cartesian_twist_controller" clear_params="true">
     <param name="type" type="string" value="CartesianTwistController" />
-    <param name="root_name" type="string" value="base_link" />
+    <param name="root_name" type="string" value="torso_lift_link" />
     <param name="tip_name" type="string" value="r_gripper_tool_frame" />
     <param name="output" type="string" value="r_arm_cartesian_wrench_controller" />
     <param name="ff_trans" value="0.0" />
@@ -27,7 +27,7 @@
 <!-- Cartesian pose controller -->
   <group ns="r_arm_cartesian_pose_controller" clear_params="true">
     <param name="type" type="string" value="CartesianPoseController" />
-    <param name="root_name" type="string" value="base_link" />
+    <param name="root_name" type="string" value="torso_lift_link" />
     <param name="tip_name" type="string" value="r_gripper_tool_frame" />
     <param name="output" type="string" value="r_arm_cartesian_twist_controller" />
 
@@ -40,7 +40,7 @@
 <!-- Cartesian trajectory controller -->
   <group ns="r_arm_cartesian_trajectory_controller" clear_params="true">
     <param name="type" type="string" value="CartesianTrajectoryController" />
-    <param name="root_name" type="string" value="base_link" />
+    <param name="root_name" type="string" value="torso_lift_link" />
     <param name="tip_name" type="string" value="r_gripper_tool_frame" />
     <param name="output" type="string" value="r_arm_cartesian_pose_controller" />
     <param name="max_vel_trans" value="0.5" />

@@ -15,7 +15,7 @@
   <node pkg="life_test" type="random_poses_right.py" name="random_poses" />
 
   <!-- WGE100 cam -->
-<!--  <include file="$(find life_test)/wge100.launch" /> -->
+  <include file="$(find life_test)/wge100.launch" /> 
 
   <!-- Monitor (with transmission checker) -->
   <node pkg="life_test" type="test_monitor.py"
