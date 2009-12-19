@@ -14,6 +14,17 @@
   <include file="$(find life_test)/arm_test/controller_cartesian_trajectory_right.launch" />
   <node pkg="life_test" type="random_poses_right.py" name="random_poses" />
 
+  <!-- Controller -->
+  <group ns="r_gripper_effort_controller" >
+    <param name="type" type="str" value="JointEffortController" />
+    <param name="joint" type="str" value="r_gripper_joint" />
+  </group>
+  <node pkg="pr2_controller_manager" type="spawner"
+        args="r_gripper_effort_controller" name="grip_spawn"
+        output="screen" />
+  <node pkg="life_test" type="gripper_cmder.py" name="gripper_cmder"
+        args="r_gripper_effort_controller" />
+  
   <!-- WGE100 cam -->
   <include file="$(find life_test)/wge100.launch" /> 
 

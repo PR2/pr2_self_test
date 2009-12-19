@@ -60,7 +60,7 @@ def main():
     eff = 100
 
     turn_count = 0
-    last_state = LastMessage('joint_state', JointState)
+    last_state = LastMessage('joint_states', JointState)
     try:
         pub = rospy.Publisher(control_topic, Float64)
         while not last_state.msg and not rospy.is_shutdown(): sleep(0.1)
