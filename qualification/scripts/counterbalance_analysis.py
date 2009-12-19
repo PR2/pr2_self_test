@@ -114,8 +114,9 @@ class CounterbalanceAnalysisParams:
         self.flex_d       = srv.arg_value[21]
         self.flex_i_clamp = srv.arg_value[22]
         
-
-        ##\todo Need to count flex index, lift_index
+        self.num_flexes   = len(srv.lift_data[0].flex_data)
+        self.num_lifts    = len(srv.lift_data[0].flex_data)
+        ##\todo Need to count len flexes, lifts
 
     def get_test_params(self):
         params = []
@@ -238,6 +239,43 @@ def plot_efforts_by_lift_position(params, data, flex_index = 0, lift_calc = True
 
     return p
 
+def get_flex_positions(data):
+    flex_list = []
+    for fd in data.lift_data[0].flex_data:
+        flex_list.append(fd.flex_position)
+
+    return flex_list
+
+def plot_effort_contour(params, data, lift_calc = True):
+    effort_list = []
+    for i in range(0, params.num_flexes):
+        lifts, efforts = get_const_lift_effort(data, i, lift_calc)
+        effort_list.append(efforts)
+    flexes = get_flex_positions(data)
+    flex_grid, lift_grid = numpy.meshgrid(numpy.array(flexes), numpy.array(lifts))
+    effort_grid = numpy.array(effort_list)
+
+    CS = plot.contour(flex_grid, lift_grid, effort_grid)
+    plot.clabel(CS, inline=0, fontsize=10)
+    
+    plot.xlabel('Flex')
+    plot.ylabel('Lift')
+        
+    stream = StringIO()
+    plot.savefig(stream, format = 'png')
+    image = stream.getvalue()
+    p = Plot()
+    if lift_calc:
+        p.title = 'lift_effort_contour'
+    else:
+        p.title = 'flex_effort_contour'
+    p.image = image
+    p.image_format = 'png'
+    
+    plot.close()
+
+    return p
+
 def analyze_lift_efforts(params, data):
     result = CounterbalanceAnalysisResult()
     
@@ -275,6 +313,42 @@ def analyze_lift_efforts(params, data):
 
     return result
     
+def analyze_flex_efforts(params, data):
+    result = CounterbalanceAnalysisResult()
+    
+    avg_efforts = numpy.array(get_efforts(data, False))
+    mse = get_mean_sq_effort(avg_efforts)
+    avg_abs = get_mean_abs_effort(avg_efforts)
+    avg_eff = get_mean_effort(avg_efforts)
+
+    mse_ok = mse < params.flex_mse
+    avg_abs_ok = avg_abs < params.flex_avg_abs
+    avg_eff_ok = abs(avg_eff) < abs(params.flex_avg_eff)
+
+    if mse_ok and avg_abs_ok:
+        result.summary = 'Flex efforts OK'
+    else:
+        result.summary = 'Flex MSE/Avg. Absolute effort too high'
+
+    html = ['<p>%s</p>' % result.summary]
+    
+    html.append('<table border="1" cellpadding="2" cellspacing="0">')
+    html.append('<tr><td><b>Parameter</b></td><td><b>Value</b></td><td><b>Maximum</b></td><td><b>Status</b></td></tr>')
+    html.append('<tr><td><b>Mean Sq. Effort</b></td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>' % (mse, params.flex_mse, ok_dict[mse_ok]))
+    html.append('<tr><td><b>Average Abs. Effort</b></td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>' % (avg_abs, params.flex_avg_abs, ok_dict[avg_abs_ok]))
+    html.append('<tr><td><b>Average Effort</b></td><td>%.2f</td><td>%.2f</td><td>%s</td></tr>' % (avg_eff, params.flex_avg_eff, ok_dict[avg_eff_ok]))
+    html.append('</table>')
+
+    result.html = '\n'.join(html)
+
+    result.result = mse_ok and avg_abs_ok
+    
+    result.values = []
+    result.values.append(TestValue('Flex MSE', str(mse), '', str(params.flex_mse)))
+    result.values.append(TestValue('Flex Avg. Abs. Effort', str(avg_abs), '', str(params.flex_avg_abs)))
+    result.values.append(TestValue('Flex Avg.  Effort', str(avg_eff), '', str(params.flex_avg_eff)))
+
+    return result
 
 class CounterbalanceAnalysis:
     def __init__(self):
@@ -288,9 +362,12 @@ class CounterbalanceAnalysis:
 
     def send_results(self, r):
         if not self._sent_results:
-            self._result_service.call(r)
             self._sent_results = True
-        
+            print r.text_summary
+            print r.html_result
+            print r.result
+            
+            self._result_service.call(r)
             
     def test_failed_service_call(self, except_str = ''):
         rospy.logerr(except_str)
@@ -312,10 +389,21 @@ class CounterbalanceAnalysis:
             lift_effort_result = analyze_lift_efforts(params, data)
             lift_effort_plot = plot_efforts_by_lift_position(params, data)
 
+            if params.flex_test:
+                flex_effort_result = analyze_flex_efforts(params, data)
+                lift_effort_contour = plot_effort_contour(params, data)
+
             html = ['<p>Counterbalance Analysis</p>']
+            if params.flex_test:
+                html.append('<H4>Lift Effort Contour Plot</H4>')
+                html.append('<img src=\"IMG_PATH/%s.png\" width=\"640\" height=\"480\" />' % (lift_effort_contour.title))
+                html.append('<H4>Flex Effort Analysis</H4>')
+                html.append(flex_effort_result.html)
+
             html.append('<H4>Lift Effort Analysis</H4>')
             html.append(lift_effort_result.html)
             html.append('<img src=\"IMG_PATH/%s.png\" width=\"640\" height=\"480\" />' % (lift_effort_plot.title))
+
             html.append('<p>Test Parameters</p>')
             html.append('<table border="1" cellpadding="2" cellspacing="0">')
             html.append('<tr><td><b>Joint</b></td><td><b>Dither Amplitude</b></td></tr>')
@@ -331,12 +419,17 @@ class CounterbalanceAnalysis:
             r = TestResultRequest()
             r.html_result = '\n'.join(html)
             r.text_summary = ' '.join([lift_effort_result.summary])
+            r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
 
-            if lift_effort_result.result:
+            if params.flex_test and lift_effort_result.result and flex_effort_result.result:
                 r.result = TestResultRequest.RESULT_PASS
-            else:
-                r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
+            elif lift_effort_result.result:
+                r.result = TestResultRequest.RESULT_PASS
+
+
             r.plots = [ lift_effort_plot ]
+            if params.flex_test:
+                r.plots.append(lift_effort_contour)
             r.params = params.get_test_params()
             r.values = lift_effort_result.values
 

@@ -11,5 +11,8 @@
         name="checkout_spawner" args="test_controller" />
     
   <node pkg="qualification" type="robot_checkout.py"
-        name="robot_checkout" />
+        name="robot_checkout" >
+    <rosparam command="load"
+              file="$(find qualification)/tests/full_arm_test/full_arm_check_data.yaml" />
+  </node>
 </launch>

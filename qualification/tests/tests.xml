@@ -1,5 +1,5 @@
 <tests>
-  <!-- Base and Spine -->
+  <!-- Caster -->
   <test serial="6804108" 
 	file="caster_test/test.xml" descrip="Caster Test"/>
   <test serial="6804108" 
@@ -9,6 +9,7 @@
   <test serial="6802966"
         file="caster_test/test_hub.xml" descrip="Caster Hub + Motor Test" />
 
+  <!-- Torso -->
   <test serial="6802478" 
 	file="torso_lift_test/test.xml" descrip="Torso Lift Test" />  
   <test serial="6804080" 
@@ -28,27 +29,23 @@
   <!-- Laser tilt sled -->
   <test serial="6804001" 
 	file="laser_tilt_test/test.xml" descrip="Laser Tilt Test" />
-    <test serial="6804001" 
+  <test serial="6804001" 
 	file="laser_tilt_test/test_drop.xml" descrip="Laser Tilt Drop Test" />
   <test serial="6802990"
         file="laser_tilt_test/test_motor.xml" descrip="Laser Tilt Drivetrain Test" />
 
   <!-- Arm Tests -->
-  <test serial="counter"
-	file="full_arm_test/test_cb.xml" descrip="Counterbalance Test" />
+  <test serial="6804204" 
+        file="full_arm_test/test.xml" descrip="Full Arm Test" />
 
-  <!--
-      <test serial="6804204" 
-            file="full_arm_test/test_cb.xml" descrip="Counter Test" />
-      -->
+  <!-- Shoulder Tests -->
   <test serial="6804204" 
 	file="shoulder_test/test.xml" descrip="Shoulder Test" />
   <test serial="6804204" 
 	file="shoulder_test/test_dummy_ua.xml" descrip="Shoulder + CB Test (Dummy UA)" />
   <test serial="6802818" 
 	file="shoulder_test/test_lift_motor.xml" descrip="Shoulder Lift Motor Test" />
-  
-  
+    
   <!-- Upperarm tests -->
   <test serial="6804139" 
 	file="upperarm_test/test.xml" descrip="Upperarm Test" />
@@ -61,11 +58,10 @@
   <test serial="6804152" 
 	file="upperarm_test/test_forearm_roll.xml" descrip="Forearm Roll Test (Slip Ring)" />
 
-
   <!-- Wrist test -->
   <test serial="6804213" 
 	file="wrist_test/test.xml" descrip="Wrist Test" />
-    <test serial="6804213" 
+  <test serial="6804213" 
 	file="wrist_test/test_dummy_grip.xml" descrip="Wrist Test (Dummy Gripper)" />
   <test serial="6804213" 
 	file="wrist_test/test_post_burn.xml" descrip="Wrist Test (Post Burn-in)" />
