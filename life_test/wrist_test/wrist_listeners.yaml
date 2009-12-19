@@ -14,8 +14,8 @@ trans:
   flex_trans:
     joint: r_wrist_flex_joint
     actuator: r_wrist_l_motor
-    up_ref: 0.54105
+    down_ref: 0.54105
     deadband: 0.1
-    max: 2.55
-    min: 0.0
+    min: -2.55
+    max: 0.0
 
