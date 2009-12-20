@@ -2,6 +2,6 @@
 <!-- Used in hot box testing to move arms to random positions -->
 <include file="$(find life_test)/arm_life_test/controller_cartesian_trajectory_left.launch" />
 <include file="$(find life_test)/arm_life_test/controller_cartesian_trajectory_right.launch" />
-<node pkg="life_test" type="random_poses_left.py" />
-<node pkg="life_test" type="random_poses_right.py" />
+<node pkg="life_test" name="random_poses_left" type="random_poses_left.py" />
+<node pkg="life_test" name="random_poses_right" type="random_poses_right.py" />
 </launch>
