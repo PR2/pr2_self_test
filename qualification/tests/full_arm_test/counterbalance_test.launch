@@ -1,0 +1,19 @@
+<launch>
+  <!-- Hold arms in place -->
+  <rosparam command="load"
+            file="$(find pr2_controller_configuration)/pr2_joint_position_controllers.yaml" />
+  <rosparam command="load"
+            file="$(find qualification)/tests/full_arm_test/counterbalance_controller.yaml" />
+  <node pkg="pr2_controller_manager" type="spawner" name="arm_spawner"
+        args="--wait-for=calibrated r_shoulder_pan_position_controller r_upper_arm_roll_position_controller r_forearm_roll_position_controller r_wrist_flex_position_controller r_wrist_roll_position_controller" />
+  <node pkg="qualification" type="full_arm_holder.py"
+        name="arm_holder" args="--wait-for=calibrated" />
+
+  <!-- CB test controller only starts once arms are held -->
+  <node pkg="pr2_controller_manager" type="spawner"
+        args="test_controller --wait-for=arms_held"
+        name="cb_test_spawner" />
+
+  <node pkg="qualification" type="counterbalance_analysis.py"
+        name="cb_analysis" output="screen" />
+</launch>
