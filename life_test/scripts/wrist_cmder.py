@@ -51,12 +51,10 @@ def main():
         
     freq = float(rospy.get_param('cycle_rate'))
 
-    sleep(5.0)
-    
     try:
         my_rate = rospy.Rate(freq)
         while not rospy.is_shutdown():
-            position_flex = random.uniform(0.2, 1.8) #(0.2, 1.5)
+            position_flex = random.uniform(-1.8, -0.2)
 
             if random.randint(0, 1) == 1:
                 effort_roll = effort_roll * -1
