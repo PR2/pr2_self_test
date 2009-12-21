@@ -267,6 +267,7 @@ class TestMonitorPanel(wx.Panel):
 
         self.notify_operator(3, 'Log Requested.', string.join(names, ','))
 
+    ##\todo Add are-you-sure to close button
     def on_close(self, event):
         try:
             self.update_test_record('Closing down test.')
