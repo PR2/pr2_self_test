@@ -774,7 +774,7 @@ class TestMonitorPanel(wx.Panel):
             self._launch_button.Enable(True)
             return False
 
-        local_status = '/' + self._bay.name + '/test_status'
+        local_status = '/' + str(self._bay.name) + '/test_status'
         self._is_running = True
         self.update_invent()
         self._monitor_panel.change_diagnostic_topic(local_diag)
