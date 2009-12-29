@@ -110,6 +110,7 @@ class TestScriptResult:
 ##
 ## Stores results of subtests in any case. Completely encapsulates
 ## numeric values of result types from users. 
+
 class SubTestResultType:
     __result_types = { 
         0: "Pass", 
@@ -183,6 +184,8 @@ class SubTestResultType:
 ##\brief Stores and displays result from qualification subtest
 ##
 ##
+##\todo Make unit test of this class. Test should try getting subtest, TestResultRequest
+## and writing images, displaying results.
 class SubTestResult:
     ##\param subtest test/SubTest : Subtest that completed
     ##\param msg srv/TestResultRequest : Received msg from analysis
@@ -343,32 +346,32 @@ em { font-style:normal; font-weight: bold; }\
 
 
     def _html_test_info(self):
-        html = '<H4 align=center>Subtest Information</H4>\n'
+        html = ['<H4 align=center>Subtest Information</H4>']
 
-        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Parameter</b></td><td><b>Value</b></td></tr>\n'
+        html.append('<table border="1" cellpadding="2" cellspacing="0">')
+        html.append('<tr><td><b>Parameter</b></td><td><b>Value</b></td></tr>')
 
         if self._subtest._pre_script:
-            html += '<tr><td>Pre-test</td><td>%s</td></tr>\n' % os.path.basename(self._subtest._pre_script)
+            html.append('<tr><td>Pre-test</td><td>%s</td></tr>' % os.path.basename(self._subtest._pre_script))
         else:
-            html += '<tr><td>Pre-test</td><td>None</td></tr>\n' 
+            html.append('<tr><td>Pre-test</td><td>None</td></tr>')
 
         if self._subtest._post_script:
-            html += '<tr><td>Post-test</td><td>%s</td></tr>\n' % os.path.basename(self._subtest._post_script)
+            html.append('<tr><td>Post-test</td><td>%s</td></tr>' % os.path.basename(self._subtest._post_script))
         else:
-            html += '<tr><td>Post-test</td><td>None</td></tr>\n' 
+            html.append('<tr><td>Post-test</td><td>None</td></tr>')
 
         launch_file = self._subtest._test_script
         (path, launch_pkg) = roslib.packages.get_dir_pkg(launch_file)
         path_idx = launch_file.find(launch_pkg) + len(launch_pkg) + 1
         
         
-        html += '<tr><td>Launch package</td><td>%s</td></tr>\n' % launch_pkg
-        html += '<tr><td>Launch filepath</td><td>%s</td></tr>\n' % launch_file[path_idx:]
+        html.append('<tr><td>Launch package</td><td>%s</td></tr>' % launch_pkg)
+        html.append('<tr><td>Launch filepath</td><td>%s</td></tr>' % launch_file[path_idx:])
 
-        html += '</table>\n'
+        html.append('</table>')
 
-        return html 
+        return '\n'.join(html)
 
     # The header of a subtest result, also called when diplaying 
     # short version of tests in index.html file
@@ -404,6 +407,7 @@ em { font-style:normal; font-weight: bold; }\
 ##\brief Result of Qualification test. Stores and logs all data
 ##
 ##
+##\todo Make unit test of this class. Should get a series of subresults, check links, 
 class QualTestResult:
     ##\param qual_item QualTestItem : Item under test
     ##\param qual_test Test : Test we're running
@@ -414,7 +418,7 @@ class QualTestResult:
         self._subresults = {}
         self._subresults_by_index = {}
 
-        # Should we do this?
+        ##\todo Store retrys/subresults in list, by index
         self._retrys = {}
         self._retrys_by_index = {}
         
@@ -431,6 +435,7 @@ class QualTestResult:
         self._serial = qual_item.serial
         self._item_name = qual_item.name
 
+        ##\todo Fix this
         # See if the qual_item is a configuration item
         try:
             config = self._item._config
@@ -456,6 +461,7 @@ class QualTestResult:
         self._note = ''
         self._operator = ''
 
+    ##\todo Move cleanup stuff into "close()" method
     def __del__(self):
         # Delete extra directories if empty
         if self._made_dir != '' and len(os.listdir(self._made_dir)) == 0:
@@ -467,6 +473,7 @@ class QualTestResult:
     def set_operator(self, name):
         self._operator = name
 
+    ##\todo All these should be fixed
     def get_prestarts(self):
         kys = dict.keys(self._prestarts_by_index)
         kys.sort()
@@ -515,6 +522,7 @@ class QualTestResult:
 
         return self._retrys_by_index[index]
 
+    ##\todo All these should just be appending to a list
     def add_shutdown_result(self, msg):
         script = self._qual_test.getShutdownScript()
 
@@ -604,6 +612,7 @@ class QualTestResult:
             return "PASS"
         return "FAIL"
 
+    ##\todo This needs major cleanup
     def get_test_result_str(self):
         if len(self.get_subresults()) == 0 or not self.prestarts_ok():
             return "Fail"
@@ -636,6 +645,7 @@ class QualTestResult:
         return "Pass"
 
     ##\todo Append strings, make parse tests
+    ##\todo Rename all "make_" methods to "write_" methods
     def make_summary_page(self, link = True, link_dir = TEMP_DIR):
         html = "<html><head>\n"
         html += "<title>Qualification Test Result for %s as %s: %s</title>\n" % (self._serial, self._item_name, self._start_time_name)
@@ -915,6 +925,7 @@ em { font-style: normal; font-weight: bold; }\
         
 
     # Make invent results pretty, HTML links work
+    ##\todo Add timeout to invent, warn if problem
     def log_results(self, invent):
         # Write results to results dir, with local links
         self.write_results_to_file(False, True)
