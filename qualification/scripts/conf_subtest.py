@@ -62,3 +62,4 @@ r.result = TestResultRequest.RESULT_PASS
 
 rospy.wait_for_service('test_result')
 result_proxy.call(r)
+rospy.spin()
