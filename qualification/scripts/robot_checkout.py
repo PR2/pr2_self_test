@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@ import roslib
 roslib.load_manifest(PKG)
 
 import rospy
-#import sys, os
 from time import sleep
 
 
@@ -134,13 +133,13 @@ class RobotCheckout:
 
     def wait_for_data(self):
         try:
-            rospy.logout('Waiting for diagnostics')
+            rospy.logdebug('Robot checkout is waiting for diagnostics')
             # Wait at least 10 seconds for data
             for i in range(0, 20):
                 if not rospy.is_shutdown():
                     sleep(0.5)
                     
-            rospy.logout('Waiting for joint calibration')
+            rospy.logdebug('Waiting for robot checkout controller')
             # Now start checking for robot data, done if we have it
             while not rospy.is_shutdown():
                 if self._has_visual_check and not self._visual_ok:
@@ -150,10 +149,9 @@ class RobotCheckout:
                     self.checkout_robot()
                     return
                 sleep(0.5)
-                        
-            #if not rospy.is_shutdown():
-            #    self.checkout_robot()
-            #    return
+ 
+        except KeyboardInterrupt:
+            pass
         except Exception, e:
             self.send_failure_call('wait_for_data', traceback.format_exc())
 
@@ -170,7 +168,7 @@ class RobotCheckout:
             self.send_failure_call('on_diagnostic_msg', traceback.format_exc())
 
     def on_visual_check(self, srv):
-        rospy.loginfo('Got visual check')
+        rospy.logdebug('Got visual check')
         self._has_visual_check = True
         
         if srv.result == ScriptDoneRequest.RESULT_OK:
@@ -193,7 +191,7 @@ class RobotCheckout:
             
 
     def on_robot_data(self, srv):
-        rospy.loginfo('Got robot data service')
+        rospy.logdebug('Got robot data service')
         self._has_robot_data = True
         
         if srv.test_time >= 0:
@@ -207,7 +205,6 @@ class RobotCheckout:
 
     def process_diagnostics(self):
         # Sort diagnostics by level
-        rospy.loginfo('Sorting diagnostic messages by level')
         diagnostics = dict.values(self._name_to_diagnostic)
         for diag in diagnostics:
             diag.check_stale()
@@ -222,7 +219,6 @@ class RobotCheckout:
         table = '<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">\n'
         table += '<tr><td><b>Name</b></td><td><b>Level</b></td><td><b>Message</b></td></tr>\n'
 
-        rospy.loginfo('Outputting diagnostics')
         for diag in diagnostics:
             level = level_dict[diag._level]
             table += '<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n' % (diag._name, level, diag._message)
@@ -301,16 +297,11 @@ class RobotCheckout:
             if self._expected_actuators is None:
                 html.append('<p>WARNING: No list of expected actuators was given. In the future, this will cause a failure.</p>\n')
             html.append('<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">\n')
-            html.append('<tr><td><b>Index</b></td><td><b>Name</b></td><td><b>Enabled</b></td><td><b>ID</b></td><td><b>Expected</b></td></tr>\n')
+            html.append('<tr><td><b>Index</b></td><td><b>Name</b></td><td><b>ID</b></td><td><b>Expected</b></td></tr>\n')
             for act_data in act_datas:
                 index = act_data.index
                 name  = act_data.name
                 id    = act_data.id
-                if act_data.enabled:
-                    enabled = '<div class=\"pass\">OK</div>'
-                else:
-                    enabled = '<div class=\"warn\">FAIL</div>'
-                    self._acts_ok = False
 
                 expect = 'N/A'
                 found_acts.append(act_data.name)
@@ -322,13 +313,13 @@ class RobotCheckout:
                         self._acts_ok = False
                         
 
-                html.append('<tr><td>%d</td><td>%s</td><td>%s</td><td>%d</td><td>%s</td></tr>\n' % (index, name, enabled, id, expect))
+                html.append('<tr><td>%d</td><td>%s</td><td>%d</td><td>%s</td></tr>\n' % (index, name, id, expect))
 
             # Compare expected against found
             if self._expected_actuators is not None:
                 for name in self._expected_actuators:
                     if not name in found_acts:
-                        html.append('<tr><td>N/A</td><td>%s</td><td>Not Found</td><td>False</td></tr>\n' % (name, expect))
+                        html.append('<tr><td>N/A</td><td>%s</td><td>Not Found</td><td>True</td></tr>\n' % (name))
                         self._acts_ok = False
 
             html.append('</table>\n')
@@ -337,8 +328,6 @@ class RobotCheckout:
                 self._act_sum = 'Acutators: OK. ' 
             else:
                 self._act_sum = 'Actuators: FAIL! '
-
-            
 
             self._act_html = ''.join(html)
 
