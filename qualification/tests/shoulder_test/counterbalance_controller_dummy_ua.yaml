@@ -6,11 +6,11 @@ test_controller:
   lift:
     joint: r_shoulder_lift_joint
     type: JointPositionController
-    pid/p: 60.0
-    pid/i: 8.0
-    pid/d: 2.0
-    pid/i_clamp: 3.0
-    min: -0.4
+    pid/p: 75.0
+    pid/i: 5.0
+    pid/d: 10.0
+    pid/i_clamp: 2.0
+    min: -0.2
     max: 1.21
     delta: 0.2
     dither: 8.0
