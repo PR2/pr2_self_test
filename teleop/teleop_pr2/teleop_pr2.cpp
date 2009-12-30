@@ -2,10 +2,10 @@
  * teleop_pr2
  * Copyright (c) 2008, Willow Garage, Inc.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -14,7 +14,7 @@
  *     * Neither the name of the <ORGANIZATION> nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -40,21 +40,24 @@
 #include "joy/Joy.h"
 #include "geometry_msgs/Twist.h"
 #include "sensor_msgs/JointState.h"
+#include "trajectory_msgs/JointTrajectory.h"
 
 #include "std_msgs/Float64.h"
 
 #define TORSO_TOPIC "torso_lift_velocity_controller/command"
-#define HEAD_TOPIC "head_controller/command"
+#define HEAD_TOPIC "head_traj_controller/command"
+const int PUBLISH_FREQ = 20;
 
 using namespace std;
 
-class TeleopPR2 
+class TeleopPR2
 {
    public:
   geometry_msgs::Twist cmd;
   std_msgs::Float64 torso_vel;
   //joy::Joy joy;
   double req_vx, req_vy, req_vw, req_torso, req_pan, req_tilt;
+  double req_tilt_vel, req_pan_vel;
   double max_vx, max_vy, max_vw, max_vx_run, max_vy_run, max_vw_run;
   double max_pan, max_tilt, min_tilt, pan_step, tilt_step;
   int axis_vx, axis_vy, axis_vw, axis_pan, axis_tilt;
@@ -83,7 +86,7 @@ class TeleopPR2
         n_private_.param("max_vx", max_vx, max_vx);
         n_private_.param("max_vy", max_vy, max_vy);
         n_private_.param("max_vw", max_vw, max_vw);
-        
+
         // Set max speed while running
         n_private_.param("max_vx_run", max_vx_run, max_vx_run);
         n_private_.param("max_vy_run", max_vy_run, max_vy_run);
@@ -93,17 +96,17 @@ class TeleopPR2
         n_private_.param("max_pan", max_pan, max_pan);
         n_private_.param("max_tilt", max_tilt, max_tilt);
         n_private_.param("min_tilt", min_tilt, min_tilt);
-        
+
         n_private_.param("tilt_step", tilt_step, tilt_step);
         n_private_.param("pan_step", pan_step, pan_step);
-        
+
         n_private_.param("axis_pan", axis_pan, 0);
         n_private_.param("axis_tilt", axis_tilt, 2);
 
         n_private_.param("axis_vx", axis_vx, 3);
         n_private_.param("axis_vw", axis_vw, 0);
         n_private_.param("axis_vy", axis_vy, 2);
-        
+
         n_private_.param("deadman_button", deadman_button, 0);
         n_private_.param("run_button", run_button, 0);
         n_private_.param("torso_dn_button", torso_dn_button, 0);
@@ -126,41 +129,42 @@ class TeleopPR2
         ROS_DEBUG("max_vx: %.3f m/s\n", max_vx);
         ROS_DEBUG("max_vy: %.3f m/s\n", max_vy);
         ROS_DEBUG("max_vw: %.3f deg/s\n", max_vw*180.0/M_PI);
-        
+
         ROS_DEBUG("max_vx_run: %.3f m/s\n", max_vx_run);
         ROS_DEBUG("max_vy_run: %.3f m/s\n", max_vy_run);
         ROS_DEBUG("max_vw_run: %.3f deg/s\n", max_vw_run*180.0/M_PI);
-        
+
         ROS_DEBUG("tilt step: %.3f rad\n", tilt_step);
         ROS_DEBUG("pan step: %.3f rad\n", pan_step);
-        
+
         ROS_DEBUG("axis_vx: %d\n", axis_vx);
         ROS_DEBUG("axis_vy: %d\n", axis_vy);
         ROS_DEBUG("axis_vw: %d\n", axis_vw);
         ROS_DEBUG("axis_pan: %d\n", axis_pan);
         ROS_DEBUG("axis_tilt: %d\n", axis_tilt);
-        
+
         ROS_DEBUG("deadman_button: %d\n", deadman_button);
         ROS_DEBUG("run_button: %d\n", run_button);
         ROS_DEBUG("torso_dn_button: %d\n", torso_dn_button);
         ROS_DEBUG("torso_up_button: %d\n", torso_up_button);
         ROS_DEBUG("head_button: %d\n", head_button);
         ROS_DEBUG("joy_msg_timeout: %f\n", joy_msg_timeout);
-        
+
         if (torso_dn_button != 0)
           torso_pub_ = n_.advertise<std_msgs::Float64>(TORSO_TOPIC, 1);
-        
+
         if (head_button != 0)
-          head_pub_ = n_.advertise<sensor_msgs::JointState>(HEAD_TOPIC, 1);
+          head_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>(HEAD_TOPIC, 1);
+        //head_pub_ = n_.advertise<sensor_msgs::JointState>(HEAD_TOPIC, 1);
 
         vel_pub_ = n_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
         joy_sub_ = n_.subscribe("joy", 10, &TeleopPR2::joy_cb, this);
       }
-  
+
   ~TeleopPR2() { }
 
-  
+
   /** Callback for joy topic **/
   void joy_cb(const joy::Joy::ConstPtr& joy_msg)
   {
@@ -171,15 +175,15 @@ class TeleopPR2
 
     if (!deadman_)
       return;
-    
+
     bool cmd_head = (((unsigned int)head_button < joy_msg->get_buttons_size()) && joy_msg->buttons[head_button]);
-    
+
     // Base
     bool running = (((unsigned int)run_button < joy_msg->get_buttons_size()) && joy_msg->buttons[run_button]);
     double vx = running ? max_vx_run : max_vx;
     double vy = running ? max_vy_run : max_vy;
     double vw = running ? max_vw_run : max_vw;
-    
+
     if((axis_vx >= 0) && (((unsigned int)axis_vx) < joy_msg->get_axes_size()) && !cmd_head)
       req_vx = joy_msg->axes[axis_vx] * vx;
     else
@@ -198,27 +202,34 @@ class TeleopPR2
     req_vx = max(min(req_vx, vx), -vx);
     req_vy = max(min(req_vy, vy), -vy);
     req_vw = max(min(req_vw, vw), -vw);
-    
+
     // Head
     // Update commanded position by how joysticks moving
     // Don't add commanded position if deadman off
-    if((axis_pan >= 0) && (((unsigned int)axis_pan) < joy_msg->get_axes_size()) && cmd_head && deadman_)
+    if (deadman_ && cmd_head)
     {
-      req_pan += joy_msg->axes[axis_pan] * pan_step;
-      req_pan = max(min(req_pan, max_pan), -max_pan);
+      if (axis_pan >= 0 && axis_pan < (int)joy_msg->axes.size())
+      {
+        //req_pan += joy_msg->axes[axis_pan] * pan_step;
+        //req_pan = max(min(req_pan, max_pan), -max_pan);
+
+        req_pan_vel = joy_msg->axes[axis_pan] * pan_step;
+      }
+
+      if (axis_tilt >= 0 && axis_tilt < (int)joy_msg->axes.size())
+      {
+        //req_tilt += joy_msg->axes[axis_tilt] * tilt_step;
+        //req_tilt = max(min(req_tilt, max_tilt), min_tilt);
+
+        req_tilt_vel = joy_msg->axes[axis_tilt] * tilt_step;
+      }
     }
-    
-    if ((axis_tilt >= 0) && (((unsigned int)axis_tilt) < joy_msg->get_axes_size()) && cmd_head && deadman_)
-    {
-      req_tilt += joy_msg->axes[axis_tilt] * tilt_step;
-      req_tilt = max(min(req_tilt, max_tilt), min_tilt);
-    }
-    
+
     // Torso
     bool down = (((unsigned int)torso_dn_button < joy_msg->get_buttons_size()) && joy_msg->buttons[torso_dn_button]);
     bool up = (((unsigned int)torso_up_button < joy_msg->get_buttons_size()) && joy_msg->buttons[torso_up_button]);
-    
-    // Bring torso up/down 
+
+    // Bring torso up/down
     if (down && !up)
       req_torso = -0.01;
     else if (up && !down)
@@ -227,38 +238,61 @@ class TeleopPR2
       req_torso = 0;
   }
 
-  
+
   void send_cmd_vel()
   {
     if(deadman_  &&
        last_recieved_joy_message_time_ + joy_msg_timeout_ > ros::Time::now())
-    { 
+    {
       // Base
       cmd.linear.x = req_vx;
       cmd.linear.y = req_vy;
       cmd.angular.z = req_vw;
       vel_pub_.publish(cmd);
-      
+
       // Torso
       torso_vel.data = req_torso;
       if (torso_dn_button != 0)
         torso_pub_.publish(torso_vel);
-      
+
       // Head
       if (head_button != 0)
       {
+        double dt = 1.0/double(PUBLISH_FREQ);
+        double horizon = 3.0 * dt;
+
+        trajectory_msgs::JointTrajectory traj;
+        traj.header.stamp = ros::Time::now() + ros::Duration(0.01);
+        traj.joint_names.push_back("head_pan_joint");
+        traj.joint_names.push_back("head_tilt_joint");
+        traj.points.resize(1);
+        traj.points[0].positions.push_back(req_pan + req_pan_vel * horizon);
+        traj.points[0].velocities.push_back(req_pan_vel);
+        traj.points[0].positions.push_back(req_tilt + req_tilt_vel * horizon);
+        traj.points[0].velocities.push_back(req_tilt_vel);
+        traj.points[0].time_from_start = ros::Duration(horizon);
+        head_pub_.publish(traj);
+
+        // Updates the current positions
+        req_pan += req_pan_vel * dt;
+        req_pan = max(min(req_pan, max_pan), -max_pan);
+        req_tilt += req_tilt_vel * dt;
+        req_tilt = max(min(req_tilt, max_tilt), min_tilt);
+
+#if 0
         sensor_msgs::JointState joint_cmds;
 	joint_cmds.header.stamp = ros::Time::now();
         joint_cmds.set_name_size(2);
         joint_cmds.set_position_size(2);
-        
+
         joint_cmds.name[0] ="head_pan_joint";
         joint_cmds.position[0] = req_pan;
         joint_cmds.name[1] ="head_tilt_joint";
         joint_cmds.position[1] = req_tilt;
         head_pub_.publish(joint_cmds);
+#endif
       }
-      
+
       if (req_torso != 0)
         fprintf(stdout,"teleop_base:: %f, %f, %f. Head:: %f, %f. Torso cmd: %f.\n", cmd.linear.x, cmd.linear.y, cmd.angular.z, req_pan, req_tilt, torso_vel.data);
       else
@@ -277,7 +311,7 @@ class TeleopPR2
         // Torso
         if (torso_dn_button != 0)
           torso_pub_.publish(torso_vel);
-        
+
         // Publish head
         if (head_button != 0)
         {
@@ -289,9 +323,11 @@ class TeleopPR2
           joint_cmds.position[0] = req_pan;
           joint_cmds.name[1] ="head_tilt_joint";
           joint_cmds.position[1] = req_tilt;
-          head_pub_.publish(joint_cmds);
+          //head_pub_.publish(joint_cmds);
+          // TODO
+          #warning
         }
-        
+
       }
     }
   }
@@ -301,26 +337,26 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "teleop_pr2");
   const char* opt_no_publish    = "--deadman_no_publish";
-  
+
   bool no_publish = false;
   for(int i=1;i<argc;i++)
   {
     if(!strncmp(argv[i], opt_no_publish, strlen(opt_no_publish)))
       no_publish = true;
   }
-  
+
   TeleopPR2 teleop_pr2(no_publish);
   teleop_pr2.init();
-  
-  ros::Rate pub_rate(20);
-  
+
+  ros::Rate pub_rate(PUBLISH_FREQ);
+
   while (teleop_pr2.n_.ok())
   {
-    ros::spinOnce(); 
+    ros::spinOnce();
     teleop_pr2.send_cmd_vel();
     pub_rate.sleep();
   }
-  
+
   exit(0);
   return 0;
 }
