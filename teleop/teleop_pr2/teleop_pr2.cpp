@@ -41,10 +41,11 @@
 #include "geometry_msgs/Twist.h"
 #include "sensor_msgs/JointState.h"
 #include "trajectory_msgs/JointTrajectory.h"
+#include "pr2_controllers_msgs/JointTrajectoryControllerState.h"
 
 #include "std_msgs/Float64.h"
 
-#define TORSO_TOPIC "torso_lift_velocity_controller/command"
+#define TORSO_TOPIC "torso_controller/command"
 #define HEAD_TOPIC "head_traj_controller/command"
 const int PUBLISH_FREQ = 20;
 
@@ -54,7 +55,8 @@ class TeleopPR2
 {
    public:
   geometry_msgs::Twist cmd;
-  std_msgs::Float64 torso_vel;
+  double min_torso, max_torso;
+  double req_torso_vel, torso_step;
   //joy::Joy joy;
   double req_vx, req_vy, req_vw, req_torso, req_pan, req_tilt;
   double req_tilt_vel, req_pan_vel;
@@ -64,7 +66,7 @@ class TeleopPR2
   int deadman_button, run_button, torso_dn_button, torso_up_button, head_button;
   bool deadman_no_publish_, torso_publish, head_publish;
 
-  bool deadman_;
+  bool deadman_, cmd_head;
 
   ros::Time last_recieved_joy_message_time_;
   ros::Duration joy_msg_timeout_;
@@ -74,15 +76,23 @@ class TeleopPR2
   ros::Publisher head_pub_;
   ros::Publisher torso_pub_;
   ros::Subscriber joy_sub_;
+  ros::Subscriber torso_state_sub_;
 
-  TeleopPR2(bool deadman_no_publish = false) : max_vx(0.6), max_vy(0.6), max_vw(0.8), max_vx_run(0.6), max_vy_run(0.6), max_vw_run(0.8), max_pan(2.7), max_tilt(1.4), min_tilt(-0.4), pan_step(0.02), tilt_step(0.015), deadman_no_publish_(deadman_no_publish), deadman_(false), n_private_("~")
+  TeleopPR2(bool deadman_no_publish = false) :
+    max_vx(0.6), max_vy(0.6), max_vw(0.8),
+    max_vx_run(0.6), max_vy_run(0.6), max_vw_run(0.8),
+    max_pan(2.7), max_tilt(1.4), min_tilt(-0.4),
+    pan_step(0.02), tilt_step(0.015),
+    deadman_no_publish_(deadman_no_publish), deadman_(false), cmd_head(false),
+    n_private_("~")
   { }
 
   void init()
   {
-        torso_vel.data = 0;
         cmd.linear.x = cmd.linear.y = cmd.angular.z = 0;
         req_pan = req_tilt = 0;
+        req_torso = 0.0;
+        req_torso_vel = 0.0;
         n_private_.param("max_vx", max_vx, max_vx);
         n_private_.param("max_vy", max_vy, max_vy);
         n_private_.param("max_vw", max_vw, max_vw);
@@ -106,6 +116,10 @@ class TeleopPR2
         n_private_.param("axis_vx", axis_vx, 3);
         n_private_.param("axis_vw", axis_vw, 0);
         n_private_.param("axis_vy", axis_vy, 2);
+
+        n_private_.param("torso_step", torso_step, 0.01);
+        n_private_.param("min_torso", min_torso, 0.0);
+        n_private_.param("max_torso", max_torso, 0.3);
 
         n_private_.param("deadman_button", deadman_button, 0);
         n_private_.param("run_button", run_button, 0);
@@ -151,15 +165,15 @@ class TeleopPR2
         ROS_DEBUG("joy_msg_timeout: %f\n", joy_msg_timeout);
 
         if (torso_dn_button != 0)
-          torso_pub_ = n_.advertise<std_msgs::Float64>(TORSO_TOPIC, 1);
+          torso_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>(TORSO_TOPIC, 1);
 
         if (head_button != 0)
           head_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>(HEAD_TOPIC, 1);
-        //head_pub_ = n_.advertise<sensor_msgs::JointState>(HEAD_TOPIC, 1);
 
         vel_pub_ = n_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
         joy_sub_ = n_.subscribe("joy", 10, &TeleopPR2::joy_cb, this);
+        torso_state_sub_ = n_.subscribe("/torso_controller/state", 1, &TeleopPR2::torsoCB, this);
       }
 
   ~TeleopPR2() { }
@@ -176,7 +190,7 @@ class TeleopPR2
     if (!deadman_)
       return;
 
-    bool cmd_head = (((unsigned int)head_button < joy_msg->get_buttons_size()) && joy_msg->buttons[head_button]);
+    cmd_head = (((unsigned int)head_button < joy_msg->get_buttons_size()) && joy_msg->buttons[head_button]);
 
     // Base
     bool running = (((unsigned int)run_button < joy_msg->get_buttons_size()) && joy_msg->buttons[run_button]);
@@ -210,17 +224,11 @@ class TeleopPR2
     {
       if (axis_pan >= 0 && axis_pan < (int)joy_msg->axes.size())
       {
-        //req_pan += joy_msg->axes[axis_pan] * pan_step;
-        //req_pan = max(min(req_pan, max_pan), -max_pan);
-
         req_pan_vel = joy_msg->axes[axis_pan] * pan_step;
       }
 
       if (axis_tilt >= 0 && axis_tilt < (int)joy_msg->axes.size())
       {
-        //req_tilt += joy_msg->axes[axis_tilt] * tilt_step;
-        //req_tilt = max(min(req_tilt, max_tilt), min_tilt);
-
         req_tilt_vel = joy_msg->axes[axis_tilt] * tilt_step;
       }
     }
@@ -231,11 +239,11 @@ class TeleopPR2
 
     // Bring torso up/down
     if (down && !up)
-      req_torso = -0.01;
+      req_torso_vel = -torso_step;
     else if (up && !down)
-      req_torso = 0.01;
+      req_torso_vel = torso_step;
     else
-      req_torso = 0;
+      req_torso_vel = 0;
   }
 
 
@@ -251,12 +259,26 @@ class TeleopPR2
       vel_pub_.publish(cmd);
 
       // Torso
-      torso_vel.data = req_torso;
-      if (torso_dn_button != 0)
-        torso_pub_.publish(torso_vel);
+      {
+        double dt = 1.0/double(PUBLISH_FREQ);
+        double horizon = 5.0 * dt;
+
+        trajectory_msgs::JointTrajectory traj;
+        traj.header.stamp = ros::Time::now() + ros::Duration(0.01);
+        traj.joint_names.push_back("torso_lift_joint");
+        traj.points.resize(1);
+        traj.points[0].positions.push_back(req_torso + req_torso_vel * horizon);
+        traj.points[0].velocities.push_back(req_torso_vel);
+        traj.points[0].time_from_start = ros::Duration(horizon);
+        torso_pub_.publish(traj);
+
+        // Updates the current positions
+        req_torso += req_torso_vel * dt;
+        req_torso = max(min(req_torso, max_torso), min_torso);
+      }
 
       // Head
-      if (head_button != 0)
+      if (cmd_head)
       {
         double dt = 1.0/double(PUBLISH_FREQ);
         double horizon = 3.0 * dt;
@@ -278,57 +300,34 @@ class TeleopPR2
         req_pan = max(min(req_pan, max_pan), -max_pan);
         req_tilt += req_tilt_vel * dt;
         req_tilt = max(min(req_tilt, max_tilt), min_tilt);
-
-#if 0
-        sensor_msgs::JointState joint_cmds;
-	joint_cmds.header.stamp = ros::Time::now();
-        joint_cmds.set_name_size(2);
-        joint_cmds.set_position_size(2);
-
-        joint_cmds.name[0] ="head_pan_joint";
-        joint_cmds.position[0] = req_pan;
-        joint_cmds.name[1] ="head_tilt_joint";
-        joint_cmds.position[1] = req_tilt;
-        head_pub_.publish(joint_cmds);
-#endif
       }
 
       if (req_torso != 0)
-        fprintf(stdout,"teleop_base:: %f, %f, %f. Head:: %f, %f. Torso cmd: %f.\n", cmd.linear.x, cmd.linear.y, cmd.angular.z, req_pan, req_tilt, torso_vel.data);
+        fprintf(stdout,"teleop_base:: %f, %f, %f. Head:: %f, %f. Torso cmd: %f.\n",
+                cmd.linear.x, cmd.linear.y, cmd.angular.z, req_pan, req_tilt, req_torso_vel);
       else
-        fprintf(stdout,"teleop_base:: %f, %f, %f. Head:: %f, %f\n", cmd.linear.x ,cmd.linear.y, cmd.angular.z, req_pan, req_tilt);
+        fprintf(stdout,"teleop_base:: %f, %f, %f. Head:: %f, %f\n",
+                cmd.linear.x ,cmd.linear.y, cmd.angular.z, req_pan, req_tilt);
     }
     else
     {
       // Publish zero commands iff deadman_no_publish is false
       cmd.linear.x = cmd.linear.y = cmd.angular.z = 0;
-      torso_vel.data = 0;
       if (!deadman_no_publish_)
       {
         // Base
         vel_pub_.publish(cmd);
-
-        // Torso
-        if (torso_dn_button != 0)
-          torso_pub_.publish(torso_vel);
-
-        // Publish head
-        if (head_button != 0)
-        {
-          sensor_msgs::JointState joint_cmds;
-	  joint_cmds.header.stamp = ros::Time::now();
-          joint_cmds.set_name_size(2);
-          joint_cmds.set_position_size(2);
-          joint_cmds.name[0] ="head_pan_joint";
-          joint_cmds.position[0] = req_pan;
-          joint_cmds.name[1] ="head_tilt_joint";
-          joint_cmds.position[1] = req_tilt;
-          //head_pub_.publish(joint_cmds);
-          // TODO
-          #warning
-        }
-
       }
+    }
+  }
+
+  void torsoCB(const pr2_controllers_msgs::JointTrajectoryControllerState::ConstPtr &msg)
+  {
+    double xd = req_torso;
+    const double A = 0.003;
+    if (fabs(msg->actual.positions[0] - xd) > A*1.001)
+    {
+      req_torso = min(max(msg->actual.positions[0] - A, xd), msg->actual.positions[0] + A);
     }
   }
 };
