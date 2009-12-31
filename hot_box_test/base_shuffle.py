@@ -32,9 +32,9 @@
 # POSSIBILITY OF SUCH DAMAGE.                                                   
 #                                                                               
 
-# Author: Kevin Watts                                                           
+##\author Kevin Watts
 
-# Moves base side to side using velocity controller
+##\brief Moves base side to side using velocity controller
 
 import roslib
 roslib.load_manifest('hot_box_test')
@@ -47,10 +47,7 @@ from time import sleep
 
 import rospy
 from geometry_msgs.msg import Twist,Vector3
-from mechanism_msgs.srv import SpawnController, KillController
 
-spawn_controller = rospy.ServiceProxy('spawn_controller', SpawnController)
-kill_controller = rospy.ServiceProxy('kill_controller', KillController)
 
 def main():
     usage = "base_shuffle.py <dist>;  Moves base in y dir side to side."
@@ -62,11 +59,6 @@ def main():
 
     rospy.init_node('shuffle', anonymous=True)
     
-    path = roslib.packages.get_pkg_dir("pr2_default_controllers")
-    xml_for_base = open(path + "/base_controller.xml")
-
-    spawn_controller(xml_for_base.read(), 1)
-
     # Publishes velocity every 0.05s, calculates number of publishes
     num_publishes = int(distance * 20 * 2)
     
@@ -97,18 +89,21 @@ def main():
 
             cmd_vel.linear.y = float(-0.4)
             for i in range(0, num_publishes):
-                base_vel.publish(cmd_vel)
                 if rospy.is_shutdown():
-                    break
+                    break            
+                base_vel.publish(cmd_vel)
                 sleep(0.05)
+    except KeyboardInterrupt:
+        pass
     except Exception, e:
-        print "Caught exception!"
-        traceback.print_exc()
+        print "Caught exception!", traceback.print_exc()
+        rospy.logerr(traceback.format_exc())
+
     finally:
         # Set velocity = 0
         cmd_vel.linear.y = float(0)
         base_vel.publish(cmd_vel)
-        kill_controller('base_controller')
+
         
 if __name__ == '__main__':
     main()
