@@ -56,6 +56,8 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print_usage()
 
+    rospy.init_node('laser_tilt_commander', anonymous=True)
+
     cmd = LaserTrajCmd()
     controller   =    sys.argv[1]
     cmd.header   =    roslib.msg.Header(None, None, None)
@@ -82,4 +84,11 @@ if __name__ == '__main__':
     resp = s.call(SetLaserTrajCmdRequest(cmd))
 
     print 'Command sent!'
-    print '  Resposne: %f' % resp.start_time.to_seconds()
+    print '  Response: %f' % resp.start_time.to_sec()
+
+    rospy.spin()
+
+
+    
+
+

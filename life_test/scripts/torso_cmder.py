@@ -65,7 +65,7 @@ def main():
     pub = rospy.Publisher("torso_lift_velocity_controller/command", Float64)
     last_state = LastMessage('joint_states', JointState)
     turn_count = 0
-    vel = 0.01
+    vel = 10.0
     
     try:
         while not last_state.msg and not rospy.is_shutdown(): sleep(0.1)
@@ -85,7 +85,7 @@ def main():
             else:
                 turn_count = 0
 
-            if turn_count > 25:
+            if turn_count > 100:
                 vel = -1 * vel
                 pub.publish(Float64(vel))
                 turn_count = 0
