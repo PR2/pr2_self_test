@@ -80,15 +80,15 @@ def main():
             if torso_idx < 0:
                 rospy.logwarn("The joint %s was not found in the joints states" % 'torso_lift_joint')
 
-            if abs(jnt_states.velocity[torso_idx]) < 0.0005:
+            if abs(jnt_states.velocity[torso_idx]) < 0.002:
                 turn_count += 1
             else:
                 turn_count = 0
 
-            if turn_count > 100:
+            if turn_count > 25:
                 vel = -1 * vel
-                pub.publish(Float64(vel))
                 turn_count = 0
+                pub.publish(Float64(vel))
 
     except  KeyboardInterrupt, e:
         pass
