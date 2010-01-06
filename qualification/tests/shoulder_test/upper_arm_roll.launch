@@ -1,0 +1,26 @@
+<launch>
+  <param name="robot_description"
+         command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/upper_arm_roll.urdf.xacro'" />
+  
+  <!-- Loads realtime machine and PR2_etherCAT -->
+  <include file="$(find qualification)/tests/init.machine" />
+  <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
+
+  <!-- UA roll joint calibrates off positive limit -->
+  <group ns="cal_r_upper_arm_roll_limit" >
+    <param name="type" type="string" value="JointLimitCalibrationController" />
+    <param name="joint" type="string" value="r_upper_arm_roll_joint" />
+    <param name="actuator" type="string" value="r_upper_arm_roll_motor" />
+    <param name="transmission" type="string" value="r_upper_arm_roll_trans" />
+    <param name="velocity" type="double" value="1.0" />
+    <group ns="pid" >
+      <param name="p" type="double" value="6" />
+      <param name="i" type="double" value="0.2" />
+      <param name="d" type="double" value="0" />
+      <param name="i_clamp" type="double" value="2" />
+    </group>
+  </group>
+  <node pkg="pr2_bringup" type="calibrate.py"
+        output="screen" name="cal_upper_arm"
+        args="cal_r_upper_arm_roll_limit" />
+</launch>
