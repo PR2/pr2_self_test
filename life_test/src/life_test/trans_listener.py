@@ -61,7 +61,7 @@ R_WHEEL_NAME = 'fl_caster_r_wheel_joint'
 WHEEL_RADIUS = 0.074792
 WHEEL_OFFSET = 0.049
 
-ALLOWED_SLIP = 0.03 # Needs verification (3cm/interval)
+ALLOWED_SLIP = 0.015 # (1.5cm/interval)
 UPDATE_INTERVAL = 0.25 
 
 class CasterPosition:
