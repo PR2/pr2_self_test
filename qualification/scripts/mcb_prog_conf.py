@@ -329,6 +329,7 @@ if __name__ == '__main__':
             prog_conf.program_boards()
         else: # Configure
             prog_conf.configure_boards(options.mcbs)
+        rospy.spin()
     except KeyboardInterrupt:
         pass
     except Exception, e:
