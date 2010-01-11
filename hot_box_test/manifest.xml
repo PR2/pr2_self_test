@@ -1,6 +1,6 @@
 <package>
 
-  <description brief="The scripts to run the PR2 hot box test" >
+  <description brief="Scripts to run the PR2 hot box test" >
 
   This package runs the hot box test including:
   base_shuffle controller (hot_box_test)
@@ -14,10 +14,8 @@
   <review status="na" notes=""/>
   <license>BSD</license>
 
-  <depend package="pr2_alpha" />
-  <depend package="pr2_default_controllers" />
+  <depend package="pr2_controller_configuration" />
   <depend package="life_test" />
-  <depend package="ocean_battery_driver" />
   <depend package="power_monitor"/>
   <depend package="geometry_msgs" />
   <depend package="pr2_mechanism_msgs" />

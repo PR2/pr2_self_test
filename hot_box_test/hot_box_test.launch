@@ -9,13 +9,11 @@
          name="torso_cmder" />
 
   <!-- Head moving -->
-<!--
   <node pkg="life_test" type="head_cmder.py" name="head_cmder" />
   <rosparam command="load"
             file="$(find pr2_controller_configuration)/pr2_head_controller.yaml" />
   <node name="head_position_controller_spawner" pkg="pr2_controller_manager"
-        type="spawner" args="-wait-for=calibrated head_controller" />
--->
+        type="spawner" args="--wait-for=calibrated head_controller" />
 
   <!-- Laser tilt, controller is up by default -->
   <node pkg="life_test" type="laser_traj_cmd.py"
@@ -33,10 +31,4 @@
 -->
 
   <node pkg="hot_box_test" type="base_shuffle.py" args="0.5" name="base_shuffle" />
-
-
-  <!-- Send emails when batteries low 
-  <node pkg="ocean_battery_driver" type="battery_notifier.py" 
-        name="battery_notifier" args="watts@willowgarage.com" />
--->
 </launch>

@@ -64,7 +64,7 @@ def main():
     
     cmd_vel = Twist()
     # Change to 0 for a controller with no bkwd bias
-    cmd_vel.linear.x = float(-0.01) 
+    cmd_vel.linear.x = float(0) 
     cmd_vel.linear.y = float(0)
     cmd_vel.linear.z = float(0)
     cmd_vel.angular.x = float(0)
