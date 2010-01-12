@@ -52,6 +52,7 @@ import traceback
 from time import sleep
 import wx
 import socket
+import re
 
 class Statistic:
     def __init__(self):
@@ -63,9 +64,9 @@ class Statistic:
             return None
         return (self._sum / self._count)
     def get_max(self):
-        if self._count <= 0:
-            return None
-        return self._max
+       if self._count <= 0:
+           return None
+       return self._max
     def get_min(self):
         if self._count <= 0:
             return None
@@ -165,18 +166,26 @@ class TemperatureMonitor:
                 self._update_time = rospy.get_time()
                 try:
                     temp = float(response)
-                    self._temp_stat.sample(temp)
-                    if self._start_temp == None:
-                        self._start_temp = temp                        
-                    if temp > max_acceptable_temperature:
-                        print "Overtemp"
+                    if temp < -1000000.0:
+                        # DMM returns large negative number when temperature sensor is not plugged in.
+                        # Look for this situation and provide sensible error message
+                        print "Temperature sensor is unplugged"
                         if self._ok:
                             self._ok = False
-                            self._html = "Measured temperture of %f celcius is higher than limit of %f celcius." % (temp, max_acceptable_temperature)
-                    if (temp-self._start_temp) > max_temperature_rise:
-                        if self._ok:
-                            self._ok = False
-                            self._html = "Temperature has risen too much. Started at %f C. Now at %f C." % (self._start_temp, temp)
+                            self._html = "Temperature sensor is not plugged in."
+                    else :
+                        self._temp_stat.sample(temp)
+                        if self._start_temp == None:
+                            self._start_temp = temp
+                        if temp > max_acceptable_temperature:
+                            print "Overtemp"
+                            if self._ok:
+                                self._ok = False
+                                self._html = "Measured temperture of %f celcius is higher than limit of %f celcius." % (temp, max_acceptable_temperature)
+                        if (temp-self._start_temp) > max_temperature_rise:
+                            if self._ok:
+                                self._ok = False
+                                self._html = "Temperature has risen too much. Started at %f C. Now at %f C." % (self._start_temp, temp)
                 except ValueError:
                     if self._ok :
                         self._html = "Couldn't convert value returned by DMM : %s" % (response)
@@ -198,14 +207,14 @@ class TemperatureMonitor:
             # Fail if there is no temperature data within a couple seconds
             if (self._update_time == 0) and ((current_time - self._start_time) > 3):
                 if self._connected:
-                    self._html = "DMM has produced any temperature data"
+                    self._html = "DMM has not produced any temperature data."
                 else:
-                    self._html = "Could not connect to DMM"
+                    self._html = "Could not connect to DMM."
                 self._ok = False
                 
             # Fail if data has stopped coming in
             if (self._update_time != 0) and ((current_time - self._update_time) > 3):
-                self._html = "DMM stopped providing temperture data"
+                self._html = "DMM stopped providing temperature data."
                 self._ok = False
 
         ok = self._ok
@@ -305,6 +314,9 @@ class ProjectorMonitor:
         self._summary = "No diagnostic data..."
         self._html = "No diagnostic data..."
 
+        
+        self._hardware_regex = re.compile("68-05021-\d\d\d\d\d");
+        self._unused_wg021_actuator_name = None
 
         # test is based on parameters taken from test node's namespace
         self._actuator = rospy.get_param("~actuator")
@@ -334,6 +346,12 @@ class ProjectorMonitor:
         name = 'EtherCAT Device (%s)' % self._actuator
         for stat in msg.status:
             if stat.name == name :
+                if not self._hardware_regex.match(stat.hardware_id):
+                    self._html  = "Found device that has correct actuator name '%s' but is not WG021.<br>" % stat.name
+                    self._html += "Hardware ID = %s" % stat.hardware_id
+                    self._ok = False;
+                    return
+
                 self._update_time = rospy.get_time()
 
                 #Do diagnostics report any error conditions?
@@ -384,6 +402,9 @@ class ProjectorMonitor:
                     
                 # Stop looping through data once correct actuator is found
                 break
+            elif self._hardware_regex.match(stat.hardware_id):
+                self._unused_wg021_actuator_name = stat.name
+
         return
     
 
@@ -392,9 +413,14 @@ class ProjectorMonitor:
         if self._ok:
             current_time = rospy.get_time()
             # Fail if there are no diagnostics within a couple seconds
-            if (self._update_time == 0) and ((current_time - self._start_time) > 3):            
-                self._html = "Didn't not receive any diagnostics after starting"
+            if (self._update_time == 0) and ((current_time - self._start_time) > 3):
                 self._ok = False
+                if (self._unused_wg021_actuator_name != None):
+                    self._html =  "Did not see diagnostics for actuator with name '%s'.<br>" % self._actuator
+                    self._html += "However, found WG021 with name '%s'.<br>"%self._unused_wg021_actuator_name
+                    self._html += "Use motorconf to properly configure WG021."
+                else:
+                    self._html = "Did not receive any diagnostics after starting"
                 
             # Fail if there is not diagnostics data has stopped coming in
             if (self._update_time != 0) and ((current_time - self._update_time) > 3):
