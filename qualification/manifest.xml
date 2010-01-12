@@ -20,8 +20,6 @@
   <depend package="runtime_monitor" />
   <depend package="rviz" />
   <depend package="pr2_power_board" />
-  <depend package="pr2_alpha" />
-  <depend package="pr2_head_cart" />
   <depend package="invent_client" />
   <depend package="roslaunch_caller" />
   <depend package="wge100_camera" />
