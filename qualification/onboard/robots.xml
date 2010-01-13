@@ -1,12 +1,12 @@
 <robots>
   <!-- PR2 -->
-  <robot name="PRE" start_pkg="pr2_alpha" startup="pre.launch" 
+  <robot name="PRE" start_pkg="qualification" startup="onboard/robots/pre.launch" 
 	 test_file="pr2_qual.xml" serial="my_serial" />
 
-  <robot name="PRF" start_pkg="pr2_alpha" startup="prf.launch" 
+  <robot name="PRF" start_pkg="qualification" startup="onboard/robots/prf.launch" 
 	 test_file="pr2_qual.xml" serial="my_serial" />
 
-  <robot name="PRG" start_pkg="pr2_alpha" startup="prg.launch" 
+  <robot name="PRG" start_pkg="qualification" startup="onboard/robots/prg.launch" 
 	 test_file="pr2_qual.xml" serial="my_serial" />
 
 
