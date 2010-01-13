@@ -67,8 +67,6 @@ class TestQualUnit(unittest.TestCase):
         parser.add_option('--gtest_output', action="store",
                           dest="gtest")
 
-
-
         self.success = False
         self.srv = None
 
