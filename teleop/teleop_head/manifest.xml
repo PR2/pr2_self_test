@@ -8,6 +8,5 @@
   <review status="na" notes="" />
   <depend package="joy" />
   <depend package="sensor_msgs" />
-  <depend package="pr2_default_controllers" />
   <depend package="roscpp" />
 </package>
