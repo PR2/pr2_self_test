@@ -362,12 +362,19 @@ class CounterbalanceAnalysis:
 
     def send_results(self, r):
         if not self._sent_results:
-            self._sent_results = True
+            try:
+                rospy.wait_for_service('test_result', 10)
+            except:
+                rospy.logerr('Wait for service \'test_result\' timed out! Unable to send results.')
+                return False
+                
             self._result_service.call(r)
+            self._sent_results = True
 
             print r.text_summary
             print r.html_result
             print r.result
+            return True
             
     def test_failed_service_call(self, except_str = ''):
         rospy.logerr(except_str)
