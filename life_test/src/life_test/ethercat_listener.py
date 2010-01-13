@@ -35,10 +35,11 @@
 
 ##\author Kevin Watts
 ##\brief Listens to pr2_etherCAT/motors_halted, makes sure etherCAT state is OK
+
+from __future__ import with_statement
 PKG = 'life_test'
 
-import roslib
-roslib.load_manifest(PKG)
+import roslib; roslib.load_manifest(PKG)
 
 from std_msgs.msg import Bool
 from std_srvs.srv import *
@@ -68,25 +69,23 @@ class EthercatListener:
         self._reset_motors()
 
     def _motors_cb(self, msg):
-        self._mutex.acquire()
-        self._ok = not msg.data
-        self._update_time = rospy.get_time()
-        self._mutex.release()
+        with self._mutex:
+            self._ok = not msg.data
+            self._update_time = rospy.get_time()
     
     def check_ok(self):
-        self._mutex.acquire()
-        msg = ''
-        stat = 0
-        if not self._ok:
-            stat = 2
-            msg = 'Motors Halted'
+        with self._mutex:
+            msg = ''
+            stat = 0
+            if not self._ok:
+                stat = 2
+                msg = 'Motors Halted'
 
-        if rospy.get_time() - self._update_time > 3:
-            stat = 3
-            msg = 'EtherCAT Stale'
-            if self._update_time == -1:
-                msg = 'No EtherCAT Data'
+            if rospy.get_time() - self._update_time > 3:
+                stat = 3
+                msg = 'EtherCAT Stale'
+                if self._update_time == -1:
+                    msg = 'No EtherCAT Data'
         
-        self._mutex.release()
         return stat, msg, None
     

@@ -64,7 +64,7 @@ def create_listener(params, listeners):
         pypkg = sys.modules[import_str]
         listener_type = getattr(pypkg, type)
     except:
-        rospy.logerr('Couldn\'t load listener %s from %s. Exception: %s' % (type, file, traceback.format_exc()))
+        rospy.logerr('Couldn\'t load listener %s from %s.\nException: %s' % (type, file, traceback.format_exc()))
         return False
     
     try:
@@ -131,7 +131,7 @@ class TestMonitor:
                 stat, msg, diags = (2, 'Error', None)
 
             status = max(status, stat)
-            if msg != '':
+            if msg is not None and msg != '':
                 messages.append(msg)
             if diags is not None:
                 array.status.extend(diags)

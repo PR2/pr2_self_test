@@ -158,7 +158,7 @@ class PR2HardwareSimulator:
         stat = DiagnosticStatus()
         msg.status.append(stat)
 
-        # Simulate pr2_ehherCAT diagnostics
+        # Simulate pr2_etherCAT diagnostics
         stat.level = 0
         if not ok:
             stat.level = 2
@@ -183,7 +183,6 @@ class PR2HardwareSimulator:
      
         self.diag_pub.publish(msg)
 
-
         self._last_diag_pub = rospy.get_time()
 
     def _publish_motor_state(self):
@@ -194,7 +193,7 @@ class PR2HardwareSimulator:
         self._publish_mech_stats()
         if rospy.get_time() - self._last_diag_pub > 1.0:
             self._publish_diag()
-        if rospy.get_time() - self._last_motor_pub > 1.0:
+        if rospy.get_time() - self._last_motor_pub > 0.02:
             self._publish_motor_state()
         if rospy.get_time() - self._last_ecstats_pub > 0.2:
             self._publish_ecstats()

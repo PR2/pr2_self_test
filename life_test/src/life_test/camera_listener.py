@@ -35,10 +35,12 @@
 
 ##\author Kevin Watts
 ##\brief Listens to diagnostics from wge100 camera and reports OK/FAIL
-PKG = 'life_test'
 
-import roslib
-roslib.load_manifest(PKG)
+
+from __future__ import with_statement
+
+PKG = 'life_test'
+import roslib; roslib.load_manifest(PKG)
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from std_srvs.srv import *
@@ -46,6 +48,7 @@ from std_srvs.srv import *
 import rospy
 
 import threading
+
 
 class CameraListener:
     def __init__(self):
@@ -66,30 +69,27 @@ class CameraListener:
         pass
 
     def _diag_callback(self, msg):
-        self._mutex.acquire()
-        for stat in msg.status:
-            if stat.name.find('wge100') >= 0:
-                self._ok = (stat.level == 0)
-                self._update_time = rospy.get_time()
-                if not self._ok:
-                    break
-
-        self._mutex.release()
+        with self._mutex:
+            for stat in msg.status:
+                if stat.name.find('wge100') >= 0:
+                    self._ok = (stat.level == 0)
+                    self._update_time = rospy.get_time()
+                    if not self._ok:
+                        break
     
     def check_ok(self):
-        self._mutex.acquire()
-        msg = ''
-        stat = 0
-        if not self._ok:
-            stat = 2
-            msg = 'Camera Error'
+        with self._mutex:
+            msg = ''
+            stat = 0
+            if not self._ok:
+                stat = 2
+                msg = 'Camera Error'
 
-        if rospy.get_time() - self._update_time > 3:
-            stat = 3
-            msg = 'Camera Stale'
-            if self._update_time == 0:
-                msg = 'No Camera Data'
+            if rospy.get_time() - self._update_time > 3:
+                stat = 3
+                msg = 'Camera Stale'
+                if self._update_time == 0:
+                    msg = 'No Camera Data'
         
-        self._mutex.release()
         return stat, msg, None
     

@@ -36,6 +36,7 @@
 ##\author Kevin Watts
 ##\brief Listens to ecstats, makes sure no dropping packets
 
+from __future__ import with_statement
 PKG = 'life_test'
 
 import roslib
@@ -82,78 +83,74 @@ class ECStatsListener:
         pass
 
     def reset(self):
-        self._time_at_last_reset = rospy.get_time()
-        self._drop_count_at_reset = self._total_dropped
-        self._ok = True
-        self._reset_count += 1
-        self._lost_link_count_since_reset = 0
+        with self._mutex:
+            self._time_at_last_reset = rospy.get_time()
+            self._drop_count_at_reset = self._total_dropped
+            self._ok = True
+            self._reset_count += 1
+            self._lost_link_count_since_reset = 0
 
     def _ecstats_cb(self, msg):
-        self._mutex.acquire()
-        self._has_link              = msg.has_link
-        self._max_device_count      = msg.max_device_count
-        self._total_sent            = msg.total_sent_packets
-        self._interval_sent_packets = msg.interval_sent_packets
-        self._total_dropped         = msg.total_dropped_packets
-        self._interval_dropped      = msg.interval_dropped_packets
-        self._total_bandwidth       = msg.total_bandwidth_mbps
-        self._interval_bandwidth    = msg.interval_bandwidth_mbps
+        with self._mutex:
+            self._has_link              = msg.has_link
+            self._max_device_count      = msg.max_device_count
+            self._total_sent            = msg.total_sent_packets
+            self._interval_sent_packets = msg.interval_sent_packets
+            self._total_dropped         = msg.total_dropped_packets
+            self._interval_dropped      = msg.interval_dropped_packets
+            self._total_bandwidth       = msg.total_bandwidth_mbps
+            self._interval_bandwidth    = msg.interval_bandwidth_mbps
+            
+            if not self._has_link:
+                self._lost_link_count += 1
+                self._lost_link_count_since_reset += 1
 
-        if not self._has_link:
-            self._lost_link_count += 1
-            self._lost_link_count_since_reset += 1
+            was_ok = self._ok
+            self._ok = self._ok and self._has_link
+            #self._total_dropped == self._drop_count_at_reset 
+            if was_ok and not self._ok:
+                try:
+                    # self._halt_motors()
+                    rospy.logerr('Should\'ve halted motors, went down')
+                except:
+                    rospy.logerr('Attempted to halt motors after dropped packets, failed')
+                    
+            self._update_time = rospy.get_time()
 
-        was_ok = self._ok
-        self._ok = self._ok and self._has_link
-        #self._total_dropped == self._drop_count_at_reset \
-        if was_ok and not self._ok:
-            try:
-                #self._halt_motors()
-                rospy.logerr('Should\'ve halted motors, went down')
-            except:
-                rospy.logerr('Attempted to halt motors after dropped packets, failed')
-
-        self._update_time = rospy.get_time()
-        self._mutex.release()
     
     def check_ok(self):
-        self._mutex.acquire()
+        with self._mutex:
+            stat = 0 if self._ok else 2
+            msg = '' if self._ok else 'Dropped Packets'
 
-        stat = 0 if self._ok else 2
-        msg = '' if self._ok else 'Dropped Packets'
-
-        if rospy.get_time() - self._update_time > 3:
-            stat = 3
-            msg = 'Packet Data Stale'
-            if self._update_time == -1:
-                msg = 'No Packet Data'
+            if rospy.get_time() - self._update_time > 3:
+                stat = 3
+                msg = 'Packet Data Stale'
+                if self._update_time == -1:
+                    msg = 'No Packet Data'
         
-        diag = DiagnosticStatus()
-        diag.name = 'EC Stats Packet Data'
-        diag.level = stat
-        diag.message = msg
-        if diag.level == 0:
-            diag.message = 'OK'
+            diag = DiagnosticStatus()
+            diag.name = 'EC Stats Packet Data'
+            diag.level = stat
+            diag.message = msg
+            if diag.level == 0:
+                diag.message = 'OK'
             
-        diag.values = [
-            KeyValue(key='Has Link?',              value=str(self._has_link)),
-            KeyValue(key='Dropped Since Reset',    value=str(self._total_dropped - self._drop_count_at_reset)),
-            KeyValue(key='Total Drops',            value=str(self._total_dropped)),
-            KeyValue(key='Lost Link Count',        value=str(self._lost_link_count)),
-            KeyValue(key='Lost Links Since Reset', value=str(self._lost_link_count_since_reset)),
-            KeyValue(key='Number of Resets',       value=str(self._reset_count)),
-            KeyValue(key='Time Since Last Reset',  value=str(rospy.get_time() - self._time_at_last_reset)),
-            KeyValue(key='Drops at Last Reset',    value=str(self._drop_count_at_reset)),
-            KeyValue(key='Max Device Count',       value=str(self._max_device_count)),
-            KeyValue(key='Total Sent Packets',     value=str(self._total_sent)),
-            KeyValue(key='Interval Sent Packets',  value=str(self._interval_sent)),
-            KeyValue(key='Total Bandwidth',        value=str(self._total_bandwidth)),
-            KeyValue(key='Interval Bandwidth',     value=str(self._interval_bandwidth))
-            
-            ]
+            diag.values = [
+                KeyValue(key='Has Link?',              value=str(self._has_link)),
+                KeyValue(key='Dropped Since Reset',    value=str(self._total_dropped - self._drop_count_at_reset)),
+                KeyValue(key='Total Drops',            value=str(self._total_dropped)),
+                KeyValue(key='Lost Link Count',        value=str(self._lost_link_count)),
+                KeyValue(key='Lost Links Since Reset', value=str(self._lost_link_count_since_reset)),
+                KeyValue(key='Number of Resets',       value=str(self._reset_count)),
+                KeyValue(key='Time Since Last Reset',  value=str(rospy.get_time() - self._time_at_last_reset)),
+                KeyValue(key='Drops at Last Reset',    value=str(self._drop_count_at_reset)),
+                KeyValue(key='Max Device Count',       value=str(self._max_device_count)),
+                KeyValue(key='Total Sent Packets',     value=str(self._total_sent)),
+                KeyValue(key='Interval Sent Packets',  value=str(self._interval_sent)),
+                KeyValue(key='Total Bandwidth',        value=str(self._total_bandwidth)),
+                KeyValue(key='Interval Bandwidth',     value=str(self._interval_bandwidth))
+                ]
         
-        self._mutex.release()
-        
-
         return stat, msg, [ diag ]
     

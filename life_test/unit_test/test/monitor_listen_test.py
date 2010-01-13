@@ -36,7 +36,9 @@
 
 ##\brief Tests receipt of test monitor messages from life tests
 
-DURATION = 15
+from __future__ import with_statement
+
+DURATION = 20
 
 PKG = 'life_test'
 import roslib; roslib.load_manifest(PKG)
@@ -62,12 +64,11 @@ class TestMonitorUnit(unittest.TestCase):
 
         self._mutex = threading.Lock()
         rospy.init_node('test_monitor_listener')
-        self._ignore_time = 3
+        self._ignore_time = 5
         self._start_time = rospy.get_time()
         self._ok = True
         self._message = None
         self._level = 0
-
 
         self._start = rospy.get_time()
 
@@ -79,12 +80,11 @@ class TestMonitorUnit(unittest.TestCase):
         if rospy.get_time() - self._start_time < self._ignore_time:
             return
 
-        self._mutex.acquire()
-        self._ok = self._ok and (msg.test_ok == 0)
-        if self._ok or (not self._ok and msg.test_ok != 0):
-            self._message = msg.message
-            self._level = msg.test_ok
-        self._mutex.release()
+        with self._mutex:
+            self._ok = self._ok and (msg.test_ok == 0)
+            if self._ok or (not self._ok and msg.test_ok != 0):
+                self._message = msg.message
+                self._level = msg.test_ok
 
     def test_qual_unit(self):
         while not rospy.is_shutdown():
@@ -92,11 +92,11 @@ class TestMonitorUnit(unittest.TestCase):
             if rospy.get_time() - self._start > DURATION:
                 break
 
-        self._mutex.acquire()
-        self.assert_(not rospy.is_shutdown(), "Rospy shutdown")
-        self.assert_(self._message is not None, "No data from test monitor")
-        self.assert_(self._ok, "Test Monitor reports error. Level: %d, Message: %s" % (self._level, self._message))
-        self._mutex.release()
+        with self._mutex:
+            self.assert_(not rospy.is_shutdown(), "Rospy shutdown")
+            self.assert_(self._message is not None, "No data from test monitor")
+            self.assert_(self._ok, "Test Monitor reports error. Level: %d, Message: %s" % (self._level, self._message))
+
 
 if __name__ == '__main__':
     print 'SYS ARGS:', sys.argv
