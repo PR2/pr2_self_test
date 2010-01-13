@@ -363,11 +363,11 @@ class CounterbalanceAnalysis:
     def send_results(self, r):
         if not self._sent_results:
             self._sent_results = True
+            self._result_service.call(r)
+
             print r.text_summary
             print r.html_result
             print r.result
-            
-            self._result_service.call(r)
             
     def test_failed_service_call(self, except_str = ''):
         rospy.logerr(except_str)
@@ -419,6 +419,9 @@ class CounterbalanceAnalysis:
             r = TestResultRequest()
             r.html_result = '\n'.join(html)
             r.text_summary = ' '.join([lift_effort_result.summary])
+            if params.flex_test:
+                r.text_summary = ' '.join([r.text_summary, flex_effort_result.summary])
+
             r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
 
             if params.flex_test and lift_effort_result.result and flex_effort_result.result:
