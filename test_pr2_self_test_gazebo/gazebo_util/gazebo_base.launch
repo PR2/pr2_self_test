@@ -8,7 +8,7 @@
 
   <!-- Load robot description -->
   <node pkg="gazebo_tools" type="gazebo_model" name="spawn_pr2"
-        args="-z 0.051 -p robot_description spawn" respawn="false"  />
+        args="-p robot_description spawn" respawn="false"  />
 
   <node pkg="rostopic" type="rostopic" name="fake_joint_calibration"
         args="pub /calibrated std_msgs/Bool true" />
