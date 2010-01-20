@@ -1,5 +1,5 @@
 <launch>
-  <node name="wge100" pkg="wge100_camera" type="wge100_camera_node" >
+  <node name="wge100" pkg="wge100_camera" type="wge100_camera_node_old" >
 <!--        machine="test_host" > -->
     <!-- Uses eth2 on test host, must set IP subnet correctly -->
     <param name="camera_url" type="str" value="any://#eth2"/>
