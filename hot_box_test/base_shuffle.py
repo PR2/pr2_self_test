@@ -43,8 +43,6 @@ import traceback
 import sys, os
 from time import sleep
 
-# Loads interface with the robot.
-
 import rospy
 from geometry_msgs.msg import Twist,Vector3
 
@@ -71,7 +69,7 @@ def main():
     cmd_vel.angular.y = float(0)
     cmd_vel.angular.z = float(0)
 
-    base_vel = rospy.Publisher('cmd_vel', Twist)
+    base_vel = rospy.Publisher('base_controller/command', Twist)
 
     try:
         while not rospy.is_shutdown():
