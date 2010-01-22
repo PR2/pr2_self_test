@@ -97,6 +97,9 @@
   <!-- Special tests -->
   <test serial="faketes" 
 	file="simple_example/test.xml" descrip="Simple Example" />
+  <test serial="ectest"
+        file="ectest/test.xml" descrip="ECAT Chain test"/>
+  
 
   <!-- Instruments and devices -->
   <test serial="6801024" 
