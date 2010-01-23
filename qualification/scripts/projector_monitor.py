@@ -469,8 +469,9 @@ if __name__ == '__main__':
         focus = None
         if (display_focus_dialog) :
             focus = FocusDialog()
-        monitor = ProjectorMonitor()
         temperature = TemperatureMonitor()
+        rospy.sleep(2.0)
+        monitor = ProjectorMonitor()
         while not rospy.is_shutdown():
             if (not monitor.check_ok()):
                 print "monitor failed"
