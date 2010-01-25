@@ -11,10 +11,11 @@
   <!-- Head moving -->
   <node pkg="life_test" type="head_cmder.py" name="head_cmder" />
   <rosparam command="load"
-            file="$(find pr2_controller_configuration)/pr2_head_controller.yaml" />
+            file="$(find hot_box_test)/pr2_head_position_controller.yaml" />
   <node name="head_position_controller_spawner" pkg="pr2_controller_manager"
         type="spawner" args="--wait-for=calibrated head_controller" />
 
+  
   <!-- Laser tilt, controller is up by default -->
   <node pkg="life_test" type="laser_traj_cmd.py"
         name="laser_cmder" args="laser_tilt_controller" />
