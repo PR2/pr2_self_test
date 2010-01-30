@@ -14,4 +14,3 @@ This is used for regression testing of the pr2_self_test stack. Certain tests an
   <depend package="robot_state_publisher" />
 </package>
 
-
