@@ -470,7 +470,7 @@
                 </object>
             </object>
         </object>
-        <object class="Panel" expanded="1">
+        <object class="Panel" expanded="0">
             <property name="bg"></property>
             <property name="context_help"></property>
             <property name="enabled">1</property>
@@ -1581,7 +1581,7 @@
                                                             <property name="font">Sans,90,92,18,74,0</property>
                                                             <property name="hidden">0</property>
                                                             <property name="id">wxID_ANY</property>
-                                                            <property name="label">Reset</property>
+                                                            <property name="label">Run</property>
                                                             <property name="maximum_size"></property>
                                                             <property name="minimum_size"></property>
                                                             <property name="name">reset_motors_button</property>

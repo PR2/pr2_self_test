@@ -493,7 +493,7 @@
 															<underlined>0</underlined>
 															<face>Sans</face>
 														</font>
-														<label>Reset</label>
+														<label>Run</label>
 														<default>0</default>
 													</object>
 												</object>

@@ -46,9 +46,12 @@ from life_test.msg import TestStatus
 
 from diagnostic_msgs.msg import DiagnosticArray
 from std_srvs.srv import *
+import std_msgs.msg
 
 import traceback
 import sys
+
+TIMEOUT = 60
 
 def create_listener(params, listeners):
     if not (params.has_key('type') and params.has_key('file')):
@@ -79,6 +82,12 @@ def create_listener(params, listeners):
     listeners.append(listener)
     return True
 
+class StatusData:
+    def __init__(self):
+        self.level = 0
+        self.messages = []
+        self.array = DiagnosticArray()
+
 # Listeners need: reset, halt, init, check_ok
 class TestMonitor:
     def __init__(self):
@@ -102,6 +111,13 @@ class TestMonitor:
         self.reset_srv = rospy.Service('reset_test', Empty, self.reset_test)
         self.halt_srv = rospy.Service('halt_test', Empty, self.halt_test)
 
+        self._heartbeat_time = rospy.get_time()
+        self._heartbeat_sub = rospy.Subscriber('/heartbeat', std_msgs.msg.Empty, self.on_heartbeat)
+        self._heartbeat_halted = False
+
+    def on_heartbeat(self, msg):
+        self._heartbeat_time = rospy.get_time()
+
     def reset_test(self, srv):
         for listener in self._listeners:
             try:
@@ -111,46 +127,64 @@ class TestMonitor:
         return EmptyResponse()
 
     def halt_test(self, srv):
+        self._halt_listeners()
+
+        return EmptyResponse()
+
+    def _halt_listeners(self):
         for listener in self._listeners:
             try:
                 listener.halt()
             except:
                 rospy.logerr('Listener failed to halt!')
-        return EmptyResponse()
 
-    def publish_status(self):
-        status = 0
-        messages = []
-
-        array = DiagnosticArray()
+    def _check_status(self):
+        stat_data = StatusData()
+        
         for listener in self._listeners:
             try:
-                stat, msg, diags = listener.check_ok()
+                lvl, msg, diags = listener.check_ok()
             except:
                 rospy.logerr('Listener failed to check status. %s' % traceback.format_exc())
                 stat, msg, diags = (2, 'Error', None)
 
-            status = max(status, stat)
+            stat_data.level = max(stat_data.level, lvl)
             if msg is not None and msg != '':
-                messages.append(msg)
+                stat_data.messages.append(msg)
             if diags is not None:
-                array.status.extend(diags)
+                stat_data.array.status.extend(diags)
         
         if len(self._listeners) == 0:
-            status = 3
-            messages = [ 'No listeners' ]
+            stat_data.level = 3
+            stat_data.messages = [ 'No listeners' ]
+            return stat_data
 
         if not self._listeners_ok:
-            status = 2
-            messages = ['Listener Startup Error']
+            stat_data.level = 2
+            stat_data.messages = ['Listener Startup Error']
 
-        if len(array.status) > 0:
-            array.header.stamp = rospy.get_rostime()
-            self._diag_pub.publish(array)
+        if not self._heartbeat_halted and rospy.get_time() - self._heartbeat_time > TIMEOUT:
+            self._halt_listeners()
+            self._heartbeat_halted = True
+            rospy.logerr('No heartbeat from Test Manager received, halting test')
+
+        if self._heartbeat_halted:
+            stat_data.status = 3
+            stat_data.message.append('No heartbeat')
+            
+
+        return stat_data
+
+    def publish_status(self):
+        stat_data = self._check_status()
+
+        if len(stat_data.array.status) > 0:
+            stat_data.array.header.stamp = rospy.get_rostime()
+            self._diag_pub.publish(stat_data.array)
 
         test_stat = TestStatus()
-        test_stat.test_ok = int(status)
-        test_stat.message = ', '.join(messages)
+        test_stat.test_ok = int(stat_data.level)
+        test_stat.message = ', '.join(stat_data.messages)
         if test_stat.test_ok == 0:
             test_stat.message = 'OK'
 

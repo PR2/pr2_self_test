@@ -5,6 +5,9 @@
     <rosparam command="load" file="$(find life_test)/unit_test/simulators/fake_listeners.yaml" />
   </node>
 
+  <node pkg="rostopic" type="rostopic" name="heartbeat_pub"
+        args="pub /heartbeat std_msgs/Empty -r 1" />
+
   <!-- Asserts we are getting good data from the camera, motors, and transmissions -->
   <test test-name="monitor_listen" pkg="life_test" name="test_monitor"
         type="monitor_listen_test.py" time-limit="30" />

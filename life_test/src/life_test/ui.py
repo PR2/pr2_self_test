@@ -67,6 +67,7 @@ from msg import TestInfoArray
 
 from pr2_power_board.srv import PowerBoardCommand
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+from std_msgs.msg import Empty
 
 from roslaunch_caller import roslaunch_caller 
 
@@ -127,6 +128,12 @@ class TestManagerFrame(wx.Frame):
 
         self._info_pub = rospy.Publisher('test_info', TestInfoArray)
 
+        self._heartbeat_pub = rospy.Publisher('/heartbeat', Empty)
+
+        self._heartbeat_timer = wx.Timer()
+        self._heartbeat_timer.Bind(wx.EVT_TIMER, self.on_heartbeat_timer)
+        self._heartbeat_timer.Start(1000)
+
     def __del__(self):
         if self._power_node is not None:
             self._power_node.shutdown()
@@ -141,6 +148,10 @@ class TestManagerFrame(wx.Frame):
         for serial, panel in self._test_panels.iteritems():
             array.data.append(panel.on_status_check())
         self._info_pub.publish(array)
+
+    def on_heartbeat_timer(self, event):
+        beat = Empty()
+        self._heartbeat_pub.publish(beat)
 
     def _diag_cb(self, msg):
         self._mutex.acquire()

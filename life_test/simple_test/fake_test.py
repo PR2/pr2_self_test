@@ -43,6 +43,7 @@ import sys
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from std_srvs.srv import *
 from pr2_mechanism_msgs.msg import MechanismStatistics, JointStatistics, ActuatorStatistics
+from std_msgs.msg import Bool
 
 import os
 import time
@@ -61,6 +62,7 @@ class FakeTestFrame(wx.Frame):
         
         self.diag_pub = rospy.Publisher('/diagnostics', DiagnosticArray)
         self.mech_pub = rospy.Publisher('mechanism_statistics', MechanismStatistics)
+        self.motors_pub = rospy.Publisher('pr2_etherCAT/motors_halted', Bool)
 
         self._mech_timer = wx.Timer(self, 2)
         self.Bind(wx.EVT_TIMER, self.on_mech_timer, self._mech_timer)
@@ -91,7 +93,7 @@ class FakeTestFrame(wx.Frame):
         self.set_range_ctrl()
 
         self._start_time = rospy.get_time()
-        
+
     def on_mech_timer(self, event = None):
         if not rospy.is_shutdown():
             self._mech_timer.Start(10, True)
@@ -112,28 +114,26 @@ class FakeTestFrame(wx.Frame):
         jnt_st.name = 'fake_joint'
         jnt_st.position = float(2 * sine)
         jnt_st.velocity = float(2 * cosine)
-        jnt_st.applied_effort = float(-2 * sine)
-        jnt_st.commanded_effort = float(-2 * sine)
-        jnt_st.is_calibrated = 1
+        jnt_st.is_calibrated = True
 
         cont_st = JointStatistics()
         cont_st.name = 'cont_joint'
         cont_st.position = 5 * float(0.5 * sine)
         cont_st.velocity = 2.5 * float(0.5 * cosine)
-        cont_st.is_calibrated = 1
+        cont_st.is_calibrated = True
 
         cont_act_st = ActuatorStatistics()
         cont_act_st.name = 'cont_motor'
-        cont_act_st.calibration_reading = 14 
+        cont_act_st.calibration_reading = False
         wrapped_position = (cont_st.position % 6.28)
         if wrapped_position > 3.14 and self._cal_box.IsChecked():
-            cont_act_st.calibration_reading = 13
+            cont_act_st.calibration_reading = True
         
         act_st = ActuatorStatistics()
         act_st.name = 'fake_motor'
-        act_st.calibration_reading = 13
+        act_st.calibration_reading = True
         if sine > 0.0 and self._cal_box.IsChecked():
-            act_st.calibration_reading = 14
+            act_st.calibration_reading = False
 
         mech_st = MechanismStatistics()
         mech_st.actuator_statistics = [ act_st, cont_act_st ]
@@ -185,6 +185,11 @@ class FakeTestFrame(wx.Frame):
         stat.message = choice 
      
         self.diag_pub.publish(msg)
+
+        halted = Bool()
+        halted.data = level != 0
+        self.motors_pub.publish(halted)
+            
 
 class FakeTestApp(wx.App):
     def __init__(self):
