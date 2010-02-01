@@ -19,5 +19,8 @@
 
     <station gui="tests" host="tests" powerboard="1007" breaker0="True"
              breaker1="True" breaker2="True" />
+
+    <station gui="testo" host="testo" powerboard="1012" breaker0="True"
+             breaker1="True" breaker2="True" />
     
 </map>
