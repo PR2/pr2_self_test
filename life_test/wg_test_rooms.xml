@@ -31,9 +31,9 @@
     <bay name="testd" machine="testd" board="1008" breaker="1" />
     <bay name="teste" machine="teste" board="1008" breaker="0" />
 
-    <!-- Racks 5 and 6 not configured yet -->
+    <!-- Fifth rack -->
     <bay name="testb" machine="testb" board="1013" breaker="0" />
-    <!-- Middle machine is shot -->
+    <bay name="testaa" machine="testaa" board="1013" breaker="1" />
     <bay name="testa" machine="testa" board="1013" breaker="2" />
 
     <!-- Bottom rack -->
