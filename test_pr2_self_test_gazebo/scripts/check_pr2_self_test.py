@@ -47,7 +47,7 @@ from optparse import OptionParser
 
 from qualification.srv import TestResult, TestResultResponse
 
-DURATION = 150
+DURATION = 360
 
 class TestQualUnit(unittest.TestCase):
     def __init__(self, *args):
