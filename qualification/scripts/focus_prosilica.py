@@ -45,7 +45,6 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import subprocess
-from prosilica_camera.srv import PolledImage, PolledImageRequest, PolledImageResponse
 from time import sleep
 
 class ImageConverter:
@@ -56,6 +55,7 @@ class ImageConverter:
     self.gnuplot = subprocess.Popen("gnuplot", 
             stdin=subprocess.PIPE) #, stdout=null) 
     cv.NamedWindow("Image window", 1)
+    #cv.NamedWindow("Out window", 1)
 
   def process_image(self, image):
     try:
@@ -64,6 +64,8 @@ class ImageConverter:
       import traceback
       traceback.print_exc()
 
+    (width, height) = cv.GetSize(cv_image)
+    cv_image = cv.GetSubRect(cv_image, (1, 1, width - 2, height - 2))
     (width, height) = cv.GetSize(cv_image)
     
     blurradius = 30
@@ -88,7 +90,12 @@ class ImageConverter:
     cv.Smooth(blurimg, blurimg, cv.CV_BLUR, blurradius, blurradius)
     #print >> sys.stderr, cv.Sum(blurimg)
     
-    cv.ShowImage("Image window", origimg)
+    scalefactor=4
+    scaledimg = cv.CreateMat(height*scalefactor, width*scalefactor, cv.CV_32FC1)
+    cv.Resize(origimg, scaledimg, cv.CV_INTER_NN)
+    cv.ShowImage("Image window", scaledimg)
+    #cv.Resize(blurimg, scaledimg, cv.CV_INTER_NN)
+    #cv.ShowImage("Out window", scaledimg)
     cv.WaitKey(2)
 
     print >> self.gnuplot.stdin, 'set terminal x11 0'
