@@ -4,13 +4,13 @@
     <param name="velocity" type="double" value="1.5" />
     <param name="max_effort" type="double" value="0.60" />
     <param name="max_expected" type="double" value="0.03" />
-    <param name="min_expected" type="double" value="-0.18" />
+    <param name="min_expected" type="double" value="-0.17" />
     <param name="max_position" type="double" value="1.40" />
     <param name="min_position" type="double" value="-0.69" />
     <param name="timeout" type="double" value="30" />
-    <param name="tolerance" type="double" value="0.30" />
+    <param name="tolerance" type="double" value="0.35" />
     <param name="sd_max" type="double" value="0.20" />
-    <param name="slope" type="double" value="0.25" />
+    <param name="slope" type="double" value="0.1035" />
 
     <group ns="velocity_controller" clear_params="true">
       <param name="type" type="string" value="JointVelocityController" />
