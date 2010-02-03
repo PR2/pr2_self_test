@@ -4,6 +4,9 @@
 
   <!-- Used for wrist component production test --> 
   <include file="$(find qualification)/tests/wrist_test/wrist_diff_check.launch" />
+
+  <!-- Increase timeout for Hudson -->
+  <param name="test_controller/timeout" type="double" value="60" />
   
   <!--  <node output="screen" -->  
   <!-- Test: asserts we have wrist diff service and that we passed -->
