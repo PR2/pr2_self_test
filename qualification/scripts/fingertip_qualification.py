@@ -37,6 +37,8 @@
 ## force, and checking the differences between the two gripper tips, the node reports
 ## success or failure.
 
+from __future__ import with_statement
+
 PKG = 'qualification'
 import roslib
 roslib.load_manifest(PKG)
@@ -65,8 +67,9 @@ class FingertipQualification:
         
         self.pub = rospy.Publisher('r_gripper_effort_controller/command', Float64)
 
-        self._pressure_topic = 'pressure/r_gripper_motor'
-        rospy.Subscriber(self._pressure_topic, PressureState, self.pressure_callback)
+        self.l_finger_tip = None
+        self.r_finger_tip = None
+
         rospy.init_node('fingertip_qualification')
 
         # Squeezing params
@@ -114,12 +117,14 @@ class FingertipQualification:
         self._tip0 = []
         self._tip1 = []
 
+        self._pressure_topic = 'pressure/r_gripper_motor'
+        rospy.Subscriber(self._pressure_topic, PressureState, self.pressure_callback)
+
     ##\brief Callback for gripper pressure topic
-    def pressure_callback(self,data):
-        self._mutex.acquire()
-        self.l_finger_tip = data.l_finger_tip
-        self.r_finger_tip = data.r_finger_tip
-        self._mutex.release()
+    def pressure_callback(self, data):
+        with self._mutex:
+            self.l_finger_tip = data.l_finger_tip
+            self.r_finger_tip = data.r_finger_tip
 
     ##\brief Record errors in analysis
     def test_failed_service_call(self, except_str = ''):
@@ -155,53 +160,51 @@ class FingertipQualification:
     ##\brief Make sure we have correct number of gripper sensors on each tip, and all are OK
     def check_connected(self):
         sleep(1/self.fingertip_refresh*2)
-        self._mutex.acquire()
+        with self._mutex:
 
-        if self.l_finger_tip is None or self.r_finger_tip is None:
-            r = TestResultRequest()
-            r.text_summary = 'No gripper tip data.'
-            
-            r.html_result = '<p>No gripper tip data. Check connections. Tip 0: %s, tip 1: %s.</p>\n' % (str(self.l_finger_tip), str(self.r_finger_tip))
-            r.html_result +=  '<hr size="2">\n' + self._write_equation()
-            r.html_result += '<hr size="2">\n' + self._write_params()
-            r.html_result += '<hr size="2">\n' + self._write_tols()
-            r.result = TestResultRequest.RESULT_FAIL
-            self.send_results(r)
+            if self.l_finger_tip is None or self.r_finger_tip is None:
+                r = TestResultRequest()
+                r.text_summary = 'No gripper tip data.'
+                
+                r.html_result = '<p>No gripper tip data. Check connections. L tip OK: %s, R tip OK: %s.</p>\n' % (str(self.l_finger_tip is None), str(self.r_finger_tip is None))
+                r.html_result +=  '<hr size="2">\n' + self._write_equation()
+                r.html_result += '<hr size="2">\n' + self._write_params()
+                r.html_result += '<hr size="2">\n' + self._write_tols()
+                r.result = TestResultRequest.RESULT_FAIL
+                self.send_results(r)
 
-        if len(self.l_finger_tip) != self.num_sensors or len(self.r_finger_tip) != self.num_sensors:
-            r = TestResultRequest()
-            r.text_summary = 'Incorrect number of sensors. Expected: %d.' % self.num_sensors
-            
-            r.html_result = '<p>Incorrect number of sensors. Expected: %d. Tip 0: %d, tip 1: %d.</p>\n' % (self.num_sensors, len(self.l_finger_tip), len(self.r_finger_tip))
-            r.html_result +=  '<hr size="2">\n' + self._write_equation()
-            r.html_result += '<hr size="2">\n' + self._write_params()
-            r.html_result += '<hr size="2">\n' + self._write_tols()
-            r.result = TestResultRequest.RESULT_FAIL
-            self.send_results(r)
+            if len(self.l_finger_tip) != self.num_sensors or len(self.r_finger_tip) != self.num_sensors:
+                r = TestResultRequest()
+                r.text_summary = 'Incorrect number of sensors. Expected: %d.' % self.num_sensors
+                
+                r.html_result = '<p>Incorrect number of sensors. Expected: %d. Tip 0: %d, tip 1: %d.</p>\n' % (self.num_sensors, len(self.l_finger_tip), len(self.r_finger_tip))
+                r.html_result +=  '<hr size="2">\n' + self._write_equation()
+                r.html_result += '<hr size="2">\n' + self._write_params()
+                r.html_result += '<hr size="2">\n' + self._write_tols()
+                r.result = TestResultRequest.RESULT_FAIL
+                self.send_results(r)
 
-        ok = True
-        tips_bad = True
-        connect_table = '<table border="1" cellpadding="2" cellspacing="0">\n'
-        connect_table += '<tr><td><b>Sensor</b></td><td><b>Tip 0</b></td><td><b>Tip 1</b></td></tr>\n'
-        for i in range(0, self.num_sensors):
-            tip0 = 'OK'
-            tip1 = 'OK'
-            if self.l_finger_tip[i] == 0 or self.l_finger_tip[i] == -1:
-                ok = False
-                tip0 = 'No data'  
-            else:
-                tips_bad = False
+            ok = True
+            tips_bad = True
+            connect_table = '<table border="1" cellpadding="2" cellspacing="0">\n'
+            connect_table += '<tr><td><b>Sensor</b></td><td><b>Tip 0</b></td><td><b>Tip 1</b></td></tr>\n'
+            for i in range(0, self.num_sensors):
+                tip0 = 'OK'
+                tip1 = 'OK'
+                if self.l_finger_tip[i] == 0 or self.l_finger_tip[i] == -1:
+                    ok = False
+                    tip0 = 'No data'  
+                else:
+                    tips_bad = False
 
-            if self.r_finger_tip[i] == 0 or self.r_finger_tip[i] == -1:
-                ok = False
-                tip1 = 'No data'
-            else:
-                tips_bad = False
+                if self.r_finger_tip[i] == 0 or self.r_finger_tip[i] == -1:
+                    ok = False
+                    tip1 = 'No data'
+                else:
+                    tips_bad = False
 
-            connect_table += '<tr><td>%d</td><td>%s</td><td>%s</td></tr>\n' % (i, tip0, tip1)
-        connect_table += '</table>\n'
-
-        self._mutex.release()
+                connect_table += '<tr><td>%d</td><td>%s</td><td>%s</td></tr>\n' % (i, tip0, tip1)
+            connect_table += '</table>\n'
 
         connect_str = 'OK'
         if not ok:
@@ -256,24 +259,23 @@ class FingertipQualification:
     
     ##\brief Record "zero" of gripper, when tips are open
     def record_zero_val(self):
-        self._mutex.acquire()
-        self.starting_sum0 = 0
-        self.starting_sum1 = 0
-        for i in range(self.num_sensors_outside, self.num_sensors):
-            self.starting_sum0 += self.l_finger_tip[i]
-            self.starting_sum1 += self.r_finger_tip[i]
-        self._mutex.release()
+        with self._mutex:
+            self.starting_sum0 = 0
+            self.starting_sum1 = 0
+            for i in range(self.num_sensors_outside, self.num_sensors):
+                self.starting_sum0 += self.l_finger_tip[i]
+                self.starting_sum1 += self.r_finger_tip[i]
       
     ##\brief Record sum of gripper tip pressure at the commanded force
     def record_increase(self):
-        self._mutex.acquire()
-        current_sum0 = 0
-        for i in range(self.num_sensors_outside, self.num_sensors):
-            current_sum0 += self.l_finger_tip[i]
-        current_sum1 = 0
-        for i in range(self.num_sensors_outside, self.num_sensors):
-            current_sum1 += self.r_finger_tip[i]
-        self._mutex.release()
+        with self._mutex:
+            current_sum0 = 0
+            current_sum1 = 0
+            for i in range(self.num_sensors_outside, self.num_sensors):
+                current_sum0 += self.l_finger_tip[i]
+                
+            for i in range(self.num_sensors_outside, self.num_sensors):
+                current_sum1 += self.r_finger_tip[i]
  
         expected_value = self.force*self.force*self.force*self.x3 + self.force*self.force*self.x2 + self.force*self.x1 + self.x0
 
@@ -335,7 +337,7 @@ class FingertipQualification:
             html += '<tr><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td></tr>\n' % (self._forces[i], self._tip0[i], self._tip1[i], self._expected[i])
         html += '</table>\n'
 
-        # Write CSV log
+        # Write CSV log to allow oocalc graph
         if False:
             import csv
             csv_path = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results/temp/%s_fingers.csv' % rospy.get_param('/qual_item/serial', 'finger'))
@@ -508,6 +510,7 @@ if __name__ == '__main__':
         if not qual.check_connected():
             # We've failed and sent it in, now wait to be terminated
             rospy.spin()
+            import sys
             sys.exit()
 
         # Only check connection, we've sent results already
@@ -528,7 +531,7 @@ if __name__ == '__main__':
 
         qual.process_results()
     except KeyboardInterrupt:
-        raise
+        pass
     except Exception, e:
         import traceback
         print 'Caught exception in fingertip_qualification.\n%s' % traceback.format_exc()
