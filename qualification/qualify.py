@@ -40,10 +40,10 @@ roslib.load_manifest('qualification')
 import qualification.component_qual
 
 if __name__ == '__main__':
-  try:
-    app = qualification.component_qual.QualificationApp()
-    app.MainLoop()
-  except Exception, e:
-    print "Caught exception in Qualification App Main Loop"
-    import traceback
-    traceback.print_exc()
+    try:
+        app = qualification.component_qual.QualificationApp()
+        app.MainLoop()
+    except Exception, e:
+        print "Caught exception in Qualification App Main Loop"
+        import traceback
+        traceback.print_exc()

@@ -51,14 +51,6 @@ from xml.dom import minidom
 from qualification.test import *
 from qualification.qual_frame import *
 
-#import traceback
-
-#import invent_client.invent_client
-#from invent_client.invent_client import Invent
-
-#import runtime_monitor
-#from runtime_monitor.monitor_panel import MonitorPanel
-
 from roslaunch_caller import roslaunch_caller 
 from roslaunch.core import RLException
 
@@ -213,9 +205,6 @@ class SerialPanel(wx.Panel):
 
     self._manager.begin_test(config_test, item)
 
-
-
- 
   def has_conf_script(self, serial):
     return self._configs.has_key(serial[0:7])
 
@@ -240,10 +229,6 @@ class SerialPanel(wx.Panel):
     if test_folder_file is None:
       return
 
-    # Hack to find directory of scripts
-    ##\todo os.path.dirname()
-    #dir, sep, test_file = test_folder_file.partition('/')
-    
     test_path = os.path.join(os.path.join(TESTS_DIR, test_folder_file))
     test_dir = os.path.dirname(test_path)
     test_str = open(test_path).read()
@@ -272,7 +257,6 @@ class SerialPanel(wx.Panel):
     select_text.Wrap(270)
 
     dialog.Layout()
-
 
     # return string of test folder/file to run
     if (dialog.ShowModal() == wx.ID_OK):
@@ -335,7 +319,7 @@ class ComponentQualFrame(QualificationFrame):
   def get_loader_panel(self):
     return SerialPanel(self._top_panel, self._res, self)
   
-  ## TODO Overloaded in subclasses
+  ##\todo Overloaded in subclasses
   def create_menubar(self):
     menubar = wx.MenuBar()
     self._file_menu = wx.Menu()
@@ -409,7 +393,7 @@ class ComponentQualFrame(QualificationFrame):
         os.environ['ROS_TEST_HOST'] = host
 
 
-  ## TODO Only in component subclass
+  ##\todo Only in component subclass
   def load_wg_test_map(self):
     # Load 'Map' of WG test locations to find defaults for this machine
     map_xml_path = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'wg_map.xml')
@@ -459,6 +443,7 @@ class QualificationApp(wx.App):
       self._core_launcher = roslaunch_caller.launch_core()
     except RLException, e:
       sys.stderr.write('Failed to launch core. Another core may already be running.\n\n')
+      wx.MessageBox('A ROS core is still running and preventing the qualification system from starting. Shut down ROS processes by using the "Kill ROS" icon.','ROS Already Running', wx.OK|wx.ICON_ERROR, None)
       sys.exit(0)
     except Exception, e:
       import traceback
