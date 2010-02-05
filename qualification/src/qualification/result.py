@@ -930,7 +930,7 @@ em { font-style: normal; font-weight: bold; }\
         # Write results to results dir, with local links
         self.write_results_to_file(False, True)
 
-        rospy.loginfo('Wrote results')
+        rospy.logdebug('Wrote results')
 
         if invent == None:
             return False, "Attempted to log results to inventory, but no invent client found."
@@ -969,9 +969,9 @@ em { font-style: normal; font-weight: bold; }\
         
         try:
             for st in (self.get_retrys() + self.get_subresults()):
-                ##\todo Fix name to good name
                 ##\todo change to start time
-                td = TestData(st.get_name(), rospy.get_time(), self._serial)
+                my_name = '/'.join(['Qualification', self._qual_test.get_name(), st.get_name()])
+                td = TestData(my_name, rospy.get_time(), self._serial)
                 td.set_note(st.get_note())
                 for param in st.get_params():
                     td.set_parameter(param.key, param.value)

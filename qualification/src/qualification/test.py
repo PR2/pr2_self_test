@@ -317,6 +317,13 @@ class Test:
       return self._startup_script.get_name()
     return ''
 
+  def get_name(self):
+    if self._name is not None:
+      return self._name
+    if self._startup_script is not None:
+      return self._startup_script.get_name()
+    return ''
+
   ## Full path to startup script
   def getStartupScript(self):
     return self._startup_script
