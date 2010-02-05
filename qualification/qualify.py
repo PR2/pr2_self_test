@@ -32,16 +32,63 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Kevin Watts
+##\author Kevin Watts
+##\brief Loads qualification GUI for component qualification
 
 import roslib
 roslib.load_manifest('qualification')
 
-import qualification.component_qual
+from roslaunch_caller import roslaunch_caller 
+from roslaunch.core import RLException
+
+import wx
+import sys, os
+import rospy
+
+## Starts roscore, qualification app for components
+class QualificationApp(wx.App):
+    def OnInit(self):
+        try:
+            self._core_launcher = roslaunch_caller.launch_core()
+        except RLException, e:
+            sys.stderr.write('Failed to launch core. Another core may already be running.\n\n')
+            wx.MessageBox('A ROS core is still running and preventing the qualification system from starting. Shut down ROS processes by using the "Kill ROS" icon.','ROS Already Running', wx.OK|wx.ICON_ERROR, None)
+            sys.exit(0)
+        except Exception, e:
+            import traceback
+            traceback.print_exc()
+            sys.exit(0)
+            
+        rospy.init_node("qualification")
+        
+        img_path = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'xrc', 'splash.jpg')
+        
+        bitmap = wx.Bitmap(img_path, type=wx.BITMAP_TYPE_JPEG)
+        self._splash = wx.SplashScreen(bitmap, wx.SPLASH_CENTRE_ON_SCREEN, 30000, None, -1)
+        
+        import qualification.component_qual
+
+        self._frame = qualification.component_qual.ComponentQualFrame(None)
+        self._frame.SetSize(wx.Size(700,1000))
+        self._frame.Layout()
+        self._frame.Centre()
+        
+        self._splash.Destroy()
+        self._splash = None
+        
+        self._frame.Show(True)
+        
+        return True
+
+    def OnExit(self):
+        self._core_launcher.stop()
+        
+        if self._splash:
+            self._splash.Destroy()
 
 if __name__ == '__main__':
     try:
-        app = qualification.component_qual.QualificationApp()
+        app = QualificationApp()
         app.MainLoop()
     except Exception, e:
         print "Caught exception in Qualification App Main Loop"

@@ -39,7 +39,7 @@ PKG = 'qualification'
 import roslib; roslib.load_manifest(PKG)
 import rostest, unittest
 
-from qualification.component_qual import load_tests_from_map, load_configs_from_map
+from qualification.test_loader import load_tests_from_map, load_configs_from_map
 from qualification.test import Test
 
 from roslaunch_parse_tester.package_parse import ROSLaunchPackageParser
