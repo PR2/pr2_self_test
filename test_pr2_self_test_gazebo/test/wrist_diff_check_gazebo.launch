@@ -5,12 +5,20 @@
   <!-- Used for wrist component production test --> 
   <include file="$(find qualification)/tests/wrist_test/wrist_diff_check.launch" />
 
+  
   <!-- Increase timeout for Hudson -->
   <param name="test_controller/timeout" type="double" value="60" />
+
+  <group ns="test_controller" >
+    <param name="left_effort" type="double" value="0.15" />
+    <param name="right_effort" type="double" value="-0.15" />
+    <param name="sd_max" type="double" value="2.00" />
+    <param name="tolerance" type="double" value="0.20" />
+  </group>
   
   <!--  <node output="screen" -->  
   <!-- Test: asserts we have wrist diff service and that we passed -->
-   <test test-name="wrist_diff" time-limit="180" retry="2"
+   <test test-name="wrist_diff" time-limit="180" 
          pkg="test_pr2_self_test_gazebo" name="test_wrist_diff"
-         type="check_pr2_self_test.py" args="--human_ok" />
+         type="check_pr2_self_test.py"  />
 </launch>

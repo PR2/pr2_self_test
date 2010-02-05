@@ -149,6 +149,7 @@ class AnalysisApp:
         return
 
       params = HysteresisParameters()
+      params.joint_name = self.data.joint_name
       params.pos_effort = self.data.arg_value[1]
       params.neg_effort = self.data.arg_value[0]
       params.range_max  = self.data.arg_value[3]
@@ -159,7 +160,7 @@ class AnalysisApp:
       params.timeout    = self.data.arg_value[5]
       params.velocity   = self.data.arg_value[4]
       params.max_effort = self.data.arg_value[6]
-      params.joint_name = self.data.joint_name
+
       params.p_gain     = self.data.arg_value[10]
       params.i_gain     = self.data.arg_value[11]
       params.d_gain     = self.data.arg_value[12]
@@ -209,7 +210,7 @@ class AnalysisApp:
         r.text_summary = 'Hysteresis range failed.'
         r.result = TestResultRequest.RESULT_FAIL
       else:
-        r.text_summary = 'Hysteresis result: FAIL. ' + range_result.summary + ' ' + effort_result.summary
+        r.text_summary = 'Hysteresis result: Questionable. ' + range_result.summary + ' ' + effort_result.summary
         r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
 
       self.send_results(r)

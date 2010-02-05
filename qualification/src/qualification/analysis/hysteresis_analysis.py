@@ -266,9 +266,9 @@ def effort_analysis(params, data):
     result.summary = summary
 
     result.values = []
-    result.values.append(get_test_value('Positive Effort Average', max_avg, params.pos_effort - tolerance, params.pos_effort + tolerance))
+    result.values.append(get_test_value('Positive Effort Avg', max_avg, params.pos_effort - tolerance, params.pos_effort + tolerance))
     result.values.append(get_test_value('Positive Effort SD', max_sd, '', sd_max))
-    result.values.append(get_test_value('Negative Effort Average', min_avg, params.neg_effort - tolerance, params.neg_effort + tolerance))
+    result.values.append(get_test_value('Negative Effort Avg', min_avg, params.neg_effort - tolerance, params.neg_effort + tolerance))
     result.values.append(get_test_value('Positive Effort SD', max_sd, '', sd_max))
 
     return result
@@ -294,10 +294,10 @@ def velocity_analysis(params, data):
     result.result = True
     result.html = ''.join(html)
 
-    result.values.append(get_test_value('Positive Velocity Avg.', pos_avg, '', ''))
+    result.values.append(get_test_value('Positive Velocity Avg', pos_avg, '', ''))
     result.values.append(get_test_value('Positive Velocity SD', pos_sd, '', ''))
     result.values.append(get_test_value('Positive Velocity RMS', pos_rms, '', ''))
-    result.values.append(get_test_value('Negative Velocity Avg.',neg_avg, '', ''))
+    result.values.append(get_test_value('Negative Velocity Avg',neg_avg, '', ''))
     result.values.append(get_test_value('Negative Velocity SD', neg_sd, '', ''))
     result.values.append(get_test_value('Negative Velocity RMS', neg_rms, '', ''))
 
@@ -429,3 +429,183 @@ def plot_velocity(params, data):
     
     return p
 
+# Wrist analysis starts here
+
+class WristRollHysteresisData(HysteresisData):
+    def __init__(self, srv):
+        left_min = int(0.05 * len(srv.left_turn.roll_position))
+        left_max = int(0.95 * len(srv.left_turn.roll_position))
+        right_min = int(0.05 * len(srv.right_turn.roll_position))
+        right_max = int(0.95 * len(srv.right_turn.roll_position))
+
+        self.pos_flex_effort = numpy.array(srv.left_turn.flex_effort) [left_min: left_max]
+        self.neg_flex_effort = numpy.array(srv.right_turn.flex_effort)[right_min: right_max]
+
+        self.positive = HysteresisDirectionData(srv.left_turn.roll_position, srv.left_turn.roll_effort, srv.left_turn.roll_velocity)
+        self.negative = HysteresisDirectionData(srv.right_turn.roll_position, srv.right_turn.roll_effort, srv.right_turn.roll_velocity)
+
+class WristRollHysteresisParams(HysteresisParameters):
+    def __init__(self, srv):
+        self.joint_name  = srv.roll_joint
+        self.p_gain      = srv.roll_pid[0]
+        self.i_gain      = srv.roll_pid[1]
+        self.d_gain      = srv.roll_pid[2]
+        self.i_clamp     = srv.roll_pid[3]
+
+        self.velocity    = srv.arg_value[1]
+        self.tolerance   = srv.arg_value[2]
+        self.sd_max      = srv.arg_value[3]
+
+        self.timeout     = srv.arg_value[4]
+        self.pos_effort  = srv.arg_value[5]
+        self.neg_effort  = srv.arg_value[6]
+
+        self.range_max   = 0
+        self.range_min   = 0
+        self.slope       = 0
+
+        # Subclass params only
+        self.flex_joint   = srv.flex_joint
+        self.flex_tol     = srv.arg_value[7]
+        self.flex_max     = srv.arg_value[8]
+        self.flex_sd      = srv.arg_value[9]
+        self.flex_p_gain  = srv.flex_pid[0]
+        self.flex_i_gain  = srv.flex_pid[1]
+        self.flex_d_gain  = srv.flex_pid[2]
+        self.flex_i_clamp = srv.flex_pid[3]
+
+    def get_test_params(self):
+        test_params = HysteresisParameters.get_test_params(self)
+
+        test_params.append(TestParam("Flex Joint", self.flex_joint))
+        test_params.append(TestParam("Flex Tolerance", str(self.flex_tol)))
+        test_params.append(TestParam("Flex Max", str(self.flex_max)))
+        test_params.append(TestParam("Flex SD", str(self.flex_sd)))
+        test_params.append(TestParam("Flex P Gain", str(self.flex_p_gain)))
+        test_params.append(TestParam("Flex I Gain", str(self.flex_i_gain)))
+        test_params.append(TestParam("Flex D Gain", str(self.flex_d_gain)))
+        test_params.append(TestParam("Flex I Clamp", str(self.flex_i_clamp)))
+
+        return test_params
+
+##\brief Analyzes flex effort during wrist difference test
+def wrist_flex_analysis(params, data):
+    flex_max = numpy.average(data.pos_flex_effort)
+    flex_max_sd = numpy.std(data.pos_flex_effort)
+    flex_min = numpy.average(data.neg_flex_effort)
+    flex_min_sd = numpy.std(data.neg_flex_effort)
+    flex_max_val = max(numpy.max(data.pos_flex_effort), numpy.max(data.neg_flex_effort))
+    flex_min_val = min(numpy.min(data.pos_flex_effort), numpy.min(data.neg_flex_effort))
+    
+    max_msg = '<div class="pass">OK</div>'
+    if abs(flex_max) > params.flex_tol:
+        max_msg = '<div class="error">FAIL</div>'
+        
+    min_msg = '<div class="pass">OK</div>'
+    if abs(flex_min) > params.flex_tol:
+        min_msg = '<div class="error">FAIL</div>'
+        
+    max_val_msg = '<div class="pass">OK</div>'
+    if abs(flex_max_val) > params.flex_max:
+        max_val_msg = '<div class="error">FAIL</div>'
+
+    min_val_msg = '<div class="pass">OK</div>'
+    if abs(flex_min_val) > params.flex_max:
+        min_val_msg = '<div class="error">FAIL</div>'
+
+    max_sd_msg = '<div class="pass">OK</div>'
+    if abs(flex_max_sd) > params.flex_sd:
+        max_sd_msg = '<div class="error">FAIL</div>'
+        
+    min_sd_msg = '<div class="pass">OK</div>'
+    if abs(flex_min_sd) > params.flex_sd:
+        min_sd_msg = '<div class="error">FAIL</div>'
+        
+    ok = abs(flex_max) < params.flex_tol and abs(flex_min) < params.flex_tol
+    ok = ok and abs(flex_min_val) < params.flex_max and abs(flex_max_val) < params.flex_max
+    
+    if ok:
+        html = ['<p>Wrist flex effort is OK.</p>']
+    else:
+        html = ['<p>Wrist flex effort failed. Check graphs.</p>']
+        
+    html.append('<p>Flex effort maximum values. Allowed maximum: %.2f</p>' % (params.flex_max))
+    html.append('<table border="1" cellpadding="2" cellspacing="0">')
+    html.append('<tr><td></td><td><b>Effort</b></td><td><b>Status</b></td></tr>')
+    html.append('<tr><td><b>Max Value</b></td><td>%.2f</td><td>%s</td></tr>' % (flex_max_val, max_val_msg))
+    html.append('<tr><td><b>Min Value</b></td><td>%.2f</td><td>%s</td></tr>' % (flex_min_val, min_val_msg))
+    html.append('</table>')
+    
+    html.append('<br>')
+    html.append('<p>Flex effort average and noise, both directions. Allowed absolute average: %.2f. Allowed noise: %.2f</p>' % (params.flex_tol, params.flex_sd))
+    html.append('<table border="1" cellpadding="2" cellspacing="0">')
+    html.append('<tr><td><b>Effort Avg</b></td><td><b>Status</b></td><td><b>Effort SD</b></td><td><b>SD Status</b></td></tr>')
+    html.append('<tr><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>' % (flex_max, max_msg, flex_max_sd, max_sd_msg))
+    html.append('<tr><td>%.2f</td><td>%s</td><td>%.2f</td><td>%s</td></tr>' % (flex_min, min_msg, flex_min_sd, min_sd_msg))
+    html.append('</table>')
+    
+    result = HysteresisAnalysisResult()
+    result.html = '\n'.join(html)
+    result.result = ok
+    
+    result.values = [
+        get_test_value('Flex Pos Average', flex_max, '', params.flex_tol),
+        get_test_value('Flex Pos SD', flex_max_sd, '', params.flex_sd),
+        get_test_value('Flex Neg Average', flex_min, '', params.flex_tol),
+        get_test_value('Flex Neg SD', flex_min_sd, '', params.flex_sd),
+        get_test_value('Flex Max Val', flex_max_val, '', params.flex_max),
+        get_test_value('Flex Min Val', flex_min_val, '', -1 * params.flex_max) 
+        ]
+
+    return result
+
+##\brief Plots effort of wrist flex during qual
+def plot_flex_effort(params, data):
+    # Can move to separate plotting function
+    # Plot the analyzed data
+    flex_max_tol = params.flex_max
+    
+    fig = plot.figure(1)
+    axes1 = fig.add_subplot(211)
+    axes2 = fig.add_subplot(212)
+    axes2.set_xlabel('Roll Position')
+    axes1.set_ylabel('Effort (+ dir)')
+    axes2.set_ylabel('Effort (- dir)')
+    
+    axes1.plot(data.positive.position, data.pos_flex_effort, 'b--', label='_nolegend_')
+    axes1.axhline(y = flex_max_tol, color = 'y', label='Max Value')
+    axes1.axhline(y = - flex_max_tol, color = 'y', label='_nolegend_')
+    axes1.axhline(y = 0, color = 'r', label='_nolegend_')
+    
+    axes2.plot(data.negative.position, data.neg_flex_effort, 'b--', label='_nolegend_')
+    axes2.axhline(y = flex_max_tol, color = 'y', label='Max Value')
+    axes2.axhline(y = - flex_max_tol, color = 'y', label='_nolegend_')
+    axes2.axhline(y = 0, color = 'r', label='_nolegend_')
+    
+    fig.text(.4, .95, 'Wrist Flex Effort')
+    
+    stream = StringIO()
+    plot.savefig(stream, format = "png")
+    image = stream.getvalue()
+    
+    p = Plot()
+    p.title = "wrist_diff_flex_effort"
+    p.image = image
+    p.image_format = "png"
+    
+    plot.close()
+    
+    return p
+
+def make_wrist_test_summary(roll_stat, flex_stat):
+    if flex_stat and roll_stat:
+        return "Wrist Difference check OK. Motors are symmetric."
+    if flex_stat and not roll_stat:
+        return "Wrist roll hysteresis failed. Wrist flex effort OK."
+    if not flex_stat and roll_stat:
+        return "Wrist roll hysteresis OK. Wrist flex effort failed."
+    return "Wrist roll hystereis and flex effort failed."
+
+##\brief Checks wrist data before analysis
+def wrist_hysteresis_data_present(data):
+    return data.positive.position.size > 100 and data.negative.position.size > 100
