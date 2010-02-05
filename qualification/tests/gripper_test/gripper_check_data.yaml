@@ -1,0 +1,2 @@
+motors: [
+  'r_gripper_motor' ]

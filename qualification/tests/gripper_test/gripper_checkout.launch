@@ -10,5 +10,7 @@
   <node pkg="pr2_controller_manager" type="spawner"
         args="test_controller" name="grip_chk_ctrl" />
   
-  <node pkg="qualification" type="robot_checkout.py" name="grip_check" />
+  <node pkg="qualification" type="robot_checkout.py" name="grip_check" >
+    <rosparam command="load" file="$(find qualification)/tests/gripper_test/gripper_check_data.yaml" />
+  </node>
 </launch>

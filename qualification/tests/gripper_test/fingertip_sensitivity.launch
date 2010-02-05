@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="qualification" type="fingertip_verify.py" name="fingertip_verify" />  
+</launch>

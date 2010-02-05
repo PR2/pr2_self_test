@@ -161,7 +161,6 @@ class FingertipQualification:
     def check_connected(self):
         sleep(1/self.fingertip_refresh*2)
         with self._mutex:
-
             if self.l_finger_tip is None or self.r_finger_tip is None:
                 r = TestResultRequest()
                 r.text_summary = 'No gripper tip data.'
@@ -177,7 +176,7 @@ class FingertipQualification:
                 r = TestResultRequest()
                 r.text_summary = 'Incorrect number of sensors. Expected: %d.' % self.num_sensors
                 
-                r.html_result = '<p>Incorrect number of sensors. Expected: %d. Tip 0: %d, tip 1: %d.</p>\n' % (self.num_sensors, len(self.l_finger_tip), len(self.r_finger_tip))
+                r.html_result = '<p>Incorrect number of sensors. Expected: %d. L tip: %d, tip 1: %d.</p>\n' % (self.num_sensors, len(self.l_finger_tip), len(self.r_finger_tip))
                 r.html_result +=  '<hr size="2">\n' + self._write_equation()
                 r.html_result += '<hr size="2">\n' + self._write_params()
                 r.html_result += '<hr size="2">\n' + self._write_tols()
@@ -187,7 +186,7 @@ class FingertipQualification:
             ok = True
             tips_bad = True
             connect_table = '<table border="1" cellpadding="2" cellspacing="0">\n'
-            connect_table += '<tr><td><b>Sensor</b></td><td><b>Tip 0</b></td><td><b>Tip 1</b></td></tr>\n'
+            connect_table += '<tr><td><b>Sensor</b></td><td><b>L tip</b></td><td><b>R tip</b></td></tr>\n'
             for i in range(0, self.num_sensors):
                 tip0 = 'OK'
                 tip1 = 'OK'
@@ -332,7 +331,7 @@ class FingertipQualification:
     def _write_data(self):
         html = '<p align=center><b>Fingertip Pressure Data</b></p>\n'
         html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Force</b></td><td><b>Tip 0</b></td><td><b>Tip 1</b></td><td><b>Expected</b></td></tr>\n'
+        html += '<tr><td><b>Force</b></td><td><b>L tip</b></td><td><b>R tip</b></td><td><b>Expected</b></td></tr>\n'
         for i in range(0, len(self._forces)):
             html += '<tr><td>%.2f</td><td>%.2f</td><td>%.2f</td><td>%.2f</td></tr>\n' % (self._forces[i], self._tip0[i], self._tip1[i], self._expected[i])
         html += '</table>\n'
@@ -342,7 +341,7 @@ class FingertipQualification:
             import csv
             csv_path = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results/temp/%s_fingers.csv' % rospy.get_param('/qual_item/serial', 'finger'))
             log_csv = csv.writer(open(csv_path, 'wb'))
-            log_csv.writerow(['Force', 'Tip 0', 'Tip 1', 'Expected'])
+            log_csv.writerow(['Force', 'L tip', 'R tip', 'Expected'])
             for i in range(0, len(self._forces)):
                 log_csv.writerow([self._forces[i], self._tip0[i], self._tip1[i], self._expected[i]])
             
@@ -360,12 +359,9 @@ class FingertipQualification:
         avg_diff = abs(numpy.average(diff) / max_val * 100)
         avg_abs_diff = numpy.average(abs(diff)) / max_val * 100
 
-        # Check max_diff < 3.5% of max, avg_diff < 2%, avg_abs_diff < 3.5%
-        # If max_diff > 6%, avg_diff > 5% or avg_avg_diff > 8% -> FAIL
         max_diff_lvl = 0
         avg_diff_lvl = 0
         avg_abs_diff_lvl = 0
-
 
         if max_diff > self._diff_max_quest:
             max_diff_lvl = 1
@@ -447,10 +443,10 @@ class FingertipQualification:
         html += '<p>Error from expected value given in percent of maximum observed value. Status: %s</p>\n' % lvl_dict[stat_lvl]
         html += '<table border="1" cellpadding="2" cellspacing="0">\n'
         html += '<tr><td><b>Parameter</b></td><td><b>Value</b></td><td><b>Status</b></td><td><b>Questionable Pt.</b></td><td><b>Failure Pt.</b></td></tr>\n'
-        html += '<tr><td>Tip 0 Maximum Error</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (max_err0, lvl_dict[err0_lvl], self._tol_max_quest, self._tol_max_fail)
-        html += '<tr><td>Tip 1 Maximum Error</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (max_err1, lvl_dict[err1_lvl], self._tol_max_quest, self._tol_max_fail)
-        html += '<tr><td>Tip 0 Average Error</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (avg_err0, lvl_dict[avg_err0_lvl], self._tol_avg_quest, self._tol_avg_fail)
-        html += '<tr><td>Tip 1 Average Error</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (avg_err1, lvl_dict[avg_err1_lvl], self._tol_avg_quest, self._tol_avg_fail)
+        html += '<tr><td>L tip Maximum Error</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (max_err0, lvl_dict[err0_lvl], self._tol_max_quest, self._tol_max_fail)
+        html += '<tr><td>R tip Maximum Error</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (max_err1, lvl_dict[err1_lvl], self._tol_max_quest, self._tol_max_fail)
+        html += '<tr><td>L tip Average Error</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (avg_err0, lvl_dict[avg_err0_lvl], self._tol_avg_quest, self._tol_avg_fail)
+        html += '<tr><td>R tip Average Error</td><td>%.1f</td><td>%s</td><td>%.1f</td><td>%.1f</td></tr>\n' % (avg_err1, lvl_dict[avg_err1_lvl], self._tol_avg_quest, self._tol_avg_fail)
         html += '</table>\n'
 
         return html, stat_lvl
@@ -485,8 +481,8 @@ class FingertipQualification:
         plot.xlabel('Effort')
         plot.ylabel('Total pressure')
         plot.plot(numpy.array(self._forces), numpy.array(self._expected), label='Expected')
-        plot.plot(numpy.array(self._forces), numpy.array(self._tip0), label='Tip 0')
-        plot.plot(numpy.array(self._forces), numpy.array(self._tip1), label='Tip 1')
+        plot.plot(numpy.array(self._forces), numpy.array(self._tip0), label='L tip')
+        plot.plot(numpy.array(self._forces), numpy.array(self._tip1), label='R tip')
         fig.text(.3, .95, 'Fingertip Pressure v. Effort')
         plot.legend(shadow=True)
         
@@ -530,6 +526,7 @@ if __name__ == '__main__':
             qual.increment_value()
 
         qual.process_results()
+        rospy.spin()
     except KeyboardInterrupt:
         pass
     except Exception, e:

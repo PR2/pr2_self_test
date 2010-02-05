@@ -118,7 +118,6 @@ class FingerTipStatusPanel(wx.Panel):
         self.SetSizer(sizer)
         self.Layout()
 
-        self.result_service = rospy.ServiceProxy('/test_result', TestResult)
         
         self._last_update_time = 0
         self._pressure_sub = rospy.Subscriber(topic, PressureState, self.pressure_cb)
@@ -189,6 +188,7 @@ class FingerTipVerifyFrame(wx.Frame):
         sizer.Add(self._panel, 1, wx.EXPAND)
 
         self.data_sent = False
+        self.result_service = rospy.ServiceProxy('/test_result', TestResult)
 
         self.shutdown_timer = wx.Timer(self, 10)
         self.Bind(wx.EVT_TIMER, self.on_shutdown_timer, self.shutdown_timer)
@@ -274,5 +274,4 @@ if __name__ == '__main__':
 
     sys.exit(0)
     
-    # Need try/catch, etc
-    # Need service calls for pass/fail
+    # Need an arg for left/right gripper
