@@ -39,8 +39,6 @@ PKG = 'life_test'
 import roslib; roslib.load_manifest(PKG)
 import rostest, unittest
 
-import subprocess
-
 from roslaunch_parse_tester.package_parse import ROSLaunchPackageParser
 
 

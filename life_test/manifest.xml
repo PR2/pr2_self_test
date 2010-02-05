@@ -32,8 +32,6 @@
   <depend package="std_srvs" />
   <depend package="hokuyo_node" />
   <depend package="roslaunch_parse_tester" />
-
-  <!-- Slip ring test -->
   <depend package="joint_qualification_controllers" />
   <depend package="ectools" />
   <export>
