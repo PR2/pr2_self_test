@@ -1,4 +1,5 @@
 <launch>
+  <!-- Arm tests -->
   <!--  <include file="$(find life_test)/arm_life_test/arm_life_test.launch" /> -->
 
   <!-- Torso controller -->
@@ -11,7 +12,7 @@
   <!-- Head moving -->
   <node pkg="life_test" type="head_cmder.py" name="head_cmder" />
   <rosparam command="load"
-            file="$(find hot_box_test)/pr2_head_position_controller.yaml" />
+            file="$(find life_test)/head_test/pr2_head_position_controller.yaml" />
   <node name="head_position_controller_spawner" pkg="pr2_controller_manager"
         type="spawner" args="--wait-for=calibrated head_controller" />
 
@@ -21,7 +22,7 @@
         name="laser_cmder" args="laser_tilt_controller" />
   
   <!-- Gripper Controller -->
-<!--
+  <!--
   <group ns="r_gripper_effort_controller" >
     <param name="type" type="str" value="JointEffortController" />
     <param name="joint" type="str" value="r_gripper_joint" />
@@ -29,7 +30,10 @@
   <node pkg="pr2_controller_manager" type="spawner"
         args="r_gripper_effort_controller" name="grip_spawn"
         output="screen" />
--->
+  -->
 
   <node pkg="hot_box_test" type="base_shuffle.py" args="0.5" name="base_shuffle" />
+
+  <!-- Projector on -->
+  <include file="$(find pr2_camera_synchronizer)/projector_on.launch" />
 </launch>

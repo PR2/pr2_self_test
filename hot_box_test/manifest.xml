@@ -19,5 +19,5 @@
   <depend package="power_monitor"/>
   <depend package="geometry_msgs" />
   <depend package="pr2_mechanism_msgs" />
-
+  <depend package="pr2_camera_synchronizer" />
 </package>
