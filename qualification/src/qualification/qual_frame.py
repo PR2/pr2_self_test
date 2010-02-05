@@ -2,7 +2,7 @@
 #
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ##\author Kevin Watts
+##\brief Contains main functionality for qualification system. 
 
 import roslib
 import roslib.packages
@@ -44,7 +45,7 @@ import os
 import sys
 import threading
 
-from datetime import datetime
+from datetime import datetime # May want to change to rostime
 import wx
 import time
 from wx import xrc
@@ -69,7 +70,6 @@ from roslaunch_caller import roslaunch_caller
 
 import rxtools
 import rxtools.cppwidgets
-
 
 ##\brief Passed to qualification manager
 ##
@@ -150,7 +150,7 @@ class PlotsPanel(wx.Panel):
   def _create_monitor(self):
     self._monitor_panel = MonitorPanel(self._notebook)
     self._monitor_panel.SetSize(wx.Size(400, 500))
-    self._notebook.AddPage(self._monitor_panel, "Runtime Monitor")
+    self._notebook.AddPage(self._monitor_panel, "Diagnostics")
 
   def _create_rxconsole(self):
     rxtools.cppwidgets.initRoscpp("qualification_console", False)
@@ -158,7 +158,7 @@ class PlotsPanel(wx.Panel):
     self._rxconsole_panel = rxtools.cppwidgets.RosoutPanel(self._notebook)
     self._rxconsole_panel.SetSize(wx.Size(400, 500))
     self._rxconsole_panel.setEnabled(True)
-    self._notebook.AddPage(self._rxconsole_panel, "ROS Console")
+    self._notebook.AddPage(self._rxconsole_panel, "ROS Output")
     
   ##\todo Make P/F/R buttons only enable when allowable
   def show_plots(self, result_page):
@@ -235,7 +235,7 @@ class ResultsPanel(wx.Panel):
 
 ##\brief Prestartup or shutdown scripts, returns timeout msg
 def script_timeout(timeout):
-  return ScriptDoneRequest(1, "Automatic timeout. Timeout: %s" % timeout)
+  return ScriptDoneRequest(1, "Automated timeout. Timeout: %s" % timeout)
 
 ##\brief Subtest timeout, returns timeout message
 def subtest_timeout(timeout):
@@ -245,7 +245,7 @@ def subtest_timeout(timeout):
   result.html_result = '<p>%s</p>\n' % msg
   result.text_summary = msg
   result.plots = []
-  result.result = 1 # Failure
+  result.result = TestResultRequest.RESULT_FAIL 
 
   return result
   
@@ -313,9 +313,11 @@ class QualificationFrame(wx.Frame):
 
     rospy.set_param('/invent/username', '')
     rospy.set_param('/invent/password', '')
+
+    self._waiting_for_submit = False
     
 
-  ## Logs test results in test log, displays to user
+  ##\brief Logs test results in test log, displays to user
   def log(self, msg):
     log_msg = datetime.now().strftime("%m/%d/%Y %H:%M:%S: ") + msg
     self._test_log[datetime.now()] = msg 
@@ -323,7 +325,7 @@ class QualificationFrame(wx.Frame):
     self._log.Refresh()
     self._log.Update()
     
-  ## Sets top panel of main panel
+  ##\brief Sets top panel of main panel
   def set_top_panel(self, panel):
     if self._current_panel == panel:
       return
@@ -333,7 +335,7 @@ class QualificationFrame(wx.Frame):
     self._top_sizer.Add(self._current_panel, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL)
     self._top_panel.Layout()
     
-  ## Resets the frame to the starting state. 
+  ##\brief Resets the frame to the starting state. 
   def reset(self):
     # get_loader_panel overridden by subclasses
     loader_panel = self.get_loader_panel()
@@ -343,7 +345,7 @@ class QualificationFrame(wx.Frame):
     self._test_log = {}
     self.reset_params()
   
-  ## Resets parameters of qualification node to starting state
+  ##\brief Resets parameters of qualification node to starting state
   def reset_params(self):
     run_id = rospy.get_param('/run_id')
     roslaunch_params = rospy.get_param('/roslaunch', '')
@@ -355,8 +357,9 @@ class QualificationFrame(wx.Frame):
                           'qualification' : qual_params,
                           'invent' : invent_params})
 
-  # Called from loader panel
-  # Rename to something useful at some point
+  ##\brief Called from loader panel
+  ##
+  ##\todo Rename 'begin_test' to something useful at some point
   def begin_test(self, test, qual_item):
     if not self.get_inventory_object():
       wx.MessageBox('Cannot proceed without inventory login. You must have an inventory username and password.', 'Inventory Login Required', wx.OK|wx.ICON_ERROR, self)
@@ -374,7 +377,7 @@ class QualificationFrame(wx.Frame):
     else:
       self.start_qualification()
    
-  # Launches program for either onboard, component conf or test cart tests
+  ##\brief Launches program for either onboard, component conf or test cart tests
   def start_qualification(self):
     if (len(self._current_test.subtests) == 0):
       wx.MessageBox('Test selected has no subtests defined', 'No tests', wx.OK|wx.ICON_ERROR, self)
@@ -391,7 +394,7 @@ class QualificationFrame(wx.Frame):
 
     self.run_prestartup_scripts()
     
-  ## Launches rosrecord node to record diagnostics for test
+  ##\brief Launches rosrecord node to record diagnostics for test
   def record_tests(self):
     record = '<launch>\n'
     record += '<node pkg="rosrecord" type="rosrecord" name="test_logger" \n'
@@ -403,7 +406,7 @@ class QualificationFrame(wx.Frame):
       rospy.logerr('Couldn\'t launch rosrecord for qualification test')
       return
 
-  ## Run any pre_startup scripts synchronously
+  ##\brief Run any pre_startup scripts synchronously
   def run_prestartup_scripts(self):
     if (len(self._current_test.pre_startup_scripts) == 0):
       self.log('No prestartup scripts.')
@@ -420,7 +423,7 @@ class QualificationFrame(wx.Frame):
 
     self.prestartup_call()
 
-  ## Launches prestartup script
+  ##\brief Launches prestartup script
   def prestartup_call(self):
     prestart = self._current_test.pre_startup_scripts[self._prestartup_index]
       
@@ -455,7 +458,7 @@ class QualificationFrame(wx.Frame):
                                              [script_timeout(timeout)])
       self._prestart_timer.start()
                                              
-  ## Hit from 'prestartup_done' service or timeout
+  ##\brief Hit from 'prestartup_done' service or timeout
   def prestartup_done_callback(self, srv):
     wx.CallAfter(self.prestartup_finished, srv)
     return ScriptDoneResponse()
@@ -499,7 +502,7 @@ class QualificationFrame(wx.Frame):
 
       self.test_finished()
       
-  ## Launches startup script (if any) and first subtest.
+  ##\brief Launches startup script (if any) and first subtest.
   def test_startup(self):
     # Run the startup script if we have one
     startup = self._current_test.getStartupScript()
@@ -517,7 +520,7 @@ class QualificationFrame(wx.Frame):
       
     self.start_subtest(0)
 
-  ## Launches subtest and displays waiting page
+  ##\brief Launches subtest and displays waiting page
   ##@param index int : Index of subtest to launch
   def start_subtest(self, index):
     self._subtest_index = index
@@ -547,7 +550,7 @@ class QualificationFrame(wx.Frame):
                                              [ subtest_timeout(timeout) ])
       self._subtest_timer.start()
  
-  ## Callback for subtest results or for timeout
+  ##\brief Callback for subtest results or for timeout
   ##@param msg qualification/TestResultRequest : Test result processed by analysis
   def subtest_callback(self, msg):
     wx.CallAfter(self.subtest_finished, msg)
@@ -668,7 +671,7 @@ class QualificationFrame(wx.Frame):
   
     return launch
     
-  ## Spins all launch files once
+  ##\brief Spins all launch files once, called by timer
   def on_spin(self, event):
     if (self._subtest_launch != None):
       self._subtest_launch.spin_once()
@@ -685,7 +688,19 @@ class QualificationFrame(wx.Frame):
     if (self._record_launch != None):
       self._record_launch.spin_once()
          
-  ## Stops all running launch files, blocks until complete
+  ##\brief Checks if we have any launch files running
+  ##
+  ##\return True if any launch files running
+  def launches_running(self):
+    if self._subtest_launch is not None: return True
+    if self._startup_launch is not None: return True
+    if self._shutdown_launch is not None: return True
+    if self._prestartup_launch is not None: return True
+    if self._record_launch is not None: return True
+
+    return False
+
+  ##\brief Stops all running launch files, blocks until complete
   def stop_launches(self):
     self.log('Stopping launches')
     
@@ -752,7 +767,7 @@ class QualificationFrame(wx.Frame):
       
       self._shutdown_done_srv = rospy.Service('shutdown_done', ScriptDone, self.shutdown_callback)
 
-      html = '<html><H2 align=center>Shutting down test and stopping launches</H2></html>'
+      html = '<html><H2 align=center>Shutting down test and killing processes</H2></html>'
       
       self._plots_panel.show_waiting(html, False)
       self.set_top_panel(self._plots_panel)
@@ -833,6 +848,8 @@ class QualificationFrame(wx.Frame):
     panel = ResultsPanel(self._top_panel, self._res, self)
     self.set_top_panel(panel)
     
+    self._waiting_for_submit = True
+
     if self._results is not None:
       self._results.write_results_to_file() # Write to temp dir
       panel.set_results(self._results)
@@ -903,6 +920,8 @@ class QualificationFrame(wx.Frame):
     if not self.verify_submit():
       return
 
+    self._waiting_for_submit = False
+
     if self._current_item is None:
       self.log('Can\'t submit, no item')
       self.reset()
@@ -942,8 +961,14 @@ class QualificationFrame(wx.Frame):
   
   ##\brief Stops launches once we close window
   def on_close(self, event):
+    if event.CanVeto() and (self.launches_running() or self._waiting_for_submit):
+      dialog = wx.MessageDialog(self, 'Are you sure you want to close this window? This will shut down the current test and discard results. Press "Cancel" to resume.', 'Confirm Close', wx.OK|wx.CANCEL)
+      if dialog.ShowModal() != wx.ID_OK:
+        event.Veto()
+        return
+
     event.Skip()
     
     self.stop_launches()
-
+    self.Destroy()
 

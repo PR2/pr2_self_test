@@ -33,6 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ##\author Kevin Watts
+##\brief Stores, processes results of qualification tests
 
 import roslib
 roslib.load_manifest('qualification')
