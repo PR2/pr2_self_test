@@ -44,7 +44,9 @@ from time import sleep
 
 import traceback
 
-rospy.init_node("run_selftest", anonymous=True)
+from optparse import OptionParser
+
+
 
 node_name = 'node'
 node_id = 'NONE'
@@ -53,104 +55,142 @@ extramsg = ""
 class EmptyReferenceID(Exception): pass
 class SelfTestFailed(Exception): pass
 
-
-try:
-    node_name = rospy.resolve_name('node_name')
-    selftestname = node_name + '/self_test'
-    rospy.loginfo('Testing %s' % selftestname)
-
-    result_service = rospy.ServiceProxy('test_result', TestResult)
-    test_service = rospy.ServiceProxy(selftestname, SelfTest)
-
-    add_ref = len(rospy.myargv()) > 1 and rospy.myargv()[1] == '--add_ref'
-
-    rospy.wait_for_service(selftestname, 15)
-    sleep(5)
-
-    try:
-    	result = test_service.call(SelfTestRequest())
-    except: 
-        rospy.logerr("Self test exited with an exception. It probably failed to run.")
-	raise SelfTestFailed
-	
-    rospy.logout('Received self test service.')
+def add_reference(reference):
+    from invent_client.invent_client import Invent
+    username = rospy.get_param('/invent/username', '')
+    password = rospy.get_param('/invent/password', '')
+    serial = rospy.get_param('/qual_item/serial', None)
     
+    iv = Invent(username, password)
+    if not iv.login() or serial == None:
+        extramsg = '<p>Unable to login to invent to store item reference. Serial: %s. Reference: %s.</p>\n' % (serial, node_id)
+        return False
+    
+    iv.addItemReference(serial, '', node_id)
+
+    return True
+
+
+def get_error_result(msg):
+    rospy.logerr(msg)
+
+    r = TestResultRequest()
+    r.html_result = '<p>%s</p>' % (msg)
+    r.text_summary = msg
+	
+    r.result = r.RESULT_FAIL
+
+    return r
+
+
+def write_selftest(node_name, add_ref, srv):
+    pf_dict = { True: 'PASS', False: 'FAIL' }
+
     r = TestResultRequest()
     if (result.passed):
         r.result = r.RESULT_PASS
     else:
         r.result = r.RESULT_FAIL
 
-    passfail = 'PASS'
-    i = 1
-    
-    if result.id is not None and result.id != '':
-        node_id = result.id
-    else:
-        rospy.logerr('Service %s returned with an empty reference ID.\n' % selftestname)
-        raise EmptyReferenceID
+    html = ["<p><b>Item ID: %s, using node name %s.</b></p>" % (srv.id, node_name)]
 
-    # Add item reference to invent
     if add_ref:
-        from invent_client.invent_client import Invent
-        username = rospy.get_param('/invent/username', '')
-        password = rospy.get_param('/invent/password', '')
-        serial = rospy.get_param('/qual_item/serial', None)
-        
-        iv = Invent(username, password)
-        if not iv.login() or serial == None:
-            extramsg = '<p>Unable to login to invent to store item reference. Serial: %s. Reference: %s.</p>\n' % (serial, node_id)
-            raise
-
-        iv.addItemReference(serial, '', node_id)
-
-
-    html = "<p><b>Item ID: %s, using node name %s.</b></p>\n" % (node_id, node_name)
-    if add_ref:
-        html += '<p>Added item reference %s to inventory system under %s.</p>\n' % (node_id, rospy.get_param('/qual_item/serial', ''))
+        html.append('<p>Added item reference %s to inventory system under %s.</p>' % (srv.id, rospy.get_param('/qual_item/serial', '')))
 
     statdict = {0: 'OK', 1: 'WARN', 2: 'ERROR'}
     
-    for stat in result.status:
-        if (stat.level > 1):
-            passfail = 'FAIL'
-        html += "<p><b>Test %2d) %s</b>\n" % (i, stat.name)
-        html +=  '<br>Result %s: %s</p>\n' % (statdict[stat.level], stat.message)
+    for i, stat in enumerate(srv.status):
+        html.append("<p><b>Test %2d) %s</b>" % (i + 1, stat.name))
+        html.append( '<br>Result %s: %s</p>' % (statdict[stat.level], stat.message))
         
         if len(stat.values) > 0:
-            html += "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">\n"
-            html += "<tr><td><b>Label</b></td><td><b>Value</b></td></tr>\n"
+            html.append("<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">")
+            html.append("<tr><td><b>Label</b></td><td><b>Value</b></td></tr>")
             for val in stat.values:
-                html += "<tr><td>%s</td><td>%s</td></tr>\n" % (val.key, val.value)
-            html += "</table>\n"
+                html.append("<tr><td>%s</td><td>%s</td></tr>" % (val.key, val.value))
+            html.append("</table>")
         
-        html += "<hr size=\"2\">\n"
+        html.append("<hr size=\"2\">")
         
-        i += 1
+    r.html_result = '\n'.join(html)
+    r.text_summary = 'Node ID: %s, node name %s. Self test result: %s' % (srv.id, node_name, pf_dict[result.passed])
 
-    r.plots = []
-    r.html_result = html
-    r.text_summary = 'Node ID: %s, node name %s. Self test result: %s' % (node_id, node_name, passfail)
+    return r
     
-    rospy.wait_for_service('test_result')
-    result_service.call(r)
-    rospy.spin()
+              
 
-except KeyboardInterrupt:
-    pass
-except Exception, e:
-    msg = 'Caught exception testing device id %s, node name %s.' % (node_id, node_name)
-    rospy.logerr(msg)
-    rospy.logerr(traceback.format_exc())
-    rospy.wait_for_service('test_result', 10)
-    r = TestResultRequest()
-    r.plots = []
-    r.html_result = '<p>%s</p><p><b>Exception:</b><br>%s</p>' % (msg, traceback.format_exc())
-    r.text_summary = msg
-	
-    r.result = r.RESULT_FAIL
-    result_service.call(r)
-    rospy.spin()
+def call_selftest(node_name):
+    selftestname = node_name + '/self_test'
+    rospy.logdebug('Testing %s' % selftestname)
+
+    test_service = rospy.ServiceProxy(selftestname, SelfTest)
+
+    try:
+        rospy.wait_for_service(selftestname, 15)
+    except:
+        rospy.logerr('Wait for service %s timed out. Unable to process self test data.' % selftestname)
+        return False, None
+
+    try:
+    	st_result = test_service.call(SelfTestRequest())
+    except: 
+        rospy.logerr("Self test exited with an exception. It probably failed to run.")
+        return False, None
+
+    rospy.logdebug('Received self test service.')
+    return True, st_result
+
+
+if __name__ == '__main__':
+    parser = OptionParser(usage="./%prog [--add_ref]", prog="run_selftest.py")
+    parser.add_option("-a", "--add_ref", default=False, dest="add_ref", action="store_true",
+                      help="Add a reference in invent for the item's hardware ID")
+    options, args = parser.parse_args(rospy.myargv())
+    	
+    rospy.init_node('selftest_caller')
+
+    result_service = rospy.ServiceProxy('test_result', TestResult)
+    
+    node_name = rospy.resolve_name('node_name')
+    if node_name == 'node_name':
+        rospy.logwarn('\'node_name\' did not remap. Attempting to call service \'node_name/self_test\'. This is probably an error')
+
+
+    ok, result = call_selftest(node_name)
+
+    try:
+        rospy.wait_for_service('test_result', 5)
+    except:
+        rospy.logfatal('Unable to contact result service. Exiting')
+        sys.exit(-1)
+
+    sent_results = False
+
+    if not ok:
+        r = get_error_result('Selftest of %s didn\'t get a result. Unable to record results' % node_name)
+        result_service.call(r)
+        sent_results = True
+        rospy.spin() # Wait to get killed
+
+    if not result.id or result.id == '':
+        r = get_error_result('Selftest of  %s returned with an empty reference ID.' % node_name)
+        result_service.call(r)
+        sent_results = True
+        rospy.spin() # Wait to get killed
+
+    # Add item reference to invent
+    if options.add_ref:
+        if not add_reference(result.id):
+            r = get_error_result('Failed to add reference id to inventory. Node: %s, ID: %s' % (node_name, result.id))
+            result_service.call(r)
+            sent_results = True
+            rospy.spin() # Wait to get killed
+
+    if not sent_results:
+        r = write_selftest(node_name, options.add_ref, result)
+        result_service.call(r)
+        rospy.spin()
+
 
 sys.exit(0)
 
