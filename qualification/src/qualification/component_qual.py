@@ -372,9 +372,9 @@ class ComponentQualFrame(QualificationFrame):
     for station in stations:
       if station.attributes['gui'].value == gui_name:
         rospy.set_param('/qualification/powerboard/serial', station.attributes['powerboard'].value) 
-        rospy.set_param('/qualification/powerboard/0', bool(station.attributes['breaker0'].value)) 
-        rospy.set_param('/qualification/powerboard/1', bool(station.attributes['breaker1'].value)) 
-        rospy.set_param('/qualification/powerboard/2', bool(station.attributes['breaker2'].value)) 
+        rospy.set_param('/qualification/powerboard/0', 'true' == station.attributes['breaker0'].value.lower()) 
+        rospy.set_param('/qualification/powerboard/1', 'true' == station.attributes['breaker1'].value.lower())
+        rospy.set_param('/qualification/powerboard/2', 'true' == station.attributes['breaker2'].value.lower())
         os.environ['ROS_TEST_HOST'] = station.attributes['host'].value
         break
       
