@@ -21,6 +21,9 @@
 	file="head_test/test.xml" descrip="Head Test" />
   <test serial="6804040" 
 	file="head_test/test_post_burn.xml" descrip="Head Test - Post Burn In" />
+  <test serial="6804040" 
+	file="head_test/test_projector.xml" descrip="Head Projector Test" />
+  
   <test serial="6802978"
         file="head_test/test_head_pan_motor.xml" descrip="Head Pan Motor Assembly" />
   <test serial="6802977"
@@ -78,6 +81,9 @@
 	file="gripper_test/test.xml" descrip="Gripper Test (Initial)" />
   <test serial="6804015" 
 	file="gripper_test/test_post_burn.xml" descrip="Gripper Test - Post Burn-In" />
+  <test serial="6804015" 
+	file="gripper_test/test_tip.xml" descrip="Gripper Tip Test" />
+
   <test serial="6802764"
         file="gripper_test/test_motor.xml" descrip="Gripper Motor Drivetrain Test" />
   
@@ -97,6 +103,10 @@
   <!-- Special tests -->
   <test serial="faketes" 
 	file="simple_example/test.xml" descrip="Simple Example" />
+  <test serial="fakeout" 
+	file="simple_example/test_timeout.xml" descrip="Test Timeout" />
+
+    
   <test serial="ectest"
         file="ectest/test.xml" descrip="ECAT Chain test"/>
   

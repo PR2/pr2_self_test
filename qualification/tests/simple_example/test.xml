@@ -5,7 +5,6 @@
   <startup name="Startup">startup.launch</startup>
   <subtest name="Passing Test" post="post_test1.launch" timeout="30">test1.launch</subtest>
   <subtest name="Human Req'd Test" timeout="30">test2.launch</subtest>
-  <!--subtest name="Timeout Test" timeout="10">test_timeout.launch</subtest-->
   <subtest name="Failing Test" timeout="30">test3.launch</subtest>
   <shutdown name="Simple Shutdown" timeout="30">shutdown.launch</shutdown>
 </test>

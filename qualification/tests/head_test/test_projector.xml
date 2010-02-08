@@ -1,5 +1,5 @@
 <test>
-  <instructions>instructions.html</instructions>
+  <instructions>instructions_projector.html</instructions>
   <pre_startup name="Power Standby" timeout="30">../../scripts/power_board_standby.launch</pre_startup>
   <pre_startup name="Program MCB's" timeout="30">led_projector_prog.launch</pre_startup>
   <pre_startup name="Power Cycle" timeout="30">../../scripts/power_cycle.launch</pre_startup>

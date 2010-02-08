@@ -31,6 +31,7 @@
   <depend package="camera_focus" />
   <depend package="image_proc" />
   <depend package="pr2_component_descriptions" />
+  <depend package="pr2_camera_synchronizer" />
   <depend package="sensor_msgs" />
   <depend package="pr2_controller_manager" />
   <depend package="pr2_controller_configuration" />
