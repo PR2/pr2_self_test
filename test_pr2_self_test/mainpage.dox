@@ -1,0 +1,12 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\b test_pr2_self_test runs regression tests and unit tests on nodes and functions in the pr2_self_test (qualification) stack. 
+
+
+\section codeapi Code API
+
+The node `check_pr2_self_test.py` advertises the 'test_result/TestResult' service, just like qualification, and checks the results.
+
+*/

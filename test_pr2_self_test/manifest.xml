@@ -1,0 +1,17 @@
+<package>
+  <description brief="Tests scripts and I/O of qualification" >
+  Regression and unit tests for nodes in qualification:
+   * run_selftest.py
+  </description>
+  <author>Kevin Watts</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/test_pr2_self_test</url>
+  <depend package="qualification"/>
+  <depend package="rospy"/>
+  <depend package="self_test" />
+  <depend package="roscpp" />
+  <depend package="diagnostic_msgs" />
+</package>
+
+
