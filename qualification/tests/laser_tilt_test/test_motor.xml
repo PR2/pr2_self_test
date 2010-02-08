@@ -1,4 +1,4 @@
-<test>
+<test name="Laser Sled Motor Test">
   <instructions>instructions_motor.html</instructions>
   <pre_startup name="Power Cycle" timeout="30">../../scripts/power_cycle.launch</pre_startup>
   <pre_startup name="Configure MCB's" timeout="30">../../config/laser_tilt_conf.launch</pre_startup>

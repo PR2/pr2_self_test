@@ -55,7 +55,7 @@ class FailedLoadError(Exception): pass
 ##@param post_test str (optional): Launch file for post-subtest script
 ##@param name str (optional): Human readable name of subtest
 class SubTest:
-  def __init__(self, subtest, key, name=None, timeout = -1, pre_test=None, post_test=None):
+  def __init__(self, subtest, key, name, timeout = -1, pre_test=None, post_test=None):
     self._test_script = subtest
     self._pre_script = pre_test
     self._post_script = post_test
@@ -65,6 +65,10 @@ class SubTest:
 
   ##\brief Check that key exists, launch files exist and are ".launch" files
   def validate(self):
+    if self._name is None:
+      print 'Subtests must be named.'
+      return False
+
     if self._key is None:
       print 'Subtest key is none.'
       return False
@@ -107,15 +111,15 @@ class SubTest:
   def get_timeout(self):
     return self._timeout
 
-  ## Returns name of test, or generates one if none exists
   def get_name(self):
-    if self._name:
+    if self._name is not None:
       return self._name
 
     return '%s: %d' % (os.path.basename(self._test_script), self._key)
 
 
 ##\brief Holds pre-startup/shutdown scripts for qual tests
+##\todo Change private vars to _names
 class TestScript:
   ##@param launch_file: Complete file name of launch file
   ##@param name str (optional): Human readable name of pre-startup script
@@ -127,6 +131,10 @@ class TestScript:
   
   ##\brief Check that launch file exists and is ".launch" file
   def validate(self):
+    if self.name is None:
+      print 'TestScripts must be named'
+      return False
+
     if self.launch_file is None:
       print 'No launch file found, invalid TestScript'
       return False
@@ -151,8 +159,9 @@ class TestScript:
 
     return os.path.basename(self.launch_file)
       
-## Qualification test to run. Holds instructions, subtests, pre_startup
-## scripts, etc.
+##\brief Qualification test to run. 
+##
+##Holds instructions, subtests, pre_startup scripts, etc.
 class Test:
   def __init__(self):
     self._name = None
@@ -166,9 +175,13 @@ class Test:
   ##
   ## This does not do any kind of parsing of the files themselves. It only
   ## checks that they exist, and that all files are ".launch" files. Instructions
-  ## files must be ".html" files.
+  ## files must be ".html" files. Checks that test is named.
   ##\return True if Test is valid.
   def validate(self):
+    if self._name is None:
+      print 'Qualification tests must be named.'
+      return False
+
     if len(self.subtests) == 0 and len(self.pre_startup_scripts) == 0:
       print 'No subtests or prestartup scripts. Not loaded'
       return False
@@ -199,24 +212,26 @@ class Test:
 
     return True
     
-    
-  ## Loads qual test from and XML string
+     
+  ##\brief Loads qual test from and XML string
   ##@param test_str: XML file to load, as string
   ##@param test_dir: Base directory of test, appended to qual tests
   ##@return True if load succeeded
   def load(self, test_str, test_dir):
     try:
-      self._doc = minidom.parseString(test_str)
+      doc = minidom.parseString(test_str)
     except IOError:
       rospy.logerr('Unable to parse test string:\n%s' % test_str)
       return False
     
-    doc = self._doc
+    test_list = doc.getElementsByTagName('test')
+    if len(test_list) != 1:
+      return False
+    test_main = test_list[0]
+    if not test_main.attributes.has_key('name'):
+      return False
+    self._name = test_main.attributes['name'].value
 
-    elems = doc.getElementsByTagName('name')
-    if (elems != None and len(elems) > 0):
-      self._name = elems[0].childNodes[0].nodeValue
-    
     pre_startups = doc.getElementsByTagName('pre_startup')
     if (pre_startups != None and len(pre_startups) > 0):
       for pre_startup in pre_startups:
@@ -224,8 +239,10 @@ class Test:
         name = None
         timeout = -1
 
-        if (pre_startup.attributes.has_key('name')):
-          name = pre_startup.attributes['name'].value              
+        if not pre_startup.attributes.has_key('name'):
+          print 'Prestartup script missing name.'
+          return False
+        name = pre_startup.attributes['name'].value              
 
         if (pre_startup.attributes.has_key('timeout')):
           timeout = int(pre_startup.attributes['timeout'].value)           
@@ -237,7 +254,9 @@ class Test:
       launch = os.path.join(test_dir, elems[0].childNodes[0].nodeValue)
       name = None
       if (elems[0].attributes.has_key('name')):
-        name = elems[0].attributes['name'].value  
+        name = elems[0].attributes['name'].value
+      else:
+        name = elems[0].childNodes[0].nodeValue
       self._startup_script = TestScript(launch, name)
     
     elems = doc.getElementsByTagName('shutdown')
@@ -247,7 +266,7 @@ class Test:
       timeout = -1
 
       if (elems[0].attributes.has_key('name')):
-        name = elems[0].attributes['name'].value  
+        name = elems[0].attributes['name'].value
 
       if (elems[0].attributes.has_key('timeout')):
         timeout = int(pre_startup.attributes['timeout'].value)           
@@ -265,17 +284,19 @@ class Test:
         script = os.path.join(test_dir, st.childNodes[0].nodeValue)
         pre = None
         post = None
-        name = None
         timeout = -1
         
+        if not st.attributes.has_key('name'):
+          return False
+
         if (st.attributes.has_key('post')):
           post = os.path.join(test_dir, st.attributes['post'].value)
         if (st.attributes.has_key('pre')):
           pre = os.path.join(test_dir, st.attributes['pre'].value)
-        if (st.attributes.has_key('name')):
-          name = st.attributes['name'].value
-        if (st.attributes.has_key('timeout')):
+        if st.attributes.has_key('timeout'):
           timeout = int(st.attributes['timeout'].value)
+
+        name = st.attributes['name'].value
         
         key = key_count
         key_count += 1
@@ -283,14 +304,14 @@ class Test:
 
     return True
                                         
-  ## Makes a startup script using a pkg and a launch file
+  ##\brief Makes a startup script using a pkg and a launch file
   ##@param pkg: Package of launch file
   ##@param launch_file: Filepath 
   def generate_onboard_test(self, pkg, launch_file, name):
     file = os.path.join(roslib.packages.get_pkg_dir(pkg), launch_file)
     self._startup_script = TestScript(file, name)
                                         
-  ## Adds subtests, eliminates duplicates and sorts by keys
+  ##\brief Adds subtests, eliminates duplicates and sorts by keys
   ##@param subtests: List of SubTest's
   def add_subtests(self, subtests):
     self.subtests.extend(subtests)
@@ -309,30 +330,23 @@ class Test:
       if st_dict[key]:
         self.subtests.append(st_dict[key])
 
-  ## Name or basename or startup script
+  ##\todo Change functions names to Python style
+  ##\brief Name or basename or startup script
   def getName(self):
-    if self._name is not None:
-      return self._name
-    if self._startup_script is not None:
-      return self._startup_script.get_name()
-    return ''
-
+    return self._name
+ 
   def get_name(self):
-    if self._name is not None:
-      return self._name
-    if self._startup_script is not None:
-      return self._startup_script.get_name()
-    return ''
-
-  ## Full path to startup script
+    return self._name
+    
+  ##\brief Full path to startup script
   def getStartupScript(self):
     return self._startup_script
                                 
-  ## Full path to shutdown script
+  ##\brief Full path to shutdown script
   def getShutdownScript(self):
     return self._shutdown_script
   
-  ## Full path to instructions file
+  ##\brief Full path to instructions file
   def getInstructionsFile(self):
     return self._instructions_file
   

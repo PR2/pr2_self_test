@@ -1,4 +1,4 @@
-<test>
+<test name="Forearm Roll/Slipring Test" >
   <instructions>instructions_forearm_roll.html</instructions>
   <pre_startup name="Power Standby" timeout="30">../../scripts/power_board_standby.launch</pre_startup>
   <pre_startup name="MCB Program" timeout="30">forearm_roll_prog.launch</pre_startup>

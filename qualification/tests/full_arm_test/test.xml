@@ -7,5 +7,5 @@
   <subtest name="WGE100 Self Test" timeout="45">full_arm_wge100_selftest.launch</subtest>
   <subtest name="Counterbalance Lift Test" timeout="90">counterbalance_test_lift.launch</subtest>
   <subtest name="Counterbalance Lift and Flex Test" timeout="180">counterbalance_test.launch</subtest>
-  <shutdown>../../scripts/power_board_disable.launch</shutdown>
+  <shutdown name="Power Off">../../scripts/power_board_disable.launch</shutdown>
 </test>

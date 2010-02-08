@@ -319,7 +319,10 @@ class ComponentQualFrame(QualificationFrame):
 
     if (event.GetEventObject() == self._host_menu):
       if (event.GetId() == 4001):
-        host = wx.GetTextFromUser('Enter test host', 'Test Host', os.environ['ROS_TEST_HOST'])
+        self.set_test_host()
+
+  def set_test_host(self):
+            host = wx.GetTextFromUser('Enter test host', 'Test Host', os.environ['ROS_TEST_HOST'])
         os.environ['ROS_TEST_HOST'] = host
 
 

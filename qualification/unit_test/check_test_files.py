@@ -64,8 +64,7 @@ class QualificationTestParser(unittest.TestCase):
         
         launch_file_parser = ROSLaunchPackageParser(PKG, environment = env, black_dirs = black_dirs,
                                                     assign_machines = True, node_check = True, 
-                                                    quiet = False) 
-        #                                            config_err_check = True)
+                                                    quiet = False, config_err_check = True)
         
         launches_ok = launch_file_parser.check_package()
         self.assert_(launches_ok, "Launch files failed to parse. Run roslaunch_parse_tester to check output")
@@ -107,11 +106,20 @@ class QualificationTestParser(unittest.TestCase):
             for my_config_str in lst:
                 my_config = Test()
                 my_config.load(my_config_str, configs_dir)
-                self.assert_(my_config.validate(), "Test failed to validate. Directory: %s\nXML: %s" % (configs_dir, my_config_str))
+                self.assert_(my_config.validate(), "Configuration script failed to validate. Directory: %s\nXML: %s" % (configs_dir, my_config_str))
 
     def tearDown(self):
         pass
 
 if __name__ == '__main__':
-    rostest.unitrun(PKG, 'check_test_files', QualificationTestParser)
-
+    if True:
+        rostest.unitrun(PKG, 'check_test_files', QualificationTestParser)
+    else:
+        # Use to run tests verbosly
+        suite = unittest.TestSuite()
+        suite.addTest(QualificationTestParser('test_launch_file_parse'))
+        suite.addTest(QualificationTestParser('test_check_tests_parsed'))
+        suite.addTest(QualificationTestParser('test_load_qual_tests'))
+        suite.addTest(QualificationTestParser('test_check_configs_parsed'))
+        
+        unittest.TextTestRunner(verbosity = 2).run(suite)

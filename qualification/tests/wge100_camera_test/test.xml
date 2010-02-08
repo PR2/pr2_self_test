@@ -1,4 +1,4 @@
-<test>
+<test name="WGE100 Camera Test" >
   <instructions>instructions.html</instructions>
   <!--startup>ethercat.launch</startup-->
   <subtest name="Program FPGA" timeout="15">program_firmware_ram.launch</subtest>
@@ -6,5 +6,5 @@
   <subtest name="Untriggered Self-Test" timeout="40">self_test_untriggered.launch</subtest>
   <subtest name="Triggered Self-Test" timeout="40">self_test_triggered.launch</subtest>
   <subtest name="Led Flash Test" timeout="30">led_flash_test.launch</subtest>
-  <shutdown>shutdown.launch</shutdown>
+  <shutdown name="Shutdown">shutdown.launch</shutdown>
 </test>

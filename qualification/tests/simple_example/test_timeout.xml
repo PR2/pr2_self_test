@@ -1,4 +1,4 @@
-<test>
+<test name="Faketest (Timeout)">
   <name>Fake Test</name>
   <instructions>instructions.html</instructions>
   <pre_startup name="Prestartup" timeout="30">post_test1.launch</pre_startup>

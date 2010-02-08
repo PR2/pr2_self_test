@@ -1,4 +1,4 @@
-<test>
+<test name="Head Test (Post Burn)" >
   <instructions>instructions_post_burn.html</instructions>
   <pre_startup name="Power On" timeout="30">../../scripts/power_on.launch</pre_startup>
   <startup>head.launch</startup>

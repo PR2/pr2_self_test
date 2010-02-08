@@ -1,4 +1,4 @@
-<test>
+<test name="Prosilica Test" >
   <instructions>instructions.html</instructions>
   <pre_startup name="Set IP" timeout="60">set_prosilica_ip.launch</pre_startup>
   <startup>prosilica.launch</startup>

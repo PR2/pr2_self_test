@@ -1,4 +1,4 @@
-<test name="Shoulder Test" >
+<test name="Upperarm Roll Test" >
   <instructions>instructions_ua_roll.html</instructions>
   <pre_startup name="Power On" timeout="30">../../scripts/power_on.launch</pre_startup>
   <pre_startup name="Configure MCB's" timeout="30">../../config/r_upper_arm_roll_conf.launch</pre_startup>

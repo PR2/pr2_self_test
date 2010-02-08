@@ -1,4 +1,4 @@
-<test>
+<test name="Shoulder Motor Test">
   <!-- Uses lift motor, since lift/pan/roll motors are the same -->
   <instructions>instructions_lift_motor.html</instructions>
   <pre_startup name="Power On" timeout="30">../../scripts/power_on.launch</pre_startup>

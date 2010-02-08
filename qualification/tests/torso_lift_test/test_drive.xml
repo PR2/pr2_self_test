@@ -1,4 +1,4 @@
-<test> 
+<test name="Torso Drivetrain Test" > 
   <instructions>instructions_drive.html</instructions>
   <pre_startup name="Power On" timeout="30">../../scripts/power_on.launch</pre_startup>
   <pre_startup name="Torso Conf" timeout="30">../../config/torso_conf.launch</pre_startup>

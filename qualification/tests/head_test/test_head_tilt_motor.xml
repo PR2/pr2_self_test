@@ -1,4 +1,4 @@
-<test>
+<test name="Head Tilt Drivetrain Test" >
   <instructions>instructions_head_tilt_motor.html</instructions>
   <pre_startup name="Power Standby" timeout="30">../../scripts/power_board_standby.launch</pre_startup>
   <pre_startup name="Program MCB's" timeout="30">head_tilt_motor_prog.launch</pre_startup> 

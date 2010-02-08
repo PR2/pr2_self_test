@@ -1,4 +1,4 @@
-<test>
+<test name="Hokuyo Test">
   <instructions>instructions.html</instructions>
   <startup>hokuyo.launch</startup>
   <subtest name="Self Test" timeout="60">selftest.launch</subtest>

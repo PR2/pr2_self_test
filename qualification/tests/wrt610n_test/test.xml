@@ -1,4 +1,4 @@
-<test>
+<test name="WRT Test" >
   <instructions>instructions.html</instructions>
   <pre_startup name="Check for IPs">check_for_ips.launch</pre_startup>
   <pre_startup name="Check Routes">check_routes.launch</pre_startup>

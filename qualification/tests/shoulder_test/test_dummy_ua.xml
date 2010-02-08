@@ -1,4 +1,4 @@
-<test name="Shoulder Test" >
+<test name="Shoulder Test (Dummy UA)" >
   <instructions>instructions_dummy_ua.html</instructions>
   <pre_startup name="Power On" timeout="30">../../scripts/power_on.launch</pre_startup>
   <pre_startup name="Configure MCB's" timeout="30">../../config/r_shoulder_dummy_ua_conf.launch</pre_startup>

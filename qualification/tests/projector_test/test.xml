@@ -1,4 +1,4 @@
-<test>
+<test name="LED Projector Test" >
   <instructions>instructions.html</instructions>
 
   <pre_startup timeout="30" name="Power On">../../scripts/power_on.launch</pre_startup>

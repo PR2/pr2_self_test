@@ -1,4 +1,4 @@
-<test>
+<test name="USB-Serial Test" >
   <instructions>instructions.html</instructions>
   <subtest name="Send/Receive Test" timeout="30">send_rec_test.launch</subtest>
 </test>

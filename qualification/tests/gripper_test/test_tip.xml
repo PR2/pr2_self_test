@@ -1,4 +1,4 @@
-<test>
+<test name="Gripper Tip Test" >
   <instructions>instructions_tips.html</instructions>
   <pre_startup timeout="30" name="Power Standby">../../scripts/power_board_standby.launch</pre_startup>
   <pre_startup timeout="60" name="Program MCB's">gripper_prog.launch</pre_startup>

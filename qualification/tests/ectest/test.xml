@@ -1,5 +1,4 @@
-<test>
-  <name>ECAT Test</name>
+<test name="ECAT Test" >
   <instructions>instructions.html</instructions>
   <pre_startup timeout="30" name="Power On">../../scripts/power_on.launch</pre_startup>
   <subtest name="EtherCAT Test">ectest.launch</subtest>

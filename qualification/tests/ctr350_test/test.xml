@@ -1,4 +1,4 @@
-<test>
+<test name="CTR 350" >
   <instructions>instructions.html</instructions>
   <pre_startup name="Check for IPs">check_for_ips.launch</pre_startup>
   <subtest name="Config CTR350 QUAL" timeout="60">config_ctr_qual.launch</subtest>

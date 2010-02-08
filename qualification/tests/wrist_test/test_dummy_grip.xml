@@ -1,4 +1,4 @@
-<test> 
+<test name="Wrist Test (Dummy Gripper)" > 
   <instructions>instructions_dummy_grip.html</instructions>
   <pre_startup name="Power On" timeout="30">../../scripts/power_on.launch</pre_startup>
   <pre_startup name="Configure MCB's" timeout="30">../../config/r_wrist_dummy_grip_conf.launch</pre_startup>

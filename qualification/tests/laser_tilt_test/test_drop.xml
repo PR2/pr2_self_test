@@ -1,4 +1,4 @@
-<test>
+<test name="Laser Sled Drop Test" >
   <instructions>instructions_drop.html</instructions>
   <pre_startup name="Power Standby" timeout="30">../../scripts/power_board_standby.launch</pre_startup>
   <pre_startup name="Program MCB's" timeout="45">laser_tilt_prog.launch</pre_startup>

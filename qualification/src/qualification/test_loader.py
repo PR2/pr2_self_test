@@ -95,22 +95,22 @@ def load_configs_from_map(config_files, config_descripts_by_file):
 
     # Generate test XML. If we need power board, add prestartup/shutdown
     # to turn on/off power
-    test = '<test>\n'
-    test += '<name>%s</name>\n' % descrip
+    test = ['<test name="%s">' % descrip]
     if powerboard:
-      test += '<pre_startup name="Power Cycle">scripts/power_cycle.launch</pre_startup>\n'
-    test += '<pre_startup name="%s">config/%s</pre_startup>\n' % (descrip, file)
-    test += '<subtest name="%s Test">config/subtest_conf.launch</subtest>\n' % (descrip)
+      test.append('<pre_startup name="Power Cycle">scripts/power_cycle.launch</pre_startup>')
+    test.append('<pre_startup name="%s">config/%s</pre_startup>' % (descrip, file))
+    test.append('<subtest name="%s Test">config/subtest_conf.launch</subtest>' % (descrip))
     if powerboard:
-      test += '<shutdown name="Shutdown">scripts/power_board_disable.launch</shutdown>\n</test>'
-    else:
-      test += '</test>'
+      test.append('<shutdown name="Shutdown">scripts/power_board_disable.launch</shutdown>')
+    test.append('</test>')
       
+    test_str = '\n'.join(test)
+
     if config_files.has_key(serial):
-      config_files[serial].append(test)
+      config_files[serial].append(test_str)
     else:
-      config_files[serial] = [ test ]
+      config_files[serial] = [ test_str ]
       
-    config_descripts_by_file[test] = descrip
+    config_descripts_by_file[ test_str ] = descrip
 
   return True

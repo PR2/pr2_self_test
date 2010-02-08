@@ -1,4 +1,4 @@
-<test>
+<test name="Elbow Motor Test" >
   <instructions>instructions_elbow_motor.html</instructions>
   <pre_startup name="Power Cycle" timeout="30">../../scripts/power_cycle.launch</pre_startup>
   <pre_startup name="Configure MCB's" timeout="30">elbow_flex_motor_conf.launch</pre_startup>

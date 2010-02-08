@@ -1,4 +1,4 @@
-<test>
+<test name="Gripper Drop Test">
   <instructions>drop_instruct.html</instructions>
   <pre_startup timeout="30" name="Power On">../../scripts/power_cycle.launch</pre_startup>
   <startup name="Gripper Startup">gripper.launch</startup>
