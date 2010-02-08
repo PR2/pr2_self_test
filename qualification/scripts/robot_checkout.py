@@ -30,8 +30,6 @@
 ##\author Kevin Watts
 ##\brief Checks to make sure robot is calibrated, visualizer passes and all diagnostics are OK
 
-##\todo Compare against known joints and actuators
-
 PKG = 'qualification'
 import roslib
 roslib.load_manifest(PKG)
@@ -48,6 +46,7 @@ from joint_qualification_controllers.srv import *
 
 import traceback
 
+##\brief Sorts diagnostic messages by level, name
 def level_cmp(a, b):
     if a._level == b._level:
         return cmp(a._name, b._name)
@@ -60,6 +59,12 @@ class DiagnosticItem:
         self._level = level
         self._message = message
         self._update_time = rospy.get_time()
+
+    def discard(self):
+        if self._name.startswith('Controller'):
+            return True
+
+        return False
 
     def check_stale(self):
         if rospy.get_time() - self._update_time > 3.0:
@@ -205,9 +210,15 @@ class RobotCheckout:
 
     def process_diagnostics(self):
         # Sort diagnostics by level
-        diagnostics = dict.values(self._name_to_diagnostic)
-        for diag in diagnostics:
+        my_diags = dict.values(self._name_to_diagnostic)
+        
+        diagnostics = []
+        for diag in my_diags:
+            if diag.discard():
+                continue
+
             diag.check_stale()
+            diagnostics.append(diag)
 
         diagnostics.sort(level_cmp)
 

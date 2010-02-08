@@ -50,14 +50,14 @@ node_name = 'node'
 node_id = 'NONE'
 extramsg = ""
 
-
-
+class EmptyReferenceID(Exception): pass
+class SelfTestFailed(Exception): pass
 
 
 try:
     node_name = rospy.resolve_name('node_name')
     selftestname = node_name + '/self_test'
-    rospy.logout('Testing %s' % selftestname)
+    rospy.loginfo('Testing %s' % selftestname)
 
     result_service = rospy.ServiceProxy('test_result', TestResult)
     test_service = rospy.ServiceProxy(selftestname, SelfTest)
@@ -70,8 +70,8 @@ try:
     try:
     	result = test_service.call(SelfTestRequest())
     except: 
-        extramsg = "<p>Self test exited with an exception. It probably failed to run.</p>"
-	raise extramsg
+        rospy.logerr("Self test exited with an exception. It probably failed to run.")
+	raise SelfTestFailed
 	
     rospy.logout('Received self test service.')
     
@@ -87,8 +87,8 @@ try:
     if result.id is not None and result.id != '':
         node_id = result.id
     else:
-        extramsg = '<p>Service %s returned with an empty reference ID.</p>\n' % selftestname
-        raise extramsg
+        rospy.logerr('Service %s returned with an empty reference ID.\n' % selftestname)
+        raise EmptyReferenceID
 
     # Add item reference to invent
     if add_ref:
@@ -145,15 +145,12 @@ except Exception, e:
     rospy.wait_for_service('test_result', 10)
     r = TestResultRequest()
     r.plots = []
-    r.html_result = '%s<p>%s</p><p><b>Exception:</b><br>%s</p>' % (extramsg, msg, traceback.format_exc())
-    if extramsg != "":
-        r.text_summary = extramsg
-    else:
-        r.text_summary = msg
+    r.html_result = '<p>%s</p><p><b>Exception:</b><br>%s</p>' % (msg, traceback.format_exc())
+    r.text_summary = msg
 	
     r.result = r.RESULT_FAIL
     result_service.call(r)
-    sys.exit(255)
+    rospy.spin()
 
 sys.exit(0)
 
