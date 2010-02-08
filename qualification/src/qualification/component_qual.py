@@ -40,6 +40,7 @@ import rospy
 
 import os
 import sys
+import socket
 from datetime import datetime
 import wx
 import time
@@ -322,9 +323,22 @@ class ComponentQualFrame(QualificationFrame):
         self.set_test_host()
 
   def set_test_host(self):
-            host = wx.GetTextFromUser('Enter test host', 'Test Host', os.environ['ROS_TEST_HOST'])
-        os.environ['ROS_TEST_HOST'] = host
+    curr_host = os.environ['ROS_TEST_HOST']
+    
+    while not rospy.is_shutdown():
+      host = wx.GetTextFromUser('Enter test host', 'Test Host', curr_host)
+      
+      if host == '':
+        wx.MessageBox('Host name unchanged. Current hostname: "%s".' % curr_host, 'Test Host Unchanged', wx.OK)
+        break
 
+      try:
+        machine_addr = socket.gethostbyname(host)
+        os.environ['ROS_TEST_HOST'] = host
+        break
+      except socket.gaierror:
+        wx.MessageBox('Hostname %s is invalid. Try again or click "Cancel".' % host, 'Test Host Invalid', wx.OK)
+        
 
   ##\todo Move to test loader, don't set params during load
   def load_wg_test_map(self):
