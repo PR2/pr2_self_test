@@ -32,6 +32,6 @@ rosbuild_add_executable(selftest_demo src/selftest_demo.cpp)
 rosbuild_add_rostest(test/test_self_test_caller.launch)
 
 # Test result.py for processing qualification results
-rosbuild_add_pyunit(test/test_results/subtest_failure.py)
-rosbuild_add_pyunit(test/test_results/prestart_failure.py)
-rosbuild_add_pyunit(test/test_results/prestart_error.py)
+#rosbuild_add_pyunit(test/test_results/subtest_failure.py)
+#rosbuild_add_pyunit(test/test_results/prestart_failure.py)
+#rosbuild_add_pyunit(test/test_results/prestart_error.py)
