@@ -35,8 +35,9 @@
 ##\author Kevin Watts
 ##\brief Stores, processes results of qualification tests
 
+PKG = 'qualification'
 import roslib
-roslib.load_manifest('qualification')
+roslib.load_manifest(PKG)
 
 import sys, os
 
@@ -61,11 +62,13 @@ from email import Encoders
 
 from invent_client.wgtest_client import TestData
 
-##\todo These might go in /hwlog instead, ask Eric
-RESULTS_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results')
+from datetime import datetime
+
+##\todo These might go in /hwlog instead
+RESULTS_DIR = os.path.join(roslib.packages.get_pkg_dir(PKG), 'results')
 
 ##\todo Put temps in temp file, properly delete them
-TEMP_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'results/temp/')
+TEMP_DIR = os.path.join(roslib.packages.get_pkg_dir(PKG), 'results/temp/')
 
 def write_temp_tar_file(results_dir):
     temp_tar_file = tempfile.NamedTemporaryFile()
@@ -95,13 +98,13 @@ class TestScriptResult:
         return os.path.basename(self.launch)
 
     def get_pass_bool(self):
-        return self._result == 0
+        return self._result == 0 # ScriptDoneRequest.RESULT_OK
 
     def has_error(self):
-        return self._result == 2
+        return self._result == 2 # ScriptDoneRequest.RESULT_ERROR
 
     def get_result_msg(self):
-        result_dict = { 0: "Pass", 1: "Fail", 2: "Error"}
+        result_dict = { 0: "OK", 1: "Fail", 2: "Error"}
         return result_dict[self._result]
     
     def get_msg(self):
@@ -221,6 +224,9 @@ class SubTestResult:
 
     def get_values(self):
         return self._values
+
+    def get_plots(self):
+        return self._plots
 
     def retry_test(self, count):
         self._result.retry()
@@ -416,15 +422,11 @@ class QualTestResult:
     def __init__(self, qual_item, qual_test, start_time):
         self._qual_test = qual_test
 
-        self._subresults = {}
-        self._subresults_by_index = {}
+        self._subresults = []
 
-        ##\todo Store retrys/subresults in list, by index
-        self._retrys = {}
-        self._retrys_by_index = {}
+        self._retrys = []
         
-        self._prestarts = {}
-        self._prestarts_by_index = {}
+        self._prestarts = []
 
         self._shutdown_result = None
 
@@ -439,7 +441,7 @@ class QualTestResult:
         ##\todo Fix this
         # See if the qual_item is a configuration item
         try:
-            config = self._item._config
+            config = qual_item._config
             self._config_only = True
         except:
             self._config_only = False
@@ -459,14 +461,15 @@ class QualTestResult:
         self._error = False
         self._canceled = False
 
+        self._test_log = {}
+
         self._note = ''
         self._operator = ''
 
-    ##\todo Move cleanup stuff into "close()" method
-    def __del__(self):
+    def close(self):
         # Delete extra directories if empty
         if self._made_dir != '' and len(os.listdir(self._made_dir)) == 0:
-            os.rmdir(self._made_dir)
+            os.rmdir(self._made_dir)        
        
     def set_notes(self, note):
         self._note = note
@@ -474,54 +477,37 @@ class QualTestResult:
     def set_operator(self, name):
         self._operator = name
 
+    def log(self, entry):
+        self._test_log[datetime.now()] = entry
+
     ##\todo All these should be fixed
     def get_prestarts(self):
-        kys = dict.keys(self._prestarts_by_index)
-        kys.sort()
-        vals = []
-        for ky in kys:
-            vals.append(self._prestarts_by_index[ky])
-        
-        # return sorted by index
-        return vals
+        return self._prestarts[:]
 
     def get_subresults(self, reverse = False):
-        kys = dict.keys(self._subresults_by_index)
-        kys.sort()
-        vals = []
-        for ky in kys:
-            vals.append(self._subresults_by_index[ky])
-        
-        #subs = sorted(self._subresults_by_index.items())
+        vals = self._subresults[:]
         if reverse:
             vals = vals.reverse()
-        # return sorted by index
         return vals
 
     def get_retrys(self, reverse = False):
-        kys = dict.keys(self._retrys_by_index)
-        kys.sort()
-        vals = []
-        for ky in kys:
-            vals.append(self._retrys_by_index[ky])
-                 
-        #retrys = sorted(self._retrys_by_index.items())
+        vals = self._retrys[:]
         if reverse:
             vals = vals.reverse()
         return vals
 
     # Come up with better enforcement of get functions
     def get_subresult(self, index):
-        if not self._subresults_by_index.has_key(index):
+        if len(self._subresults) == 0 or index >= len(self._subresults) or index < 0:
             return None
 
-        return self._subresults_by_index[index]
+        return self._subresults[index]
 
     def get_retry(self, index):
-        if not self._retrys_by_index.has_key(index):
+        if len(self._retrys) == 0 or index >= len(self._retrys) or index < 0:
             return None
 
-        return self._retrys_by_index[index]
+        return self._retrys[index]
 
     ##\todo All these should just be appending to a list
     def add_shutdown_result(self, msg):
@@ -532,18 +518,15 @@ class QualTestResult:
     def add_prestartup_result(self, index, msg):
         test_script = self._qual_test.pre_startup_scripts[index]
 
-        pre = TestScriptResult(test_script, msg)
-
-        self._prestarts[test_script.get_name()] = pre
-        self._prestarts_by_index[index] = pre
+        self._prestarts.append(TestScriptResult(test_script, msg))
 
     def add_sub_result(self, index, msg):
         subtest = self._qual_test.subtests[index]
 
         sub = SubTestResult(subtest, msg)
         
-        self._subresults[subtest.get_name()] = sub
-        self._subresults_by_index[index] = sub
+        self._subresults.append(sub)
+
         return sub
 
     def cancel(self):
@@ -554,10 +537,10 @@ class QualTestResult:
 
     ##\brief Stores data from subtest as a "retry"
     def retry_subresult(self, index, notes):
-        retry_count = len(self._retrys.values()) + 1
+        retry_count = len(self._retrys) + 1
 
         sub = self.get_subresult(index)
-        if not sub:
+        if not sub: # Should error here
             return
 
         sub.retry_test(retry_count)
@@ -567,13 +550,12 @@ class QualTestResult:
 
         retry_name = name + "_retry%d" % (retry_count)
 
-        del self._subresults[name]
-        del self._subresults_by_index[index]
+        del self._subresults[index]
         
         sub.write_images(TEMP_DIR, ) # Rewrite images for display
-        self._retrys[retry_name] = sub
-        self._retrys_by_index[retry_count] = sub
+        self._retrys.append(sub)
 
+    ##\todo private fn
     def prestarts_ok(self):
         for prestart in self.get_prestarts():
             if not prestart.get_pass_bool():
@@ -582,13 +564,7 @@ class QualTestResult:
         return True
 
     def is_prestart_error(self):
-        error = False
-        fail = False
-        for prestart in self.get_prestarts():
-            error = error and prestart.has_error()
-            fail = fail and not prestart.get_pass_bool()
-
-        return error and not fail
+        return self.get_prestarts()[-1].has_error()
 
     def get_pass_bool(self):
         if self._canceled or self._error:
@@ -741,46 +717,46 @@ em { font-style: normal; font-weight: bold; }\
     def make_startup_data(self):
         startup = self._qual_test.getStartupScript()
         
-        html = '<H4 align=center>Startup Script</H4>\n'
-        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Parameter</b></td><td><b>Value</b></td></b>\n'
-        html += '<tr><td>Name</td><td>%s</td>' % startup.get_name()
+        html = ['<H4 align=center>Startup Script</H4>']
+        html.append('<table border="1" cellpadding="2" cellspacing="0">')
+        html.append('<tr><td><b>Parameter</b></td><td><b>Value</b></td></b>')
+        html.append('<tr><td>Name</td><td>%s</td>' % startup.get_name())
 
         # Get launch pkg, filepath for startup
         launch_file = startup.launch_file
         (path, launch_pkg) = roslib.packages.get_dir_pkg(launch_file)
         path_idx = launch_file.find(launch_pkg) + len(launch_pkg) + 1
                 
-        html += '<tr><td>Launch package</td><td>%s</td></tr>\n' % launch_pkg
-        html += '<tr><td>Launch filepath</td><td>%s</td></tr>\n' % launch_file[path_idx:]
-        html += '</table>\n'
+        html.append('<tr><td>Launch package</td><td>%s</td></tr>' % launch_pkg)
+        html.append('<tr><td>Launch filepath</td><td>%s</td></tr>' % launch_file[path_idx:])
+        html.append('</table>\n')
 
-        return html
+        return '\n'.join(html)
 
 
     def make_shutdown_results(self):
         shutdown = self._qual_test.getShutdownScript()
 
-        html = '<H4 align=center>Shutdown Script</H4>\n'
+        html = ['<H4 align=center>Shutdown Script</H4>']
 
         if not self._shutdown_result:
-            html += '<p>Shutdown script: %s</p>\n' % shutdown.get_name()
-            html += '<p>No shutdown results.</p>\n'
-            return html
+            html.append('<p>Shutdown script: %s</p>' % shutdown.get_name())
+            html.append('<p>No shutdown results.</p>')
+            return '\n'.join(html)
 
-        name = self._shutdown_result.get_name()
+        name   = self._shutdown_result.get_name()
         launch = self._shutdown_result.get_launch()
-        res = self._shutdown_result.get_result_msg()
-        msg = self._shutdown_result.get_msg()
+        res    = self._shutdown_result.get_result_msg()
+        msg    = self._shutdown_result.get_msg()
 
 
-        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Name</b></td><td><b>Launch File</b></td><td><b>Result</b></td><td><b>Message</b></td></tr></b>\n'
-        html += '<tr><td>%s</td><td>%s</td>' % (name, launch)
-        html += '<td>%s</td><td>%s</td></tr>\n' % (res, msg)
-        html += '</table>\n'
+        html.append('<table border="1" cellpadding="2" cellspacing="0">')
+        html.append('<tr><td><b>Name</b></td><td><b>Launch File</b></td><td><b>Result</b></td><td><b>Message</b></td></tr></b>')
+        html.append('<tr><td>%s</td><td>%s</td>' % (name, launch))
+        html.append('<td>%s</td><td>%s</td></tr>' % (res, msg))
+        html.append('</table>\n')
 
-        return html
+        return '\n'.join(html)
 
 
     def line_summary(self):
@@ -794,16 +770,16 @@ em { font-style: normal; font-weight: bold; }\
         return sum
 
     def make_retry_index(self, link, link_dir):
-        html = '<H4 AlIGN=CENTER>Retried Subtest Index</H4>\n'
-        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Test Name</b></td><td><b>Summary</b></td><td><b>Final Result</b></td></tr></b>\n'
+        html = ['<H4 AlIGN=CENTER>Retried Subtest Index</H4>' ]
+        html.append('<table border="1" cellpadding="2" cellspacing="0">\n')
+        html.append('<tr><td><b>Test Name</b></td><td><b>Summary</b></td><td><b>Final Result</b></td></tr></b>\n')
 
         for st in self.get_retrys():
-            html += st.make_index_line(link, link_dir)
+            html.append(st.make_index_line(link, link_dir))
 
-        html += '</table>\n'
+        html.append('</table>\n')
         
-        return html
+        return '\n'.join(html)
 
     def make_index(self, link, link_dir):
         html = '<H4 AlIGN=CENTER>Results Index</H4>\n'
@@ -819,37 +795,34 @@ em { font-style: normal; font-weight: bold; }\
         
     # Made table of all log entries for this test series
     def make_log_table(self):
-        if self._test_log is None or self._test_log == '':
-            return ''
-
         # Sort test log by times
         kys = dict.keys(self._test_log)
         kys.sort()
         
-        html = '<H4 AlIGN=CENTER>Test Log Data</H4>\n'
-        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Time</b></td><td><b>Log Message</b></td></tr></b>\n'
+        html = ['<H4 AlIGN=CENTER>Test Log Data</H4>']
+        html.append('<table border="1" cellpadding="2" cellspacing="0">')
+        html.append('<tr><td><b>Time</b></td><td><b>Log Message</b></td></tr></b>')
         for ky in kys:
             time_str = ky.strftime("%m/%d/%Y %H:%M:%S")
-            html += '<tr><td>%s</td><td>%s</td></tr>\n' % (time_str, self._test_log[ky])
-        html += '</table>\n'
+            html.append('<tr><td>%s</td><td>%s</td></tr>' % (time_str, self._test_log[ky]))
+        html.append('</table>\n')
 
-        return html
+        return '\n'.join(html)
 
     def make_prestart_table(self):
         if len(self.get_prestarts()) == 0:
             return '<p>No prestartup scripts.</p>\n'
     
-        html = '<H4 ALIGN=CENTER>Prestartup Script Data</H4>\n'
-        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Script</b></td><td><b>Launch File</b></td>'
-        html += '<td><b>Result</b></td><td><b>Message</b></td></tr></b>\n'
+        html = ['<H4 ALIGN=CENTER>Prestartup Script Data</H4>']
+        html.append('<table border="1" cellpadding="2" cellspacing="0">')
+        html.append('<tr><td><b>Script</b></td><td><b>Launch File</b></td>')
+        html.append('<td><b>Result</b></td><td><b>Message</b></td></tr></b>')
         for prestart in self.get_prestarts():
-            html += '<tr><td>%s</td><td>%s</td>\n' % (prestart.get_name(), prestart.get_launch())
-            html += '<td>%s</td><td>%s</td></tr>\n' % (prestart.get_result_msg(), prestart.get_msg())
-        html += '</table>\n'
+            html.append('<tr><td>%s</td><td>%s</td>' % (prestart.get_name(), prestart.get_launch()))
+            html.append('<td>%s</td><td>%s</td></tr>' % (prestart.get_result_msg(), prestart.get_msg()))
+        html.append('</table>\n')
 
-        return html
+        return '\n'.join(html)
 
     def write_results_to_file(self, temp = True, local_link = False):
         # Write into temp or final dir
@@ -873,9 +846,7 @@ em { font-style: normal; font-weight: bold; }\
         index.write(self.make_summary_page(True, header_link_dir))
         index.close()
         
-        for i in self._subresults_by_index:
-            st = self.get_subresult(i)
-            
+        for i, st in enumerate(self._subresults):
             prev = self.get_subresult(i - 1)
             next = self.get_subresult(i + 1)
 
@@ -889,9 +860,7 @@ em { font-style: normal; font-weight: bold; }\
 
             st.write_images(write_dir)
 
-        for i in self._retrys_by_index:
-            st = self.get_retry(i)
-            
+        for i, st in enumerate(self._retrys):
             prev = self.get_retry(i - 1)
             next = self.get_retry(i + 1)
 

@@ -281,11 +281,7 @@ class QualificationFrame(wx.Frame):
     self._log_panel = xrc.XRCCTRL(self._root_panel, "log_panel")
     self._log = xrc.XRCCTRL(self._log_panel, 'log')
 
-    self._test_log = {} # Move to results class?
-    self.log("Startup")    
-    self.reset()
-    
-    self.Bind(wx.EVT_CLOSE, self.on_close)
+    self._results = None
     
     self._startup_launch = None
     self._shutdown_launch = None
@@ -304,10 +300,6 @@ class QualificationFrame(wx.Frame):
     self._shutdown_timer = None
 
     self._current_test = None
-
-    self._spin_timer = wx.Timer(self, wx.ID_ANY)
-    self.Bind(wx.EVT_TIMER, self.on_spin, self._spin_timer)
-    self._spin_timer.Start(100)
     
     self._show_results_always = False
 
@@ -315,12 +307,21 @@ class QualificationFrame(wx.Frame):
     rospy.set_param('/invent/password', '')
 
     self._waiting_for_submit = False
-    
+
+    self.Bind(wx.EVT_CLOSE, self.on_close)
+
+    self._spin_timer = wx.Timer(self, wx.ID_ANY)
+    self.Bind(wx.EVT_TIMER, self.on_spin, self._spin_timer)
+    self._spin_timer.Start(100)
+
+    self.log("Startup")
+    self.reset()
 
   ##\brief Logs test results in test log, displays to user
   def log(self, msg):
     log_msg = datetime.now().strftime("%m/%d/%Y %H:%M:%S: ") + msg
-    self._test_log[datetime.now()] = msg 
+    if self._results:
+      self._results.log(msg)
     self._log.AppendText(log_msg + '\n')
     self._log.Refresh()
     self._log.Update()
@@ -340,9 +341,10 @@ class QualificationFrame(wx.Frame):
     # get_loader_panel overridden by subclasses
     loader_panel = self.get_loader_panel()
     self.set_top_panel(loader_panel)
+    if self._results:
+      self._results.close()
     self._results = None
     self._plots_panel = None
-    self._test_log = {}
     self.reset_params()
   
   ##\brief Resets parameters of qualification node to starting state
@@ -838,9 +840,6 @@ class QualificationFrame(wx.Frame):
     self._current_test = None
     self._subtest_index = 0
 
-    if self._results is not None:
-      self._results._test_log = self._test_log
-    
     self.show_results()
 
   ##\brief Shows final results of qualification test
@@ -939,8 +938,6 @@ class QualificationFrame(wx.Frame):
     res, log_str = self._results.log_results(invent)
     self.log(log_str)
     
-    self._results._test_log = self._test_log
-
     if not self._results.email_qual_team():
       wx.MessageBox('Unable to email qualification results. Do you have \'sendmail\' installed?', 'Unable to email results', wx.OK|wx.ICON_ERROR, self)
       self.log('Unable to email summary.')
