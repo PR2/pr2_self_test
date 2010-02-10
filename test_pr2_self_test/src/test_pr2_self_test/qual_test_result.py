@@ -78,8 +78,8 @@ def make_qual_test():
 
     return my_test
 
-def make_qual_item():
-    return QualTestObject('My Item', '6800000')
+def make_qual_item(reference='faketest'):
+    return QualTestObject('My Item', reference)
 
 def make_subtest_data(result = TestResultRequest.RESULT_PASS, summary = 'Summary'):
     r = TestResultRequest()

@@ -64,15 +64,12 @@ class TestSubTestRetry(unittest.TestCase):
         self.results.add_prestartup_result(2, msg_ok)
         self.results.add_prestartup_result(3, msg_ok)
         
-        r = make_subtest_data(result = TestResultRequest.RESULT_HUMAN_REQUIRED)
-        self.results.add_sub_result(0, r)
+        self.results.add_sub_result(0, make_subtest_data(result = TestResultRequest.RESULT_HUMAN_REQUIRED))
         self.results.retry_subresult(0, 'Retry test')
         
-        r.result = TestResultRequest.RESULT_PASS
-        self.results.add_sub_result(0, r)
+        self.results.add_sub_result(0, make_subtest_data(result = TestResultRequest.RESULT_PASS))
 
-        r.result = TestResultRequest.RESULT_FAIL
-        self.results.add_sub_result(1, r)
+        self.results.add_sub_result(1, make_subtest_data(result = TestResultRequest.RESULT_FAIL))
 
 
     def test_prestarts_pass(self):
