@@ -63,14 +63,12 @@ from invent_client.wgtest_client import TestData
 
 from datetime import datetime
 
+import shutil
+
 ##\todo These might go in /hwlog instead
 RESULTS_DIR = os.path.join(roslib.packages.get_pkg_dir(PKG), 'results')
 
-##\todo Put temps in temp file, properly delete them
 TEMP_DIR = os.path.join(tempfile.gettempdir(), 'qualification')
-if not os.path.isdir(TEMP_DIR):
-    os.mkdir(TEMP_DIR)
-
 
 def write_temp_tar_file(results_dir):
     temp_tar_file = tempfile.NamedTemporaryFile()
@@ -453,6 +451,9 @@ class QualTestResult:
         self._serial = qual_item.serial
         self._item_name = qual_item.name
 
+        if not os.path.isdir(TEMP_DIR):
+            os.mkdir(TEMP_DIR)
+
         ##\todo Fix this
         # See if the qual_item is a configuration item
         try:
@@ -485,6 +486,9 @@ class QualTestResult:
         # Delete extra directories if empty
         if self._made_dir != '' and len(os.listdir(self._made_dir)) == 0:
             os.rmdir(self._made_dir)
+
+
+        shutil.rmtree(TEMP_DIR)
        
     def set_notes(self, note):
         self._note = note
