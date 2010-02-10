@@ -41,12 +41,11 @@ roslib.load_manifest(PKG)
 
 import sys, os
 
-import rospy
-
 from qualification.msg import *
 from srv import *
 from test import *
 
+import time
 from time import strftime
 from PIL import Image
 from cStringIO import StringIO
@@ -68,7 +67,10 @@ from datetime import datetime
 RESULTS_DIR = os.path.join(roslib.packages.get_pkg_dir(PKG), 'results')
 
 ##\todo Put temps in temp file, properly delete them
-TEMP_DIR = os.path.join(roslib.packages.get_pkg_dir(PKG), 'results/temp/')
+TEMP_DIR = os.path.join(tempfile.gettempdir(), 'qualification')
+if not os.path.isdir(TEMP_DIR):
+    os.mkdir(TEMP_DIR)
+
 
 def write_temp_tar_file(results_dir):
     temp_tar_file = tempfile.NamedTemporaryFile()
@@ -214,10 +216,16 @@ class SubTestResult:
         self._retry_suffix = ''
         self._retry_name = ''
 
-        self.write_images(TEMP_DIR)
+        self.write_images()
 
         self._params = msg.params
         self._values = msg.values
+
+        self._temp_image_files = []
+
+    def close(self):
+        for file in self._temp_image_files:
+            file.close()
 
     def get_params(self):
         return self._params
@@ -228,10 +236,14 @@ class SubTestResult:
     def get_plots(self):
         return self._plots
 
-    def retry_test(self, count):
+    def retry_test(self, count, notes):
+        self.set_note(notes)
+
         self._result.retry()
         self._retry_suffix = "_retry%d" % count
         self._retry_name = " Retry %d" % count
+
+        self.write_images()
 
     def set_operator_result(self, pass_bool):
         if pass_bool:
@@ -256,11 +268,14 @@ class SubTestResult:
 
     def filename(self):
         return self.filename_base() + '/index.html'
-
+    
     ##\brief Save images to file in designated folder
     ##
     ##\param path str : Filepath of all images
-    def write_images(self, path):
+    def write_images(self, path = None):
+        if not path:
+            path = TEMP_DIR
+
         dir_name = os.path.join(path, self.filename_base())
         if not os.path.isdir(dir_name):
             os.mkdir(dir_name)
@@ -383,18 +398,18 @@ em { font-style:normal; font-weight: bold; }\
     # The header of a subtest result, also called when diplaying 
     # short version of tests in index.html file
     def html_header(self):
-        html = '<H4 ALIGN=CENTER>Results of %s%s</H4>\n' % (self._subtest.get_name(), self._retry_name)
+        html = ['<H4 ALIGN=CENTER>Results of %s%s</H4>\n' % (self._subtest.get_name(), self._retry_name)]
         
-        html += "<p>Status: %s</p>\n" % self._result.get_html_msg()
+        html.append("<p>Status: %s</p>\n" % self._result.get_html_msg())
 
         if self._summary != '':
-            html += '<p><em>Summary</em></p>\n' 
-            html += '<p>%s</p>\n' % self._summary
+            html.append('<p><em>Summary</em></p>\n' )
+            html.append('<p>%s</p>\n' % self._summary)
         if self._subresult_note != '':
-            html += '<p><em>Operator\'s Notes:</em></p>\n' 
-            html += '<p>%s</p>\n' % self._subresult_note
+            html.append('<p><em>Operator\'s Notes:</em></p>\n')
+            html.append('<p>%s</p>\n' % self._subresult_note)
 
-        return html
+        return '\n'.join(html)
 
     def make_index_line(self, link, link_dir):
         result = self._result.get_html_msg()
@@ -405,7 +420,7 @@ em { font-style:normal; font-weight: bold; }\
         else:
             hyperlink = self._subtest.get_name()
 
-        summary = self._summary + '\n' + self._subresult_note
+        summary = '\n'.join([self._summary, self._subresult_note])
 
         return '<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n' % (hyperlink, summary, result)
 
@@ -418,7 +433,7 @@ em { font-style:normal; font-weight: bold; }\
 class QualTestResult:
     ##\param qual_item QualTestItem : Item under test
     ##\param qual_test Test : Test we're running
-    ##\param start_time int : Start time from rospy
+    ##\param start_time int : Start time from rospy, or time.time()
     def __init__(self, qual_item, qual_test, start_time):
         self._qual_test = qual_test
 
@@ -469,7 +484,7 @@ class QualTestResult:
     def close(self):
         # Delete extra directories if empty
         if self._made_dir != '' and len(os.listdir(self._made_dir)) == 0:
-            os.rmdir(self._made_dir)        
+            os.rmdir(self._made_dir)
        
     def set_notes(self, note):
         self._note = note
@@ -536,23 +551,24 @@ class QualTestResult:
         self._error = True
 
     ##\brief Stores data from subtest as a "retry"
-    def retry_subresult(self, index, notes):
+    def retry_subresult(self, index, notes = ''):
         retry_count = len(self._retrys) + 1
 
         sub = self.get_subresult(index)
         if not sub: # Should error here
             return
 
-        sub.retry_test(retry_count)
-        sub.set_note(notes)
-
-        name = sub.get_name()
-
-        retry_name = name + "_retry%d" % (retry_count)
-
         del self._subresults[index]
-        
-        sub.write_images(TEMP_DIR, ) # Rewrite images for display
+
+        #sub.set_note(notes)
+        sub.retry_test(retry_count, notes)
+
+        #sub.write_images(TEMP_DIR, ) # Rewrite images for display
+
+        #name = sub.get_name()
+        #retry_name = name + "_retry%d" % (retry_count)
+
+
         self._retrys.append(sub)
 
     ##\todo private fn
@@ -576,13 +592,14 @@ class QualTestResult:
         if self._shutdown_result and not self._shutdown_result.get_pass_bool():
             return False
 
-        if len(self.get_subresults()) == 0:
+        if len(self._subresults) == 0:
             return False
         
-        pass_bool = True
-        for res in self.get_subresults():
-            pass_bool = pass_bool and res.get_pass_bool()
-        return pass_bool
+        for res in self._subresults:
+            if not res.get_pass_bool():
+                return False
+        
+        return True
 
     def get_test_result_str_invent(self):
         if self.get_pass_bool():
@@ -714,6 +731,7 @@ em { font-style: normal; font-weight: bold; }\
 
         return html
 
+    ##\todo private
     def make_startup_data(self):
         startup = self._qual_test.getStartupScript()
         
@@ -733,7 +751,7 @@ em { font-style: normal; font-weight: bold; }\
 
         return '\n'.join(html)
 
-
+    ##\todo private
     def make_shutdown_results(self):
         shutdown = self._qual_test.getShutdownScript()
 
@@ -769,6 +787,7 @@ em { font-style: normal; font-weight: bold; }\
 
         return sum
 
+    ##\todo private
     def make_retry_index(self, link, link_dir):
         html = ['<H4 AlIGN=CENTER>Retried Subtest Index</H4>' ]
         html.append('<table border="1" cellpadding="2" cellspacing="0">\n')
@@ -781,6 +800,7 @@ em { font-style: normal; font-weight: bold; }\
         
         return '\n'.join(html)
 
+    ##\todo private
     def make_index(self, link, link_dir):
         html = '<H4 AlIGN=CENTER>Results Index</H4>\n'
         html += '<table border="1" cellpadding="2" cellspacing="0">\n'
@@ -793,7 +813,7 @@ em { font-style: normal; font-weight: bold; }\
         
         return html
         
-    # Made table of all log entries for this test series
+    ##\todo private
     def make_log_table(self):
         # Sort test log by times
         kys = dict.keys(self._test_log)
@@ -809,6 +829,7 @@ em { font-style: normal; font-weight: bold; }\
 
         return '\n'.join(html)
 
+    ##\todo private
     def make_prestart_table(self):
         if len(self.get_prestarts()) == 0:
             return '<p>No prestartup scripts.</p>\n'
@@ -892,15 +913,11 @@ em { font-style: normal; font-weight: bold; }\
         tar.close()
 
              
-        
-
     # Make invent results pretty, HTML links work
     ##\todo Add timeout to invent, warn if problem
     def log_results(self, invent):
         # Write results to results dir, with local links
         self.write_results_to_file(False, True)
-
-        rospy.logdebug('Wrote results')
 
         if invent == None:
             return False, "Attempted to log results to inventory, but no invent client found."
@@ -908,8 +925,7 @@ em { font-style: normal; font-weight: bold; }\
             return False, "Test recorded internal error, not submitting to inventory system."
         
         prefix = self._start_time_filestr + "_" # Put prefix first so images sorted by date
-        rospy.logdebug('Writing invent note')
-
+        
         if self._config_only:
             sub = self.get_subresult(0) # Only subresult of configuration
             if not sub:
@@ -918,11 +934,8 @@ em { font-style: normal; font-weight: bold; }\
                                   sub.make_result_page(), self.line_summary())
             return True, 'Logged reconfiguration in inventory system.'
 
-        rospy.logdebug('Setting test status')
-
         invent.setKV(self._serial, "Test Status", self.get_test_result_str_invent())
         
-        rospy.logdebug('Adding tarfile attachment')
         try:
             # Need to get tar to bit stream
             f = open(self._tar_filename, "rb")
@@ -933,7 +946,7 @@ em { font-style: normal; font-weight: bold; }\
                                   'application/tar', tar, self.line_summary())
         except Exception, e:
             import traceback
-            rospy.logerr('Caught exception uploading tar file. %s' % traceback.format_exc())
+            self.log('Caught exception uploading tar file. %s' % traceback.format_exc())
             return False, 'Caught exception loading tar file to inventory. %s' % str(e)
          
         
@@ -941,7 +954,7 @@ em { font-style: normal; font-weight: bold; }\
             for st in (self.get_retrys() + self.get_subresults()):
                 ##\todo change to start time
                 my_name = '/'.join(['Qualification', self._qual_test.get_name(), st.get_name()])
-                td = TestData(my_name, rospy.get_time(), self._serial)
+                td = TestData(my_name, time.time(), self._serial)
                 td.set_note(st.get_note())
                 for param in st.get_params():
                     td.set_parameter(param.key, param.value)
@@ -956,7 +969,7 @@ em { font-style: normal; font-weight: bold; }\
                     td.submit(invent)
                 except:
                     import traceback
-                    rospy.logerr(traceback.format_exc())
+                    self.log(traceback.format_exc())
                 finally:
                     if st_tarfile:
                         st_tarfile.close() # Delete temp tarfile
@@ -964,41 +977,46 @@ em { font-style: normal; font-weight: bold; }\
             return True, 'Wrote tar file, uploaded to inventory system.'
         except:
             import traceback
-            rospy.logerr('Caught exception uploading test parameters to invent.\n%s' % traceback.format_exc())
+            self.log('Caught exception uploading test parameters to invent.\n%s' % traceback.format_exc())
             return False, 'Caught exception loading tar file to inventory.'
 
-            
-
-        
     def get_qual_team(self):
         if socket.gethostname() == 'nsf': # Debug on NSF HACK!!!!
             return 'watts@willowgarage.com'
 
         return 'qualdevteam@lists.willowgarage.com'
 
+    ##\brief Creates MIMEMultipart email message with proper attachments
+    ##
+    ##\return MIMEMultipart email message with tarfile attachment of plots
+    def make_email_message(self):
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = "--QualResult-- %s" % self.line_summary()
+        msg['From'] = "qual.test@willowgarage.com" 
+        msg['To'] = self.get_qual_team()
+        
+        msg.attach(MIMEText(self.make_summary_page(False), 'html'))
+        
+        # Add results as tar file
+        if self._tar_filename is not None and self._tar_filename != '':
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload( open(self._tar_filename, 'rb').read())
+            Encoders.encode_base64(part)
+            part.add_header('Content-Disposition', 'attachment; filename="%s"' 
+                            % os.path.basename(self._tar_filename))
+            msg.attach(part)
+
+        return msg
+
     ##\brief Email qualification team results as HTML summary and tar file
     def email_qual_team(self):
         try:
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = "--QualResult-- %s" % self.line_summary()
-            msg['From'] = "qual.test@willowgarage.com" 
-            msg['To'] = self.get_qual_team()
-
-            msg.attach(MIMEText(self.make_summary_page(False), 'html'))
-            
-            # Add results as tar file
-            if self._tar_filename is not None and self._tar_filename != '':
-                part = MIMEBase('application', 'octet-stream')
-                part.set_payload( open(self._tar_filename, 'rb').read())
-                Encoders.encode_base64(part)
-                part.add_header('Content-Disposition', 'attachment; filename="%s"' 
-                                % os.path.basename(self._tar_filename))
-                msg.attach(part)
-
+            msg = self.make_email_message()
 
             s = smtplib.SMTP('localhost')
             s.sendmail('qual.test@willowgarage.com', self.get_qual_team(), msg.as_string())
             s.quit()
+
             return True
         except Exception, e:
             import traceback
