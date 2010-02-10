@@ -50,7 +50,7 @@ from datetime import datetime
 
 import os
 
-class TestSubTestFailure(unittest.TestCase):
+class TestAllPass(unittest.TestCase):
     def setUp(self):
         self.qual_item = make_qual_item()
         self.qual_test = make_qual_test()
@@ -64,9 +64,13 @@ class TestSubTestFailure(unittest.TestCase):
         self.results.add_prestartup_result(2, msg_ok)
         self.results.add_prestartup_result(3, msg_ok)
         
-        r = make_subtest_data(result = TestResultRequest.RESULT_FAIL)
+        self.results.add_sub_result(0, make_subtest_data(result = TestResultRequest.RESULT_PASS))
+        self.results.add_sub_result(1, make_subtest_data(result = TestResultRequest.RESULT_PASS))
+        self.results.add_sub_result(2, make_subtest_data(result = TestResultRequest.RESULT_PASS))
+        self.results.add_sub_result(3, make_subtest_data(result = TestResultRequest.RESULT_PASS))
 
-        self.results.add_sub_result(0, r)
+        self.results.add_shutdown_result(msg_ok)
+
 
 
     def test_prestarts_pass(self):
@@ -74,19 +78,34 @@ class TestSubTestFailure(unittest.TestCase):
             self.assert_(ps.get_pass_bool(), "Prestarts should have passed")
 
 
-    def test_subtest_fail(self):
-        self.assert_(not self.results.get_pass_bool(), "Result reported success, should be failure")
+    def test_subtests_passed(self):
+        self.assert_(self.results.get_pass_bool(), "Result reported success, should be failure")
+        self.assert_(self.results.get_subresult(0).get_pass_bool(), "Subtest 0 failed")
+        self.assert_(self.results.get_subresult(1).get_pass_bool(), "Subtest 1 failed")
+        self.assert_(self.results.get_subresult(2).get_pass_bool(), "Subtest 2 failed")
+        self.assert_(self.results.get_subresult(3).get_pass_bool(), "Subtest 3 failed")
+
         self.assert_(not self.results.is_prestart_error(), "Result reported error, should be failure")
         
 
     def test_subtest_image_output(self):
         self.assert_(subresult_image_output(self.results.get_subresult(0)), "Subtest 0 didn't display images properly")
+        self.assert_(subresult_image_output(self.results.get_subresult(1)), "Subtest 1 didn't display images properly")
+        self.assert_(subresult_image_output(self.results.get_subresult(2)), "Subtest 2 didn't display images properly")
+        self.assert_(subresult_image_output(self.results.get_subresult(3)), "Subtest 3 didn't display images properly")
+
+
 
     def test_params_values_output(self):
         self.assert_(subresult_params_values_output(self.results.get_subresult(0)), "Subtest 0 didn't display parameters and values properly")
+        self.assert_(subresult_params_values_output(self.results.get_subresult(1)), "Subtest 1 didn't display parameters and values properly")
+        self.assert_(subresult_image_output(self.results.get_subresult(2)), "Subtest 2 didn't display images properly")
+        self.assert_(subresult_image_output(self.results.get_subresult(3)), "Subtest 3 didn't display images properly")
+
 
     def test_email_msg(self):
         self.assert_(self.results.make_email_message(), "Email message is None")
+
 
         
     def tearDown(self):
@@ -94,5 +113,5 @@ class TestSubTestFailure(unittest.TestCase):
 
         
 if __name__ == '__main__':
-    rostest.unitrun(PKG, 'subtest_failure', TestSubTestFailure)
+    rostest.unitrun(PKG, 'all_tests_pass', TestAllPass)
 

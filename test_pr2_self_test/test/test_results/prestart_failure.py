@@ -79,6 +79,9 @@ class TestPrestartFailure(unittest.TestCase):
         
         self.assert_(html_page.find(my_note) > 0, "Added note not found in results output")
         
+    def test_email_msg(self):
+        self.assert_(self.results.make_email_message(), "Email message is None")
+
     def tearDown(self):
         self.results.close()
 

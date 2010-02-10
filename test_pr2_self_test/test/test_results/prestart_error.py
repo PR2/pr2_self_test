@@ -89,7 +89,8 @@ class TestPrestartError(unittest.TestCase):
         self.assert_(html_page.find(self.qual_item.serial) > 0, "Serial number of qual item not found in results output")
         self.assert_(html_page.find(self.qual_item.name) > 0, "Name of qual item not found in results output")
 
-        
+    def test_email_msg(self):
+        self.assert_(self.results.make_email_message(), "Email message is None")
 
     def tearDown(self):
         self.results.close()

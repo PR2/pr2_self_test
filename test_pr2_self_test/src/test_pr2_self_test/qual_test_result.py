@@ -41,8 +41,14 @@ import roslib; roslib.load_manifest(PKG)
 
 from qualification.test import TestScript, SubTest, Test
 from qualification.qual_frame import QualTestObject
+from qualification.srv import TestResultRequest, ScriptDoneRequest
+from qualification.msg import TestParam, TestValue, Plot
 
 import os
+
+import matplotlib.pyplot as plt
+from StringIO import StringIO
+
 
 qual_pkg_dir = roslib.packages.get_pkg_dir(QUAL_PKG)
 
@@ -74,4 +80,90 @@ def make_qual_test():
 
 def make_qual_item():
     return QualTestObject('My Item', '6800000')
+
+def make_subtest_data(result = TestResultRequest.RESULT_PASS, summary = 'Summary'):
+    r = TestResultRequest()
+    r.plots = []
+    r.params = []
+    r.params.append(TestParam('P Gain', '5.0'))
+    r.params.append(TestParam('I Gain', '1.0'))
+    r.params.append(TestParam('D Gain', '0.0'))
+    r.params.append(TestParam('I Clamp', '0.0'))
     
+    r.values = []
+    r.values.append(TestValue('Effort', '4.0', '2.0', '5.0'))
+    r.values.append(TestValue('Low Range', '-2.0', '', '-1.5'))
+    r.values.append(TestValue('High Range', '2.0', '1.5', ''))
+    
+    plt.plot([1,2,3,4],[16, 9, 4, 1], 'ro')
+    plt.xlabel("Pirates")
+    plt.ylabel("Ninjas")
+    stream = StringIO()
+    plt.savefig(stream, format="png")
+    image = stream.getvalue()
+    
+    p = Plot()
+    p.image = image
+    p.image_format = "png"
+    p.title = "pirates_and_ninjas"
+    
+    r.plots.append(p)
+    r.result = result
+    
+    r.html_result = "<p>Does the correlation between pirates and ninjas make sense?</p>\n<br><img src=\"IMG_PATH/pirates_and_ninjas.png\", width = 640, height = 480 />"
+    r.text_summary = summary
+
+    return r
+    
+
+##\brief Returns true if subtest images properly stored and displayed
+def subresult_image_output(subresult):
+    st_html_page = subresult.make_result_page()
+    
+    for plt in subresult.get_plots():
+        title = '.'.join([plt.title, plt.image_format])
+        
+        if not st_html_page.find(title) > 0:
+            print "Image title, name not found in HTML output. Title: %s" % title
+            return False
+        
+        # Need to check the image actually exists
+        img_start_str = '<img src="'
+        path_start = st_html_page.find(img_start_str) + len(img_start_str)
+        path_stop = st_html_page.find(title) + len(title)
+        img_path = st_html_page[path_start:path_stop]
+        if not os.path.exists(img_path):
+            print "Image file does not exist. Path %s" % img_path
+            return False
+
+    return True
+
+##\brief Returns true if subtest parameters and values displayed in HTML output
+def subresult_params_values_output(subresult):
+    st_html_page = subresult.make_result_page()
+    
+    for param in subresult.get_params():
+        if not st_html_page.find(param.key) > 0: 
+            print "Param %s not found in html output" % param.key
+            return False
+        if not st_html_page.find(param.value) > 0:
+            print "Param value %s not found in html output" % param.value
+            return False
+        
+    for val in subresult.get_values():
+        if not st_html_page.find(val.key) > 0:
+            print "Param %s not found in html output" % val.key
+            return False
+        if not st_html_page.find(val.value) > 0:
+            print "Param value %s not found in html output" % val.value
+            return False
+        if val.min != '':
+            if not st_html_page.find(val.min) > 0:
+                print "Param min %s not found in html output" % val.min
+                return False
+        if val.max != '':
+            if not st_html_page.find(val.max) > 0:
+                print "Param max %s not found in html output" % val.max
+                return False
+          
+    return True
