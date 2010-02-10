@@ -114,7 +114,6 @@ class TestScriptResult:
 ##
 ## Stores results of subtests in any case. Completely encapsulates
 ## numeric values of result types from users. 
-
 class SubTestResultType:
     __result_types = { 
         0: "Pass", 
@@ -850,10 +849,6 @@ em { font-style: normal; font-weight: bold; }\
         return '\n'.join(html)
 
     def write_results_to_file(self, temp = True, local_link = False):
-        # Write into temp or final dir
-        # Temp for display in Qual GUI, final for storing for later
-        #write_dir = TEMP_DIR
-        #if not temp:
         write_dir = TEMP_DIR if temp else self._results_dir
         
         # Use local links for image sources, etc if true
@@ -969,7 +964,9 @@ em { font-style: normal; font-weight: bold; }\
                 st_tarfile = None
                 try:
                     st_tarfile = write_temp_tar_file(os.path.join(self._results_dir, st.filename_base()))
-                    td.set_attachment('application/tar', st_tarfile.name)
+                    # Can't add attachment to temp files, gums up inventory
+                    # Need to make sure this is added to table
+                    #td.set_attachment('application/tar', st_tarfile.name)
                     td.submit(invent)
                 except:
                     import traceback
