@@ -95,13 +95,16 @@ class TestMonitorPanel(wx.Panel):
 
         self._launch_button = xrc.XRCCTRL(self._panel, 'launch_test_button')
         self._launch_button.Bind(wx.EVT_BUTTON, self.start_stop_test)
+        self._launch_button.SetToolTip(wx.ToolTip("Start and stop the test"))
 
         self._test_bay_ctrl = xrc.XRCCTRL(self._panel, 'test_bay_ctrl')
         self._test_bay_ctrl.SetItems(self._manager.room.get_bay_names(self._test.needs_power()))
+        self._test_bay_ctrl.SetToolTip(wx.ToolTip("Select location of test"))
         
         self._end_cond_type = xrc.XRCCTRL(self._panel, 'end_cond_type')
         self._end_cond_type.SetStringSelection('Continuous')
         self._end_cond_type.Bind(wx.EVT_CHOICE, self.on_end_choice)
+        self._end_cond_type.SetToolTip(wx.ToolTip("Select stop time"))
 
         self._end_cond_type_label = xrc.XRCCTRL(self._panel, 'duration_label')
 
@@ -109,25 +112,34 @@ class TestMonitorPanel(wx.Panel):
         
         self._close_button = xrc.XRCCTRL(self._panel, 'close_button')
         self._close_button.Bind(wx.EVT_BUTTON, self.on_close)
+        self._close_button.SetToolTip(wx.ToolTip("Close this test panel"))
         
         self._status_bar = xrc.XRCCTRL(self._panel, 'test_status_bar')
+        self._status_bar.SetToolTip(wx.ToolTip("Current status of this test"))
 
         # Pause and reset
         self._reset_button = xrc.XRCCTRL(self._panel, 'reset_motors_button')
         self._reset_button.Bind(wx.EVT_BUTTON, self.on_reset_motors)
+        self._reset_button.SetToolTip(wx.ToolTip("Resume test operation"))
 
         self._halt_button = xrc.XRCCTRL(self._panel, 'halt_motors_button')
         self._halt_button.Bind(wx.EVT_BUTTON, self.on_halt_motors)
+        self._reset_button.SetToolTip(wx.ToolTip("Pause test"))
 
         # Logs and operator input
         self._user_log = xrc.XRCCTRL(self._panel, 'user_log_input')
+        self._user_log.SetToolTip(wx.ToolTip("Enter any user notes here"))
         self._user_submit = xrc.XRCCTRL(self._panel, 'user_submit_button')
         self._user_submit.Bind(wx.EVT_BUTTON, self.on_user_entry)
+        self._user_submit.SetToolTip(wx.ToolTip("Submit entry to test log"))
 
         self._done_time_ctrl = xrc.XRCCTRL(self._panel, 'done_time_ctrl')
+        self._done_time_ctrl.SetToolTip(wx.ToolTip("Remaining time to completion"))
         
         self._elapsed_time_ctrl = xrc.XRCCTRL(self._panel, 'elapsed_time_ctrl')
+        self._elapsed_time_ctrl.SetToolTip(wx.ToolTip("Time since test was opened"))
         self._active_time_ctrl = xrc.XRCCTRL(self._panel, 'active_time_ctrl')
+        self._active_time_ctrl.SetToolTip(wx.ToolTip("Total operating time of test"))
 
         self._log_ctrl = xrc.XRCCTRL(self._panel, 'test_log')
 
@@ -145,13 +157,16 @@ class TestMonitorPanel(wx.Panel):
 
         self._power_run_button = xrc.XRCCTRL(self._panel, 'power_run_button')
         self._power_run_button.Bind(wx.EVT_BUTTON, self.on_power_run)
+        self._power_run_button.SetToolTip(wx.ToolTip("Turn on power"))
 
         self._power_standby_button = xrc.XRCCTRL(self._panel, 'power_standby_button')
         self._power_standby_button.Bind(wx.EVT_BUTTON, self.on_power_standby)
+        self._power_run_button.SetToolTip(wx.ToolTip("Turn power to standby"))
 
         self._power_disable_button = xrc.XRCCTRL(self._panel, 'power_disable_button')
         self._power_disable_button.Bind(wx.EVT_BUTTON, self.on_power_disable)
-        
+        self._power_run_button.SetToolTip(wx.ToolTip("Turn power to disable"))        
+
         # Bay data
         self._power_sn_text = xrc.XRCCTRL(self._panel, 'power_sn_text')
         self._power_breaker_text = xrc.XRCCTRL(self._panel, 'power_breaker_text')
@@ -209,12 +224,14 @@ class TestMonitorPanel(wx.Panel):
         self.on_end_choice()
 
     def create_monitor(self):
-        # Give blank topic to prevent unregistering problems (ROS #1702)
-        self._monitor_panel = MonitorPanel(self._notebook, 'none')
+        self._monitor_panel = MonitorPanel(self._notebook, 'empty_topic')
         self._monitor_panel.SetSize(wx.Size(400, 500))
-        self._notebook.AddPage(self._monitor_panel, "Runtime Monitor")
+        self._notebook.AddPage(self._monitor_panel, "Diagnostics")
 
     def __del__(self):
+        self.shutdown()
+
+    def shutdown(self):
         if self.is_launched():
             self.stop_test()
 
@@ -267,7 +284,6 @@ class TestMonitorPanel(wx.Panel):
 
         self.notify_operator(3, 'Log Requested.', string.join(names, ','))
 
-    ##\todo Add are-you-sure to close button
     def on_close(self, event):
         try:
             self.update_test_record('Closing down test.')
@@ -608,6 +624,7 @@ class TestMonitorPanel(wx.Panel):
         self.update_test_record()
         self.stop_if_done()
 
+    ##\todo Use file, and set machine as an argument
     def make_launch_script(self, bay, script, local_diag_topic):
         launch = '<launch>\n'
         launch += '<group ns="%s" >' % bay.name

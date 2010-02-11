@@ -60,7 +60,7 @@ class LifeTest:
     def get_title(self, serial):
         if len(serial) == 12: # Take last few digits of SN to ID part
             return "%s %s" % (self._short, 
-                                 serial[len(serial) - 5: 
+                                 serial[len(serial) - 3: 
                                         len(serial)])
         # Or just return the short name and the trac ticket
         return self._short

@@ -57,7 +57,7 @@ from wx import html
 import threading
 from xml.dom import minidom
 
-from invent_client.invent_client import Invent
+from invent_client.invent_client import Invent, is_serial_valid
 
 from life_test import *
 from test_param import *
@@ -72,12 +72,14 @@ from std_msgs.msg import Empty
 from roslaunch_caller import roslaunch_caller 
 
 class TestManagerFrame(wx.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, debug = False):
         wx.Frame.__init__(self, parent, wx.ID_ANY, "Test Manager")
         
         self._mutex = threading.Lock()
 
         self.create_menu_bar()
+
+        self._debug = debug
 
         # Load tests by short serial number
         self._tests_by_serial = {}
@@ -122,28 +124,28 @@ class TestManagerFrame(wx.Frame):
 
         self.log('Started Test Manager')
 
-        self._info_timer = wx.Timer(self, 1)
-        self.Bind(wx.EVT_TIMER, self.on_info_timer, self._info_timer)
-        self._info_timer.Start(500, True)
-
         self._info_pub = rospy.Publisher('test_info', TestInfoArray)
 
         self._heartbeat_pub = rospy.Publisher('/heartbeat', Empty)
+
+        self._info_timer = wx.Timer(self, 1)
+        self.Bind(wx.EVT_TIMER, self.on_info_timer, self._info_timer)
+        self._info_timer.Start(500)
 
         self._heartbeat_timer = wx.Timer()
         self._heartbeat_timer.Bind(wx.EVT_TIMER, self.on_heartbeat_timer)
         self._heartbeat_timer.Start(1000)
 
-    def __del__(self):
+    def shutdown(self):
         if self._power_node is not None:
             self._power_node.shutdown()
+            self._power_node = None
+        
+    def __del__(self):
+        self.shutdown()
+
 
     def on_info_timer(self, event):
-        # Sleep here to catch sigint for shutdown
-        time.sleep(0.1)
-        if not rospy.is_shutdown():
-            self._info_timer.Start(500, True)
-
         array = TestInfoArray()
         for serial, panel in self._test_panels.iteritems():
             array.data.append(panel.on_status_check())
@@ -240,6 +242,7 @@ class TestManagerFrame(wx.Frame):
         idx = self._active_serials.index(serial)
 
         if self._tab_ctrl.DeletePage(idx + 1):
+            #self._test_panels[serial].shutdown()
             del self._test_panels[serial]
             del self._active_serials[idx]
         
@@ -364,6 +367,12 @@ class TestManagerFrame(wx.Frame):
             wx.MessageBox('Current component is already testing.', 'Already Testing', wx.OK|wx.ICON_ERROR, self)
             return
 
+        if (not self._debug) and (not is_serial_valid(serial)):
+            wx.MessageBox('Serial number "%s" appears to be invalid. Re-enter the serial number and try again. Debug: %s' % (serial, str(self._debug)), 'Invalid Serial Number', wx.OK|wx.ICON_ERROR, self)
+            return
+
+
+
         test = self.select_test(serial)
 
         # If test is none, display message box and return
@@ -371,9 +380,14 @@ class TestManagerFrame(wx.Frame):
             wx.MessageBox('No test defined for that serial number or no test selected. Please try again.', 'No test', wx.OK|wx.ICON_ERROR, self)
             return
         
-        if not self.load_invent_client():
+        if not self._debug and not self.load_invent_client():
             wx.MessageBox('You cannot proceed without a valid inventory login.', 'Valid Login Required', wx.OK|wx.ICON_ERROR, self)
             return 
+
+        if (not self._debug) and (not self._invent_client.get_test_status(serial)):
+            wx.MessageBox('Component %s has not passed qualification. Please re-test component and try again' % serial, 
+                          'Bad Component', wx.OK|wx.ICON_ERROR, self)
+            return
 
         self._serial_text.Clear()
         self.log('Starting test %s' % test._name)
@@ -399,11 +413,13 @@ class TestManagerFrame(wx.Frame):
             self._rooms = rooms
         except:
             traceback.print_exc()
-            wx.MessageBox('Unable to load test rooms and bays information from %s. Check the file and try again' % filepath)
+            wx.MessageBox('Unable to load test rooms and bays information from %s. Check the file and try again' % filepath,
+                          'Unable to load rooms', wx.OK|wx.ICON_ERROR, self)
             return
 
         if len(self._rooms.keys()) == 0:
-            wx.MessageBox('No test rooms found in %s. Check the file and try again' % filepath)
+            wx.MessageBox('No test rooms found in %s. Check the file and try again' % filepath,
+                          'Unable to load rooms', wx.OK|wx.ICON_ERROR, self)
             return
         
         if self._rooms.has_key(socket.gethostname()):
@@ -465,7 +481,8 @@ class TestManagerFrame(wx.Frame):
         except:
             traceback.print_exc()
             rospy.logerr('Caught exception parsing test XML.')
-            wx.MessageBox('Unable to load test from file %s. Check the file and try again.' % test_xml_path)
+            wx.MessageBox('Unable to load test from file %s. Check the file and try again.' % test_xml_path,
+                          'Unable to load', wx.OK|wx.ICON_ERROR, self)
 
     ##\brief Pop-up GUI that lets users select which test to load
     def select_string_from_list(self, msg, lst):
@@ -536,17 +553,16 @@ class TestManagerFrame(wx.Frame):
         self._current_log = []
 
     def on_close(self, event):
-        if event.CanVeto():
-            dialog = wx.MessageDialog(self, 'DON\'T SHUT THIS WINDOW DOWN. PRESS CANCEL TO GET BACK TO WORK.', 'Confirm Shutdown', wx.OK|wx.CANCEL)
-            if dialog.ShowModal() != wx.ID_OK:
+        if event.CanVeto() and len(self._test_panels) > 0:
+                wx.MessageBox('Unable to close Test Manager. All component windows must be shut down first.', 
+                              'Unable to close', wx.OK|wx.ICON_ERROR, self)
                 event.Veto()
                 return
-
-        # Maybe make it so all tests have to be stopped to close...
 
         # Could just delete monitors
         for value in dict.values(self._test_panels):
             value.on_close(None)
+            #value.shutdown()
 
         self.Destroy()
         
@@ -588,11 +604,15 @@ class TestManagerFrame(wx.Frame):
 
 
 class TestManagerApp(wx.App):
-    def OnInit(self):
+    def OnInit(self, debug = False):
+
+        args = rospy.myargv()
+        debug = len(args) > 1 and args[1] == '--debug'
+
         self._core_launcher = roslaunch_caller.launch_core()
 
         rospy.init_node("Test_Manager")
-        self._frame = TestManagerFrame(None)
+        self._frame = TestManagerFrame(None, debug)
         self._frame.SetSize(wx.Size(1600, 1100))
         self._frame.Layout()
         self._frame.Centre()
@@ -603,11 +623,3 @@ class TestManagerApp(wx.App):
     def OnExit(self):
         self._core_launcher.stop()
 
-if __name__ == '__main__':
-    try:
-        app = TestManagerApp(0)
-        app.MainLoop()
-    except Exception, e:
-        print 'Caught exception in TestManagerMainLoop'
-        traceback.print_exc()
-        sys.exit()

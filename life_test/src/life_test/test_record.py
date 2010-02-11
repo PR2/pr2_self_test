@@ -32,7 +32,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Author: Kevin Watts
+##\author Kevin Watts
 
 import roslib
 roslib.load_manifest('life_test')
