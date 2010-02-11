@@ -186,12 +186,8 @@ class MCBProgramConfig:
         # Get invent username/password
         for index, serial in enumerate(self.serials):
             rospy.logdebug('Checking serial %s' % serial)
-            pf = self.invent.getKV(serial, 'Test Status')
-            if pf == '':
-                self.finished(False, 'Board %d has no Test Status in inventory. Operator canceled. Serial: %s' % (index, serial))
-                return False
-            elif pf != 'PASS':
-                self.finished(False, 'Board %d has failed testing. Serial: %s, status: %s' % (index, serial, pf))
+            if not self.invent.get_test_status(serial):
+                self.finished(False, 'Board %d has failed testing. Serial: %s' % (index, serial))
                 return False
 
         return True
@@ -226,7 +222,7 @@ class MCBProgramConfig:
         self.finished(True, "Boards programmed. Num. boards: %d. Serials: %s" % (self.expected, str(self.serials)))
         return True
     
-    def configure_boards(self, mcbs):
+    def configure_boards(self, mcbs, assembly = False):
         path = roslib.packages.get_pkg_dir("ethercat_hardware", True)
         actuator_path = path + "/actuators.conf"
 
@@ -257,8 +253,9 @@ class MCBProgramConfig:
 
         self.update_conf(mcbs)
 
-        #if not self.check_assembly():
-        #    self.finished(False, "Mismatch between given MCB's and listed items in inventory system. Component is not properly assembled in inventory. Found MCB serials: %s." % str(self.serials))
+        if assembly and not self.check_assembly():
+            self.finished(False, "Mismatch between given MCB's and listed items in inventory system. Component is not properly assembled in inventory. Found MCB serials: %s." % str(self.serials))
+
 
         self.finished(True, "Boards configured. Num. boards: %d. Serials: %s" % (self.expected, str(self.serials)))
         return
@@ -274,12 +271,12 @@ class MCBProgramConfig:
             rospy.logerr('Unable to find serial number of test component')
             return False
 
-        sub_components = self.invent.get_sub_items(test_component)
+        sub_components = self.invent.get_sub_items(test_component, recursive=True)
         if len(sub_components) == 0:
             rospy.logerr('Unable to find any sub components for item %s' % test_component)
             return False
 
-        rospy.loginfo('Found sub components: %s' % str(sub_components))
+        rospy.logdebug('Found sub components: %s' % str(sub_components))
 
         for serial in self.serials:
             if not str(serial) in sub_components:
@@ -302,6 +299,9 @@ if __name__ == '__main__':
     parser.add_option("--motor", type="string", dest="mcbs", 
                       action="append", metavar="NAME,NUM", 
                       help="MCB's to configure by name and number")
+    parser.add_option("-a", "--assembly", action="store_true",
+                      default=False, dest="assembly",
+                      help="Verify that boards are components of qual item")
         
     options, args = parser.parse_args()
     
@@ -328,7 +328,9 @@ if __name__ == '__main__':
         if options.program:
             prog_conf.program_boards()
         else: # Configure
-            prog_conf.configure_boards(options.mcbs)
+            prog_conf.configure_boards(options.mcbs, options.assembly)
+        
+        # Wait to be killed
         rospy.spin()
     except KeyboardInterrupt:
         pass
