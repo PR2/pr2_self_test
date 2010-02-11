@@ -79,7 +79,6 @@ class TestData:
 
     hdf = obj2hdf("test", self)
     data = hdf.writeString()
-    #print data
 
     values = {'data': data}
     data = urllib.urlencode(values)
@@ -91,8 +90,6 @@ class TestData:
     
     runid = ohdf.getValue("runid", "")
     status = ohdf.getValue("status", "")
-
-    #print runid, status
 
     if self.attachment:
       attachment = open(self.attachment['filename'], "rb").read()

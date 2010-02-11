@@ -33,7 +33,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ##\author Scott Hassen
+##\brief Client for WG inventory system
 
+PKG = 'invent_client'
 
 import os, sys, string, time, getopt, re
 
@@ -45,31 +47,20 @@ import mimetools
 import neo_cgi, neo_util
 import simple_hdfhelp as hdfhelp
 
-import roslib; roslib.load_manifest('invent_client')
+import roslib; roslib.load_manifest(PKG)
 
+##\brief Checks if given serial number is a valid WG SN
+def is_serial_valid(reference):
+  if len(reference) != 12:
+    return False
 
-class TestDataLoader:
-  def __init__(self, testname, timestamp, reference, note):
-    self.testname = testname
-    self.reference = reference
-    self.timestamp = timestamp
+  if not reference.startswith('680'):
+    return False
 
-    self.attachment = None
-    self.note = note
-    self.parameters = {}
-    self.measurements = {}
-
-  def set_parameter(self, key, value):
-    self.parameters[key] = value
-
-  def set_measurement(self, key, value, min, max):
-    self.measurements[key] = (value, min, max)
-
-  def set_attachment(self, content_type, attachment):
-    self.attachment = (content_type, attachment)
-
+  return True
 
 ## \brief Stores username and password, provides access to invent
+##
 ## Performs all action relating to inventory system
 ## Will login automatically before all functions if needed
 class Invent:
@@ -116,10 +107,9 @@ class Invent:
     self._logged_time = time.time()
     return True
 
-  def submit_test_data(self, test_data):
-    return True
 
-  def getAttachments(self, key):
+  ##\brief Debug mode only
+  def get_attachments(self, key):
     self.login()
 
     key = key.strip()
@@ -197,7 +187,7 @@ class Invent:
   ##@param reference str : Serial number of item
   ##@param note str : Text of item
   ##@param noteid int (optional) : Note ID, allows programmatic access to note text
-  def setNote(self, reference, note, noteid=None):
+  def setNote(self, reference, note, noteid = None):
     self.login()
 
     url = self.site + "invent/api.py?Action.AddNoteToItem=1&reference=%s&note=%s" % (reference, urllib2.quote(note))
@@ -237,6 +227,10 @@ class Invent:
     fp.read()
     fp.close()
 
+  ##\brief Returns True if part has 'Test Status'='PASS', False otherwise
+  def get_test_status(self, reference):
+    return self.getKV(reference, 'Test Status') == 'PASS'
+
   ##\brief Return value of component's key
   ## Get key-value of component. Ex: 'PASS' = getKV(my_ref, 'Test Status')
   ##@param reference str : Serial number of component
@@ -263,7 +257,7 @@ class Invent:
   ##\brief Adds attachment to component
   ##
   ## Adds file as attachment to component. Attachment it encoded to unicode,
-  ## then uploaded. Mimemtype is optional, but helps users view
+  ## then uploaded. Mimetype is optional, but helps users view
   ## attachments in window. 
   ##@param reference str : Serial number of component
   ##@param name str : Attachment filename
@@ -302,7 +296,9 @@ class Invent:
     return None
 
   ##\brief Returns list of sub items (references) for a particular parent
-  def get_sub_items(self, reference):
+  ##\param reference str : WG PN of component or assembly
+  ##\param recursive bool [optional] : Sub-sub-...-sub-parts of reference
+  def get_sub_items(self, reference, recursive = False):
     self.login()
     
     reference = reference.strip()
@@ -319,7 +315,13 @@ class Invent:
     for k,o in hdfhelp.hdf_ko_iterator(hdf.getObj("CGI.cur.items")):
       ret.append(o.getValue("reference", ""))
     
+    if recursive:
+      for rt in ret:
+        ret.extend(self.get_sub_items(rt, True))
+
     return ret
+
+  
       
 
 
