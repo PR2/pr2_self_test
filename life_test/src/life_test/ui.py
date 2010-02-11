@@ -383,6 +383,12 @@ class TestManagerFrame(wx.Frame):
         if not self._debug and not self.load_invent_client():
             wx.MessageBox('You cannot proceed without a valid inventory login.', 'Valid Login Required', wx.OK|wx.ICON_ERROR, self)
             return 
+        elif self._debug and not self.load_invent_client():
+            wx.MessageBox('Warning: Without inventory access, a lot of things won\'t really work.',
+                          'No Inventory Access', wx.OK|wx.ICON_ERROR, self)
+            self._invent_client = Invent('', '')
+            
+
 
         if (not self._debug) and (not self._invent_client.get_test_status(serial)):
             wx.MessageBox('Component %s has not passed qualification. Please re-test component and try again' % serial, 
