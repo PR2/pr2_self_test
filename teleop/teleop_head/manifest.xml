@@ -8,5 +8,6 @@
   <review status="na" notes="" />
   <depend package="joy" />
   <depend package="sensor_msgs" />
+  <depend package="trajectory_msgs" />
   <depend package="roscpp" />
 </package>

@@ -38,7 +38,7 @@
 
 #include <ros/ros.h>
 
-#include <sensor_msgs/JointState.h>
+#include <trajectory_msgs/JointTrajectory.h>
 
 #define HEAD_TOPIC "/head_controller/command"
 
@@ -67,7 +67,7 @@ class TeleopHeadKeyboard
     req_tilt = 0.0;
     req_pan = 0.0;
  
-    head_pub_ = n_.advertise<sensor_msgs::JointState>(HEAD_TOPIC, 1);
+    head_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>(HEAD_TOPIC, 1);
     
     n_.param("max_pan", max_pan, 2.7);
     n_.param("max_tilt", max_tilt, 1.4);
@@ -176,14 +176,15 @@ void TeleopHeadKeyboard::keyboardLoop()
     if (dirty == true)
     {
       
-      sensor_msgs::JointState joint_cmds;
-      joint_cmds.set_name_size(2);
-      joint_cmds.set_position_size(2);
-      joint_cmds.name[0] ="head_pan_joint";
-      joint_cmds.position[0] = req_pan;
-      joint_cmds.name[1] ="head_tilt_joint";
-      joint_cmds.position[1] = req_tilt;
-      head_pub_.publish(joint_cmds) ;
+      trajectory_msgs::JointTrajectory joint_cmds;
+      joint_cmds.joint_names.push_back ("head_pan_joint");
+      joint_cmds.joint_names.push_back ("head_tilt_joint");
+
+      joint_cmds.points.resize (1);
+      joint_cmds.points[0].positions.push_back (req_pan);
+      joint_cmds.points[0].positions.push_back (req_tilt);
+      joint_cmds.points[0].time_from_start = ros::Duration (1.0);
+      head_pub_.publish(joint_cmds);
 
 
     }
