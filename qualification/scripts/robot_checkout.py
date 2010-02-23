@@ -64,7 +64,7 @@ class DiagnosticItem:
         if self._name.startswith('Controller'):
             return True
 
-        if self._name == 'Realtime Controllers':
+        if self._name == 'Realtime Control Loop':
             return True
 
         return False

@@ -1,14 +1,9 @@
 <test name="Gripper Tip Test" >
   <instructions>instructions_tips.html</instructions>
-  <pre_startup timeout="30" name="Power Standby">../../scripts/power_board_standby.launch</pre_startup>
-  <pre_startup timeout="60" name="Program MCB's">gripper_prog.launch</pre_startup>
   <pre_startup timeout="30" name="Power Cycle">../../scripts/power_cycle.launch</pre_startup>
   <pre_startup timeout="60" name="Configure MCB's">../../config/r_gripper_conf.launch</pre_startup>
-  <startup name="Gripper Startup">gripper.launch</startup>
-
-  <subtest name="Gripper Checkout">gripper_checkout.launch</subtest>
-  <subtest name="Fingertip Pressure Test"  timeout="600">fingertip_qualification_check_fit.launch</subtest>
-  <subtest name="Fingertip Sensitivity Test"  timeout="600">fingertip_sensitivity.launch</subtest>
+  <startup name="Gripper Startup">gripper_tip.launch</startup>
+  <subtest name="Fingertip Sensitivity Test" >fingertip_sensitivity.launch</subtest>
 
   <shutdown timeout="30" name="Power Shutdown">../../scripts/power_board_disable.launch</shutdown>
 </test>

@@ -4,6 +4,6 @@
   <param name="robot_description"
          command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/upperarm_wrist.urdf.xacro'" />
 
-  <!-- Uses eth3 to run wge100 camera -->
-  <include file="$(find qualification)/tests/upperarm_test/ua_wge100.launch" />
+  <!-- Uses eth2 to run wge100 camera -->
+  <include file="$(find qualification)/tests/wge100_component.launch" />
 </launch>

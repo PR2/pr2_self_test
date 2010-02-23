@@ -14,7 +14,7 @@
     <group ns="velocity_controller" clear_params="true">
       <param name="type" type="string" value="JointVelocityController" />
       <param name="joint" type="string" value="torso_lift_joint" />
-      <param name="pid/p" type="double" value="100000.0" />
+      <param name="pid/p" type="double" value="50000.0" />
       <param name="pid/i" type="double" value="1000000" />
       <param name="pid/d" type="double" value="0.0" />
       <param name="pid/i_clamp" type="double" value="12000" />

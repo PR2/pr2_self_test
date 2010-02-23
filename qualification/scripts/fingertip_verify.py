@@ -38,7 +38,7 @@
 
 from __future__ import with_statement
 
-TOUCH = 4000
+TOUCH = 5000
 NUMSENSORS = 22
 MINVALUE = -100000
 RATE = 5
