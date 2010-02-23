@@ -177,7 +177,7 @@ class TestManagerFrame(wx.Frame):
         start = rospy.get_time()
         while not self._mutex.acquire(False):
             sleep(0.1)
-            rospy.log_info('Waiting for mutex for /diagnostics')
+            rospy.loginfo('Waiting for mutex for /diagnostics')
             if rospy.get_time() - start > timeout:
                 rospy.logwarn('Timeout for mutex for /diagnostics exceeded.')
                 return
