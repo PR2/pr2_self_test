@@ -1,0 +1,11 @@
+bool    has_link
+int32   max_device_count
+int32   interval_min_device_count
+uint64  total_sent_packets
+uint64  interval_sent_packets
+uint64  total_dropped_packets
+uint64  interval_dropped_packets
+uint64  total_late_packets
+uint64  interval_late_packets
+float64 total_bandwidth_mbps
+float64 interval_bandwidth_mbps

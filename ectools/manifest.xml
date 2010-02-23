@@ -1,0 +1,16 @@
+<package>
+  <description brief="ectools">
+
+     ectools
+
+  </description>
+  <author>Derek King</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/NO_WIKI_YET</url>
+  <depend package="roscpp"/>
+  <depend package="eml"/>
+
+</package>
+
+
