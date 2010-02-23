@@ -39,8 +39,8 @@ import roslib
 roslib.load_manifest(PKG)
 
 import rospy
-import roslaunch
-import roslaunch.pmon
+#import roslaunch
+#import roslaunch.pmon
 
 import socket
 import os
@@ -177,7 +177,7 @@ class TestManagerFrame(wx.Frame):
         start = rospy.get_time()
         while not self._mutex.acquire(False):
             sleep(0.1)
-            rospy.loginfo('Waiting for mutex for /diagnostics')
+            rospy.logdebug('Waiting for mutex for /diagnostics')
             if rospy.get_time() - start > timeout:
                 rospy.logwarn('Timeout for mutex for /diagnostics exceeded.')
                 return
@@ -368,10 +368,8 @@ class TestManagerFrame(wx.Frame):
             return
 
         if (not self._debug) and (not is_serial_valid(serial)):
-            wx.MessageBox('Serial number "%s" appears to be invalid. Re-enter the serial number and try again. Debug: %s' % (serial, str(self._debug)), 'Invalid Serial Number', wx.OK|wx.ICON_ERROR, self)
+            wx.MessageBox('Serial number "%s" appears to be invalid. Re-enter the serial number and try again.' % (serial), 'Invalid Serial Number', wx.OK|wx.ICON_ERROR, self)
             return
-
-
 
         test = self.select_test(serial)
 
@@ -388,12 +386,11 @@ class TestManagerFrame(wx.Frame):
                           'No Inventory Access', wx.OK|wx.ICON_ERROR, self)
             self._invent_client = Invent('', '')
             
-
-
         if (not self._debug) and (not self._invent_client.get_test_status(serial)):
             wx.MessageBox('Component %s has not passed qualification. Please re-test component and try again' % serial, 
                           'Bad Component', wx.OK|wx.ICON_ERROR, self)
             return
+
 
         self._serial_text.Clear()
         self.log('Starting test %s' % test._name)
