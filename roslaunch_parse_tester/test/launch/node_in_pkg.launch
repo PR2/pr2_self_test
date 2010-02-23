@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="roslaunch_parse_tester" type="launch_parser.py" name="kevbo" />
+</launch>

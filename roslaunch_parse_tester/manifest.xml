@@ -1,0 +1,14 @@
+<package>
+  <description brief="roslaunch_parse_tester">
+Roslaunch parse tester can check a launch file or collection of launch files for parsing and loading. It is experimental, and should not be developed on until it has been expanded after ROS 0.11.
+  </description>
+  <author>Kevin Watts</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/roslaunch_parse_tester</url>
+  <depend package="roslaunch"/>
+  <depend package="rostest" />
+
+</package>
+
+
