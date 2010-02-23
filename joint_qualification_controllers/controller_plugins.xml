@@ -1,0 +1,23 @@
+<library path="lib/libjoint_qualification_controllers">
+  <class name="CheckoutController"
+         type="joint_qualification_controllers::CheckoutController"
+         base_class_type="pr2_controller_interface::Controller" />
+  <class name="WristDifferenceController"
+         type="joint_qualification_controllers::WristDifferenceController"
+         base_class_type="pr2_controller_interface::Controller" />
+  <class name="CounterbalanceTestController"
+         type="joint_qualification_controllers::CounterbalanceTestController"
+         base_class_type="pr2_controller_interface::Controller" />
+  <class name="HysteresisController"
+         type="joint_qualification_controllers::HysteresisController"
+         base_class_type="pr2_controller_interface::Controller" />
+  <class name="MotorJointCalibrationController"
+         type="controller::MotorJointCalibrationController"
+         base_class_type="pr2_controller_interface::Controller" />
+  <class name="JointLimitCalibrationController"
+         type="controller::JointLimitCalibrationController"
+         base_class_type="pr2_controller_interface::Controller" />
+  <class name="HeadPositionController"
+         type="controller::HeadPositionController"
+         base_class_type="pr2_controller_interface::Controller" />
+</library>

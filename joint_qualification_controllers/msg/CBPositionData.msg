@@ -1,0 +1,3 @@
+float32 flex_position
+JointPositionData lift_hold
+JointPositionData flex_hold

@@ -1,0 +1,24 @@
+<package>
+  <description brief='Joint Qualification Controllers'>
+Controllers used in PR2 hardware testing. Meant for internal WG use.
+  </description>
+  <author>Melonee Wise, Kevin Watts</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <depend package="pr2_controller_interface" />
+  <depend package="pr2_mechanism_model" />
+  <depend package="pr2_hardware_interface" />
+  <depend package="control_toolbox" />
+  <depend package="roscpp" />
+  <depend package="robot_mechanism_controllers" />
+  <depend package="pluginlib" />
+  <depend package="std_msgs" />
+  <depend package="sensor_msgs" />
+  <url>http://www.ros.org/wiki/joint_qualification_controllers</url>
+  <export>
+    <cpp cflags="-I${prefix}/include -I${prefix}/msg/cpp -I${prefix}/srv/cpp"
+         lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -ljoint_qualification_controllers"/>
+    <pr2_controller_interface plugin="${prefix}/controller_plugins.xml" />
+  </export>
+
+</package>
