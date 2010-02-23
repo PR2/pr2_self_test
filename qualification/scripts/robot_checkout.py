@@ -64,6 +64,9 @@ class DiagnosticItem:
         if self._name.startswith('Controller'):
             return True
 
+        if self._name == 'Realtime Controllers':
+            return True
+
         return False
 
     def check_stale(self):
