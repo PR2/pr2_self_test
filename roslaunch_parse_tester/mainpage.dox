@@ -2,29 +2,32 @@
 \mainpage
 \htmlinclude manifest.html
 
-\b roslaunch_parse_tester is ... 
+\b roslaunch_parse_tester is a tool for parsing and checking launch files. 
+\section tools Tools
 
-<!-- 
-In addition to providing an overview of your package,
-this is the section where the specification and design/architecture 
-should be detailed. While the original specification may be done on the
-wiki, it should be transferred here once your package starts to take shape.
-You can then link to this documentation page from the Wiki. 
--->
+\subsection launch Launch Parser
 
+\b launch_parser.py parses and checks a launch file.
+
+\subsection package Package Parser
+
+\b package_parse_test.py checks all the launch files in a package
 
 \section codeapi Code API
 
-<!--
-Provide links to specific auto-generated API documentation within your
-package that is of particular interest to a reader. Doxygen will
-document pretty much every part of your code, so do your best here to
-point the reader to the actual API.
+You can also use roslaunch_parse_tester as a library within a Python script. This allows uses to integrate these checks into a build test.
 
-If your codebase is fairly large or has different sets of APIs, you
-should use the doxygen 'group' tag to keep these APIs together. For
-example, the roscpp documentation has 'libros' group.
--->
+\subsection example Example
 
+\verbatim
+from roslaunch_parse_tester.package_parse import ROSLaunchPackageParser
+
+def check_pkg(pkg):        
+    launch_file_parser = ROSLaunchPackageParser(pkg, *kwargs)
+        
+    return launch_file_parser.check_package()
+\endverbatim
+
+All of the command line arguments can be used as keyword arguments in the API.
 
 */
