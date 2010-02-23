@@ -53,11 +53,11 @@ class QualificationApp(wx.App):
         except RLException, e:
             sys.stderr.write('Failed to launch core. Another core may already be running.\n\n')
             wx.MessageBox('A ROS core is still running and preventing the qualification system from starting. Shut down ROS processes by using the "Kill ROS" icon.','ROS Already Running', wx.OK|wx.ICON_ERROR, None)
-            sys.exit(0)
+            sys.exit(1)
         except Exception, e:
             import traceback
             traceback.print_exc()
-            sys.exit(0)
+            sys.exit(1)
             
         rospy.init_node("qualification")
         
@@ -68,7 +68,11 @@ class QualificationApp(wx.App):
         
         import qualification.component_qual
 
-        self._frame = qualification.component_qual.ComponentQualFrame(None)
+        qual_options = qualification.component_qual.ComponentQualOptions()
+        if len(sys.argv) > 1 and sys.argv[1] == '--debug':
+            qual_options.debug = True
+
+        self._frame = qualification.component_qual.ComponentQualFrame(None, qual_options)
         self._frame.SetSize(wx.Size(700,1000))
         self._frame.Layout()
         self._frame.Centre()

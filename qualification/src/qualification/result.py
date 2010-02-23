@@ -929,6 +929,7 @@ em { font-style: normal; font-weight: bold; }\
             sub = self.get_subresult(0) # Only subresult of configuration
             if not sub:
                 return True, 'No subresult found!'
+            ##\todo Check attachment ID of return value
             invent.add_attachment(self._serial, sub.filename_base() + '.html', 'text/html', 
                                   sub.make_result_page(), self.line_summary())
             return True, 'Logged reconfiguration in inventory system.'

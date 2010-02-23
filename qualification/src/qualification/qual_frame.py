@@ -79,6 +79,11 @@ class QualTestObject():
     self.name = name
     self.serial = serial
 
+class QualOptions:
+  def __init__(self):
+    self.debug = False
+    self.always_show_results = False
+
 ##\brief Loads instructions for operator. Displays instructions in HTML window.
 class InstructionsPanel(wx.Panel):
   def __init__(self, parent, resource, qualification_frame, file):
@@ -160,12 +165,18 @@ class PlotsPanel(wx.Panel):
     self._rxconsole_panel.setEnabled(True)
     self._notebook.AddPage(self._rxconsole_panel, "ROS Output")
     
-  ##\todo Make P/F/R buttons only enable when allowable
-  def show_plots(self, result_page):
+  ##\brief Displays plots, HTML of results
+  ##
+  ##\param result_page str : HTML result page of results
+  ##\param pass_ok bool : Pass button only enabled when true
+  def show_plots(self, result_page, pass_ok):
     self._notes_text.SetEditable(True)
     self._notebook.SetSelection(0)
     self._plots_window.SetPage(result_page)
-    self._pass_button.Enable(True)
+    
+    # Pass is only enabled when in debug mode or test has passed
+    self._pass_button.Enable(pass_ok)
+
     self._fail_button.Enable(True)
     self._retry_button.Enable(True)
     self._cancel_button.Enable(True)
@@ -235,11 +246,19 @@ class ResultsPanel(wx.Panel):
 
 ##\brief Prestartup or shutdown scripts, returns timeout msg
 def script_timeout(timeout):
-  return ScriptDoneRequest(1, "Automated timeout. Timeout: %s" % timeout)
+  if timeout > 0:
+    msg = 'Automated timeout. Timeout: %s' % timeout
+  else:
+    msg = 'Subtest aborted'
+
+  return ScriptDoneRequest(1, msg)
 
 ##\brief Subtest timeout, returns timeout message
 def subtest_timeout(timeout):
-  msg = 'Automated timeout. Timeout: %s' % timeout
+  if timeout > 0:
+    msg = 'Automated timeout. Timeout: %s' % timeout
+  else:
+    msg = 'Subtest aborted'
 
   result = TestResultRequest()
   result.html_result = '<p>%s</p>\n' % msg
@@ -251,17 +270,20 @@ def subtest_timeout(timeout):
   
 ##\brief Makes waiting page for subtests
 def make_html_waiting_page(subtest_name, index, len_subtests):
-  html = '<html>\n<H2 align=center>Waiting for Subtest to Complete</H2>\n'
-  html += '<H3 align=center>Test Name: %s</H3>\n' % subtest_name
-  html += '<H4 align=center>Test %d of %d</H4>\n</html>' % (index + 1, len_subtests)
-  return html
+  html = ['<html><H2 align=center>Waiting for Subtest to Complete</H2>']
+  html.append('<H3 align=center>Test Name: %s</H3>' % subtest_name)
+  html.append('<H4 align=center>Test %d of %d</H4></html>' % (index + 1, len_subtests))
+
+  return '\n'.join(html)
 
 ##\brief Main frame of qualification
 ##
 ## Loads tests, launches them and records results
 class QualificationFrame(wx.Frame):
-  def __init__(self, parent):
+  def __init__(self, parent, options):
     wx.Frame.__init__(self, parent, wx.ID_ANY, "Qualification")
+
+    self.options = options
 
     self._result_service = None
     self._prestartup_done_srv = None
@@ -300,9 +322,7 @@ class QualificationFrame(wx.Frame):
     self._shutdown_timer = None
 
     self._current_test = None
-    
-    self._show_results_always = False
-
+ 
     rospy.set_param('/invent/username', '')
     rospy.set_param('/invent/password', '')
 
@@ -363,6 +383,7 @@ class QualificationFrame(wx.Frame):
   ##
   ##\todo Rename 'begin_test' to something useful at some point
   def begin_test(self, test, qual_item):
+    ##\todo If debug mode, allow proceed with message dialog
     if not self.get_inventory_object():
       wx.MessageBox('Cannot proceed without inventory login. You must have an inventory username and password.', 'Inventory Login Required', wx.OK|wx.ICON_ERROR, self)
       self.reset()
@@ -398,6 +419,7 @@ class QualificationFrame(wx.Frame):
     
   ##\brief Launches rosrecord node to record diagnostics for test
   def record_tests(self):
+    ##\todo Use file in qual package as recorder
     record = '<launch>\n'
     record += '<node pkg="rosrecord" type="rosrecord" name="test_logger" \n'
     record += 'args="-f /hwlog/%s_qual_test /diagnostics" />\n' % self._current_item.serial
@@ -489,19 +511,10 @@ class QualificationFrame(wx.Frame):
       # Continue to next test
       self._prestartup_index += 1
       if self._prestartup_index >= len(self._current_test.pre_startup_scripts):
-        
-        if self._prestartup_done_srv:
-          self._prestartup_done_srv.shutdown()
-          self._prestartup_done_srv = None
-
         self.test_startup()
       else:
         self.prestartup_call()
     else: # Failure or error 
-      if self._prestartup_done_srv:
-        self._prestartup_done_srv.shutdown()
-        self._prestartup_done_srv = None
-
       self.test_finished()
       
   ##\brief Launches startup script (if any) and first subtest.
@@ -518,7 +531,7 @@ class QualificationFrame(wx.Frame):
         self.cancel(s)
         return
     else:
-      self.log('No startup script')
+      self.log('No startup script, launching subtests')
       
     self.start_subtest(0)
 
@@ -576,7 +589,7 @@ class QualificationFrame(wx.Frame):
     
     sub_result = self._results.add_sub_result(self._subtest_index, msg)
 
-    if self._show_results_always:
+    if self.options.always_show_results:
       self.show_plots(sub_result)
     else:
       if (msg.result == TestResultRequest.RESULT_PASS):
@@ -589,7 +602,8 @@ class QualificationFrame(wx.Frame):
 
   ##\brief Displays results of qualification subtests 
   def show_plots(self, sub_result):
-    self._plots_panel.show_plots(sub_result.make_result_page())
+    self._plots_panel.show_plots(sub_result.make_result_page(), 
+                                 sub_result.get_pass_bool() or self.options.debug)
     self.set_top_panel(self._plots_panel)
 
   ##\brief Records final result of subtest. 
@@ -649,10 +663,11 @@ class QualificationFrame(wx.Frame):
       else:
         post_launcher.spin() 
   
+  ##\todo Move out of class, don't need class variables
   ##\brief Uses roslaunch_caller to launch file
   ##@param file str : Full path of launch script
   def launch_file(self, file):
-    self.log('Launching file %s'%(file))
+    #self.log('Launching file %s' % (os.path.basename(file)))
     
     f = open(file, 'r')
     launch_xml = f.read()
@@ -926,6 +941,7 @@ class QualificationFrame(wx.Frame):
       self.reset()
       return
 
+    ##\todo Make function in results to get/set output directory
     if not dir.endswith('/'):
       dir += '/'
     self._results._results_dir = dir 

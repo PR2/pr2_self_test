@@ -60,11 +60,14 @@ from qualification.test_loader import load_configs_from_map, load_tests_from_map
 TESTS_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'tests')
 CONFIG_DIR = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'config')
 
-
 class ConfigObject(QualTestObject):
   def __init__(self, name, serial):
     QualTestObject.__init__(self, name, serial)
     self._config = True
+
+class ComponentQualOptions(QualOptions):
+  def __init__(self):
+    QualOptions.__init__(self)
 
 ## Allows user to choose which component to test and which test to run
 class SerialPanel(wx.Panel):
@@ -241,8 +244,8 @@ class SerialPanel(wx.Panel):
       self._serial_text_conf.Clear()
 
 class ComponentQualFrame(QualificationFrame):
-  def __init__(self, parent):
-    QualificationFrame.__init__(self, parent)
+  def __init__(self, parent, options):
+    QualificationFrame.__init__(self, parent, options)
     
     self.load_wg_test_map()
     self.create_menubar()
@@ -277,6 +280,12 @@ class ComponentQualFrame(QualificationFrame):
     self._host_menu.Append(4001, "Select Test Host\tCTRL+h")
     menubar.Append(self._host_menu, "Test &Host")
 
+    self._debug_menu = None
+    if self.options.debug:
+      self._debug_menu = wx.Menu()
+      self._debug_menu.Append(5005, "Abort Subtest")
+      menubar.Append(self._debug_menu, "Debug Mode")
+
     self.SetMenuBar(menubar)
     self.Bind(wx.EVT_MENU, self.on_menu)
 
@@ -305,7 +314,7 @@ class ComponentQualFrame(QualificationFrame):
 
     if (event.GetEventObject() == self._options_menu):
       if (event.GetId() == 2001):
-        self._show_results_always = self._options_menu.IsChecked(2001)
+        self.options.always_show_results = self._options_menu.IsChecked(2001)
 
     if (event.GetEventObject() == self._powerboard_menu):
       if (event.GetId() == 3101):
@@ -321,6 +330,34 @@ class ComponentQualFrame(QualificationFrame):
     if (event.GetEventObject() == self._host_menu):
       if (event.GetId() == 4001):
         self.set_test_host()
+
+    if (event.GetEventObject() == self._debug_menu):
+      if (event.GetId() == 5005):
+        self.abort_active_test(True)
+
+  def abort_active_test(self, can_veto):
+    if can_veto:
+      are_you_sure = wx.MessageDialog(self, "Are you sure you want to abort the current operation?", 
+                                      "Confirm Abort", wx.OK|wx.CANCEL)
+      if are_you_sure.ShowModal() != wx.ID_OK:
+        return
+
+    if self._subtest_launch is not None:
+      self.log('Aborting subtest')
+      self.subtest_finished(subtest_timeout(0))
+      return
+
+    if self._prestartup_launch is not None:
+      self.log('Aborting pretest')
+      self.prestartup_finished(script_timeout(0))
+      return
+
+    if self._shutdown_launch is not None:
+      self.log('Aborting shutdown script')
+      self.shutdown_finished(script_timeout(0))
+
+    wx.MessageBox('No subtests, shutdown scripts or pretests to abort. Press the "Cancel" button to terminate test', 'Unable to abort', wx.OK)
+    
 
   def set_test_host(self):
     curr_host = os.environ['ROS_TEST_HOST']
