@@ -1,14 +1,35 @@
-<stack name="pr2" version="0.1.0">
-  <description brief="pr2">
+<stack>
+  <description brief="PR2 Self Test">
 
-     pr2
+     Packages for testing the PR2 and related production tools
 
   </description>
-  <author>Maintained by Wim</author>
+  <author>Maintained by Kevin Watts</author>
   <license>BSD</license>  
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/pr2</url>
-
-  <!-- No dependencies for this rat's nest that will never be released -->
+  <url>http://ros.org/wiki/pr2_self_test</url>
+  <depend stack="calibration_experimental" /> <!-- auto_arm_commander -->
+  <depend stack="camera_drivers" /> <!-- wge100_camera -->
+  <depend stack="common" /> <!-- xacro -->
+  <depend stack="common_msgs" /> <!-- sensor_msgs, geometry_msgs, diagnostic_msgs -->
+  <depend stack="diagnostics" /> <!-- runtime_monitor, self_test -->
+  <depend stack="drivers" /> <!-- camera_focus -->
+  <depend stack="image_pipeline" /> <!-- image_proc, image_view -->
+  <depend stack="imu_drivers" /> <!-- microstrain_3dmgx2_imu -->
+  <depend stack="joystick_drivers" /> <!-- joy, spacenav_node -->
+  <depend stack="laser_drivers" /> <!-- hokuyo_node -->
+  <depend stack="pr2_common" /> <!-- pr2_description, pr2_msgs -->
+  <depend stack="pr2_controllers" /> <!-- trajectory_msgs, pr2_mechanism_controllers, ethercat_trigger_controllers, robot_mechanism_controllers -->
+  <depend stack="pr2_ethercat_drivers" /> <!-- fingertip_pressure, ethercat_hardware -->
+  <depend stack="pr2_mechanism" /> <!-- pr2_mechanism_msgs, pr2_controller_manager -->
+  <depend stack="pr2_power_drivers" /> <!-- pr2_power_board, power_monitor -->
+  <depend stack="pr2_robot" /> <!-- pr2_controller_configuration, pr2_camera_synchronizer, pr2_bringup, pr2_etherCAT -->
+  <depend stack="pr2_simulator" /> <!-- pr2_gazebo -->
+  <depend stack="robot_model" /> <!-- robot_state_publisher, urdf -->
+  <depend stack="ros" /> <!-- roslaunch, rxtools, std_srvs, roscpp, roslib, std_msgs, rospy -->
+  <depend stack="sandbox" /> <!-- ectools, joint_qualification_controllers, experimental_controllers, roslaunch_parse_tester -->
+  <depend stack="simulator_gazebo" /> <!-- gazebo -->
+  <depend stack="vision_opencv" /> <!-- opencv2, cv_bridge -->
+  <depend stack="visualization" /> <!-- rviz -->
 
 </stack>
