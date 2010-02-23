@@ -50,13 +50,18 @@ import threading
 
 class EthercatListener:
     def __init__(self):
-        self._diag_sub = rospy.Subscriber('pr2_etherCAT/motors_halted', Bool, self._motors_cb)
+
         self._mutex = threading.Lock()
 
+        self._cal = False
         self._ok = True
         self._update_time = -1
         self._reset_motors = rospy.ServiceProxy('pr2_etherCAT/reset_motors', Empty)
         self._halt_motors = rospy.ServiceProxy('pr2_etherCAT/halt_motors', Empty)
+
+        self._diag_sub = rospy.Subscriber('pr2_etherCAT/motors_halted', Bool, self._motors_cb)
+
+        self._cal_sub = rospy.Subscriber('calibrated', Bool, self._cal_cb)
 
     # Doesn't do anything
     def create(self, params):
@@ -68,6 +73,10 @@ class EthercatListener:
     def reset(self):
         self._reset_motors()
 
+    def _cal_cb(self, msg):
+        with self._mutex:
+            self._cal = msg.data
+
     def _motors_cb(self, msg):
         with self._mutex:
             self._ok = not msg.data
@@ -77,6 +86,10 @@ class EthercatListener:
         with self._mutex:
             msg = ''
             stat = 0
+            if not self._cal:
+                stat = 1
+                msg = 'Uncalibrated'
+
             if not self._ok:
                 stat = 2
                 msg = 'Motors Halted'

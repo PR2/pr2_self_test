@@ -520,7 +520,7 @@ class TestMonitorPanel(wx.Panel):
             self._status_bar.SetValue("Test Running: OK")
             self._status_bar.SetBackgroundColour("Light Green")
         elif level == 1:
-            self._status_bar.SetValue("Test Warning! Warning: %s" % msg)
+            self._status_bar.SetValue("Test Warning: %s" % msg)
             self._status_bar.SetBackgroundColour("Orange")
         elif level == 2:
             self._status_bar.SetValue("Error in Test Monitor: %s" % msg)

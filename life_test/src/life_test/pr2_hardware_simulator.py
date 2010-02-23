@@ -56,6 +56,7 @@ class PR2HardwareSimulator:
     def __init__(self):
         self.diag_pub = rospy.Publisher('/diagnostics', DiagnosticArray)
         self.motors_pub = rospy.Publisher('pr2_etherCAT/motors_halted', Bool)
+        self.cal_pub = rospy.Publisher('calibrated', Bool, latch=True)
         self.ecstat_pub = rospy.Publisher('ecstats', ecstats)
         self.mech_pub = rospy.Publisher('mechanism_statistics', MechanismStatistics)
 
@@ -64,6 +65,8 @@ class PR2HardwareSimulator:
 
         self._mutex = threading.Lock()
         self._ok = True
+
+        self._has_pub_cal = False
 
         self._start_time = rospy.get_time()
 
@@ -189,7 +192,15 @@ class PR2HardwareSimulator:
         self.motors_pub.publish(Bool(not self._ok))
         self._last_motor_pub = rospy.get_time()
 
+    def _pub_cal(self):
+        self.cal_pub.publish(Bool(True))
+        self._has_pub_cal = True
+
+
     def publish(self):
+        if not self._has_pub_cal:
+            self._pub_cal()
+
         self._publish_mech_stats()
         if rospy.get_time() - self._last_diag_pub > 1.0:
             self._publish_diag()
