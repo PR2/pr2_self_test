@@ -50,7 +50,7 @@ from qualification.msg import Plot, TestParam, TestValue
 from qualification.srv import TestResult, TestResultRequest
 from qualification.analysis import *
 
-from joint_qualification_controllers.srv import WristDiffData, WristDiffDataResponse
+from joint_qualification_controllers.msg import WristDiffData
 
 import traceback
 
@@ -58,7 +58,7 @@ class WristDiffAnalysis:
     def __init__(self):
         self.data_sent = False
         rospy.init_node('wrist_diff_analysis')
-        self.data_srv = rospy.Service('/test_data', WristDiffData, self.on_wrist_data)
+        self.data_srv = rospy.Subscriber('/test_data', WristDiffData, self.on_wrist_data)
         self.result_service = rospy.ServiceProxy('test_result', TestResult)
         
     def test_failed_service_call(self, except_str = ''):
@@ -76,28 +76,27 @@ class WristDiffAnalysis:
             self.result_service.call(test_result)
             self.data_sent = True
 
-    def on_wrist_data(self, srv):
-        self._analyze_wrist_data(srv)
+    def on_wrist_data(self, msg):
+        self._analyze_wrist_data(msg)
 
-        return WristDiffDataResponse()
 
-    def _analyze_wrist_data(self, srv):
+    def _analyze_wrist_data(self, msg):
         r = TestResultRequest()
         r.html_result = ''
         r.text_summary = 'No data.'
         r.plots = []
         r.result = TestResultRequest.RESULT_FAIL
 
-        params = WristRollHysteresisParams(srv)
+        params = WristRollHysteresisParams(msg)
         r.params = params.get_test_params()
 
-        if srv.timeout:
+        if msg.timeout:
             r.text_summary = 'Wrist difference controller timed out'
             r.result = TestResultRequest.RESULT_FAIL
             self.send_results(r)
             return 
 
-        data = WristRollHysteresisData(srv)
+        data = WristRollHysteresisTestData(msg)
 
         if not wrist_hysteresis_data_present(data):
             r.text_summary = 'Wrist difference controller didn\'t generate enough data.'

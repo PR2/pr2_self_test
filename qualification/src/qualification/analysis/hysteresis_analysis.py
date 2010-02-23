@@ -128,7 +128,7 @@ class HysteresisDirectionData:
         self.effort   = numpy.array(effort)  [min_index: max_index]
         self.velocity = numpy.array(velocity)[min_index: max_index]
 
-class HysteresisData:
+class HysteresisTestData:
     def __init__(self, positive_data, negative_data):
         self.positive = positive_data
         self.negative = negative_data
@@ -431,48 +431,48 @@ def plot_velocity(params, data):
 
 # Wrist analysis starts here
 
-class WristRollHysteresisData(HysteresisData):
-    def __init__(self, srv):
-        left_min = int(0.05 * len(srv.left_turn.roll_position))
-        left_max = int(0.95 * len(srv.left_turn.roll_position))
-        right_min = int(0.05 * len(srv.right_turn.roll_position))
-        right_max = int(0.95 * len(srv.right_turn.roll_position))
+class WristRollHysteresisTestData(HysteresisTestData):
+    def __init__(self, msg):
+        left_min = int(0.05 * len(msg.left_turn.roll_position))
+        left_max = int(0.95 * len(msg.left_turn.roll_position))
+        right_min = int(0.05 * len(msg.right_turn.roll_position))
+        right_max = int(0.95 * len(msg.right_turn.roll_position))
 
-        self.pos_flex_effort = numpy.array(srv.left_turn.flex_effort) [left_min: left_max]
-        self.neg_flex_effort = numpy.array(srv.right_turn.flex_effort)[right_min: right_max]
+        self.pos_flex_effort = numpy.array(msg.left_turn.flex_effort) [left_min: left_max]
+        self.neg_flex_effort = numpy.array(msg.right_turn.flex_effort)[right_min: right_max]
 
-        self.positive = HysteresisDirectionData(srv.left_turn.roll_position, srv.left_turn.roll_effort, srv.left_turn.roll_velocity)
-        self.negative = HysteresisDirectionData(srv.right_turn.roll_position, srv.right_turn.roll_effort, srv.right_turn.roll_velocity)
+        self.positive = HysteresisDirectionData(msg.left_turn.roll_position, msg.left_turn.roll_effort, msg.left_turn.roll_velocity)
+        self.negative = HysteresisDirectionData(msg.right_turn.roll_position, msg.right_turn.roll_effort, msg.right_turn.roll_velocity)
 
 class WristRollHysteresisParams(HysteresisParameters):
-    def __init__(self, srv):
-        self.joint_name  = srv.roll_joint
-        self.p_gain      = srv.roll_pid[0]
-        self.i_gain      = srv.roll_pid[1]
-        self.d_gain      = srv.roll_pid[2]
-        self.i_clamp     = srv.roll_pid[3]
+    def __init__(self, msg):
+        self.joint_name  = msg.roll_joint
+        self.p_gain      = msg.roll_pid[0]
+        self.i_gain      = msg.roll_pid[1]
+        self.d_gain      = msg.roll_pid[2]
+        self.i_clamp     = msg.roll_pid[3]
 
-        self.velocity    = srv.arg_value[1]
-        self.tolerance   = srv.arg_value[2]
-        self.sd_max      = srv.arg_value[3]
+        self.velocity    = msg.arg_value[1]
+        self.tolerance   = msg.arg_value[2]
+        self.sd_max      = msg.arg_value[3]
 
-        self.timeout     = srv.arg_value[4]
-        self.pos_effort  = srv.arg_value[5]
-        self.neg_effort  = srv.arg_value[6]
+        self.timeout     = msg.arg_value[4]
+        self.pos_effort  = msg.arg_value[5]
+        self.neg_effort  = msg.arg_value[6]
 
         self.range_max   = 0
         self.range_min   = 0
         self.slope       = 0
 
         # Subclass params only
-        self.flex_joint   = srv.flex_joint
-        self.flex_tol     = srv.arg_value[7]
-        self.flex_max     = srv.arg_value[8]
-        self.flex_sd      = srv.arg_value[9]
-        self.flex_p_gain  = srv.flex_pid[0]
-        self.flex_i_gain  = srv.flex_pid[1]
-        self.flex_d_gain  = srv.flex_pid[2]
-        self.flex_i_clamp = srv.flex_pid[3]
+        self.flex_joint   = msg.flex_joint
+        self.flex_tol     = msg.arg_value[7]
+        self.flex_max     = msg.arg_value[8]
+        self.flex_sd      = msg.arg_value[9]
+        self.flex_p_gain  = msg.flex_pid[0]
+        self.flex_i_gain  = msg.flex_pid[1]
+        self.flex_d_gain  = msg.flex_pid[2]
+        self.flex_i_clamp = msg.flex_pid[3]
 
     def get_test_params(self):
         test_params = HysteresisParameters.get_test_params(self)

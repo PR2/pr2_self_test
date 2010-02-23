@@ -49,11 +49,9 @@ from StringIO import StringIO
 from qualification.msg import Plot, TestValue, TestParam
 from qualification.srv import *
 
-from joint_qualification_controllers.srv import * 
+from joint_qualification_controllers.msg import CounterbalanceTestData
 
 ok_dict = { False: 'FAIL', True: 'OK' }
-
-
 
 class JointPositionAnalysisData:
     def __init__(self, msg):
@@ -357,7 +355,7 @@ class CounterbalanceAnalysis:
         self._hold_data_srvs = []
 
         rospy.init_node('cb_analysis')
-        self.data_topic = rospy.Service('cb_test_data', CounterbalanceTestData, self.data_callback)
+        self.data_topic = rospy.Subscriber('cb_test_data', CounterbalanceTestData, self.data_callback)
         self._result_service = rospy.ServiceProxy('test_result', TestResult)
 
     def send_results(self, r):
@@ -384,14 +382,13 @@ class CounterbalanceAnalysis:
         r.result = TestResultRequest.RESULT_FAIL
         self.send_results(r)
 
-    def data_callback(self, srv):
-        self.process_results(srv)
-        return CounterbalanceTestDataResponse()
-
-    def process_results(self, srv):
+    def data_callback(self, msg):
+        self.process_results(msg)
+        
+    def process_results(self, msg):
         try:
-            data = CounterbalanceAnalysisData(srv)
-            params = CounterbalanceAnalysisParams(srv)
+            data = CounterbalanceAnalysisData(msg)
+            params = CounterbalanceAnalysisParams(msg)
 
             lift_effort_result = analyze_lift_efforts(params, data)
             lift_effort_plot = plot_efforts_by_lift_position(params, data)

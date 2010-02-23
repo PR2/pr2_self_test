@@ -42,7 +42,7 @@ from diagnostic_msgs.msg import DiagnosticArray
 from qualification.msg import Plot
 from qualification.srv import *
 
-from joint_qualification_controllers.srv import *
+from joint_qualification_controllers.msg import RobotData
 
 import traceback
 
@@ -114,7 +114,7 @@ class RobotCheckout:
         if self._expected_actuators is None:
             rospy.logwarn('Not given list of expected actuators! Deprecation warning')
 
-        self.robot_data = rospy.Service('robot_checkout', RobotData, self.on_robot_data)
+        self.robot_data = rospy.Subscriber('robot_checkout', RobotData, self.on_robot_data)
         self.result_srv = rospy.ServiceProxy('test_result', TestResult)
 
         self.diagnostics = rospy.Subscriber('diagnostics', DiagnosticArray, self.on_diagnostic_msg)
@@ -198,18 +198,16 @@ class RobotCheckout:
     
             
 
-    def on_robot_data(self, srv):
+    def on_robot_data(self, msg):
         rospy.logdebug('Got robot data service')
         self._has_robot_data = True
         
-        if srv.test_time >= 0:
-            self._timeout = False
+        self._timeout = msg.timeout
      
-        self._check_time = srv.test_time
-        self.joint_data(srv.joint_data)
-        self.act_data(srv.actuator_data)
-            
-        return RobotDataResponse()
+        self._check_time = msg.test_time
+        self.joint_data(msg.joint_data)
+        self.act_data(msg.actuator_data)
+        
 
     def process_diagnostics(self):
         # Sort diagnostics by level

@@ -50,7 +50,7 @@ from qualification.msg import Plot, TestParam, TestValue
 from qualification.srv import TestResult, TestResultRequest
 from qualification.analysis import *
 
-from joint_qualification_controllers.srv import TestData, TestDataResponse
+from joint_qualification_controllers.msg import HysteresisData
 
 import traceback
 
@@ -58,7 +58,7 @@ class AnalysisApp:
   def __init__(self):
     self.data_sent = False
     rospy.init_node("test_plotter")
-    self.data_topic = rospy.Service("/test_data", TestData, self.on_data)
+    self.data_topic = rospy.Subscriber("/test_data", HysteresisData, self.on_data)
     self.result_service = rospy.ServiceProxy('/test_result', TestResult)
     rospy.spin()
     
@@ -66,7 +66,6 @@ class AnalysisApp:
     self.data = req
     self.hysteresis_plot()
     
-    return TestDataResponse(1)
       
   def test_failed_service_call(self, except_str = ''):
     rospy.logerr(except_str)
@@ -136,7 +135,7 @@ class AnalysisApp:
       
       pos_data = HysteresisDirectionData(self.data.position_up, self.data.effort_up, self.data.velocity_up)
       neg_data = HysteresisDirectionData(self.data.position_down, self.data.effort_down, self.data.velocity_down)
-      hyst_data = HysteresisData(pos_data, neg_data)
+      hyst_data = HysteresisTestData(pos_data, neg_data)
       
       # Make sure we have at least some points in both directions
       if pos_data.position.size < 20 or neg_data.position.size < 20:
