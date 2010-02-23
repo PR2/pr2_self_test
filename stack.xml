@@ -9,11 +9,10 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/pr2_self_test</url>
   <depend stack="calibration_experimental" /> <!-- auto_arm_commander -->
-  <depend stack="camera_drivers" /> <!-- wge100_camera -->
+  <depend stack="camera_drivers" /> <!-- prosilica_camera, wge100_camera -->
   <depend stack="common" /> <!-- xacro -->
   <depend stack="common_msgs" /> <!-- sensor_msgs, geometry_msgs, diagnostic_msgs -->
   <depend stack="diagnostics" /> <!-- runtime_monitor, self_test -->
-  <depend stack="drivers" /> <!-- camera_focus -->
   <depend stack="image_pipeline" /> <!-- image_proc, image_view -->
   <depend stack="imu_drivers" /> <!-- microstrain_3dmgx2_imu -->
   <depend stack="joystick_drivers" /> <!-- joy, spacenav_node -->
