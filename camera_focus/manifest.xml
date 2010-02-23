@@ -1,0 +1,17 @@
+<package>
+  <description brief="Tools for camera focusing.">
+    This package is used to output a signal indicating how well a camera is
+    focused. It is used during production to focus the cameras.
+  </description>
+  <author>Blaise Gassend</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://pr.willowgarage.com/wiki/camera_focus</url>
+  <depend package="wge100_camera"/>
+  <depend package="prosilica_camera"/>
+  <depend package="opencv2" />
+  <depend package="cv_bridge" />
+  <rosdep name="gnuplot"/>
+</package>
+
+
