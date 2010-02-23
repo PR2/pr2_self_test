@@ -7,8 +7,8 @@ trans:
   roll_trans:
     joint: r_wrist_roll_joint
     actuator: r_wrist_r_motor
-    up_ref: 1.5707963267948966
-    down_ref: 4.7123889803846897
+    down_ref: 1.5707963267948966
+    up_ref: 4.7123889803846897
     wrap: 6.2831853071795862
     deadband: 0.15
   flex_trans:
