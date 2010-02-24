@@ -10,4 +10,4 @@ trans:
     max: 0.315
     min: -0.005
     down_ref: 0.00536
-    deadband: 0.02
+    deadband: 0.002
