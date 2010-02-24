@@ -1,11 +1,10 @@
 <package>
-
-  <description brief="Runs life/burn-in tests on components and robots">
+  <description brief="Runs life/burn-in tests on PR2 components and robots">
     This package contains the scripts needed to run burn in and life tests on PR2 components.
 
     Use Test Manager to run tests:
     roscd life_test
-    bin/gui
+    ./test_manager.py
   </description>
   <author>Kevin Watts</author>
   <review status="na" notes=""/>
@@ -37,4 +36,6 @@
   <export>
     <cpp cflags="-I${prefix}/msg/cpp" />
   </export>
+  <rosdep name="wxwidgets"/>
+  <rosdep name="wxpython"/>
 </package>
