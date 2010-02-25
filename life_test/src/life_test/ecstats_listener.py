@@ -70,6 +70,8 @@ class ECStatsListener:
         self._interval_sent = 0
         self._total_dropped = 0
         self._interval_dropped = 0
+        self._total_late = 0
+        self._interval_late = 0
         self._total_bandwidth = 0
         self._interval_bandwidth = 0
 
@@ -98,6 +100,8 @@ class ECStatsListener:
             self._interval_sent_packets = msg.interval_sent_packets
             self._total_dropped         = msg.total_dropped_packets
             self._interval_dropped      = msg.interval_dropped_packets
+            self._total_late            = msg.total_late_packets
+            self._interval_late         = msg.interval_late_packets
             self._total_bandwidth       = msg.total_bandwidth_mbps
             self._interval_bandwidth    = msg.interval_bandwidth_mbps
             
@@ -146,6 +150,9 @@ class ECStatsListener:
                 KeyValue(key='Time Since Last Reset',  value=str(rospy.get_time() - self._time_at_last_reset)),
                 KeyValue(key='Drops at Last Reset',    value=str(self._drop_count_at_reset)),
                 KeyValue(key='Max Device Count',       value=str(self._max_device_count)),
+                KeyValue(key='Interval Drops',         value=str(self._interval_dropped)),
+                KeyValue(key='Total Late Packets',     value=str(self._total_late)),
+                KeyValue(key='Interval Late Packets',  value=str(self._interval_late)),
                 KeyValue(key='Total Sent Packets',     value=str(self._total_sent)),
                 KeyValue(key='Interval Sent Packets',  value=str(self._interval_sent)),
                 KeyValue(key='Total Bandwidth',        value=str(self._total_bandwidth)),
