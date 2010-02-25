@@ -284,7 +284,7 @@ class TestManagerFrame(wx.Frame):
             rospy.wait_for_service('power_board/control', 5)
             resp = self._power_cmd(bay.board, bay.breaker, 'reset', 0)
             if resp.retval != 0:
-                rospy.logerr('Failed to reset board %s, breaker %d. Retval: %s' % (bay.board, bay.breaker, retval))
+                rospy.logerr('Failed to reset board %s, breaker %d. Retval: %s' % (bay.board, bay.breaker, resp.retval))
                 return False
 
             time.sleep(1)
