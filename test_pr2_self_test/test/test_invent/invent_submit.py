@@ -93,6 +93,8 @@ if __name__ == '__main__':
                       default=False, help="Don't submit to WG inventory system, default False")
     parser.add_option('-e', '--email', action="store_true", default=False, dest="email",
                       help='Email qualification team at Willow Garage, default False')
+    parser.add_option('-d', '--debug', action="store_true", default=False, dest='debug',
+                      help="Use debug inventory system on CMI")
     options, args = parser.parse_args()
 
     if not options.no_submit and (not options.username or not options.password):
@@ -107,7 +109,7 @@ if __name__ == '__main__':
     msg = []
 
     if not options.no_submit:
-        iv = Invent(options.username, options.password)
+        iv = Invent(options.username, options.password, options.debug)
         if not iv.login:
             parser.error("Invalid username and password for WG inverntory system.")
 

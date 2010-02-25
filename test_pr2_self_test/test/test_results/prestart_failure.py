@@ -40,7 +40,7 @@ import roslib; roslib.load_manifest(PKG)
 import rostest
 import unittest
 
-from test_pr2_self_test.qual_test_result import make_qual_test, make_qual_item
+from test_pr2_self_test.qual_test_result import make_qual_test, make_qual_item, check_write_to_file
 
 from qualification.srv import TestResultRequest, ScriptDoneRequest
 
@@ -60,6 +60,11 @@ class TestPrestartFailure(unittest.TestCase):
 
         self.results.add_prestartup_result(0, msg_ok)
         self.results.add_prestartup_result(1, msg_fail)
+
+    def test_write_to_file(self):
+        files_ok = check_write_to_file(self.results)
+
+        self.assert_(files_ok, "Bad files in results!")
 
     def test_prestart1_pass(self):
         prestart1 = self.results.get_prestarts()[0]

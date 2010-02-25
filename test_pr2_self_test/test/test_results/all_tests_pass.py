@@ -72,8 +72,13 @@ class TestAllPass(unittest.TestCase):
         self.results.add_shutdown_result(msg_ok)
 
 
+    def test_write_to_file(self):
+        files_ok = check_write_to_file(self.results)
 
-    def test_prestarts_pass(self):
+        self.assert_(files_ok, "Bad files in results!")
+
+
+    def test_prestarts_passed(self):
         for ps in self.results.get_prestarts():
             self.assert_(ps.get_pass_bool(), "Prestarts should have passed")
 
@@ -113,5 +118,15 @@ class TestAllPass(unittest.TestCase):
 
         
 if __name__ == '__main__':
-    rostest.unitrun(PKG, 'all_tests_pass', TestAllPass)
+    if False:
+        suite = unittest.TestSuite()
+        suite.addTest(TestAllPass('test_write_to_file'))
+        suite.addTest(TestAllPass('test_params_values_output'))
+        suite.addTest(TestAllPass('test_subtest_image_output'))
+        suite.addTest(TestAllPass('test_subtests_passed'))
+        suite.addTest(TestAllPass('test_prestarts_passed'))
+
+        unittest.TextTestRunner(verbosity = 2).run(suite)
+    else:
+        rostest.unitrun(PKG, 'all_tests_pass', TestAllPass)
 

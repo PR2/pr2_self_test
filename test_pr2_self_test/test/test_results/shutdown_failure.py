@@ -73,6 +73,10 @@ class TestShutdownFailure(unittest.TestCase):
         self.results.add_shutdown_result(msg_error)
 
 
+    def test_write_to_file(self):
+        files_ok = check_write_to_file(self.results)
+
+        self.assert_(files_ok, "Bad files in results!")
 
     def test_prestarts_pass(self):
         for ps in self.results.get_prestarts():

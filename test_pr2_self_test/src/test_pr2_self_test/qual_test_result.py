@@ -115,6 +115,39 @@ def make_subtest_data(result = TestResultRequest.RESULT_PASS, summary = 'Summary
 
     return r
     
+##\brief Returns true if main result page has all valid links to subtests, retrys
+def check_write_to_file(results):
+    results.write_results_to_file()
+
+    my_page = results.make_summary_page()
+
+    link_start_str = '<a href="'
+
+    num_links = 0
+
+    link_index = 0
+    while link_index < len(my_page):
+        # No more links in page
+        if my_page.find(link_start_str, link_index) == -1:
+            break
+
+        link_start = my_page.find(link_start_str, link_index) + len(link_start_str)
+        link_stop = my_page.find('">', link_start)
+        link_path = my_page[link_start:link_stop]
+        
+        if not os.path.exists(link_path):
+            print link_path
+            return False
+        else:
+            num_links += 1
+            
+        # Increment link index
+        link_index = link_stop
+
+    print 'Num links', num_links
+
+    # Check that we found all links
+    return num_links == (len(results.get_subresults()) + len(results.get_retrys()))
 
 ##\brief Returns true if subtest images properly stored and displayed
 def subresult_image_output(subresult):
