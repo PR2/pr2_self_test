@@ -16,7 +16,7 @@
     <param name="joint" type="str" value="r_gripper_joint" />
   </group>
   <node pkg="pr2_controller_manager" type="spawner"
-        args="r_gripper_effort_controller" name="grip_spawn"
+        args="--wait-for=calibrated r_gripper_effort_controller" name="grip_spawn"
         output="screen" />
 
   <!-- Commander -->
