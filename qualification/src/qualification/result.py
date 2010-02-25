@@ -411,7 +411,7 @@ em { font-style:normal; font-weight: bold; }\
     def make_index_line(self, link, link_dir):
         result = self._result.get_html_msg()
 
-        path = link_dir + self.filename()
+        path = os.path.join(link_dir, self.filename())
         if link:
             hyperlink = '<a href=\"%s\">%s</a>' % (path, self._subtest.get_name())
         else:
