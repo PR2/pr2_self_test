@@ -1,8 +1,6 @@
 <package>
-  <description brief="ectools">
-
-     ectools
-
+  <description brief="Uses EtherCAT Master Library for various tools">
+    <b>ectools</b> uses the EtherCAT Master Library to make various tools for the testing of PR2 electrical components.
   </description>
   <author>Derek King</author>
   <license>BSD</license>
