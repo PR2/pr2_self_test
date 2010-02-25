@@ -11,7 +11,7 @@
     <param name="tolerance" type="double" value="0.3" />
     <param name="sd_max" type="double" value="0.08" />
     
-    <group ns="velocity_controller" clear_params="true">
+    <group ns="velocity_controller" >
       <param name="type" type="string" value="JointVelocityController" />
       <param name="joint" type="string" value="shoulder_lift_motor_joint" />
       <param name="pid/p" type="double" value="0.004" />
