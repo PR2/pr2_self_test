@@ -12,7 +12,7 @@
     <param name="timeout" type="double" value="30" />
     <param name="slope" type="double" value="0.11" />
     
-    <group ns="velocity_controller" clear_params="true">
+    <group ns="velocity_controller" >
       <param name="type" type="string" value="JointVelocityController" />
       <param name="joint" type="string" value="head_pan_joint" />
       <param name="pid/p" type="double" value="0.5" />

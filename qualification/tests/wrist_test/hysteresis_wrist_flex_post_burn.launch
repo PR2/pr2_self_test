@@ -1,7 +1,7 @@
 <launch> 
   <include file="$(find qualification)/tests/wrist_test/hysteresis_wrist_flex.launch" />
 
-  <group ns="test_controller" clear_params="true">
+  <group ns="test_controller" >
     <param name="max_effort" type="double" value="0.75" />
     <param name="max_expected" type="double" value="0.45" />
     <param name="min_expected" type="double" value="-0.45" />
