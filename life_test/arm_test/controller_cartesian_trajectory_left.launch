@@ -1,0 +1,35 @@
+<launch>
+  
+  <!-- Cartesian pose controller -->
+  <group ns="r_arm_cartesian_pose_controller" clear_params="true">
+    <param name="type" type="string" value="CartesianPoseController" />
+    <param name="root_name" type="string" value="torso_lift_link" />
+    <param name="tip_name" type="string" value="l_gripper_tool_frame" />
+
+    <param name="fb_trans/p" value="400.0" />
+    <param name="fb_trans/i" value="0.1" />
+    <param name="fb_trans/d" value="20.0" />
+    <param name="fb_trans/i_clamp" value="0.5" />
+
+    <param name="fb_rot/p" value="10.0" />
+    <param name="fb_rot/i" value="0.02" />
+    <param name="fb_rot/d" value="0.5" />
+    <param name="fb_rot/i_clamp" value="0.2" />
+  </group>
+
+<!-- Cartesian trajectory controller -->
+  <group ns="r_arm_cartesian_trajectory_controller" clear_params="true">
+    <param name="type" type="string" value="CartesianTrajectoryController" />
+    <param name="root_name" type="string" value="torso_lift_link" />
+    <param name="tip_name" type="string" value="l_gripper_tool_frame" />
+    <param name="output" type="string" value="l_arm_cartesian_pose_controller" />
+    <param name="max_vel_trans" value="0.5" />
+    <param name="max_vel_rot" value="0.5" />
+    <param name="max_acc_trans" value="0.8" />
+    <param name="max_acc_rot" value="1.0" />
+  </group>
+
+  <node pkg="pr2_controller_manager" type="spawner"
+        args="--wait-for=calibrated l_arm_cartesian_pose_controller l_arm_cartesian_trajectory_controller"
+        name="trajector_controller_spawner" />
+</launch>

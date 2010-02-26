@@ -33,13 +33,12 @@ import random, time
 import rospy
 from geometry_msgs.msg import PoseStamped
 
-#pub = rospy.Publisher('l_arm_cartesian_pose_controller/command', PoseStamped)
-pub = rospy.Publisher('/l_arm_cartesian_trajectory_controller/command', PoseStamped)
+pub = rospy.Publisher('l_arm_cartesian_trajectory_controller/command', PoseStamped)
 
 
 def p(x, y, z, rx, ry, rz, w):
   m = PoseStamped()
-  m.header.frame_id = '/base_link'
+  m.header.frame_id = 'torso_lift_link'
   m.header.stamp = rospy.get_rostime()
   m.pose.position.x = x
   m.pose.position.y = y
@@ -49,7 +48,8 @@ def p(x, y, z, rx, ry, rz, w):
   m.pose.orientation.z = rz
   m.pose.orientation.w = w
   pub.publish(m)
-rospy.init_node('pub', anonymous=True)
+
+rospy.init_node('random_poses_left')
 
 POINTS = [
   (0.5, 0.5, 0.8, 0.5, 0.0, 0.0, 0.5),
@@ -62,4 +62,6 @@ POINTS = [
 
 while not rospy.is_shutdown():
   time.sleep(random.uniform(0.1, 0.1))
-  p(*POINTS[random.randint(0, len(POINTS)-1)])
+  index = random.randint(0, len(POINTS)-1)
+  p(*POINTS[index])
+  rospy.loginfo('Sending to: %s' % str(POINTS[index])

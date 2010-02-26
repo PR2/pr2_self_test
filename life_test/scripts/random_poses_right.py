@@ -68,5 +68,7 @@ POINTS = [
 
 while not rospy.is_shutdown():
   time.sleep(random.uniform(0.5, 0.5))
-  p(*POINTS[random.randint(0, len(POINTS)-1)])
+  index = random.randint(0, len(POINTS)-1)
+  p(*POINTS[index])
+  rospy.loginfo('Sending to: %s' % str(POINTS[index])
 

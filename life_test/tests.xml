@@ -107,10 +107,20 @@
 	   val="1.0" rate="true" />
   </test>
 
-  <test serial="6804204" name="Full Arm Test"
+  <test serial="6804204" name="Right Arm Test"
 	short="Arm" trac="400"
 	desc="Tests fully assembled arm"
-	rate="1.0" script="arm_test/test_gui.launch"
+	rate="1.0" script="arm_test/test_right_arm.launch"
+	type="Burn-in Test" power="true" >
+    <param name="Cycle Rate" param_name="cycle_rate"
+	   desc="Rate"
+	   val="1.0" rate="true" />
+  </test>
+
+  <test serial="6804204" name="Left Arm Test"
+	short="Arm" trac="400"
+	desc="Tests fully assembled arm"
+	rate="1.0" script="arm_test/test_left_arm.launch"
 	type="Burn-in Test" power="true" >
     <param name="Cycle Rate" param_name="cycle_rate"
 	   desc="Rate"

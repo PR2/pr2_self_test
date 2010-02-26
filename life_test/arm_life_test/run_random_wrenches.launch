@@ -1,9 +1,0 @@
-<launch>
-
-<!-- Arm wrench controller -->
-  <node pkg="pr2_controller_manager" type="spawner" args="$(find arm_life_test)/cartesian_wrench.xml" />
-
-<!-- Test script -->
-  <node pkg="arm_life_test" name="random_wrenches" type="random_wrenches.py" args="30 30" />
-
-</launch>

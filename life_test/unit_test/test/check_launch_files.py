@@ -49,9 +49,7 @@ class LifeTestLaunchParser(unittest.TestCase):
 
     ##\brief All .launch files must pass roslaunch_parse_tester
     def test_launch_file_parse(self):
-        black_dirs = ['arm_life_test']
-        
-        launch_file_parser = ROSLaunchPackageParser(PKG, black_dirs = black_dirs, 
+        launch_file_parser = ROSLaunchPackageParser(PKG, config_err_check = True,
                                                     node_check = True)
         
         launch_ok = launch_file_parser.check_package()
