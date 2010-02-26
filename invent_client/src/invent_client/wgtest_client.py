@@ -13,13 +13,17 @@ import neo_cgi, neo_util
 import yaml
 import types
 
+import simple_hdfhelp as hdfhelp
+
 def obj2hdf(prefix, obj, hdf=None):
   return py2hdf(prefix, obj.__dict__)
 
 def py2hdf(k, v, hdf=None):
   if not hdf: hdf = neo_util.HDF()
-  if k[-1] == ".":
-    k[-1] = ''
+
+  k.replace('.', '')
+  #if k[-1] == ".":
+  #  k[-1] = ''
 
   if type(v) == str:
     hdf.setValue(k, v)
@@ -75,86 +79,133 @@ class TestData:
     self.note = note
 
   def submit(self, client):
+    if not client.login():
+      return False
+
     url = client.site + 'wgtest/api.py?Action.Add_TestData=1'
 
     hdf = obj2hdf("test", self)
-    data = hdf.writeString()
+    test_data = hdf.writeString() 
 
-    values = {'data': data}
+    values = {'data': test_data}
     data = urllib.urlencode(values)
 
     body = client.opener.open(url, data).read()
 
-    ohdf = neo_util.HDF()
-    ohdf.readString(body)
+    try:    
+      ohdf = neo_util.HDF()
+      ohdf.readString(body)
     
-    runid = ohdf.getValue("runid", "")
-    status = ohdf.getValue("status", "")
+      runid = ohdf.getValue("runid", "")
+      status = ohdf.getValue("status", "")
+    except:
+      print body
 
-    if self.attachment:
+      return False
+
+    if self.attachment and False:
       attachment = open(self.attachment['filename'], "rb").read()
       client.add_attachment(self.reference, 
                             self.attachment['filename'],
                             self.attachment['content_type'],
                             attachment)
 
-    return True
+    #print body
 
+    return status == '1'
 
-def test(client):
-  import random
+# debug only
+def get_test_runs(key, client):
+  if not client.login():
+    return {}
 
-#  for k in range(10000):
-  #for k in range(1):
-  if 1:
-    td = TestData("caster/qual/right/hyst", time.time(), "680410801000")
-    td.set_parameter('gain 1', 4.2)
-    td.set_parameter('gain 2', 8.9)
-##    for j in range(random.randint(1,5)):
-    if 1:
-      j = 1
-      td.set_measurement('hystersis %d' % j, random.uniform(1,10), 2., 8.)
+  key = key.strip()
 
-    td.set_attachment("text/html", "test.html")
-
-    td.submit(client)
-
+  url = client.site + 'wgtest/api.py?Action.Get_TestRuns=1&key=%s' % (key,)
   
+  body = client.opener.open(url).read()
 
-def usage(progname):
-  print __doc__ % vars()
+  #print body
+  
+  hdf = neo_util.HDF()
+  hdf.readString(body)
+  
+  rv = {}
+  for k, o in hdfhelp.hdf_ko_iterator(hdf.getObj("CGI.cur.test")):
+    rv[o.getValue("runid", "")] = o.getValue("testid", "")
 
-def main(argv, stdout, environ):
-  progname = argv[0]
-  optlist, args = getopt.getopt(argv[1:], "", ["help", "test", "debug", "username=", "password="])
-
-  username = os.environ['USER']
-  password = None
-  testflag = 0
-
-  for (field, val) in optlist:
-    if field == "--help":
-      usage(progname)
-      return
-    elif field == "--debug":
-      debugfull()
-    elif field == "--test":
-      testflag = 1
-    elif field == "--username":
-      username = val
-    elif field == "--password":
-      password = val
-
-  if testflag:
-    test()
-    return
-
-  client = invent_client.Invent(username, password)
-  if client.login() == False:
-    print "cannot login"
-    return
-  test(client)
+  return rv
 
 
-if __name__ == "__main__":
-  main(sys.argv, sys.stdout, os.environ)
+
+# debug only
+def get_run_data(runid, client):
+  if not client.login():
+    return None
+
+  runid = runid.strip()
+
+  url = client.site + 'wgtest/api.py?Action.Get_RunData=1&runid=%s' % (runid,)
+  
+  body = client.opener.open(url).read()
+
+  #print body
+  
+  ohdf = neo_util.HDF()
+  ohdf.readString(body)
+
+  testid = ohdf.getValue("testid", "")
+  reference = ohdf.getValue("reference", "")
+  timestamp = ohdf.getValue("timestamp", "")
+
+  rv = []
+  for k, o in hdfhelp.hdf_ko_iterator(ohdf.getObj("values")):
+    rv.append((o.getValue("key", ""), o.getValue("value", ""), o.getValue("min", ""), o.getValue("max", "")))
+
+  return rv
+
+
+#debug only
+def get_test_data(testid, value, client):
+  if not client.login():
+    return None
+
+  testid = testid.strip()
+
+  value = value.strip().replace(' ', '_')
+
+  url = client.site + 'wgtest/api.py?Action.Get_TestData=1&testid=%s&value=%s' % (testid, value)
+  
+  body = client.opener.open(url).read()
+
+  #print body
+  
+  ohdf = neo_util.HDF()
+  ohdf.readString(body)
+  
+  if ohdf.getValue("key", "Invalid") == "Invalid":
+    return []
+
+  rv = []
+  for k, o in hdfhelp.hdf_ko_iterator(ohdf.getObj("values")):
+    rv.append((o.getValue("runid", ""), o.getValue("timestamp", ""), o.getValue("value", ""), o.getValue("min", ""), o.getValue("max", "")))
+
+  return rv
+
+# debug only
+def get_tests_by_name(test_name, client):
+  if not client.login():
+    return None
+
+  test_name = test_name.strip()
+
+  value = value.strip().replace(' ', '_')
+
+  url = client.site + 'wgtest/api.py?Action.Get_TestsByName=1&test_name=%s&value=%s' % (testid, value)
+  
+  body = client.opener.open(url).read()
+
+  #print body
+  
+  ohdf = neo_util.HDF()
+  ohdf.readString(body)

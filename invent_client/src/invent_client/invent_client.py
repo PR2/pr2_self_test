@@ -119,12 +119,14 @@ class Invent:
     body = fp.read()
     fp.close()
 
+    print body
+
     hdf = neo_util.HDF()
     hdf.readString(body)
 
     ret = {}
     for k,o in hdfhelp.hdf_ko_iterator(hdf.getObj("CGI.cur.attachments")):
-      ret[o.getValue("name", "")] = o.getValue("aid", "")
+      ret[o.getValue("aid", "")] = o.getValue("name", "")
     
     return ret
     
