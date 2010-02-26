@@ -2,6 +2,9 @@
   <!-- Gazebo and robot -->
   <include file="$(find test_pr2_self_test_gazebo)/gazebo_util/shoulder_dummy_ua_gazebo.launch" />
 
+  <node pkg="rostopic" type="rostopic" name="fake_motors"
+        args="pub pr2_etherCAT/motors_halted std_msgs/Bool false" />
+  
   <!-- Used for shoulder production test --> 
   <include file="$(find qualification)/tests/shoulder_test/counterbalance_dummy_ua.launch" />
   <!-- Expanding bounds for errors, for gazebo -->

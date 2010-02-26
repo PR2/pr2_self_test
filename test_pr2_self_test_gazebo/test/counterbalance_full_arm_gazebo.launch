@@ -5,6 +5,9 @@
   <!-- Used for full arm production test --> 
   <include file="$(find qualification)/tests/full_arm_test/counterbalance_test.launch" />
 
+  <node pkg="rostopic" type="rostopic" name="fake_motors"
+        args="pub pr2_etherCAT/motors_halted std_msgs/Bool false" />
+  
   <!-- Expanding bounds for errors, for gazebo -->
   <group ns="test_controller" >
     <group ns="lift">

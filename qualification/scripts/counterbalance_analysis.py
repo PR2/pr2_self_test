@@ -49,6 +49,8 @@ from StringIO import StringIO
 from qualification.msg import Plot, TestValue, TestParam
 from qualification.srv import *
 
+from std_msgs.msg import Bool
+
 from joint_qualification_controllers.msg import CounterbalanceTestData
 
 ok_dict = { False: 'FAIL', True: 'OK' }
@@ -354,7 +356,10 @@ class CounterbalanceAnalysis:
 
         self._hold_data_srvs = []
 
+        self._motors_halted = True
+
         rospy.init_node('cb_analysis')
+        self.motors_topic = rospy.Subscriber('pr2_etherCAT/motors_halted', Bool, self.motors_cb)
         self.data_topic = rospy.Subscriber('cb_test_data', CounterbalanceTestData, self.data_callback)
         self._result_service = rospy.ServiceProxy('test_result', TestResult)
 
@@ -381,6 +386,9 @@ class CounterbalanceAnalysis:
         r.text_summary = 'Caught exception, automated test failure.'
         r.result = TestResultRequest.RESULT_FAIL
         self.send_results(r)
+
+    def motors_cb(self, msg):
+        self._motors_halted = msg.data
 
     def data_callback(self, msg):
         self.process_results(msg)
@@ -439,6 +447,11 @@ class CounterbalanceAnalysis:
                 r.plots.append(lift_effort_contour)
             r.params = params.get_test_params()
             r.values = lift_effort_result.values
+
+            if self._motors_halted:
+                r.text_summary = 'Fail, motors halted. Check estop and power board.'
+                r.html_result = '<H4>Motors Halted</H4>\n<p>Unable to analyze CB. Check estop and power board.</p>\n' + r.html_result
+                r.result = TestResultRequest.RESULT_FAIL
 
             self.send_results(r)
         except Exception, e:
