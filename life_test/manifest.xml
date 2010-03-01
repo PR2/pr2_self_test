@@ -33,6 +33,7 @@
   <depend package="roslaunch_parse_tester" />
   <depend package="joint_qualification_controllers" />
   <depend package="ectools" />
+  <depend package="experimental_controllers" />
   <export>
     <cpp cflags="-I${prefix}/msg/cpp" />
   </export>

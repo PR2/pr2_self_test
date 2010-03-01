@@ -58,7 +58,7 @@ trans:
     joint: l_gripper_joint
     actuator: l_gripper_motor
     max: 0.09
-    min: -0.001
+    min: -0.002
 camera:
   type: CameraListener
   file: camera_listener

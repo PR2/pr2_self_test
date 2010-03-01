@@ -52,16 +52,16 @@ def p(x, y, z, rx, ry, rz, w):
 rospy.init_node('random_poses_left')
 
 POINTS = [
-  (0.5, 0.5, 0.8, 0.5, 0.0, 0.0, 0.5),
+  (0.5, 0.5, 0.2, 0.5, 0.0, 0.0, 0.5),
   (0.6, 0.2, 0.4, 0.0, 0.0, 0.5, 0.5),
   (0.2, 0.8, 0.4, 0.0, 0.5, 0.0, 0.5),
-  (0.5, 0.5, 1.2, 0.5, 0.0, 0.0, 0.5),
-  (0.6, 0.2, 1.2, 0.0, 0.0, 0.5, 0.5),
-  (0.2, 0.8, 1.2, 0.0, 0.5, 0.0, 0.5),
+  (0.5, 0.5, -0.4, 0.5, 0.0, 0.0, 0.5),
+  (0.6, 0.2, -0.2, 0.0, 0.0, 0.5, 0.5),
+  (0.2, 0.8, 0.6, 0.0, 0.5, 0.0, 0.5),
 ]
 
 while not rospy.is_shutdown():
-  time.sleep(random.uniform(0.1, 0.1))
+  time.sleep(random.uniform(0.5, 2.5))
   index = random.randint(0, len(POINTS)-1)
   p(*POINTS[index])
-  rospy.loginfo('Sending to: %s' % str(POINTS[index])
+  rospy.loginfo('Sending to: %s' % str(POINTS[index]))

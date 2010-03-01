@@ -59,6 +59,8 @@ def main():
 
     eff = 100
 
+    grip_name = 'r_gripper_joint' if controller_name.startswith('r') else 'l_gripper_joint'
+
     turn_count = 0
     last_state = LastMessage('joint_states', JointState)
     try:
@@ -70,11 +72,11 @@ def main():
             jnt_states = last_state.last()
             grip_idx = -1
             for index, name in enumerate(jnt_states.name):
-                if name == 'r_gripper_joint':
+                if name == grip_name:
                     grip_idx = index
                     break
             if grip_idx < 0:
-                rospy.logwarn("The joint %s was not found in the joints states" % 'r_gripper_joint')
+                rospy.logwarn("The joint %s was not found in the joints states" % grip_name))
 
             if abs(jnt_states.velocity[grip_idx]) < 0.0005:
                 turn_count += 1
