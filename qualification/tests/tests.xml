@@ -49,11 +49,11 @@
   <test serial="6802816" 
 	file="shoulder_test/test_ua_roll.xml" descrip="Upperarm Roll Drivetrain Test" />
   <test serial="6802818" 
-	file="shoulder_test/test_motor.xml" descrip="Shoulder Lift Motor Test" />
+	file="shoulder_test/test_motor.xml" descrip="Shoulder Motor Test" />
   <test serial="6802816" 
-	file="shoulder_test/test_motor.xml" descrip="Upper Arm Roll Motor Test" />
+	file="shoulder_test/test_motor.xml" descrip="Shoulder Motor Test" />
   <test serial="6802817" 
-	file="shoulder_test/test_motor.xml" descrip="Shoulder Pan Motor Test" />
+	file="shoulder_test/test_motor.xml" descrip="Shoulder Motor Test" />
 
   
   <!-- Upperarm tests -->
