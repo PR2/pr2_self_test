@@ -583,6 +583,9 @@ class QualTestResult:
         return True
 
     def is_prestart_error(self):
+        if len(self.get_prestarts()) == 0:
+            return False
+
         return self.get_prestarts()[-1].has_error()
 
     def get_pass_bool(self):
