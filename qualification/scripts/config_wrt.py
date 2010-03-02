@@ -54,17 +54,6 @@ from threading import Thread
 
 import time
 
-class DlgThread(Thread):
-    def __init__(self):
-        Thread.__init__(self)
-        self.app = wx.PySimpleApp()
-        self.frame = wx.Frame(None, -1, "Frame")
-        self.frame.Show(0)
-
-    def run(self):
-        wx.MessageBox("Hard reset the wrt610n by holding in the reset button while unplugging and repluggnig the power.", "Hard Reset", wx.OK)
-        self.app.MainLoop()
-
 if __name__ == "__main__":
     rospy.init_node(NAME)
     

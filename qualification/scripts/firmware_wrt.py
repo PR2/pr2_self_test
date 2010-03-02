@@ -76,13 +76,13 @@ if __name__ == "__main__":
 
     r.html_result =  "<p>Checking firmware version...</p>\n"
 
-    wrt610n_version_cmd = ['wrt610n','-v','-i',ip]
+    wrt610n_version_cmd = ['wrt610n','version','-i',ip]
     wrt610n_version = subprocess.Popen(wrt610n_version_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (o,e) = wrt610n_version.communicate()
     if wrt610n_version.returncode != 0:
         r.html_result = "<p>Invocation of %s failed with: %s</p>\n<p>Trying 10.68.0.5...</p>\n"%(wrt610n_version_cmd,e)
         ip = '10.68.0.5'
-        wrt610n_version_cmd = ['wrt610n','-v','-i',ip]
+        wrt610n_version_cmd = ['wrt610n','version','-i',ip]
         wrt610n_version = subprocess.Popen(wrt610n_version_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (o,e) = wrt610n_version.communicate()
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
         r.html_result =  r.html_result + "<pre>%s</pre>"%o
     else:
         r.html_result =  r.html_result + "<p>Upgrading firmware...</p>\n"
-        wrt610n_firmware_cmd = ['wrt610n','--force','-i',ip,'-w','-f','/usr/lib/wrt610n/dd-wrt.v24-13000_big-wrt610n.bin']
+        wrt610n_firmware_cmd = ['wrt610n','--force','-i',ip,'-w','firmware','/usr/lib/wrt610n/dd-wrt.v24-13000_big-wrt610n.bin']
         wrt610n_firmware = subprocess.Popen(wrt610n_firmware_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (o,e) = wrt610n_firmware.communicate()
         if wrt610n_firmware.returncode != 0:
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         dlgthread = DlgThread()
         dlgthread.start()
 
-        wrt610n_version_cmd = ['wrt610n','-w','-v','-i',ip]
+        wrt610n_version_cmd = ['wrt610n','-w','version','-i',ip]
         wrt610n_version = subprocess.Popen(wrt610n_version_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (o,e) = wrt610n_version.communicate()
         if wrt610n_version.returncode != 0:
