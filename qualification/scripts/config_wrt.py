@@ -61,7 +61,7 @@ if __name__ == "__main__":
     r.plots = []
     r.result = TestResultRequest.RESULT_PASS
 
-    wrt610n_config_cmd = ['wrt610n','-w','-l','/usr/lib/wrt610n/willow_default.bin']
+    wrt610n_config_cmd = ['wrt610n','-w','config' '--essid=willow','--newip=10.68.0.5','--newpasswd=willow']
     wrt610n_config = subprocess.Popen(wrt610n_config_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (o,e) = wrt610n_config.communicate()
     if wrt610n_config.returncode != 0:
