@@ -76,7 +76,7 @@ def main():
                     grip_idx = index
                     break
             if grip_idx < 0:
-                rospy.logwarn("The joint %s was not found in the joints states" % grip_name))
+                rospy.logwarn("The joint %s was not found in the joints states" % grip_name)
 
             if abs(jnt_states.velocity[grip_idx]) < 0.0005:
                 turn_count += 1
