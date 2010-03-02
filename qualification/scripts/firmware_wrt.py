@@ -60,7 +60,7 @@ class DlgThread(Thread):
         self.app = wx.PySimpleApp()
         self.frame = wx.Frame(None, -1, "Frame")
         self.frame.Show(0)
-        wx.MessageBox("Hard reset the wrt610n by holding in the reset button while unplugging and repluggnig the power.", "Hard Reset", wx.OK)
+        wx.MessageBox("Hard reset the wrt610n by unplugging, holding in the reset button, plugging in, and waiting for the purple light.", "Hard Reset", wx.OK)
 
     def run(self):
         self.app.MainLoop()
