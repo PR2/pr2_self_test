@@ -61,11 +61,11 @@ if __name__ == "__main__":
     r.plots = []
     r.result = TestResultRequest.RESULT_PASS
 
-    wrt610n_config_cmd = ['wrt610n','-w','config' '--essid=willow','--newip=10.68.0.5','--newpasswd=willow']
+    wrt610n_config_cmd = ['wrt610n','-w','config', '--essid=willow','--newip=10.68.0.5','--newpasswd=willow']
     wrt610n_config = subprocess.Popen(wrt610n_config_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (o,e) = wrt610n_config.communicate()
     if wrt610n_config.returncode != 0:
-        r.html_result = r.html_result + "<p>Invocation of %s failed with: %s</p>\n"%(wrt610n_version_cmd,e)
+        r.html_result = r.html_result + "<p>Invocation of %s failed with: %s</p>\n"%(wrt610n_config_cmd,e)
         r.text_summary = "Utility failed"
         r.result = TestResultRequest.RESULT_FAIL
     elif "Router has resumed successfully on: 10.68.0.5 with firmare: 'DD-WRT v24-sp2 (09/30/09) big - build 13000M NEWD-2 Eko'" not in o:
