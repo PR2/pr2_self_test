@@ -50,7 +50,7 @@ from datetime import datetime
 
 import os
 
-class TestAllPass(unittest.TestCase):
+class TestAllPassNoPrestarts(unittest.TestCase):
     def setUp(self):
         self.qual_item = make_qual_item()
         self.qual_test = make_qual_test()
@@ -58,12 +58,7 @@ class TestAllPass(unittest.TestCase):
         self.results = QualTestResult(self.qual_item, self.qual_test, datetime.now())
 
         msg_ok = ScriptDoneRequest(result = ScriptDoneRequest.RESULT_OK)
-        
-        self.results.add_prestartup_result(0, msg_ok)
-        self.results.add_prestartup_result(1, msg_ok)
-        self.results.add_prestartup_result(2, msg_ok)
-        self.results.add_prestartup_result(3, msg_ok)
-        
+                
         self.results.add_sub_result(0, make_subtest_data(result = TestResultRequest.RESULT_PASS))
         self.results.add_sub_result(1, make_subtest_data(result = TestResultRequest.RESULT_PASS))
         self.results.add_sub_result(2, make_subtest_data(result = TestResultRequest.RESULT_PASS))
@@ -79,8 +74,7 @@ class TestAllPass(unittest.TestCase):
 
 
     def test_prestarts_passed(self):
-        for ps in self.results.get_prestarts():
-            self.assert_(ps.get_pass_bool(), "Prestarts should have passed")
+        self.assert_(len(self.results.get_prestarts()) == 0, "Should have no prestarts in test.")
 
 
     def test_subtests_passed(self):
@@ -120,14 +114,14 @@ class TestAllPass(unittest.TestCase):
 if __name__ == '__main__':
     if False:
         suite = unittest.TestSuite()
-        suite.addTest(TestAllPass('test_write_to_file'))
-        suite.addTest(TestAllPass('test_params_values_output'))
-        suite.addTest(TestAllPass('test_subtest_image_output'))
-        suite.addTest(TestAllPass('test_subtests_passed'))
-        suite.addTest(TestAllPass('test_prestarts_passed'))
-        suite.addTest(TestAllPass('test_email_msg'))
+        suite.addTest(TestAllPassNoPrestarts('test_write_to_file'))
+        suite.addTest(TestAllPassNoPrestarts('test_params_values_output'))
+        suite.addTest(TestAllPassNoPrestarts('test_subtest_image_output'))
+        suite.addTest(TestAllPassNoPrestarts('test_subtests_passed'))
+        suite.addTest(TestAllPassNoPrestarts('test_prestarts_passed'))
+        suite.addTest(TestAllPassNoPrestarts('test_email_msg'))
 
         unittest.TextTestRunner(verbosity = 2).run(suite)
     else:
-        rostest.unitrun(PKG, 'all_tests_pass', TestAllPass)
+        rostest.unitrun(PKG, 'all_tests_pass', TestAllPassNoPrestarts)
 
