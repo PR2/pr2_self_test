@@ -8,4 +8,4 @@ trans:
     joint: r_gripper_joint
     actuator: r_gripper_motor
     max: 0.09
-    min: -0.001
+    min: -0.002
