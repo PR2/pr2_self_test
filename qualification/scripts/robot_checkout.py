@@ -43,6 +43,7 @@ from qualification.msg import Plot
 from qualification.srv import *
 
 from joint_qualification_controllers.msg import RobotData
+from std_msgs.msg import Bool
 
 import traceback
 
@@ -82,6 +83,9 @@ class RobotCheckout:
     def __init__(self):
         rospy.init_node('robot_checkout')
         
+        self._motors_halted = True
+        self.motors_topic = rospy.Subscriber("pr2_etherCAT/motors_halted", Bool, self.on_motor_cb)
+
         self._calibrated = False
         self._joints_ok = False
         
@@ -119,6 +123,9 @@ class RobotCheckout:
 
         self.diagnostics = rospy.Subscriber('diagnostics', DiagnosticArray, self.on_diagnostic_msg)
         self.visual_srv = rospy.Service('visual_check', ScriptDone, self.on_visual_check)
+        
+    def on_motor_cb(self, msg):
+        self._motors_halted = msg.data
         
     def send_failure_call(self, caller = 'No caller', except_str = ''):
         if self.has_sent_result:
@@ -272,7 +279,12 @@ class RobotCheckout:
                 html += '<p><b>Timeout in robot checkout controller! Check Time: %2f</b></p>\n' % self._check_time
             else:
                 html += '<p>Time to complete check: %.3fs.</p>\n' % self._check_time
+
             summary += 'Data: ' + self._visual_sum + self._joint_sum + self._act_sum + diag_sum
+
+            if self._motors_halted:
+                html += "<p>Motors halted, robot is not working.</p>\n"
+                summary = "Motors halted. " + summary
 
             html += self._visual_html + '<hr size="2">\n'
             html += self._joint_html + '<hr size="2">\n'
@@ -282,9 +294,9 @@ class RobotCheckout:
             r = TestResultRequest()
             r.html_result = html
             r.text_summary = summary
-            r.plots = []
             
-            if self._is_ok and self._visual_ok and self._joints_ok and self._acts_ok and not self._timeout:
+            if self._is_ok and self._visual_ok and self._joints_ok and \
+                    self._acts_ok and not self._timeout and not self._motors_halted:
                 r.result = r.RESULT_PASS
             else:
                 r.result = r.RESULT_FAIL
