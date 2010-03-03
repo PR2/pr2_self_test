@@ -4,9 +4,6 @@
 
   <!-- Used for full arm production test --> 
   <include file="$(find qualification)/tests/full_arm_test/counterbalance_test.launch" />
-
-  <node pkg="rostopic" type="rostopic" name="fake_motors"
-        args="pub pr2_etherCAT/motors_halted std_msgs/Bool false" />
   
   <!-- Expanding bounds for errors, for gazebo -->
   <group ns="test_controller" >
@@ -26,5 +23,4 @@
    <test test-name="counterbalance_full_arm" time-limit="180" 
          pkg="test_pr2_self_test_gazebo" name="test_counterbalance_full_arm"
          type="check_pr2_self_test.py" />
-   
 </launch>

@@ -2,9 +2,6 @@
   <!-- Gazebo and robot -->
   <include file="$(find test_pr2_self_test_gazebo)/gazebo_util/caster_gazebo.launch" />
 
-  <!-- Set which wheel we're looking at -->
-  <include file="$(find qualification)/tests/caster_test/fl_caster_right.launch" />
-  
   <include file="$(find qualification)/tests/caster_test/hysteresis_caster_turret.launch" />
 
   <!-- Test: asserts we have checkout service and that we passed or human'd -->
