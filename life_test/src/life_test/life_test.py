@@ -649,7 +649,7 @@ class TestMonitorPanel(wx.Panel):
         launch += '<include file="$(find life_test)/%s" />' % script
 
         # Rosrecord launches and records local diagnostics
-        launch += ' <node machine="localhost" pkg="rosrecord" type="rosrecord" args="-f /hwlog/%s_life_test /diagnostics -S 2000" name="test_logger" />' % self._serial
+        launch += ' <node machine="localhost" pkg="rosrecord" type="rosrecord" args="-f /hwlog/%s_life_test /diagnostics -S 1000" name="test_logger" />' % self._serial
         
         launch += '</group>\n</launch>'
 
