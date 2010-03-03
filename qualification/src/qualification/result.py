@@ -952,7 +952,7 @@ em { font-style: normal; font-weight: bold; }\
             self.log('Caught exception uploading tar file. %s' % traceback.format_exc())
             return False, 'Caught exception loading tar file to inventory. %s' % str(e)
          
-        
+        test_data_ok = True
         try:
             for st in (self.get_retrys() + self.get_subresults()):
                 ##\todo change to start time
@@ -971,13 +971,19 @@ em { font-style: normal; font-weight: bold; }\
                     # Can't add attachment to temp files, gums up inventory
                     # Need to make sure this is added to table
                     #td.set_attachment('application/tar', st_tarfile.name)
-                    td.submit(invent)
+                    if not td.submit(invent):
+                        test_data_ok = False
+
                 except:
                     import traceback
+                    traceback.print_exc()
                     self.log(traceback.format_exc())
                 finally:
                     if st_tarfile:
                         st_tarfile.close() # Delete temp tarfile
+                
+            if not test_data_ok:
+                return False, 'Unable to record TestData to inventory system!'
 
             return True, 'Wrote tar file, uploaded to inventory system.'
         except:
