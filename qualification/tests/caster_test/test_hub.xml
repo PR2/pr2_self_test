@@ -5,7 +5,7 @@
   <pre_startup name="Configure MCB" timeout="90"
                >fl_caster_hub_conf.launch</pre_startup>
   <startup>caster_hub.launch</startup>
-  <subtest name="Turret-Only Hysteresis" timeout="60" pre="fl_caster_right.launch"
+  <subtest name="Turret-Only Hysteresis" timeout="60" 
            >hysteresis_caster_turret_hub.launch</subtest>
   <shutdown name="Power Board Disable" timeout="30"
             >../../scripts/power_board_disable.launch</shutdown>

@@ -13,7 +13,7 @@
 
     <group ns="velocity_controller" >
       <param name="type" type="string" value="JointVelocityController" />
-      <param name="joint" type="string" value="none" />
+      <param name="joint" type="string" value="fl_caster_rotation_joint" />
       <param name="pid/p" type="double" value="2.0" />
       <param name="pid/i" type="double" value="5.0" />
       <param name="pid/d" type="double" value="0.0" />
@@ -21,9 +21,8 @@
     </group>
   </group>
 
-  <node pkg="qualification" type="caster_test_spawner.py"
-        name="caster_spawner" output="screen"
-        args="test_controller test_controller/velocity_controller/joint SIDE_caster_rotation_joint" />
+  <node pkg="pr2_controller_manager" type="spawner"
+        name="hyst_spawner" args="test_controller" />
 
   <node pkg="qualification" type="hysteresis_sinesweep_plot.py"
         name="hyst_analysis" />
