@@ -76,3 +76,5 @@ if __name__ == "__main__":
     rospy.wait_for_service('prestartup_done')
     result_service = rospy.ServiceProxy('prestartup_done', ScriptDone)
     result_service.call(r)
+    
+    rospy.spin()

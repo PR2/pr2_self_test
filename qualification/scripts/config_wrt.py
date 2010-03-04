@@ -82,3 +82,5 @@ if __name__ == "__main__":
     rospy.wait_for_service('test_result')
     result_service = rospy.ServiceProxy('test_result', TestResult)
     result_service.call(r)
+
+    rospy.spin()

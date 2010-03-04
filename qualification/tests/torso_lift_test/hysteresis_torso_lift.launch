@@ -4,12 +4,12 @@
     <param name="velocity" type="double" value="-0.005" />
     <param name="max_effort" type="double" value="10000.0" />
     <param name="max_expected" type="double" value="1500" />
-    <param name="min_expected" type="double" value="-1400" />
+    <param name="min_expected" type="double" value="-1450" />
     <param name="max_position" type="double" value="0.303" />
     <param name="min_position" type="double" value="0.005" />
     <param name="timeout" type="double" value="480" />
     <param name="tolerance" type="double" value="0.20" />
-    <param name="sd_max" type="double" value="0.20" />
+    <param name="sd_max" type="double" value="0.30" />
 
     <group ns="velocity_controller" >
       <param name="type" type="string" value="JointVelocityController" />
