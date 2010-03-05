@@ -46,16 +46,25 @@ import random
 
 def main():
     rospy.init_node('ua_cmder')
+
+    if len(rospy.myargv()) > 1 and rospy.myargv()[1] == '--low':
+        low = True
+    else:
+        low = False    
     
     pan_pos = rospy.Publisher('r_shoulder_pan_position_controller/command', Float64)
     lift_pos = rospy.Publisher('r_shoulder_lift_position_controller/command', Float64)
     roll_pos = rospy.Publisher('r_upper_arm_roll_position_controller/command', Float64)
 
     my_rate = rospy.Rate(float(rospy.get_param('cycle_rate', 1.0)))
+
     try:
         while not rospy.is_shutdown():
             pan_pos.publish(Float64(random.uniform(-2.0, 0.4)))
-            lift_pos.publish(Float64(random.uniform(-0.40, 1.25)))
+            if low:
+                lift_pos.publish(Float64(random.uniform(1.0, 1.25)))
+            else:
+                lift_pos.publish(Float64(random.uniform(-0.40, 1.25)))
             roll_pos.publish(Float64(random.uniform(-3.70, 0.5)))
 
             my_rate.sleep()

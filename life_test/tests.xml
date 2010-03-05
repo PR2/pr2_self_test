@@ -107,6 +107,18 @@
 	   val="1.0" rate="true" />
   </test>
 
+  <!-- Tests the shoulder with lift low only. Experimental -->
+  <test serial="6804204" name="Low Shoulder Test -- Experimental"
+        short="Low Shoulder" trac="400"
+        desc="Tests shoulder with dummy UA. Uses low range of lift only."
+        rate="3.0" script="shoulder_test/test_lower.launch"
+        type="Burn-in Test" power="true" >
+    <param name="Cycle Rate" param_name="cycle_rate"
+           desc="Rate"
+           val="3.0" rate="true" />
+  </test>
+  
+  
   <test serial="6804204" name="Right Arm Test"
 	short="Arm" trac="400"
 	desc="Tests fully assembled arm"
