@@ -9,6 +9,7 @@ Script must be run as root, or:
  * Command needs to be added to sudoers file
 """
 
+
 import wx
 import sys, subprocess
 
@@ -20,7 +21,7 @@ if dialog.ShowModal() != wx.ID_OK:
 
 cmd = ['ckill', 'kill', '--regex=.*ros.*']
 
-retcode = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+retcode = subprocess.call(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 
 if retcode != 0:
     wx.MessageBox("Unable to kill ROS. Retry by pressing \"Kill ROS\".", "Unable to kill ROS", wx.OK)
