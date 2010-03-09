@@ -87,7 +87,7 @@
 	   val="true" rate="false" />
   </test>
 
-  <test serial="6804152" name="Forearm/Slip Ring Test"
+  <test serial="6803757" name="Forearm/Slip Ring Test"
 	short="Slip Ring" trac="400"
 	desc="Tests forearm roll and slip ring packet drop"
 	rate="1.0" script="slip_ring_test/test_gui.launch"
