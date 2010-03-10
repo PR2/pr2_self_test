@@ -49,28 +49,91 @@ from StringIO import StringIO
 import subprocess
 
 import wx
+from wx import xrc
+from wx import html
 
 from threading import Thread
 
 import time
 
+##\brief Uses instructions panel to show how to power cycle wifi
+class PowerCycleFrame(wx.Frame):
+    def __init__(self, html_file, status_cb):
+        wx.Frame.__init__(self, None, wx.ID_ANY, 'Power Cycle WRT 610n')
+
+        self._status_cb = status_cb
+
+        xrc_path = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'xrc/gui.xrc')
+        xrc_res = xrc.XmlResource(xrc_path)
+        self._panel = xrc_res.LoadPanel(self, 'instructions_panel')
+        self._sizer = wx.BoxSizer(wx.VERTICAL)
+        self._sizer.Add(self._panel)
+        self.Layout()
+
+        self._html_window = xrc.XRCCTRL(self._panel, 'html_window')
+        self._html_window.LoadFile(html_file)
+
+        self._cancel_button = xrc.XRCCTRL(self._panel, 'cancel_button')
+        self._cancel_button.Bind(wx.EVT_BUTTON, self.on_cancel)
+
+        self._continue_button = xrc.XRCCTRL(self._panel, 'continue_button')
+        self._continue_button.Bind(wx.EVT_BUTTON, self.on_continue)
+        self._continue_button.SetFocus()
+
+        self._done = False
+        self._ok = True
+
+    def on_continue(self, event):
+        self._status_cb(True)
+        self.Close()
+
+    def on_cancel(self, event):
+        self._status_cb(False)
+        self.Close()
+
 class DlgThread(Thread):
-    def __init__(self):
+    def __init__(self, html_file):
         Thread.__init__(self)
         self.app = wx.PySimpleApp()
-        self.frame = wx.Frame(None, -1, "Frame")
-        self.frame.Show(0)
-        wx.MessageBox("Hard reset the wrt610n by unplugging, holding in the reset button, plugging in, and waiting for the purple light.", "Hard Reset", wx.OK)
+        self._frame = PowerCycleFrame(html_file, self._status_cb)
+        self._frame.SetSize(wx.Size(550, 750))
+        self._frame.Layout()
+        self._frame.Show(True)
+
+        self._ok = False
+        self._done = False
+
+    def _status_cb(self, ok):
+        self._ok = ok
+        self._done = True
+
+    def is_done(self):
+        return self._done
+
+    def is_ok(self):
+        return self._done and self._ok
 
     def run(self):
         self.app.MainLoop()
 
 if __name__ == "__main__":
     rospy.init_node(NAME)
-    
+
     r = TestResultRequest()
     r.plots = []
     r.result = TestResultRequest.RESULT_PASS
+
+    if len(rospy.myargv()) > 0 and os.path.exists(rospy.myargv()[1]):
+        instructions_file = rospy.myargv()[1]
+    else:
+        print "Unable to start configuration, no instructions file loaded"
+        rospy.wait_for_service('test_result')
+        r.result = TestResultRequest.RESULT_FAIL
+        r.text_summary = "Unable to load instructions file, no given"
+        result_service = rospy.ServiceProxy('test_result', TestResult)
+        result_service.call(r)
+
+
 
     ip = '192.168.1.1'
 
@@ -118,9 +181,21 @@ if __name__ == "__main__":
 
         # We just wait here for a while to be safe
         time.sleep(200)
-        dlgthread = DlgThread()
-        dlgthread.start()
 
+        print 'Starting reset dialog'
+        dlgthread = DlgThread(instructions_file)
+        dlgthread.start()
+        dlgthread.join()
+        print 'Done with reset dialog'
+
+        # Need to check return code of thread
+        if not dlgthread.is_ok():
+            r.result = TestResultRequest.RESULT_FAIL
+            r.text_summary = 'Failed to restart WRT610n using reset button.'
+            
+
+        
+    if r.result != TestResultRequest.RESULT_FAIL:
         wrt610n_version_cmd = ['wrt610n','-w','version','-i',ip]
         wrt610n_version = subprocess.Popen(wrt610n_version_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (o,e) = wrt610n_version.communicate()

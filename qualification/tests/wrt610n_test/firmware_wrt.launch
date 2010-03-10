@@ -1,3 +1,4 @@
 <launch>
-  <node name="firmware_wrt" pkg="qualification" type="firmware_wrt.py"/>
+  <node name="firmware_wrt" pkg="qualification" type="firmware_wrt.py"
+        args="$(find qualification)/tests/wrt610n_test/power_cycle_instruct.html" />
 </launch>
