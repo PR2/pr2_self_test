@@ -104,7 +104,7 @@
 	type="Burn-in Test" power="true" >
     <param name="Cycle Rate" param_name="cycle_rate"
 	   desc="Rate"
-	   val="1.0" rate="true" />
+	   val="0.5" rate="true" />
   </test>
 
   <!-- Tests the shoulder with lift low only. Experimental -->
@@ -115,7 +115,7 @@
         type="Burn-in Test" power="true" >
     <param name="Cycle Rate" param_name="cycle_rate"
            desc="Rate"
-           val="3.0" rate="true" />
+           val="0.5" rate="true" />
   </test>
   
   

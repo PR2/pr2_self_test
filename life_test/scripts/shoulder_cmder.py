@@ -56,13 +56,19 @@ def main():
     lift_pos = rospy.Publisher('r_shoulder_lift_position_controller/command', Float64)
     roll_pos = rospy.Publisher('r_upper_arm_roll_position_controller/command', Float64)
 
-    my_rate = rospy.Rate(float(rospy.get_param('cycle_rate', 1.0)))
+    my_rate = rospy.Rate(float(rospy.get_param('cycle_rate', 1.0)) * 2)
+    #my_rate = rospy.Rate(1.0)
 
+    even = True
     try:
         while not rospy.is_shutdown():
             pan_pos.publish(Float64(random.uniform(-2.0, 0.4)))
             if low:
-                lift_pos.publish(Float64(random.uniform(1.0, 1.25)))
+                even = not even
+                if even:
+                    lift_pos.publish(Float64(random.uniform(0.8, 0.88)))
+                else:
+                    lift_pos.publish(Float64(random.uniform(1.17, 1.25)))
             else:
                 lift_pos.publish(Float64(random.uniform(-0.40, 1.25)))
             roll_pos.publish(Float64(random.uniform(-3.70, 0.5)))
