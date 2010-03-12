@@ -1,0 +1,44 @@
+ethercat:
+  type: EthercatListener
+  file: ethercat_listener
+trans:
+  type: TransmissionListener
+  file: trans_listener
+  pan_trans:
+    joint: r_shoulder_pan_joint
+    actuator: r_shoulder_pan_motor
+    up_ref: -0.7853916339
+    deadband: 0.1
+    min: -2.50
+    max: 0.745
+  lift_trans:
+    joint: r_shoulder_lift_joint
+    actuator: r_shoulder_lift_motor
+    down_ref: 0.0
+    deadband: 0.1
+    min: -0.60
+    max: 1.45
+  ua_roll_trans:
+    joint: r_upper_arm_roll_joint
+    actuator: r_upper_arm_roll_motor
+    min: -4.05
+    max: 0.85
+    up_ref: -1.5708
+    deadband: 0.1
+  flex_trans:
+    joint: r_elbow_flex_joint
+    actuator: r_elbow_flex_motor
+    down_ref: -1.1606
+    deadband: 0.1
+    min: -2.45
+    max: 0.10
+  fa_roll_trans:
+    joint: r_forearm_roll_joint
+    actuator: r_forearm_roll_motor
+    up_ref: 0.0
+    down_ref: 3.1415926535897931
+    wrap: 6.2831853071795862
+    deadband: 0.1
+camera:
+  type: CameraListener
+  file: camera_listener
