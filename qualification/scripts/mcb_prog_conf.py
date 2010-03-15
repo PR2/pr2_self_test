@@ -168,7 +168,7 @@ class MCBProgramConfig:
                 retcode = p.returncode
                 
                 if retcode != 0:
-                    self.finished(False, 'Error when checking board %d. "device" returned code %d' % (board, retcode))
+                    self.finished(False, 'Error when checking board %d. "device" returned code %d\n\nOUT: %s\nERROR: %s' % (board, retcode, stdout, stderr))
                     return False
                 
                 for ln in stdout.split('\n'):
