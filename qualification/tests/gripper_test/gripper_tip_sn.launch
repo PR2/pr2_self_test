@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="qualification" type="gripper_tip_sn.py" name="gripper_tip_sn_entry" />
+</launch>

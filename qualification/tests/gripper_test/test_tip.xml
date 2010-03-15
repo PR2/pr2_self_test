@@ -1,5 +1,6 @@
-<test name="Gripper Tip Test" >
+<test name="Gripper Tip Sensor Test" >
   <instructions>instructions_tips.html</instructions>
+  <pre_startup name="Tip ID Entry">gripper_tip_sn.launch</pre_startup>
   <pre_startup timeout="30" name="Power Cycle">../../scripts/power_cycle.launch</pre_startup>
   <pre_startup timeout="60" name="Configure MCB's">../../config/r_gripper_conf.launch</pre_startup>
   <startup name="Gripper Startup">gripper_tip.launch</startup>
