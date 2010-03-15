@@ -82,6 +82,7 @@ def create_listener(params, listeners):
     listeners.append(listener)
     return True
 
+##\todo Add slots here
 class StatusData:
     def __init__(self):
         self.level = 0
@@ -164,13 +165,14 @@ class TestMonitor:
             stat_data.messages = ['Listener Startup Error']
 
         if not self._heartbeat_halted and rospy.get_time() - self._heartbeat_time > TIMEOUT:
+            rospy.logerr('No heartbeat from Test Manager received, halting test')
             self._halt_listeners()
             self._heartbeat_halted = True
-            rospy.logerr('No heartbeat from Test Manager received, halting test')
+
 
         if self._heartbeat_halted:
             stat_data.status = 3
-            stat_data.message.append('No heartbeat')
+            stat_data.messages = ['No heartbeat']
             
 
         return stat_data
