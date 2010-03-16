@@ -1,10 +1,10 @@
 <launch>
-	<!-- send parameters for collision checking for PR2; this includes parameters for the self filter -->
-	<rosparam command="load" ns="robot_description_collision" file="$(find life_test)/shoulder_ua_test/config/collision_checks_both_arms.yaml" />
-
-	<!-- send parameters needed for motion planning -->
-	<rosparam command="load" ns="robot_description_planning" file="$(find life_test)/shoulder_ua_test/config/planning_groups.yaml" />
-
+  <!-- send parameters for collision checking for PR2; this includes parameters for the self filter -->
+  <rosparam command="load" ns="robot_description_collision" file="$(find life_test)/shoulder_ua_test/config/collision_checks_both_arms.yaml" />
+  
+  <!-- send parameters needed for motion planning -->
+  <rosparam command="load" ns="robot_description_planning" file="$(find life_test)/shoulder_ua_test/config/planning_groups.yaml" />
+  
   <node pkg="planning_environment" type="environment_server" output="screen" name="environment_server_right_arm">      <remap from="collision_map" to="collision_map_occ" />
     <remap from="collision_map_update" to="collision_map_occ_update" />
     <param name="group" type="string" value="right_arm" />
@@ -41,7 +41,7 @@
           pkg="joint_trajectory_action" type="joint_trajectory_action" />
   </group>
 
-  <!--node pkg="life_test" type="collision_free_arm_cmder.py" name="arm_cmder" /-->
+  <node pkg="life_test" type="collision_free_arm_cmder.py" name="arm_cmder" />
 
   <!-- FA roll cmder -->
   <rosparam command="load"
@@ -49,5 +49,5 @@
   <node pkg="pr2_controller_manager" type="spawner"
         args="--wait-for=calibrated r_forearm_roll_effort_controller"
         name="fa_roll_spawner)" />
-  <!--node pkg="life_test" name="upperarm_cmder" type="upperarm_cmder.py" /-->
+  <node pkg="life_test" name="upperarm_cmder" type="upperarm_cmder.py" />
 </launch>

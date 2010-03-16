@@ -49,7 +49,10 @@ class LifeTestLaunchParser(unittest.TestCase):
 
     ##\brief All .launch files must pass roslaunch_parse_tester
     def test_launch_file_parse(self):
-        launch_file_parser = ROSLaunchPackageParser(PKG, config_err_check = True,
+        my_env = { 'ROS_NAMESPACE': '' }
+        launch_file_parser = ROSLaunchPackageParser(PKG,
+                                                    environment = my_env,
+                                                    config_err_check = True,
                                                     node_check = True)
         
         launch_ok = launch_file_parser.check_package()

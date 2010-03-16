@@ -2,6 +2,14 @@
   <param name="pr2_controller_manager/mechanism_statistics_publish_rate" type="double" value="100" />
   <node machine="test_host_root" pkg="pr2_etherCAT" type="pr2_etherCAT"
         args="-i eth0 -x robot_description" name="pr2_etherCAT" />
+
+  <!-- Robot state publisher -->
+  <node pkg="robot_state_publisher" type="state_publisher"
+        name="robot_state_publisher" machine="test_host">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <param name="tf_prefix" type="string" value="$(env ROS_NAMESPACE)" />
+  </node>
+  
   <node pkg="pr2_controller_manager" type="joints_to_diagnostics.py"
         name="joints_to_diag" machine="test_host" />
   <node pkg="pr2_controller_manager" type="controllers_to_diagnostics.py"
