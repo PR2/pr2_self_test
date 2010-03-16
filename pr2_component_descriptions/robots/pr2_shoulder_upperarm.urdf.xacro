@@ -101,13 +101,13 @@
     <visual>
       <origin xyz="0.35 0 0" rpy="0 0 0" />
       <geometry>
-	<box size="0.40 0.35 0.35" />
+	<box size="0.20 0.25 0.25" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.25 0 0" rpy="0 0 0" />
       <geometry>
-	<box size="0.40 0.35 0.35" />
+	<box size="0.30 0.25 0.25" />
       </geometry>
     </collision> 
   </link>
