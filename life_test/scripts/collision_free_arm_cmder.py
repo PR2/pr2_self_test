@@ -1,4 +1,8 @@
 #! /usr/bin/env python
+
+##\author Kevin Watts
+##\brief Sends goals to arm to move it in collision free way
+
 PKG = 'life_test'
 import roslib; roslib.load_manifest(PKG)
 import rospy
@@ -17,9 +21,12 @@ ranges = {
 
 if __name__ == '__main__':
     rospy.init_node('arm_cmder_client')
-    client = actionlib.SimpleActionClient('collision_free_arm_trajectory_action_right_arm', JointTrajectoryAction)
+    client = actionlib.SimpleActionClient('collision_free_arm_trajectory_action_right_arm', 
+                                          JointTrajectoryAction)
+    rospy.loginfo('Waiting for server for collision free arm commander')
     client.wait_for_server()
 
+    rospy.loginfo('Arm goals canceled')
     my_rate = rospy.Rate(1.0)
 
     while not rospy.is_shutdown():
@@ -34,6 +41,7 @@ if __name__ == '__main__':
                         
             goal.trajectory.points[0].positions.append(random.uniform(range[0], range[1]))
             
+        rospy.logdebug('Sending goal to arm.')
         client.send_goal(goal)
-        client.wait_for_result()
+        client.wait_for_result(rospy.Duration.from_sec(3))
         my_rate.sleep()
