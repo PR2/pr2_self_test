@@ -626,12 +626,15 @@ class TestMonitorPanel(wx.Panel):
 
     ##\todo Use file, and set machine as an argument
     def make_launch_script(self, bay, script, local_diag_topic):
+        # Set ROS_NAMESPACE ...
+        os.environ['ROS_NAMESPACE'] = bay.name
+
         launch = '<launch>\n'
         launch += '<group ns="%s" >' % bay.name
 
         # Remap
         launch += '<remap from="/diagnostics" to="%s" />' % local_diag_topic
-         
+        
         # Init machine
         # Root on remote 
         launch += '<machine name="test_host_root" user="root" address="%s" ' % bay.machine
