@@ -68,11 +68,48 @@
                 iyy="1.0" iyz="0.0" izz="1.0" />
     </inertial>
     <visual>
-      <origin xyz="0.10 0 0" rpy="0 0 0" />
+      <origin xyz="0.20 0 0" rpy="0 0 0" />
       <geometry>
 	<box size="0.40 0.08 0.08" />
       </geometry>
-    </visual> 
+    </visual>
+    <collision>
+      <origin xyz="0.20 0 0" rpy="0 0 0" />
+      <geometry>
+	<box size="0.30 0.08 0.08" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Extension to dummy FA for testing -->
+  <joint name="r_dummy_forearm_ext_joint" type="fixed" >
+    <axis xyz="0 1 0" />
+    <limit effort="0" velocity="100"/>
+    <safety_controller k_velocity="10" />
+    <dynamics damping="0.0" friction="0.0" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="r_dummy_forearm_link"/>
+    <child link="r_dummy_forearm_ext_link"/>
+  </joint>
+  <link name="r_dummy_forearm_ext_link">
+    <inertial>
+      <mass value="1" />
+      <origin xyz=" 0.30 0 0 " />
+      <inertia  ixx="1.0" ixy="0.0" ixz="0.0"
+                iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.35 0 0" rpy="0 0 0" />
+      <geometry>
+	<box size="0.40 0.35 0.35" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.25 0 0" rpy="0 0 0" />
+      <geometry>
+	<box size="0.40 0.35 0.35" />
+      </geometry>
+    </collision> 
   </link>
 
 </robot>
