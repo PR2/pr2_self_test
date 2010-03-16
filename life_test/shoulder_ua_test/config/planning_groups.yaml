@@ -1,0 +1,30 @@
+## This file should be loaded under <robot description>_planning
+
+## the definition of each group
+groups:
+
+  - name: robot_body
+    joints:
+      torso_lift_joint
+    links:
+      base_link
+      torso_lift_link
+
+  - name: right_arm
+    joints:
+      r_shoulder_pan_joint
+      r_shoulder_lift_joint
+      r_upper_arm_roll_joint
+      r_elbow_flex_joint
+      r_forearm_roll_joint
+    links: 
+      r_shoulder_pan_link
+      r_shoulder_lift_link
+      r_upper_arm_link
+      r_upper_arm_roll_link
+      r_elbow_flex_link
+      r_forearm_link
+      r_forearm_roll_link
+      r_forearm_cam_frame
+      r_dummy_forearm_link
+      r_dummy_forearm_ext_link
