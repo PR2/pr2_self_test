@@ -7,10 +7,14 @@ This is used for regression testing of the pr2_self_test stack. Certain tests an
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/test_pr2_self_test_gazebo</url>
   <depend package="gazebo" />
+  <depend package="gazebo_tools" />
   <depend package="pr2_gazebo" />
   <depend package="rospy" />
   <depend package="qualification" />
   <depend package="pr2_description" />
   <depend package="robot_state_publisher" />
+  <depend package="pr2_controller_manager" />
+  <depend package="rostopic" />
+  
 </package>
 
