@@ -98,6 +98,11 @@ class ROSLaunchParser:
                 print 'Caught exception loading ROSLaunch file'
                 traceback.print_exc()
             return False
+        except roslaunch.core.RLException:
+            if not self.quiet:
+                print 'Caught RLException loading ROSLaunch file'
+                traceback.print_exc()
+            return False
         except:
             if not self.quiet:
                 print 'Caught unknown exception parsing launch file'
@@ -136,7 +141,7 @@ class ROSLaunchParser:
                     return False
                 if len(paths) > 1:
                     if not self.quiet:
-                        print 'Found two instances of node type %s in package %s' % (node.type, node.package)
+                        print 'Found multiple instances of node type %s in package %s' % (node.type, node.package)
                     return False
 
             return True
