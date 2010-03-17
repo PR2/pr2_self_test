@@ -42,6 +42,7 @@ import roslib; roslib.load_manifest(PKG)
 import roslaunch.config
 import roslaunch.xmlloader
 import roslaunch.node_args 
+import roslaunch.depends
 
 import traceback
 import stat
@@ -90,23 +91,27 @@ class ROSLaunchParser:
             return True
         except roslaunch.xmlloader.XmlParseException, e:
             if not self.quiet:
-                print 'Caught exception parsing ROSLaunch file'
-                traceback.print_exc()
+                print 'Caught exception parsing ROSLaunch file.\n%s' % str(e)
+                if self.verbose:
+                    traceback.print_exc()
             return False
         except roslaunch.xmlloader.XmlLoadException, e:
             if not self.quiet:
-                print 'Caught exception loading ROSLaunch file'
-                traceback.print_exc()
+                print 'Caught exception loading ROSLaunch file\n%s' % str(e)
+                if self.verbose:
+                    traceback.print_exc()
             return False
         except roslaunch.core.RLException:
             if not self.quiet:
-                print 'Caught RLException loading ROSLaunch file'
-                traceback.print_exc()
+                print 'Caught RLException loading ROSLaunch file\n%s' % str(e)
+                if self.verbose:
+                    traceback.print_exc()
             return False
-        except:
+        except Exception, e:
             if not self.quiet:
-                print 'Caught unknown exception parsing launch file'
-                traceback.print_exc()
+                print 'Caught unknown exception parsing launch file\n%s' % str(e)
+                if self.verbose:
+                    traceback.print_exc()
             return False
 
     def check_machines(self):
@@ -120,7 +125,8 @@ class ROSLaunchParser:
         except:
             if not self.quiet:
                 print 'Caught exception attempting to assign machines'
-                traceback.print_exc()
+                if self.verbose:
+                    traceback.print_exc()
             return False
 
     ##\todo Make it so machines don't have to be assigned before checking nodes
@@ -142,13 +148,16 @@ class ROSLaunchParser:
                 if len(paths) > 1:
                     if not self.quiet:
                         print 'Found multiple instances of node type %s in package %s' % (node.type, node.package)
+                        if self.verbose:
+                            print 'Paths of node %s: %s' % (node.type, str(paths))
                     return False
 
             return True
         except:
             if not self.quiet:
-                print 'Caught unknown exception parsing launch file'
-                traceback.print_exc()
+                print 'Caught unknown exception checking nodes in launch file'
+                if self.verbose:
+                    traceback.print_exc()
             return False
                 
     def check_config_errors(self):
@@ -160,4 +169,23 @@ class ROSLaunchParser:
             if not self.quiet:
                 print 'Configuration errors: %s' % ', '.join(self.config.config_errors)
             return False
+        return True
+
+    ##\brief Checks for missing dependencies in 
+    def check_missing_deps(self):
+        try:
+            base_pkg, file_deps, missing = roslaunch.depends.roslaunch_deps([self.file]) 
+        except Exception, e:
+            if not self.quiet:
+                print 'Caught exception looking for missing dependencies\n%s' % str(e)
+                if self.verbose:
+                    traceback.print_exc()
+            return False
+
+        for pkg, miss in missing.iteritems(): 
+            if miss:
+                if not self.quiet:
+                    print "Missing manifest dependencies: %s/manifest.xml: %s" % (pkg, ', '.join(miss))
+                return False
+
         return True

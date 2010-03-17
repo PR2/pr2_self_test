@@ -95,5 +95,14 @@ class TestROSLaunchParseTester(unittest.TestCase):
         launch_parser = ROSLaunchParser(file, quiet = True)
         self.assert_(not launch_parser.parse_test(), "%s parsed even though it does not have correct XML syntax" % basename)
         
+    def test_missing_dep(self):
+        basename = 'missing_dep.launch'
+        file = os.path.join(my_pkg_dir, 'test', 'launch', basename)
+        self.assert_(os.path.exists(file), "%s doesn't exist!" % basename)
+
+        launch_parser = ROSLaunchParser(file, quiet = True)
+        self.assert_(launch_parser.parse_test(), "%s did not parse even though it has correct XML syntax" % basename)
+        self.assert_(not launch_parser.check_missing_deps(), "%s passed dependency check even though we are missing dependencies on node")
+
 if __name__ == '__main__':
     rostest.unitrun(PKG, 'test_roslaunch_parse_tester', TestROSLaunchParseTester)

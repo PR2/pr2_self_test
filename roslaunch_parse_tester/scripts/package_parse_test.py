@@ -80,6 +80,9 @@ if __name__=='__main__':
     parser.add_option("-c", "--config_errors", action="store_true",
                       dest="check_config_errors", 
                       help="Check configuration errors")
+    parser.add_option("-d", "--depends", action="store_true",
+                      dest="check_deps",
+                      help="Check for missing dependencies")
 
     options, args = parser.parse_args()
 
@@ -97,7 +100,8 @@ if __name__=='__main__':
     package_parser = ROSLaunchPackageParser(package, verbose = options.verbose, quiet = options.quiet,
                                             environment = env, blacklist = options.blacklist, check_all = options.check_all,
                                             black_dirs = options.black_dirs, assign_machines = options.machine, 
-                                            node_check = options.node_check, config_err_check = options.check_config_errors)
+                                            node_check = options.node_check, config_err_check = options.check_config_errors,
+                                            depend_check = options.check_deps)
     
     ok = package_parser.check_package()
     

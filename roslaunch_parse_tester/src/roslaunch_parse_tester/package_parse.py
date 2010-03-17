@@ -50,7 +50,8 @@ import os
 class ROSLaunchPackageParser:
     def __init__(self, package, verbose = False, quiet = False, environment = {}, 
                  check_all = False, blacklist = [], black_dirs = [],
-                 assign_machines = False, node_check = False, config_err_check = False):
+                 assign_machines = False, node_check = False, config_err_check = False,
+                 depend_check = False):
 
         self.package = package
         self.verbose = verbose
@@ -65,6 +66,7 @@ class ROSLaunchPackageParser:
         self.assign_machines = assign_machines
         self.node_check = node_check
         self.config_err_check = config_err_check
+        self.depend_check = depend_check
 
         cmd = 'find `rospack find %s` -name \*.launch -print' % self.package
         p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
@@ -118,6 +120,9 @@ class ROSLaunchPackageParser:
                 this_ok = False
 
             if this_ok and self.config_err_check and not roslaunch_parser.check_config_errors():
+                this_ok = False
+            
+            if this_ok and self.depend_check and not roslaunch_parser.check_missing_deps():
                 this_ok = False
         
             ok = ok and this_ok

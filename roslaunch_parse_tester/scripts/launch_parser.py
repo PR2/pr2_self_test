@@ -65,6 +65,9 @@ if __name__=='__main__':
     parser.add_option("-c", "--config_errors", action="store_true",
                       dest="check_config_errors", 
                       help="Check configuration errors")
+    parser.add_option("-d", "--depends", action="store_true",
+                      dest="check_deps",
+                      help="Check for missing dependencies")
     
     options, args = parser.parse_args()
 
@@ -90,6 +93,9 @@ if __name__=='__main__':
         sys.exit(1)
     if options.node_check and not roslaunch_parser.check_nodes():
         print 'Node check failed'
+        sys.exit(1)
+    if options.check_deps and not roslaunch_parser.check_missing_deps():
+        print 'Dependency check failed'
         sys.exit(1)
 
     print 'Launch file parsed successfully'
