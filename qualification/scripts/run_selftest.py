@@ -171,12 +171,14 @@ if __name__ == '__main__':
         result_service.call(r)
         sent_results = True
         rospy.spin() # Wait to get killed
+        sys.exit()
 
     if not result.id or result.id == '':
         r = get_error_result('Selftest of  %s returned with an empty reference ID.' % node_name)
         result_service.call(r)
         sent_results = True
         rospy.spin() # Wait to get killed
+        sys.exit()
 
     # Add item reference to invent
     if options.add_ref:
@@ -185,6 +187,7 @@ if __name__ == '__main__':
             result_service.call(r)
             sent_results = True
             rospy.spin() # Wait to get killed
+            sys.exit()
 
     if not sent_results:
         r = write_selftest(node_name, options.add_ref, result)

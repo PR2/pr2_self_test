@@ -64,7 +64,7 @@ class QualificationTestParser(unittest.TestCase):
         
         launch_file_parser = ROSLaunchPackageParser(PKG, environment = env, black_dirs = black_dirs,
                                                     assign_machines = True, node_check = True, 
-                                                    quiet = False, config_err_check = True)
+                                                    quiet = False, config_err_check = True, depend_check = True)
         
         launches_ok = launch_file_parser.check_package()
         self.assert_(launches_ok, "Launch files failed to parse. Run roslaunch_parse_tester to check output")
