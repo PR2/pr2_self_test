@@ -53,7 +53,7 @@ class LifeTestLaunchParser(unittest.TestCase):
         launch_file_parser = ROSLaunchPackageParser(PKG,
                                                     environment = my_env,
                                                     config_err_check = True,
-                                                    node_check = True)
+                                                    node_check = True, depend_check = True)
         
         launch_ok = launch_file_parser.check_package()
         

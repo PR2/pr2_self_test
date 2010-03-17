@@ -1,0 +1,13 @@
+<launch>
+  <include file="$(find life_test)/pr2_test/pr2_controllers.launch" />
+
+  <!-- Projector on -->
+  <include file="$(find pr2_camera_synchronizer)/projector_on.launch" />
+
+  <!-- Monitor (with transmission checker) -->
+  <node pkg="life_test" type="test_monitor.py"
+        name="monitor" >
+    <rosparam command="load"
+              file="$(find life_test)/pr2_test/pr2_listeners.yaml" />
+  </node>
+</launch>

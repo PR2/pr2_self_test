@@ -1,0 +1,53 @@
+<launch>
+  <!-- Arm Controllers -->
+  <!-- Use no-collision controllers -->
+  <include file="$(find pr2_arm_navigation_actions)/launch/right_arm_collision_free_trajectory_control.launch" />
+  <include file="$(find pr2_arm_navigation_actions)/launch/left_arm_collision_free_trajectory_control.launch" />
+  <param name="environment_server_right_arm/use_collision_map" type="bool" value="false" />
+  <param name="environment_server_left_arm/use_collision_map" type="bool" value="false" />
+
+  <!-- Arm commander moves everything around -->
+  <node pkg="life_test" type="both_arm_cmder.py" name="both_arm_cmder_no_collision" />
+
+  <!-- Gripper Controller -->
+  <group ns="r_gripper_effort_controller" >
+    <param name="type" type="str" value="JointEffortController" />
+    <param name="joint" type="str" value="r_gripper_joint" />
+  </group>
+    <group ns="l_gripper_effort_controller" >
+    <param name="type" type="str" value="JointEffortController" />
+    <param name="joint" type="str" value="l_gripper_joint" />
+  </group>
+  <node pkg="pr2_controller_manager" type="spawner"
+        args="--wait-for=calibrated r_gripper_effort_controller l_gripper_effort_controller"
+        name="grip_spawn"
+        output="screen" />
+  <node pkg="life_test" type="gripper_cmder.py" name="right_gripper_cmder"
+        args="r_gripper_effort_controller" />
+  <node pkg="life_test" type="gripper_cmder.py" name="left_gripper_cmder"
+        args="l_gripper_effort_controller" />
+  <node name="gripper_unspawner" pkg="pr2_controller_manager" type="unspawner"
+        args="r_gripper_controller l_gripper_controller" />
+
+  <!-- Torso controller -->
+  <rosparam command="load" file="$(find pr2_controller_configuration)/pr2_joint_velocity_controllers.yaml" />
+  <node pkg="pr2_controller_manager" type="spawner"
+        args="--wait-for=calibrated torso_lift_velocity_controller" name="torso_vel_spawner" />
+  <node pkg="life_test" type="torso_cmder.py"
+        name="torso_cmder" />
+  <node name="torso_unspawner" pkg="pr2_controller_manager" type="unspawner"
+        args="torso_controller" />
+
+  <!-- Head moving -->
+  <node pkg="life_test" type="head_cmder.py" name="head_cmder" />
+  <rosparam command="load"
+            file="$(find life_test)/head_test/pr2_head_position_controller.yaml" />
+  <node name="head_position_controller_spawner" pkg="pr2_controller_manager"
+        type="spawner" args="--wait-for=calibrated head_controller" />
+  <node name="head_traj_unspawner" pkg="pr2_controller_manager" type="unspawner"
+        args="head_traj_controller" />
+  
+  <!-- Laser tilt, controller is up by default -->
+  <node pkg="life_test" type="laser_traj_cmd.py"
+        name="laser_cmder" args="laser_tilt_controller" />
+</launch>
