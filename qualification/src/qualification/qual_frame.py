@@ -953,6 +953,9 @@ class QualificationFrame(wx.Frame):
     self.log('Results logged to %s' % self._results._results_dir)
     res, log_str = self._results.log_results(invent)
     self.log(log_str)
+
+    if not res:
+      wx.MessageBox('Unable to submit qualification results to invent. This may be a problem in the inventory system.', 'Invent Submit Failed', wx.OK|wx.ICON_ERROR, self)
     
     if not self._results.email_qual_team():
       wx.MessageBox('Unable to email qualification results. Do you have \'sendmail\' installed?', 'Unable to email results', wx.OK|wx.ICON_ERROR, self)
