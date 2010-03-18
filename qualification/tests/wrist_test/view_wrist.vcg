@@ -1,0 +1,28 @@
+Background\ ColorR=0
+Background\ ColorG=0
+Background\ ColorB=0
+Fixed\ Frame=/base_link
+Target\ Frame=/r_wrist_roll_link
+Robot\ Model.Alpha=1
+Robot\ Model.Collision\ Enabled=0
+Robot\ Model.Enabled=1
+Robot\ Model.Robot\ Description=robot_description
+Robot\ Model.Update\ Rate=0
+Robot\ Model.Visual\ Enabled=1
+Robot\:\ Robot\ Model\ Link\ base_linkShow\ Axes=0
+Robot\:\ Robot\ Model\ Link\ base_linkShow\ Trail=0
+Robot\:\ Robot\ Model\ Link\ r_forearm_linkShow\ Axes=0
+Robot\:\ Robot\ Model\ Link\ r_forearm_linkShow\ Trail=0
+Robot\:\ Robot\ Model\ Link\ r_wrist_flex_linkShow\ Axes=0
+Robot\:\ Robot\ Model\ Link\ r_wrist_flex_linkShow\ Trail=0
+Robot\:\ Robot\ Model\ Link\ r_wrist_roll_linkShow\ Axes=1
+Robot\:\ Robot\ Model\ Link\ r_wrist_roll_linkShow\ Trail=0
+Tool\ 2D\ Nav\ GoalTopic=goal
+Tool\ 2D\ Pose\ EstimateTopic=initialpose
+Camera\ Type=rviz::OrbitViewController
+Camera\ Config=1.956 4.58626 0.773445 0.0553636 0.0570288 0.12073
+Property\ Grid\ State=selection=Fixed Frame;expanded=.Global Options,Robot Model.Enabled,Robot: Robot Model Link r_wrist_roll_linkr_wrist_roll_link;scrollpos=0,0;splitterpos=190,381;ispageselected=1
+[Display0]
+Name=Robot Model
+Package=rviz
+ClassName=rviz::RobotModelDisplay
