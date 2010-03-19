@@ -14,6 +14,11 @@
 	  file="r_shoulder_conf.launch" descrip="Right Shoulder" />
   <config serial="6804204" 
 	  file="l_shoulder_conf.launch" descrip="Left Shoulder" />
+
+  <config serial="6804204" 
+	  file="r_shoulder_ua_conf.launch" descrip="Right Shoulder / UA" />
+  <config serial="6804204" 
+	  file="l_shoulder_ua_conf.launch" descrip="Left Shoulder / UA" />
   
   <config serial="6804204" 
 	  file="r_full_arm_conf.launch" descrip="Right Full Arm" />
