@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="test_roscpp" type="pub_sub" name="test_roscpp_is_not_dep" />
+</launch>
