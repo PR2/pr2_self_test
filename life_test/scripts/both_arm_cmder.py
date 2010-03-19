@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #
-# Copyright (c) 2009, Willow Garage, Inc.
+# Copyright (c) 2010, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,6 @@ from pr2_controllers_msgs.msg import *
 from trajectory_msgs.msg import JointTrajectoryPoint
 
 r_ranges = {
-    'r_shoulder_pan_joint': (-2.0, 0.4),
     'r_shoulder_lift_joint': (-0.4, 1.25),
     'r_upper_arm_roll_joint': (-3.65, 0.45),
     'r_elbow_flex_joint': (-2.0, -0.05),
@@ -51,7 +50,6 @@ r_ranges = {
 
 
 l_ranges = {
-    'l_shoulder_pan_joint': (-0.4, 2.0),
     'l_shoulder_lift_joint': (-0.4, 1.25),
     'l_upper_arm_roll_joint': (-0.45, 3.65),
     'l_elbow_flex_joint': (-2.0, -0.05),
@@ -79,14 +77,28 @@ if __name__ == '__main__':
     rospy.loginfo('Right, left arm commanders ready')
     my_rate = rospy.Rate(2.0)
 
+    left = True
+    last_switch = rospy.get_time()
+
     while not rospy.is_shutdown():
         r_goal = JointTrajectoryGoal()
         l_goal = JointTrajectoryGoal()
         point = JointTrajectoryPoint()
         point.time_from_start = rospy.Duration.from_sec(0)
 
+        # Command L/R shoulder pans in sync
         r_goal.trajectory.points.append(point)
+        r_goal.trajectory.joint_names.append('r_shoulder_pan_joint')
+        
         l_goal.trajectory.points.append(point)
+        l_goal.trajectory.joint_names.append('l_shoulder_pan_joint')
+
+        if left:
+            r_goal.trajectory.points[0].positions.append(random.uniform(0.0, 0.4))
+            l_goal.trajectory.points[0].positions.append(random.uniform(1.6, 2.0))
+        else:
+            r_goal.trajectory.points[0].positions.append(random.uniform(-2.0, -1.6))
+            l_goal.trajectory.points[0].positions.append(random.uniform(-0.4, 0.0))
 
         for joint, range in r_ranges.iteritems():
             r_goal.trajectory.joint_names.append(joint)
@@ -103,3 +115,7 @@ if __name__ == '__main__':
         r_client.wait_for_result(rospy.Duration.from_sec(3))
         l_client.wait_for_result(rospy.Duration.from_sec(3))
         my_rate.sleep()
+
+        if rospy.get_time() - last_switch > 10:
+            last_switch = rospy.get_time()
+            left = not left

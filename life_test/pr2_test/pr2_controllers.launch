@@ -5,7 +5,7 @@
   <include file="$(find pr2_arm_navigation_actions)/launch/left_arm_collision_free_trajectory_control.launch" />
   <param name="environment_server_right_arm/use_collision_map" type="bool" value="false" />
   <param name="environment_server_left_arm/use_collision_map" type="bool" value="false" />
-
+  
   <!-- Arm commander moves everything around -->
   <node pkg="life_test" type="both_arm_cmder.py" name="both_arm_cmder_no_collision" />
 
