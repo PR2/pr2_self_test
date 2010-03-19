@@ -14,7 +14,7 @@ test_controller:
     max: 1.21
     delta: 0.2
     dither: 8.0
-    mse: 3.0
+    mse: 4.0
     avg_abs: 2.0
     avg_eff: 2.0
   
