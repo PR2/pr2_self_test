@@ -7,7 +7,7 @@ trans:
   pan_trans:
     joint: l_shoulder_pan_joint
     actuator: l_shoulder_pan_motor
-    up_ref: -0.7853916339
+    up_ref: 0.7853916339
     deadband: 0.1
     max: 2.50
     min: -0.745
@@ -23,7 +23,7 @@ trans:
     actuator: l_upper_arm_roll_motor
     max: 4.05
     min: -0.85
-    up_ref: -1.5708
+    up_ref: 1.5708
     deadband: 0.1
   flex_trans:
     joint: l_elbow_flex_joint
