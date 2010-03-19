@@ -28,3 +28,22 @@ groups:
       r_forearm_cam_frame
       r_dummy_forearm_link
       r_dummy_forearm_ext_link
+
+  - name: left_arm
+    joints:
+      l_shoulder_pan_joint
+      l_shoulder_lift_joint
+      l_upper_arm_roll_joint
+      l_elbow_flex_joint
+      l_forearm_roll_joint
+    links: 
+      l_shoulder_pan_link
+      l_shoulder_lift_link
+      l_upper_arm_link
+      l_upper_arm_roll_link
+      l_elbow_flex_link
+      l_forearm_link
+      l_forearm_roll_link
+      l_forearm_cam_frame
+      l_dummy_forearm_link
+      l_dummy_forearm_ext_link

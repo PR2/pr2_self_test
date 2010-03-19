@@ -142,7 +142,7 @@
 
   <test serial="6804204" name="Shoulder/UA Test"
 	short="Shoulder/UA" trac="400"
-	desc="Tests shoulder, upper arm and dummy FA."
+	desc="Tests shoulder, upper arm and dummy FA, configured as right arm."
 	rate="1.0" script="shoulder_ua_test/test_gui.launch"
 	type="Burn-in Test" power="true" >
     <param name="Cycle Rate" param_name="cycle_rate"
@@ -150,7 +150,15 @@
 	   val="1.0" rate="true" />
   </test>
 
-
+  <test serial="6804204" name="Shoulder/UA Left Test"
+	short="Shoulder/UA Left" trac="400"
+	desc="Tests shoulder, upper arm and dummy FA, configured as left arm."
+	rate="1.0" script="shoulder_ua_test/test_left_gui.launch"
+	type="Burn-in Test" power="true" >
+    <param name="Cycle Rate" param_name="cycle_rate"
+	   desc="Rate"
+	   val="1.0" rate="true" />
+  </test>
 
   
 </tests>

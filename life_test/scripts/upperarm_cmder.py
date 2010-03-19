@@ -48,10 +48,16 @@ import random
 def main():
     rospy.init_node('ua_cmder')
 
+    left = len(rospy.myargv()) > 1 and rospy.myargv()[1] == '--left'
+
     roll = rospy.get_param('forearm_roll', True)
     
-    arm_pos = rospy.Publisher('r_elbow_flex_position_controller/command', Float64)
-    fore_roll = rospy.Publisher('r_forearm_roll_effort_controller/command', Float64)
+    if left:
+        arm_pos = rospy.Publisher('l_elbow_flex_position_controller/command', Float64)
+        fore_roll = rospy.Publisher('l_forearm_roll_effort_controller/command', Float64)
+    else:
+        arm_pos = rospy.Publisher('r_elbow_flex_position_controller/command', Float64)
+        fore_roll = rospy.Publisher('r_forearm_roll_effort_controller/command', Float64)
 
     roll_eff = -10
     sleep(5.0) # Wait for cal
@@ -64,10 +70,6 @@ def main():
                 fore_roll.publish(Float64(roll_eff))
             arm_pos.publish(Float64(random.uniform(-0.05, -2.0)))
             sleep(0.75)
-            #arm_pos.publish(Float64(-0.05))
-            #sleep(0.7)
-            #arm_pos.publish(Float64(-2.00))
-            #sleep(0.6)
     except KeyboardInterrupt, e:
         pass
     except Exception, e:
