@@ -8,6 +8,7 @@ import roslib; roslib.load_manifest(PKG)
 import rospy
 import actionlib
 import random
+random.seed()
 
 from pr2_controllers_msgs.msg import *
 from trajectory_msgs.msg import JointTrajectoryPoint
