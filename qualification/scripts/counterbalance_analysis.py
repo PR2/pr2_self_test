@@ -128,11 +128,11 @@ class CounterbalanceAnalysisParams:
         params.append(TestParam(key='Flex Tested', value=str(self.flex_test)))
 
         params.append(TestParam(key='Lift MSE', value=str(self.lift_mse)))
-        params.append(TestParam(key='Lift Avg. Abs', value=str(self.lift_avg_abs)))
-        params.append(TestParam(key='Lift Avg. Effort', value=str(self.lift_avg_eff)))
+        params.append(TestParam(key='Lift Avg Abs', value=str(self.lift_avg_abs)))
+        params.append(TestParam(key='Lift Avg Effort', value=str(self.lift_avg_eff)))
         params.append(TestParam(key='Flex MSE', value=str(self.flex_mse)))
-        params.append(TestParam(key='Flex Avg. Abs.', value=str(self.flex_avg_abs)))
-        params.append(TestParam(key='Flex Avg. Effort', value=str(self.flex_avg_eff)))
+        params.append(TestParam(key='Flex Avg Abs', value=str(self.flex_avg_abs)))
+        params.append(TestParam(key='Flex Avg Effort', value=str(self.flex_avg_eff)))
 
         params.append(TestParam(key='Lift P Gain', value=str(self.lift_p)))
         params.append(TestParam(key='Lift I Gain', value=str(self.lift_i)))
