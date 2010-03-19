@@ -101,7 +101,7 @@ class ROSLaunchParser:
                 if self.verbose:
                     traceback.print_exc()
             return False
-        except roslaunch.core.RLException:
+        except roslaunch.core.RLException, e:
             if not self.quiet:
                 print 'Caught RLException loading ROSLaunch file\n%s' % str(e)
                 if self.verbose:
