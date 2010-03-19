@@ -42,7 +42,7 @@ import rostest, unittest
 from roslaunch_parse_tester.package_parse import ROSLaunchPackageParser
 
 
-##\brief Parses launch, tests.xml and configs.xml files in qualification
+##\brief Parses launch files in life_test
 class LifeTestLaunchParser(unittest.TestCase):
     def setUp(self):
         pass
@@ -54,7 +54,8 @@ class LifeTestLaunchParser(unittest.TestCase):
                                                     black_dirs = ['pr2_test'],
                                                     environment = my_env,
                                                     config_err_check = True,
-                                                    node_check = True, depend_check = True)
+                                                    node_check = True, 
+                                                    depend_check = True)
         
         launch_ok = launch_file_parser.check_package()
         

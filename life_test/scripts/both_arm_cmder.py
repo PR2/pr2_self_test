@@ -39,17 +39,15 @@ import random
 from pr2_controllers_msgs.msg import *
 from trajectory_msgs.msg import JointTrajectoryPoint
 
-r_ranges = {
+ranges = {
+    'r_shoulder_pan_joint': (-2.0, 0.4),
     'r_shoulder_lift_joint': (-0.4, 1.25),
     'r_upper_arm_roll_joint': (-3.65, 0.45),
     'r_elbow_flex_joint': (-2.0, -0.05),
     'r_forearm_roll_joint': (-3.14, 3.14),
     'r_wrist_flex_joint': (-1.8, -0.2),
-    'r_wrist_roll_joint': (-3.14, 3.14)
-}
-
-
-l_ranges = {
+    'r_wrist_roll_joint': (-3.14, 3.14),
+    'l_shoulder_pan_joint': (-0.4, 2.0),
     'l_shoulder_lift_joint': (-0.4, 1.25),
     'l_upper_arm_roll_joint': (-0.45, 3.65),
     'l_elbow_flex_joint': (-2.0, -0.05),
@@ -59,20 +57,12 @@ l_ranges = {
 }
 
 
-# R pan: (-2.0, 0.4)
-# L pan: (-0.4, 2.0)
-
 if __name__ == '__main__':
     rospy.init_node('arm_cmder_client')
-    r_client = actionlib.SimpleActionClient('collision_free_arm_trajectory_action_right_arm', 
+    client = actionlib.SimpleActionClient('collision_free_arm_trajectory_action_both_arms', 
                                           JointTrajectoryAction)
     rospy.loginfo('Waiting for server for right collision free arm commander')
-    r_client.wait_for_server()
-
-    l_client = actionlib.SimpleActionClient('collision_free_arm_trajectory_action_left_arm', 
-                                          JointTrajectoryAction)
-    rospy.loginfo('Waiting for server for left collision free arm commander')
-    l_client.wait_for_server()
+    client.wait_for_server()
 
     rospy.loginfo('Right, left arm commanders ready')
     my_rate = rospy.Rate(2.0)
@@ -81,41 +71,20 @@ if __name__ == '__main__':
     last_switch = rospy.get_time()
 
     while not rospy.is_shutdown():
-        r_goal = JointTrajectoryGoal()
-        l_goal = JointTrajectoryGoal()
+        goal = JointTrajectoryGoal()
         point = JointTrajectoryPoint()
         point.time_from_start = rospy.Duration.from_sec(0)
 
-        # Command L/R shoulder pans in sync
-        r_goal.trajectory.points.append(point)
-        r_goal.trajectory.joint_names.append('r_shoulder_pan_joint')
-        
-        l_goal.trajectory.points.append(point)
-        l_goal.trajectory.joint_names.append('l_shoulder_pan_joint')
+        goal.trajectory.points.append(point)
 
-        if left:
-            r_goal.trajectory.points[0].positions.append(random.uniform(0.0, 0.4))
-            l_goal.trajectory.points[0].positions.append(random.uniform(1.6, 2.0))
-        else:
-            r_goal.trajectory.points[0].positions.append(random.uniform(-2.0, -1.6))
-            l_goal.trajectory.points[0].positions.append(random.uniform(-0.4, 0.0))
-
-        for joint, range in r_ranges.iteritems():
-            r_goal.trajectory.joint_names.append(joint)
-            r_goal.trajectory.points[0].positions.append(random.uniform(range[0], range[1]))
-
-        for joint, range in l_ranges.iteritems():
-            l_goal.trajectory.joint_names.append(joint)
-            l_goal.trajectory.points[0].positions.append(random.uniform(range[0], range[1]))
+        for joint, range in ranges.iteritems():
+            goal.trajectory.joint_names.append(joint)
+            goal.trajectory.points[0].positions.append(random.uniform(range[0], range[1]))
             
         rospy.logdebug('Sending goal to arms.')
-        r_client.send_goal(r_goal)
-        l_client.send_goal(l_goal)
+        client.send_goal(goal)
 
-        r_client.wait_for_result(rospy.Duration.from_sec(3))
-        l_client.wait_for_result(rospy.Duration.from_sec(3))
+        client.wait_for_result(rospy.Duration.from_sec(3))
+
         my_rate.sleep()
 
-        if rospy.get_time() - last_switch > 10:
-            last_switch = rospy.get_time()
-            left = not left

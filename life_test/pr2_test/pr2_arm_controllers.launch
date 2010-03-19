@@ -1,0 +1,6 @@
+<launch>
+  <include file="$(find pr2_arm_navigation_actions)/launch/both_arms_collision_free_trajectory_control.launch" />
+
+  <node pkg="life_test" type="both_arm_cmder.py" name="both_arm_cmder_no_collision" />
+
+</launch>

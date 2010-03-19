@@ -1,6 +1,8 @@
 <launch>
   <include file="$(find life_test)/pr2_test/pr2_controllers.launch" />
 
+  <include file="$(find life_test)/pr2_test/pr2_arm_controllers.launch" />
+
   <!-- Projector on -->
   <include file="$(find pr2_camera_synchronizer)/projector_on.launch" />
 
