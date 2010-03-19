@@ -21,11 +21,16 @@ def obj2hdf(prefix, obj, hdf=None):
 def py2hdf(k, v, hdf=None):
   if not hdf: hdf = neo_util.HDF()
 
-  k.replace('.', '')
+  #k.replace('.', '')
   #if k[-1] == ".":
   #  k[-1] = ''
 
+  k.replace(' ', '_')
+
   if type(v) == str:
+    if len(v) == 0:
+      v = '-'
+
     hdf.setValue(k, v)
   elif type(v) == unicode:
     hdf.setValue(k, str(v))
