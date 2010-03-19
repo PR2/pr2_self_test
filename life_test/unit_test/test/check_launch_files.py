@@ -51,6 +51,7 @@ class LifeTestLaunchParser(unittest.TestCase):
     def test_launch_file_parse(self):
         my_env = { 'ROS_NAMESPACE': '' }
         launch_file_parser = ROSLaunchPackageParser(PKG,
+                                                    black_dirs = ['pr2_test'],
                                                     environment = my_env,
                                                     config_err_check = True,
                                                     node_check = True, depend_check = True)
