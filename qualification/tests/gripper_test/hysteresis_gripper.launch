@@ -5,7 +5,7 @@
     <param name="max_effort" type="double" value="30" />
     <param name="max_expected" type="double" value="16.0" />
     <param name="min_expected" type="double" value="-16.0" />
-    <param name="max_position" type="double" value="0.086" />
+    <param name="max_position" type="double" value="0.085" />
     <param name="min_position" type="double" value="0.001" />
     <param name="timeout" type="double" value="30" />
 
