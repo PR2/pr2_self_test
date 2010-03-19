@@ -50,7 +50,7 @@ import simple_hdfhelp as hdfhelp
 import roslib; roslib.load_manifest(PKG)
 
 ##\brief Checks if given serial number is a valid WG SN
-def is_serial_valid(reference):
+def _is_serial_valid(reference):
   if len(reference) != 12:
     return False
 
@@ -58,6 +58,10 @@ def is_serial_valid(reference):
     return False
 
   return True
+
+def is_serial_valid(reference):
+  print >> sys.stderr, "Warning: Using deprecated serial number check in invent_client"
+  return _is_serial_valid(reference)
 
 ## \brief Stores username and password, provides access to invent
 ##
@@ -107,6 +111,12 @@ class Invent:
     self._logged_time = time.time()
     return True
 
+  def check_serial_valid(self, serial):
+    if not _is_serial_valid(serial):
+      return False
+
+    ##\todo Need some other stuff here. #4060
+    return True
 
   ##\brief Debug mode only
   def get_attachments(self, key):
