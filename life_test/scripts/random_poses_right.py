@@ -27,13 +27,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 
-import roslib; roslib.load_manifest('life_test')
+import roslib; roslib.load_manifest('geometry_msgs')
+import roslib; roslib.load_manifest('rospy')
 
 import random, time
 import rospy
 from geometry_msgs.msg import PoseStamped
 
-pub = rospy.Publisher('r_arm_cartesian_trajectory_controller/command', PoseStamped)
+#pub = rospy.Publisher('r_arm_cartesian_trajectory_controller/command', PoseStamped)
+pub = rospy.Publisher('r_cart/command_pose', PoseStamped)
 
 
 def p(x, y, z, rx, ry, rz, w):
@@ -52,23 +54,24 @@ def p(x, y, z, rx, ry, rz, w):
 rospy.init_node('random_poses_right')
 
 POINTS = [
-  (0.8, -0.5, 0.8, 0.5, 0.0, 0.0, 0.5),
-  (0.6, 0.2, 0.4, 0.0, 0.0, 0.5, 0.5),
-  (0.4, -0.8, 0.4, 0.0, 0.5, 0.0, 0.5),
-  (0.8, -0.5, -0.2, 0.5, 0.0, 0.0, 0.5),
-  (0.6, 0.2, 0.2, 0.0, 0.0, 0.5, 0.5),
-  (0.4, 0.4, 0.2, 0.0, 0.5, 0.0, 0.5),
-  (0.8, 0.5, 0.0, 0.5, 0.0, 0.0, 0.5),
-  (0.6, 0.2, -0.2, 0.0, 0.0, 0.5, 0.5),
-  (0.4, -0.8, 0.0, 0.0, 0.5, 0.0, 0.5),
-  (0.5, -0.5, -0.4, 0.5, 0.0, 0.0, 0.5),
-  (0.6, 0.2, -0.4, 0.0, 0.0, 0.5, 0.5),
-  (0.4, -0.8, 0.0, 0.0, 0.5, 0.0, 0.5),
+  (0.8, -0.5, 0.8,   0.707, 0.0, 0.0, 0.707),
+  (0.6, 0.2, 0.4,    0.0, 0.0, 0.707, 0.707),
+  (0.4, -0.8, 0.4,   0.0, 0.707, 0.0, 0.707),
+  (0.8, -0.5, -0.2,  0.707, 0.0, 0.0, 0.707),
+  (0.6, 0.2, 0.2,    0.0, 0.0, 0.707, 0.707),
+  (0.4, 0.4, 0.2,    0.0, 0.707, 0.0, 0.707),
+  (0.8, 0.5, 0.0,    0.707, 0.0, 0.0, 0.707),
+  (0.6, 0.2, -0.2,   0.0, 0.0, 0.707, 0.707),
+  (0.4, -0.8, 0.0,   0.0, 0.707, 0.0, 0.707),
+  (0.5, -0.5, -0.4,  0.707, 0.0, 0.0, 0.707),
+  (0.6, 0.2, -0.4,   0.0, 0.0, 0.707, 0.707),
+  (0.4, -0.8, 0.0,   0.0, 0.707, 0.0, 0.707),
 ]
 
 while not rospy.is_shutdown():
-  time.sleep(random.uniform(0.5, 0.5))
+  #time.sleep(random.uniform(0.5, 0.5))
   index = random.randint(0, len(POINTS)-1)
   p(*POINTS[index])
-  rospy.loginfo('Sending to: %s' % str(POINTS[index])
+  rospy.loginfo('Sending to: %s' % str(POINTS[index]))
+  time.sleep(3.0)
 
