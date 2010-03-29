@@ -120,6 +120,26 @@
 
   
   
+  <test serial="6804139" name="Right Arm Test (UA)"
+	short="Right Arm" trac="400"
+	desc="Tests upper arm attached to shoulder.  Uses Shoulder as fixture"
+	rate="1.0" script="arm_test/test_right_arm.launch"
+	type="Burn-in Test" power="true" >
+    <param name="Cycle Rate" param_name="cycle_rate"
+	   desc="Rate"
+	   val="1.0" rate="true" />
+  </test>
+
+  <test serial="6804139" name="Left Arm Test (UA)"
+	short="Left Arm" trac="400"
+	desc="Tests upper arm attached to shoulder.  Uses Shoulder as fixture"
+	rate="1.0" script="arm_test/test_left_arm.launch"
+	type="Burn-in Test" power="true" >
+    <param name="Cycle Rate" param_name="cycle_rate"
+	   desc="Rate"
+	   val="1.0" rate="true" />
+  </test>
+
   <test serial="6804204" name="Right Arm Test"
 	short="Right Arm" trac="400"
 	desc="Tests fully assembled arm"
@@ -140,25 +160,24 @@
 	   val="1.0" rate="true" />
   </test>
 
-  <test serial="6804204" name="Shoulder/UA Test"
+
+  <test serial="6804139" name="Shoulder/UA Right Test"
 	short="Shoulder/UA" trac="400"
-	desc="Tests shoulder, upper arm and dummy FA, configured as right arm."
+	desc="Tests shoulder, upper arm and dummy FA, configured as right arm. (Shoulder is used as test fixture)"
 	rate="1.0" script="shoulder_ua_test/test_gui.launch"
 	type="Burn-in Test" power="true" >
     <param name="Cycle Rate" param_name="cycle_rate"
 	   desc="Rate"
 	   val="1.0" rate="true" />
   </test>
-
-  <test serial="6804204" name="Shoulder/UA Left Test"
+  <test serial="6804139" name="Shoulder/UA Left Test"
 	short="Shoulder/UA Left" trac="400"
-	desc="Tests shoulder, upper arm and dummy FA, configured as left arm."
+	desc="Tests shoulder, upper arm and dummy FA, configured as left arm.  (Shoulder is used as test fixture)"
 	rate="1.0" script="shoulder_ua_test/test_left_gui.launch"
 	type="Burn-in Test" power="true" >
     <param name="Cycle Rate" param_name="cycle_rate"
 	   desc="Rate"
 	   val="1.0" rate="true" />
   </test>
-
   
 </tests>
