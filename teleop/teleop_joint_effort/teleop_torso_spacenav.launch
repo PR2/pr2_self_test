@@ -1,9 +1,0 @@
-<launch>
-<param name="joint" value="torso_lift_joint"/>
-<param name="max_effort" value="4000"/>
-<param name="joy_axis" value="2"/>
-<param name="joy_dead_zone" value="0.2"/>
-<node pkg="teleop_joint_effort" type="teleop_joint_effort.py" output="screen">
- <remap from="joy" to="spacenav/joy"/>
-</node>
-</launch>
