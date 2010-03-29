@@ -26,7 +26,6 @@
   <depend stack="pr2_simulator" /> <!-- pr2_gazebo -->
   <depend stack="robot_model" /> <!-- robot_state_publisher, urdf -->
   <depend stack="ros" /> <!-- roslaunch, rxtools, std_srvs, roscpp, roslib, std_msgs, rospy -->
-  <depend stack="sandbox" /> <!-- ectools, joint_qualification_controllers, experimental_controllers, roslaunch_parse_tester -->
   <depend stack="simulator_gazebo" /> <!-- gazebo -->
   <depend stack="vision_opencv" /> <!-- opencv2, cv_bridge -->
   <depend stack="visualization" /> <!-- rviz -->
