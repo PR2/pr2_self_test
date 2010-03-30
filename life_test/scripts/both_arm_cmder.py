@@ -77,9 +77,14 @@ if __name__ == '__main__':
 
         goal.trajectory.points.append(point)
 
+	positions = {}
+	for joint, range in ranges.iteritems():
+	    positions[joint] = random.uniform(range[0], range[1])
+	positions['r_shoulder_pan_joint'] = positions['l_shoulder_pan_joint'] + (ranges['r_shoulder_pan_joint'][0] - ranges['l_shoulder_pan_joint'][0])
+
         for joint, range in ranges.iteritems():
             goal.trajectory.joint_names.append(joint)
-            goal.trajectory.points[0].positions.append(random.uniform(range[0], range[1]))
+            goal.trajectory.points[0].positions.append(positions[joint])
             
         rospy.logdebug('Sending goal to arms.')
         client.send_goal(goal)
