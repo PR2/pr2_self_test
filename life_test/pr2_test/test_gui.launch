@@ -11,4 +11,7 @@
     <rosparam command="load"
               file="$(find life_test)/pr2_test/pr2_listeners.yaml" />
   </node>
+
+  <node pkg="rostopic" type="rostopic" name="heartbeat_pub" 
+        args="pub heartbeat std_msgs/Empty -r1" />
 </launch>
