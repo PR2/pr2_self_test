@@ -51,6 +51,8 @@ class LastMessage():
     def callback(self, msg):
         self.msg = msg
 
+has_warned = False
+
 def main():
     controller_name = rospy.myargv()[1]
     
@@ -76,7 +78,10 @@ def main():
                     grip_idx = index
                     break
             if grip_idx < 0:
-                rospy.logwarn("The joint %s was not found in the joints states" % grip_name)
+                global has_warned
+                if not has_warned:
+                    rospy.logwarn("The joint %s was not found in the joints states" % grip_name)
+                    has_warned = True
 
             if abs(jnt_states.velocity[grip_idx]) < 0.0005:
                 turn_count += 1

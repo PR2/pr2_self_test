@@ -3,7 +3,7 @@
   <include file="$(find pr2_camera_synchronizer)/projector_on.launch" />
 
   <node pkg="life_test" type="pr2_burn_in_switch.py" name="pr2_burn_in_switch"
-        args="$(find life_test)/pr2_controllers.launch $(find base_life_test)/base_life_test.launch -d 0.5" 
+        args="$(find life_test)/pr2_test/pr2_controllers.launch $(find base_life_test)/base_life_test.launch -d 1" />
   
   <!-- Monitor (with transmission checker) -->
   <node pkg="life_test" type="test_monitor.py"
