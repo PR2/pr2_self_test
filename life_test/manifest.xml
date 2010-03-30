@@ -33,6 +33,7 @@
   <depend package="joint_qualification_controllers" />
   <depend package="ectools" />
   <depend package="pr2_camera_synchronizer" />
+  <depend package="base_life_test" />
   
   <!-- Unit test -->
   <depend package="roslaunch_parse_tester" />

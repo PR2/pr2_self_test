@@ -40,4 +40,6 @@
   <!-- Laser tilt, controller is up by default -->
   <node pkg="life_test" type="laser_traj_cmd.py"
         name="laser_cmder" args="laser_tilt_controller" />
+
+  <include file="$(find life_test)/pr2_test/pr2_arm_controllers.launch" />
 </launch>
