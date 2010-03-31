@@ -35,9 +35,15 @@ import roslib; roslib.load_manifest(PKG)
 import rospy
 import actionlib
 import random
+import copy
 
 from pr2_controllers_msgs.msg import *
 from trajectory_msgs.msg import JointTrajectoryPoint
+from mapping_msgs.msg import CollisionObject, CollisionObjectOperation
+from geometric_shapes_msgs.msg import Shape
+from geometry_msgs.msg import Pose
+
+COLLISION_TOPIC = "collision_object"
 
 ranges = {
     'r_shoulder_pan_joint': (-2.0, 0.4),
@@ -56,6 +62,44 @@ ranges = {
     'l_wrist_roll_joint': (-3.14, 3.14)
 }
 
+def get_virtual_table(height = 0.42):
+    table_msg = CollisionObject()
+
+    table_msg.operation.operation = CollisionObjectOperation.ADD    
+
+    table_msg.header.stamp = rospy.get_rostime()
+    table_msg.header.frame_id = "base_footprint"
+    
+    side_box = Shape()
+    side_box.type = Shape.BOX
+    side_box.dimensions = [ 3.0, 1.0, height ]
+
+    front_box = Shape()
+    front_box.type = Shape.BOX
+    front_box.dimensions = [ 1.0, 3.0, height ]
+
+    pose = Pose()
+    pose.position.x = 0.0
+    pose.position.y = 0.0
+    pose.position.z = height / 2
+    pose.orientation.x = 0
+    pose.orientation.y = 0
+    pose.orientation.z = 0
+    pose.orientation.w = 1
+
+    l_side_pose = copy.deepcopy(pose)
+    l_side_pose.position.y = 0.85
+
+    r_side_pose = copy.deepcopy(pose)
+    r_side_pose.position.y = -0.85
+
+    front_pose = copy.deepcopy(pose)
+    front_pose.position.x = 0.85
+
+    table_msg.shapes = [ side_box, side_box, front_box ]
+    table_msg.poses = [ l_side_pose, r_side_pose, front_pose ]
+
+    return table_msg
 
 if __name__ == '__main__':
     rospy.init_node('arm_cmder_client')
@@ -65,10 +109,10 @@ if __name__ == '__main__':
     client.wait_for_server()
 
     rospy.loginfo('Right, left arm commanders ready')
-    my_rate = rospy.Rate(2.0)
+    my_rate = rospy.Rate(0.5)
 
-    left = True
-    last_switch = rospy.get_time()
+    table_pub = rospy.Publisher(COLLISION_TOPIC, CollisionObject, latch = True)
+    table_pub.publish(get_virtual_table())
 
     while not rospy.is_shutdown():
         goal = JointTrajectoryGoal()
@@ -89,7 +133,8 @@ if __name__ == '__main__':
         rospy.logdebug('Sending goal to arms.')
         client.send_goal(goal)
 
-        client.wait_for_result(rospy.Duration.from_sec(3))
+        # Wait for result, or wait 10 seconds to allow full travel
+        client.wait_for_result(rospy.Duration.from_sec(10))
 
         my_rate.sleep()
 
