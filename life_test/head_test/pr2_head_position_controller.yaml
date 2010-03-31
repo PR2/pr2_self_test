@@ -8,7 +8,7 @@ head_controller:
     pid:
       p: 45.0
       i: 10.0
-      d: 1.0
+      d: 5.0
       i_clamp: 2.5 
   pan_controller:
     type: JointPositionController
@@ -16,5 +16,5 @@ head_controller:
     pid:
       p: 10.0
       i: 12.0
-      d: 0.5
+      d: 1.0
       i_clamp: 0.5 
