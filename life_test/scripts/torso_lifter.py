@@ -28,9 +28,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ##\author Kevin Watts
-##\brief Raises torso to 25 cm
+##\brief Raises torso for PR2 burn in test
 
-HEIGHT = 0.25 # 25 cm
+HEIGHT = 0.30 # in meters
 
 PKG = 'life_test'
 import roslib; roslib.load_manifest(PKG)
@@ -57,6 +57,7 @@ if __name__ == '__main__':
     
     # Wait for result, or wait 10 seconds to allow full travel
     client.wait_for_result(rospy.Duration.from_sec(10))
-    
+
+    rospy.spin()
     
 

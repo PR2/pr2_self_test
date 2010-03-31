@@ -36,6 +36,7 @@ import rospy
 import actionlib
 import random
 import copy
+import math
 
 from pr2_controllers_msgs.msg import *
 from trajectory_msgs.msg import JointTrajectoryPoint
@@ -45,7 +46,7 @@ from geometry_msgs.msg import Pose
 from actionlib_msgs.msg import GoalStatus
 
 COLLISION_TOPIC = "collision_object"
-FAILED_OUT = 5
+FAILED_OUT = 10
 
 ranges = {
     'r_shoulder_pan_joint': (-2.0, 0.4),
@@ -105,33 +106,21 @@ def get_virtual_table(height = 0.42):
     return table_msg
 
 ##\brief Moves arms to 0 position using unsafe trajectory
-def send_recovery_trajectory(right_client, left_client):
+def get_recovery_goal():
     # Send to right, left arm controllers
     point = JointTrajectoryPoint()
     point.time_from_start = rospy.Duration.from_sec(0)    
     
-    r_goal = JointTrajectoryGoal()
-    r_goal.trajectory.points.append(point)
-    r_goal.trajectory.header.stamp = rospy.get_rostime()
-
-    l_goal = copy.deepcopy(r_goal)
+    goal = JointTrajectoryGoal()
+    goal.trajectory.points.append(point)
+    goal.trajectory.header.stamp = rospy.get_rostime()
 
     for joint in ranges.keys():
-        if joint.startswith('r_'):
-            r_goal.trajectory.joint_names.append(joint)
-            r_goal.trajectory.points[0].positions.append(0)
-            r_goal.trajectory.points[0].velocities.append(0)
+        goal.trajectory.joint_names.append(joint)
+        goal.trajectory.points[0].positions.append(0)
+        goal.trajectory.points[0].velocities.append(0)
 
-        if joint.startswith('l_'):
-            l_goal.trajectory.joint_names.append(joint)
-            l_goal.trajectory.points[0].positions.append(0)
-            l_goal.trajectory.points[0].velocities.append(0)
-    
-    right_client.send_goal(r_goal)
-    left_client.send_goal(r_goal)
-
-    right_client.wait_for_result(rospy.Duration.from_sec(5))
-    left_client.wait_for_result(rospy.Duration.from_sec(5))
+    return goal
 
 def get_both_arms_goal():
     goal = JointTrajectoryGoal()
@@ -139,11 +128,12 @@ def get_both_arms_goal():
     point.time_from_start = rospy.Duration.from_sec(0)
     
     goal.trajectory.points.append(point)
-    
+    goal.trajectory.header.stamp = rospy.get_rostime()    
+
     positions = {}
     for joint, range in ranges.iteritems():
         positions[joint] = random.uniform(range[0], range[1])
-	positions['r_shoulder_pan_joint'] = positions['l_shoulder_pan_joint'] + (ranges['r_shoulder_pan_joint'][0] - ranges['l_shoulder_pan_joint'][0])
+    positions['r_shoulder_pan_joint'] = positions['l_shoulder_pan_joint'] - math.pi / 2
 
     for joint, range in ranges.iteritems():
         goal.trajectory.joint_names.append(joint)
@@ -165,34 +155,33 @@ if __name__ == '__main__':
     table_pub.publish(get_virtual_table())
 
     # Recovery trajectory clients
-    right_client = actionlib.SimpleActionClient('r_arm_controller/joint_trajectory_action',
-                                                JointTrajectoryAction)
-    left_client = actionlib.SimpleActionClient('l_arm_controller/joint_trajectory_action',
+    recovery_client = actionlib.SimpleActionClient('both_arms_controller/joint_trajectory_action',
                                                 JointTrajectoryAction)
     
-
-
     fail_count = 0
     while not rospy.is_shutdown():
+        rospy.logdebug('Sending goal to arms.')   
         goal = get_both_arms_goal()
-            
-        rospy.logdebug('Sending goal to arms.')
         client.send_goal(goal)
 
         # Wait for result, or wait 10 seconds to allow full travel
         client.wait_for_result(rospy.Duration.from_sec(10))
         my_result = client.get_state()
+        
         if my_result == GoalStatus.SUCCEEDED:
             fail_count = 0
         else:
             fail_count += 1
 
-        rospy.loginfo('Got return state: %d from goal' % my_result)
+        rospy.logdebug('Got return state: %d from goal' % my_result)
         
         if fail_count > FAILED_OUT:
             client.cancel_goal()
-            send_recovery_trajectory(right_client, left_client)
 
+            rospy.loginfo('Sending recovery trajectory, arms are stuck')
+            recovery_goal = get_recovery_goal()
+            recovery_client.send_goal(recovery_goal)
+            recovery_client.wait_for_result(rospy.Duration.from_sec(10))
 
         my_rate.sleep()
 
