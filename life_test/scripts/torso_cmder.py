@@ -57,16 +57,22 @@ def main():
     parser.add_option("-l", "--low", dest="low_only", 
                       help = "Keep in lower end only", action="store_true", 
                       default = False)
-
+    parser.add_option("-s", "--slow", dest="slow",
+                      help = "Move only every 5 minutes",
+                      action="store_true", default=False)
+                     
+    
     (options, args) = parser.parse_args()
 
     rospy.init_node('torso_life_test')
 
-    pub = rospy.Publisher("torso_lift_velocity_controller/command", Float64)
+    pub = rospy.Publisher("torso_lift_velocity_controller/command", Float64, latch = True)
     last_state = LastMessage('joint_states', JointState)
     turn_count = 0
     vel = 10.0
-    
+    pub.publish(Float64(vel))
+    print 'Published', vel
+
     try:
         while not last_state.msg and not rospy.is_shutdown(): sleep(0.1)
         while not rospy.is_shutdown():
@@ -89,6 +95,9 @@ def main():
                 vel = -1 * vel
                 turn_count = 0
                 pub.publish(Float64(vel))
+
+            if options.slow:
+                sleep(5)
 
     except  KeyboardInterrupt, e:
         pass
