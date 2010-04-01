@@ -7,4 +7,6 @@
 
   <node pkg="life_test" type="both_arm_cmder.py" name="both_arm_cmder_no_collision" />
 
+  <node pkg="life_test" type="change_joint_controller_gains.py" name="change_joint_controller_gains_py" />
+
 </launch>
