@@ -8,7 +8,7 @@
         args="--wait-for=calibrated torso_lift_velocity_controller" name="torso_vel_spawner" />
   <node pkg="life_test" type="torso_cmder.py"
          name="torso_cmder" />
-  <node name="head_traj_unspawner" pkg="pr2_controller_manager" type="unspawner"
+  <node name="torso_traj_unspawner" pkg="pr2_controller_manager" type="unspawner"
         args="torso_controller" />
 
   <!-- Head moving -->
