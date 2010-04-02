@@ -775,7 +775,7 @@ class TestMonitorPanel(wx.Panel):
             self.make_launch_script(self._bay, self._test._launch_script, local_diag))
         try:
             self._test_launcher.start()
-        except roslaunch.RLException, e:
+        except Exception, e:
             traceback.print_exc()
             self._manager.test_stop(self._bay)
             self._bay = None
