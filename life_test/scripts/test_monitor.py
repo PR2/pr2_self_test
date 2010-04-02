@@ -2,7 +2,7 @@
 #
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2008, Willow Garage, Inc.
+# Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #
 
 ##\author Kevin Watts
+##\brief Loads listeners, monitors status of PR2 hardware tests
 
 PKG = 'life_test'
 
@@ -51,7 +52,8 @@ import std_msgs.msg
 import traceback
 import sys
 
-TIMEOUT = 60
+TIMEOUT = 60 # If no heartbeat, shut down
+IGNORE_TIME = 30 # Ignore status for first few seconds
 
 def create_listener(params, listeners):
     if not (params.has_key('type') and params.has_key('file')):
@@ -84,8 +86,9 @@ def create_listener(params, listeners):
 
 ##\todo Add slots here
 class StatusData:
+    __slots__ = ['level', 'messages', 'array']
     def __init__(self):
-        self.level = 0
+        self.level = TestStatus.RUNNING
         self.messages = []
         self.array = DiagnosticArray()
 
@@ -116,11 +119,17 @@ class TestMonitor:
         self._heartbeat_sub = rospy.Subscriber('/heartbeat', std_msgs.msg.Empty, self.on_heartbeat)
         self._heartbeat_halted = False
 
+        self._was_ok = True
+        self._start_time = rospy.get_time() # Ignore failures for a bit after start
+
     def on_heartbeat(self, msg):
         self._heartbeat_time = rospy.get_time()
 
     def reset_test(self, srv):
         self._heartbeat_halted = False
+        self._was_ok = True
+        self._start_time = rospy.get_time()
+
         for listener in self._listeners:
             try:
                 listener.reset()
@@ -148,7 +157,7 @@ class TestMonitor:
                 lvl, msg, diags = listener.check_ok()
             except:
                 rospy.logerr('Listener failed to check status. %s' % traceback.format_exc())
-                stat, msg, diags = (2, 'Error', None)
+                stat, msg, diags = (TestStatus.ERROR, 'Error', None)
 
             stat_data.level = max(stat_data.level, lvl)
             if msg is not None and msg != '':
@@ -157,13 +166,19 @@ class TestMonitor:
                 stat_data.array.status.extend(diags)
         
         if len(self._listeners) == 0:
-            stat_data.level = 3
+            stat_data.level = TestStatus.STALE
             stat_data.messages = [ 'No listeners' ]
             return stat_data
 
         if not self._listeners_ok:
-            stat_data.level = 2
+            stat_data.level = TestStatus.ERROR
             stat_data.messages = ['Listener Startup Error']
+
+        if rospy.get_time() - self._start_time > IGNORE_TIME and (self._was_ok and stat_data.level != TestStatus.RUNNING):
+            self._halt_listeners()
+            rospy.logerr('Halted test after failure. Failure message: %s' % ', '.join(stat_data.messages))
+            self._was_ok = False
+            
 
         if not self._heartbeat_halted and rospy.get_time() - self._heartbeat_time > TIMEOUT:
             rospy.logerr('No heartbeat from Test Manager received, halting test')
@@ -172,7 +187,7 @@ class TestMonitor:
 
 
         if self._heartbeat_halted:
-            stat_data.status = 3
+            stat_data.status = TestStatus.STALE
             stat_data.messages = ['No heartbeat']
             
 
@@ -188,7 +203,7 @@ class TestMonitor:
         test_stat = TestStatus()
         test_stat.test_ok = int(stat_data.level)
         test_stat.message = ', '.join(stat_data.messages)
-        if test_stat.test_ok == 0:
+        if test_stat.test_ok == TestStatus.RUNNING:
             test_stat.message = 'OK'
 
         self._status_pub.publish(test_stat)
