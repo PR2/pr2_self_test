@@ -85,7 +85,6 @@ class DiagAggState(State):
                 continue
 
             if item.status.level > level:
-                rospy.loginfo('Error item: %s' % item.status.name)
                 level = item.status.level
                 if item.status.level < min_level:
                     min_level = item.status.level
@@ -110,7 +109,6 @@ class DiagAggListener:
         else:
             ignore_diags = [ 'Other' ]
 
-        rospy.loginfo('Ignoring: %s' % ignore_diags)
         self._state = DiagAggState(ignore_diags)
 
         self._diag_agg_sub = rospy.Subscriber('/diagnostics_agg', DiagnosticArray, self._diag_callback)
