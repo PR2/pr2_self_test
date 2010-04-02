@@ -118,9 +118,9 @@ class TestMonitor:
 
     def on_heartbeat(self, msg):
         self._heartbeat_time = rospy.get_time()
-        self._heartbeat_halted = False
 
     def reset_test(self, srv):
+        self._heartbeat_halted = False
         for listener in self._listeners:
             try:
                 listener.reset()
