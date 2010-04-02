@@ -1,6 +1,14 @@
 ethercat:
   type: EthercatListener
   file: ethercat_listener
+diag_agg:
+  type: DiagAggListener
+  file: diag_agg_listener
+  ignore_diags: [
+    'Other',
+    'Joints',
+    'Motors',
+    'Realtime Controllers']
 trans:
   type: TransmissionListener
   file: trans_listener
