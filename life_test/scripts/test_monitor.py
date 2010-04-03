@@ -174,7 +174,7 @@ class TestMonitor:
             stat_data.level = TestStatus.ERROR
             stat_data.messages = ['Listener Startup Error']
 
-        if rospy.get_time() - self._start_time > IGNORE_TIME and (self._was_ok and stat_data.level != TestStatus.RUNNING):
+        if rospy.get_time() - self._start_time > IGNORE_TIME and (self._was_ok and stat_data.level > 1):
             self._halt_listeners()
             rospy.logerr('Halted test after failure. Failure message: %s' % ', '.join(stat_data.messages))
             self._was_ok = False
