@@ -1,6 +1,9 @@
 ethercat:
   type: EthercatListener
   file: ethercat_listener
+drive:
+  type: DriveListener
+  file: drive_listener
 diag_agg:
   type: DiagAggListener
   file: diag_agg_listener

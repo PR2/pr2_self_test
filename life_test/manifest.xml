@@ -35,6 +35,7 @@
   <depend package="pr2_camera_synchronizer" />
   <depend package="base_life_test" />
   <depend package="robot_monitor" />
+  <depend package="pr2_teleop" />
   
   <!-- Unit test -->
   <depend package="roslaunch_parse_tester" />
