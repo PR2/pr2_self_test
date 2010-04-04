@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="base_life_test" type="base_life_test.py" name="base_life_test" output="screen">
+    <remap from="cmd_vel" to="base_controller/command"/>
+  </node>
+</launch>

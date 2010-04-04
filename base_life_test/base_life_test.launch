@@ -1,0 +1,12 @@
+<launch>
+  <include file="$(find base_life_test)/localize.launch"/>
+  <node pkg="base_life_test" type="base_life_test.py" name="base_life_test" output="screen" >
+    <remap from="cmd_vel" to="base_controller/command" />
+  </node>	
+
+  <node pkg="topic_tools" type="relay" name="bogus_relay" args="cmd_vel base_controller/command" />
+  
+<!--
+  <node pkg="base_life_test" type="safe_shuffle_commands.py" name="safe_shuffle_filter" />
+-->
+</launch>

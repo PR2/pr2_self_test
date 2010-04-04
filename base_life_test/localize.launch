@@ -1,0 +1,24 @@
+<launch>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find base_life_test)/life_test_map.pgm 0.05" />
+ <node pkg="amcl" type="amcl" name="amcl" output="screen">
+  <remap from="scan" to="base_scan"/>
+  <param name="odom_model_type" value="omni"/>
+  <param name="odom_frame_id" value="odom_combined"/>
+  <param name="update_min_d" value="0.1"/>
+  <param name="update_min_a" value="0.1"/>
+  <param name="odom_alpha1" value="0.5"/>
+  <param name="odom_alpha2" value="1.0"/>
+  <param name="odom_alpha3" value="0.5"/>
+  <param name="odom_alpha4" value="0.5"/>
+  <param name="odom_alpha5" value="0.5"/>
+  <param name="min_particles" value="400"/>
+<!-- Initial estimate, based on being inside the box -->
+  <param name="initial_pose_x" value="2.207"/>
+  <param name="initial_pose_y" value="5.253"/>
+  <param name="initial_pose_a" value="3.071"/>
+  <param name="initial_cov_aa" value="0.15"/>
+  <param name="initial_cov_xx" value="0.1"/>
+  <param name="initial_cov_yy" value="0.1"/>
+  <param name="laser_model_type" value="beam"/>
+ </node>
+</launch>

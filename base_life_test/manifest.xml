@@ -1,0 +1,21 @@
+<package>
+  <description brief="servo_base">
+
+     servo_base
+
+  </description>
+  <author></author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/servo_base</url>
+  <depend package="tf"/>
+  <depend package="amcl"/>
+  <depend package="map_server"/>
+  <depend package="rospy"/>
+  <depend package="geometry_msgs"/>
+  <depend package="visualization_msgs"/>
+  <depend package="sensor_msgs" />
+  <depend package="topic_tools" />
+</package>
+
+
