@@ -11,6 +11,9 @@
   <!-- Joystick for teleoping safely -->
   <include file="$(find life_test)/pr2_test/teleop_pr2_burn.launch" />
 
+  <!-- Joystick restart node. R2 on PS3 joy to restart -->
+  <node pkg="life_test" type="pr2_drive_restart.py" name="pr2_drive_restart" />
+
   <!-- Monitor (with transmission checker) -->
   <node pkg="life_test" type="test_monitor.py"
         name="monitor" >
