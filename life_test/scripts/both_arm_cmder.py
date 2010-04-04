@@ -41,7 +41,7 @@ from time import sleep
 
 from pr2_controllers_msgs.msg import *
 from trajectory_msgs.msg import JointTrajectoryPoint
-from mapping_msgs.msg import CollisionObject, CollisionObjectOperation
+from mapping_msgs.msg import CollisionObject, CollisionObjectOperation, AttachedCollisionObject
 from geometric_shapes_msgs.msg import Shape
 from geometry_msgs.msg import Pose
 from actionlib_msgs.msg import GoalStatus
@@ -65,6 +65,47 @@ ranges = {
     'l_wrist_flex_joint': (-1.8, -0.2),
     'l_wrist_roll_joint': (-3.14, 3.14)
 }
+
+def get_virtual_gloves():
+    r_glove = AttachedCollisionObject()
+    r_glove.object.header.stamp = rospy.get_rostime()
+    r_glove.object.header.frame_id = '/r_gripper_palm_link'
+    r_glove.link_name = 'r_gripper_palm_link'
+
+    r_glove.object.id = 'r_gripper_glove'
+    r_glove.object.operation.operation = CollisionObjectOperation.ADD
+    
+    glove_shape = Shape()
+    glove_shape.type = Shape.BOX
+    glove_shape.dimensions = [ 0.25, 0.18, 0.1 ]
+    glove_pose = Pose()
+    glove_pose.orientation.w = 1
+    glove_pose.position.x = 0.1
+    
+    # Pose will be zero
+
+    r_glove.touch_links = ['r_gripper_palm_link',
+                           'r_gripper_l_finger_link',
+                           'r_gripper_l_finger_tip_link',
+                           'r_gripper_r_finger_link',
+                           'r_gripper_r_finger_tip_link',
+                           'r_wrist_roll_link',
+                           'r_wrist_flex_link']
+
+    r_glove.object.shapes.append(glove_shape)
+    r_glove.object.poses.append(glove_pose)
+
+    l_glove = copy.deepcopy(r_glove)
+    l_glove.object.id = 'l_gripper_glove'
+    l_glove.object.header.frame_id = '/l_gripper_palm_link'
+    l_glove.link_name = 'l_gripper_palm_link'
+    l_glove.touch_links = [ 'l' + name[1:] for name in r_glove.touch_links ]
+
+    return r_glove, l_glove
+    
+                           
+    
+
 
 ##\brief Sets up a virtual table in front of the robot
 def get_virtual_table(height = 0.42):
@@ -160,6 +201,13 @@ if __name__ == '__main__':
 
     table_pub = rospy.Publisher(COLLISION_TOPIC, CollisionObject, latch = True)
     table_pub.publish(get_virtual_table())
+
+    glove_pub = rospy.Publisher("attached_collision_object", AttachedCollisionObject, latch = True)
+    r_glove, l_glove = get_virtual_gloves()
+    glove_pub.publish(r_glove)
+    sleep(1)
+    glove_pub.publish(l_glove)
+
 
     # Recovery trajectory clients
     recovery_client = actionlib.SimpleActionClient('both_arms_controller/joint_trajectory_action',
