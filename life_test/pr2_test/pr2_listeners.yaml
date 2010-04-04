@@ -55,8 +55,8 @@ trans:
     actuator: r_wrist_l_motor
     down_ref: -0.54105
     deadband: 0.1
-    min: -2.55
-    max: 0.0
+    min: -2.60
+    max: 0.1
   r_wrist_roll_trans:
     joint: r_wrist_roll_joint
     actuator: r_wrist_r_motor
@@ -109,8 +109,8 @@ trans:
     actuator: l_wrist_l_motor
     down_ref: -0.54105
     deadband: 0.1
-    min: -2.55
-    max: 0.0
+    min: -2.60
+    max: 0.1
   l_wrist_roll_trans:
     joint: l_wrist_roll_joint
     actuator: l_wrist_r_motor
