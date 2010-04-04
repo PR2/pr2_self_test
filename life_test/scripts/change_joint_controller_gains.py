@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import roslib; roslib.load_manifest('fingertip_reactive_grasp')
+import roslib; roslib.load_manifest('life_test')
 import rospy
 
 from pr2_mechanism_msgs.srv import SwitchController, LoadController, UnloadController, ListControllers
