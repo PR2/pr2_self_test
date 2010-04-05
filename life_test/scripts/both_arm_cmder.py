@@ -159,7 +159,7 @@ def get_recovery_goal():
 
     positions = {}
     for joint, range in ranges.iteritems():
-        positions[joint] = random.uniform(range[0], range[1])
+        positions[joint] = 0 #random.uniform(range[0], range[1])
     positions['r_shoulder_pan_joint'] = - math.pi / 4
     positions['l_shoulder_pan_joint'] = math.pi / 4
 
