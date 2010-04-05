@@ -11,6 +11,7 @@
   <depend package="pr2_bringup" />
   <depend package="pr2_controller_manager" />
   <depend package="ethercat_trigger_controllers" />
+  <depend package="pr2_mannequin_mode" />
 </package>
 
 
