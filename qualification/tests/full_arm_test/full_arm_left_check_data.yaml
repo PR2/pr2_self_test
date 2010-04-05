@@ -1,0 +1,9 @@
+motors: [
+  'l_shoulder_pan_motor',
+  'l_shoulder_lift_motor',
+  'l_upper_arm_roll_motor',
+  'l_elbow_flex_motor',
+  'l_forearm_roll_motor',
+  'l_wrist_l_motor',
+  'l_wrist_r_motor',
+  'l_gripper_motor']

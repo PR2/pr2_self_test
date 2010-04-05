@@ -1,11 +1,10 @@
-<test name="Full Arm Test" >
+<test name="Full Arm Test (Right)" >
   <instructions>instructions.html</instructions>
   <pre_startup name="Power On">../../scripts/power_on.launch</pre_startup>
   <pre_startup name="Configure Arm" timeout="60" >../../config/r_full_arm_conf.launch</pre_startup>
   <startup>full_arm.launch</startup>
   <subtest name="Full Arm Checkout">full_arm_checkout.launch</subtest>
   <subtest name="WGE100 Self Test" timeout="45">full_arm_wge100_selftest.launch</subtest>
-  <subtest name="Counterbalance Lift Test" timeout="90">counterbalance_test_lift.launch</subtest>
-  <subtest name="Counterbalance Lift and Flex Test" timeout="180">counterbalance_test.launch</subtest>
+  <subtest name="Counterbalance Test" timeout="180">counterbalance_test.launch</subtest>
   <shutdown name="Power Off">../../scripts/power_board_disable.launch</shutdown>
 </test>
