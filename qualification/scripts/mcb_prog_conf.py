@@ -116,6 +116,12 @@ class MCBProgramConfig:
         if self.has_finished:
             return False
 
+        try:
+            rospy.wait_for_service('mcb_conf_results', 10)
+        except:
+            rospy.logerr("MCB conf results service not available. Unable to configure MCB's")
+            return False
+
         if not self.count_boards():
             return False
         if not self.get_serials():
