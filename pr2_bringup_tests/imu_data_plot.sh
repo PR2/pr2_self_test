@@ -1,0 +1,1 @@
+rxplot imu_data/angular_velocity/x:y:z -b 60
