@@ -12,6 +12,8 @@
   <depend package="pr2_controller_manager" />
   <depend package="ethercat_trigger_controllers" />
   <depend package="pr2_mannequin_mode" />
+  <depend package="image_view" />
+  <depend package="compressed_image_transport" />
 </package>
 
 
