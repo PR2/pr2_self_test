@@ -42,9 +42,9 @@
         file="full_arm_test/test.xml" descrip="Full Arm Test (Right)" />
     <test serial="6804204" 
         file="full_arm_test/test_left.xml" descrip="Full Arm Test (Left)" />
-  <test serial="6804204" 
+  <test serial="6804139" 
         file="full_arm_test/test_shoulder_ua.xml" descrip="Shoulder/UA Test Right" />
-    <test serial="6804204" 
+    <test serial="6804139" 
         file="full_arm_test/test_shoulder_ua_left.xml" descrip="Shoulder/UA Test Left" />
 
   <!-- Shoulder Tests -->

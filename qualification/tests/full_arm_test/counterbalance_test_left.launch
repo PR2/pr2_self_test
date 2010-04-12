@@ -3,7 +3,7 @@
   <rosparam command="load"
             file="$(find pr2_controller_configuration)/pr2_joint_position_controllers.yaml" />
   <rosparam command="load"
-            file="$(find qualification)/tests/full_arm_test/counterbalance_controller.yaml" />
+            file="$(find qualification)/tests/full_arm_test/counterbalance_controller_left.yaml" />
   
   <node pkg="pr2_controller_manager" type="spawner" name="arm_spawner"
         args="--wait-for=calibrated l_shoulder_pan_position_controller l_upper_arm_roll_position_controller l_forearm_roll_position_controller l_wrist_flex_position_controller l_wrist_roll_position_controller" />
