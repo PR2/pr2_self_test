@@ -72,6 +72,7 @@ class DiagAggState(State):
     def get_top_level_state(self):
         level = -1
         min_level = 255
+        msgs = []
         
         if len(self.get_items()) == 0:
             return level
@@ -88,21 +89,24 @@ class DiagAggState(State):
                 level = item.status.level
                 if item.status.level < min_level:
                     min_level = item.status.level
+
+            if item.status.level > 0:
+                msgs.append(item.status.name.lstrip('/'))
                 
         # Top level is error if we have stale items, unless all stale
         if level > 2 and min_level <= 2:
             level = 2
             
-        return level
+        return level, msgs
 
 class DiagAggListener:
     def __init__(self):
         self._mutex = threading.Lock()
 
         self._level = 0
+        self._msgs = []
         self._update_time = 0
 
-    # Doesn't do anything
     def create(self, params):
         if params.has_key('ignore_diags'):
             ignore_diags = params['ignore_diags']
@@ -119,23 +123,28 @@ class DiagAggListener:
         pass
 
     def reset(self):
-        pass
+        # Clears state of messages that were in error or warning
+        self._msgs = []
 
     def _diag_callback(self, msg):
         with self._mutex:
             self._update_time = rospy.get_time()
             (added, removed, all) = self._state.update(msg)
 
-            self._level = self._state.get_top_level_state()
+            self._level, msgs = self._state.get_top_level_state()
+
+            for msg in msgs:
+                if self._msgs.count(msg) < 1:
+                    self._msgs.append(msg)
             
     def check_ok(self):
         with self._mutex:
             msg = ''
             stat = self._level
             if stat == 1:
-                msg = 'Diag Warning'
+                msg = 'Diag Warn: %s' % (', '.join(self._msgs))
             if stat > 1:
-                msg = 'Diag Error'
+                msg = 'Diag Error: %s' % (', '.join(self._msgs))
 
             if rospy.get_time() - self._update_time > 3:
                 stat = 3

@@ -1,3 +1,6 @@
+diag_agg:
+  type: DiagAggListener
+  file: diag_agg_listener
 ethercat:
   type: EthercatListener
   file: ethercat_listener

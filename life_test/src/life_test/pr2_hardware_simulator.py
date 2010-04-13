@@ -55,6 +55,7 @@ import math
 class PR2HardwareSimulator:
     def __init__(self):
         self.diag_pub = rospy.Publisher('/diagnostics', DiagnosticArray)
+        self.diag_agg_pub = rospy.Publisher('/diagnostics_agg', DiagnosticArray)
         self.motors_pub = rospy.Publisher('pr2_etherCAT/motors_halted', Bool)
         self.cal_pub = rospy.Publisher('calibrated', Bool, latch=True)
         self.ecstat_pub = rospy.Publisher('ecstats', ecstats)
@@ -71,6 +72,7 @@ class PR2HardwareSimulator:
         self._start_time = rospy.get_time()
 
         self._last_diag_pub = rospy.get_time()
+        self._last_diag_agg_pub = rospy.get_time()
         self._last_motor_pub = rospy.get_time()
         self._last_ecstats_pub = rospy.get_time()
 
@@ -188,6 +190,21 @@ class PR2HardwareSimulator:
 
         self._last_diag_pub = rospy.get_time()
 
+    def _publish_diag_agg(self):
+        msg = DiagnosticArray()
+        msg.status = [
+            DiagnosticStatus(level = 0, name='/Cameras', message='OK'),
+            DiagnosticStatus(level = 1, name='/Cameras/wge100', message='Uh Oh'),
+            DiagnosticStatus(level = 0, name='/Lasers', message='OK'),
+            DiagnosticStatus(level = 2, name='/Other', message='Error')]
+
+        msg.header.stamp = rospy.get_rostime()
+
+        self.diag_agg_pub.publish(msg)
+        self._last_diag_agg_pub = rospy.get_time()
+
+        
+
     def _publish_motor_state(self):
         self.motors_pub.publish(Bool(not self._ok))
         self._last_motor_pub = rospy.get_time()
@@ -204,6 +221,8 @@ class PR2HardwareSimulator:
         self._publish_mech_stats()
         if rospy.get_time() - self._last_diag_pub > 1.0:
             self._publish_diag()
+        if rospy.get_time() - self._last_diag_agg_pub > 1.0:
+            self._publish_diag_agg()
         if rospy.get_time() - self._last_motor_pub > 0.02:
             self._publish_motor_state()
         if rospy.get_time() - self._last_ecstats_pub > 0.2:
