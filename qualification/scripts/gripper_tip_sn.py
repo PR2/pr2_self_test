@@ -46,7 +46,7 @@ from qualification.srv import ScriptDone, ScriptDoneRequest
 import rospy
 
 def _report_invalid_id():
-    dlg = wx.MessageBox(None, "Invalid ID. Tip ID should be four digits, numeric. Press Cancel to abort or OK to retry.", "Invalid ID", wx.OK|wx.CANCEL)
+    dlg = wx.MessageDialog(None, "Invalid ID. Tip ID should be four digits, numeric. Press Cancel to abort or OK to retry.", "Invalid ID", wx.OK|wx.CANCEL)
     return dlg.ShowModal() == wx.ID_OK
 
 def _report_id_mismatch():
@@ -101,10 +101,12 @@ if __name__ == '__main__':
     if code is None:
         done_srv.call(result = ScriptDoneRequest.RESULT_FAIL, failure_msg = "User was unable to get correct PPS ID code from tip sensor")
         rospy.spin()
+        sys.exit()
 
     if not add_reference(code):
         done_srv.call(result = ScriptDoneRequest.RESULT_FAIL, failure_msg = "Unable to load PPS code %s into inventory system." % code)
         rospy.spin()
+        sys.exit()
 
     done_srv.call(result = ScriptDoneRequest.RESULT_OK, failure_msg = "Loaded PPS code %s into invent" % code)
 
