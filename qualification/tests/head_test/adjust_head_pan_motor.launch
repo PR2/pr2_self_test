@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="qualification" name="check_adjust" type="check_head_pan_adjust.py" />
+
+  <!-- Hack script to plot encoder position -->
+  <node pkg="qualification" name="head_pan_encoder_plotter" type="head_pan_encoder_plotter.sh" />
+</launch>

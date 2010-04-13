@@ -105,6 +105,7 @@ if __name__ == '__main__':
     verifier = MotorStatusVerifier()
     try:
         verifier.check_motor()
+        rospy.spin()
     except KeyboardInterrupt:
         pass
     except:

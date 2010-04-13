@@ -5,6 +5,7 @@
   <pre_startup name="Power Cycle" timeout="30">../../scripts/power_cycle.launch</pre_startup>
   <pre_startup name="Motor Conf." timeout="30">head_pan_motor_conf.launch</pre_startup>
   <startup name="Pan Motor">head_pan_motor.launch</startup>
+  <subtest name="Adjust Head Pan Gears" >adjust_head_pan_motor.launch</subtest>
   <subtest name="Hystereis Pan Motor" timeout="45">hysteresis_head_pan_motor.launch</subtest>
   <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
 </test>
