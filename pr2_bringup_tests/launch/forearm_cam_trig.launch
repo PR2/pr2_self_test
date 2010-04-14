@@ -1,0 +1,7 @@
+<launch>
+  <node type="dynparam" pkg="dynamic_reconfigure" name="$(anon dynparam)"
+        args="set_from_parameters camera_synchronizer_node">
+    <param name="forearm_l_trig_mode" value="4" type="int"/>
+    <param name="forearm_r_trig_mode" value="4" type="int"/>
+  </node>
+</launch>
