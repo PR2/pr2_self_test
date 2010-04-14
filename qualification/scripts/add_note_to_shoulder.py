@@ -56,7 +56,7 @@ def _report_invalid_id():
 
 def get_sn_from_user(iv):
     while not rospy.is_shutdown():
-        sn = wx.GetTextFromUser("Enter the shoulder serial number by scanning the shoulder barcode", "Enter Shoulder SN")
+        sn = str(wx.GetTextFromUser("Enter the shoulder serial number by scanning the shoulder barcode", "Enter Shoulder SN"))
         if not unicode(sn).isnumeric() or not len(sn) == 12 or \
                 not sn.startswith(SHOULDER_PN) or not iv.check_serial_valid(sn):
             if _report_invalid_id():
