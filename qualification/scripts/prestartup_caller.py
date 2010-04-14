@@ -72,7 +72,7 @@ if __name__ == '__main__':
     r.failure_msg = 'CMD: %s\n%s\n%s' % (cmd, stdout, stderr)
     if retcode == 0:
         r.result = 0
-        r.failure_msg = ''
+        r.failure_msg = 'CMD: %s' % cmd
         finish.call(r)
     else:
         finish.call(r) 
