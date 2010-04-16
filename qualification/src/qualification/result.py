@@ -68,8 +68,11 @@ import shutil
 ##\todo These might go in /hwlog instead
 RESULTS_DIR = os.path.join(roslib.packages.get_pkg_dir(PKG), 'results')
 
-TEMP_DIR = os.path.join(tempfile.gettempdir(), 'qualification')
+import result_dir
+TEMP_DIR = result_dir.TEMP_DIR
+#TEMP_DIR = os.path.join(tempfile.gettempdir(), 'qualification')
 
+##\todo Rename to '_' name
 def write_temp_tar_file(results_dir):
     temp_tar_file = tempfile.NamedTemporaryFile()
 
@@ -285,7 +288,7 @@ class SubTestResult:
             im.save(img_file)
 
     def html_image_result(self, img_path):
-        html = '<H5 ALIGN=CENTER>Result Details</H5>'
+        html = '<H4 ALIGN=CENTER>Result Details</H4>'
         
         # Users must put '<img src=\"IMG_PATH/%s.png\" /> % image_title' in html_result
         html += self._text_result.replace('IMG_PATH', os.path.join(img_path, self.filename_base()))
@@ -342,26 +345,32 @@ em { font-style:normal; font-weight: bold; }\
         return html 
 
     def _html_test_params(self):
-        html = ['<H4 align=center>Subtest Parameters</H4>\n']
+        html = ['<H4 align=center>Subtest Parameters</H4>']
         
-        html.append('<table border="1" cellpadding="2" cellspacing="0">\n')
-        html.append('<tr><td><b>Parameter</b></td><td><b>Value</b></td></tr>\n')
-        for param in self._params:
-            html.append('<tr><td>%s</td><td>%s</td></tr>\n' % (param.key, param.value))
-        html.append('</table>\n')
+        if len(self._params) == 0:
+            html.append('<p>No subtest parameters.</p>')
+        else:
+            html.append('<table border="1" cellpadding="2" cellspacing="0">')
+            html.append('<tr><td><b>Parameter</b></td><td><b>Value</b></td></tr>')
+            for param in self._params:
+                html.append('<tr><td>%s</td><td>%s</td></tr>' % (param.key, param.value))
+            html.append('</table>')
         
-        return ''.join(html)
+        return '\n'.join(html)
 
     def _html_test_values(self):
-        html = ['<H4 align=center>Subtest Measurements</H4>\n']
+        html = ['<H4 align=center>Subtest Measurements</H4>']
         
-        html.append('<table border="1" cellpadding="2" cellspacing="0">\n')
-        html.append('<tr><td><b>Measurement</b></td><td><b>Value</b></td><td><b>Min</b></td><td><b>Max</b></td></tr>\n')
-        for value in self._values:
-            html.append('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n' % (value.key, value.value, value.min, value.max))
-        html.append('</table>\n')
+        if len(self._values) == 0:
+            html.append('<p>No subtest values.</p>')
+        else:
+            html.append('<table border="1" cellpadding="2" cellspacing="0">')
+            html.append('<tr><td><b>Measurement</b></td><td><b>Value</b></td><td><b>Min</b></td><td><b>Max</b></td></tr>')
+            for value in self._values:
+                html.append('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (value.key, value.value, value.min, value.max))
+            html.append('</table>')
 
-        return ''.join(html)
+        return '\n'.join(html)
 
 
     def _html_test_info(self):
@@ -397,7 +406,7 @@ em { font-style:normal; font-weight: bold; }\
     def html_header(self):
         html = ['<H4 ALIGN=CENTER>Results of %s%s</H4>\n' % (self._subtest.get_name(), self._retry_name)]
         
-        html.append("<p>Status: %s</p>\n" % self._result.get_html_msg())
+        html.append("<p>Test Status:</p>\n<H4>%s</H4>\n" % self._result.get_html_msg())
 
         if self._summary != '':
             html.append('<p><em>Summary</em></p>\n' )

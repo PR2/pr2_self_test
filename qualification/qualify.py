@@ -55,10 +55,18 @@ class QualificationApp(wx.App):
             wx.MessageBox('A ROS core is still running and preventing the qualification system from starting. Shut down ROS processes by using the "Kill ROS" icon.','ROS Already Running', wx.OK|wx.ICON_ERROR, None)
             sys.exit(1)
         except Exception, e:
+            wx.MessageBox('Error starting ROS. This is very unusual.','ROS Startup Error', wx.OK|wx.ICON_ERROR, None)
             import traceback
             traceback.print_exc()
             sys.exit(1)
-            
+
+        from qualification.result_dir import check_qual_result_dir
+        if not check_qual_result_dir():
+            wx.MessageBox("Unable to write to the temporary results directory. This will cause weird problems. Open a terminal and type, \"sudo rm /tmp/* -rf\" to remove the offending directory.", 
+                          "Unable to Write Results", wx.OK|wx.ICON_ERROR, None)
+            sys.exit(1)
+
+        
         rospy.init_node("qualification")
         
         img_path = os.path.join(roslib.packages.get_pkg_dir('qualification'), 'xrc', 'splash.jpg')

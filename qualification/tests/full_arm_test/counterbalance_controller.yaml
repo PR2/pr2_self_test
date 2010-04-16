@@ -16,7 +16,7 @@ test_controller:
     dither: 8.0
     mse: 3.0
     avg_abs: 2.0
-    avg_eff: 2.0
+    avg_eff: 1.5
   flex:
     joint: r_elbow_flex_joint
     type: JointPositionController
@@ -30,4 +30,4 @@ test_controller:
     dither: 6.0
     mse: 3.0
     avg_abs: 2.0
-    avg_eff: 2.0
+    avg_eff: 1.5
