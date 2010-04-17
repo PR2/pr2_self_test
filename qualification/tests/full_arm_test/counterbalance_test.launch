@@ -1,4 +1,7 @@
 <launch>
+  <node pkg="pr2_controller_manager" type="unspawner" name="arm_unspawner"
+        args="r_arm_controller l_arm_controller" />
+
   <!-- Hold arms in place -->
   <rosparam command="load"
             file="$(find pr2_controller_configuration)/pr2_joint_position_controllers.yaml" />
