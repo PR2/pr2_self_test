@@ -190,7 +190,6 @@ class TestMonitor:
             stat_data.status = TestStatus.STALE
             stat_data.messages = ['No heartbeat']
             
-
         return stat_data
 
     def publish_status(self):
@@ -216,6 +215,8 @@ if __name__ == '__main__':
         while not rospy.is_shutdown():
             rate.sleep()
             tm.publish_status()
+    except KeyboardInterrupt:
+        pass
     except:
         traceback.print_exc()
         rospy.logerr(traceback.format_exc())
