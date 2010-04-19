@@ -209,7 +209,7 @@ def get_const_lift_effort(data, lift_index = 0, lift_calc = True):
 
     return flex_list, effort_list
 
-def plot_efforts_by_lift_position(params, data, flex_index = 0, lift_calc = True):
+def plot_efforts_by_lift_position(params, data, flex_index = -1, lift_calc = True):
     lift_position, effort = get_const_flex_effort(data, flex_index, lift_calc)
     
     flex_position = data.lift_data[0].flex_data[flex_index].flex_position
@@ -404,11 +404,15 @@ class CounterbalanceAnalysis:
             if params.flex_test:
                 flex_effort_result = analyze_flex_efforts(params, data)
                 lift_effort_contour = plot_effort_contour(params, data)
+                flex_effort_contour = plot_effort_contour(params, data, False)
 
             html = ['<p>Counterbalance Analysis</p>']
             if params.flex_test:
                 html.append('<H4>Lift Effort Contour Plot</H4>')
                 html.append('<img src=\"IMG_PATH/%s.png\" width=\"640\" height=\"480\" />' % (lift_effort_contour.title))
+                html.append('<H4>Flex Effort Contour Plot</H4>')
+                html.append('<img src=\"IMG_PATH/%s.png\" width=\"640\" height=\"480\" />' % (flex_effort_contour.title))
+                
                 html.append('<H4>Flex Effort Analysis</H4>')
                 html.append(flex_effort_result.html)
 
@@ -445,8 +449,11 @@ class CounterbalanceAnalysis:
             r.plots = [ lift_effort_plot ]
             if params.flex_test:
                 r.plots.append(lift_effort_contour)
+                r.plots.append(flex_effort_contour)
             r.params = params.get_test_params()
             r.values = lift_effort_result.values
+            if params.flex_test:
+                r.values.extend(flex_effort_result.values)
 
             if self._motors_halted:
                 r.text_summary = 'Fail, motors halted. Check estop and power board.'
