@@ -17,7 +17,7 @@
   </test>
 
   <test serial="6804015" name="Gripper Test"
-        short="Gripper" trac="000"
+        short="Gripper" duration="1"
         desc="Test gripper moving in and out. Place dog toy within grasping range of gripper for first 1 hour. Test should run for 40 hours.\nPlace dog toy in gripper jaws AFTER gripper is calibrated"
         script="gripper_test/test_gui.launch" power="true"
         type="Burn-in Test" >
@@ -27,7 +27,7 @@
   </test>
 
     <test serial="6802478" name="Torso Test"
-        short="Torso" trac="000"
+        short="Torso" duration="6"
         desc="Test torso moving up and down."
         script="torso_test/test_gui.launch" power="true"
         type="Burn-in Test" >
@@ -37,7 +37,7 @@
   </test>
 
   <test serial="6804108" name="Caster Test"
-        short="Caster" trac="001"
+        short="Caster" duration="40"
         desc="Caster jerks around under pressure. Put pressure on caster BEFORE turning this test on."
         script="caster_test/test_gui.launch" power="true"
         type="Burn-in Test" >
@@ -47,8 +47,8 @@
   </test>
 
   
-  <test serial="6804213" name="Free Wrist Test" 
-	short="Wrist" trac="438"
+  <test serial="6804213" name="Wrist Test" 
+	short="Wrist" duration="40"
 	desc="Test of wrist and dummy gripper."
 	script="wrist_test/test_gui.launch" 
 	type="Burn-in Test" power="true" >
@@ -61,7 +61,7 @@
   </test>
 
   <test serial="6804040" name="Head Life Test" 
-	short="Head" trac="289"
+	short="Head" duration="40"
 	desc="Tests head on test cart, moving between [-0.4, 1.4] tilt, [-2.7, 2.7] pan."
 	script="head_test/test_gui.launch"
 	type="Life Test" power="true" >
@@ -71,24 +71,14 @@
   </test>
 
   <test serial="6804001" name="Laser Tilt Life Test" 
-	short="Sled" trac="41"
+	short="Sled" duration="40"
 	desc="Tests laser tilt with Hokuyo wire connection."
 	script="laser_tilt_test/test_gui.launch"
 	type="Life Test" power="true" >
   </test>
   
-  <test serial="6804139" name="Upperarm Test"
-	short="Upperarm" trac="400"
-	desc="Tests upperarm."
-	rate="1.0" script="upperarm_test/test_gui.launch"
-	type="Burn-in Test" power="true" >
-    <param name="Forearm Roll" param_name="forearm_roll"
-	   desc="Forearm roll true/false"
-	   val="true" rate="false" />
-  </test>
-
   <test serial="6803757" name="Forearm/Slip Ring Test"
-	short="Slip Ring" trac="400"
+	short="Slip Ring" duration="40"
 	desc="Tests forearm roll and slip ring packet drop"
 	rate="1.0" script="slip_ring_test/test_gui.launch"
 	type="Burn-in Test" power="true" >
@@ -98,7 +88,7 @@
   </test>
 
   <test serial="6804204" name="Shoulder Test"
-	short="Shoulder" trac="400"
+	short="Shoulder" duration="40"
 	desc="Tests shoulder with dummy UA."
 	rate="1.0" script="shoulder_test/test_gui.launch"
 	type="Burn-in Test" power="true" >
@@ -121,7 +111,7 @@
 -->  
   
   <test serial="6804204" name="Right Arm Test"
-	short="Right Arm" trac="400"
+	short="Right Arm" 
 	desc="Tests fully assembled arm"
 	rate="1.0" script="arm_test/test_right_arm.launch"
 	type="Burn-in Test" power="true" >
@@ -131,7 +121,7 @@
   </test>
 
   <test serial="6804204" name="Left Arm Test"
-	short="Left Arm" trac="400"
+	short="Left Arm" 
 	desc="Tests fully assembled arm"
 	rate="1.0" script="arm_test/test_left_arm.launch"
 	type="Burn-in Test" power="true" >
@@ -142,7 +132,7 @@
 
 
   <test serial="6804139" name="Shoulder/UA Right Test"
-	short="Shoulder/UA" trac="400"
+	short="Shoulder/UA" duration="15"
 	desc="Tests shoulder, upper arm and dummy FA, configured as right arm. (Shoulder is used as test fixture)"
 	rate="1.0" script="shoulder_ua_test/test_gui.launch"
 	type="Burn-in Test" power="true" >
@@ -151,7 +141,7 @@
 	   val="1.0" rate="true" />
   </test>
   <test serial="6804139" name="Shoulder/UA Left Test"
-	short="Shoulder/UA Left" trac="400"
+	short="Shoulder/UA Left" duration="15"
 	desc="Tests shoulder, upper arm and dummy FA, configured as left arm.  (Shoulder is used as test fixture)"
 	rate="1.0" script="shoulder_ua_test/test_left_gui.launch"
 	type="Burn-in Test" power="true" >
