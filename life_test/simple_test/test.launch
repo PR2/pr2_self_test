@@ -4,4 +4,7 @@
   <node pkg="life_test" type="test_monitor.py" name="monitor" machine="test_host" >
     <rosparam command="load" file="$(find life_test)/simple_test/fake_listeners.yaml" />
   </node>
+
+  <node pkg="rostopic" type="rostopic" name="cal_pub"
+        args="pub calibrated std_msgs/Bool true -r 1" />
 </launch>

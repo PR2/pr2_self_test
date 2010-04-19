@@ -1,7 +1,7 @@
 <!-- Stores data on every test that can run through Test Manager -->
 <tests>
   <test serial="faketes" name="Simple Test" 
-	short="Fake" trac="007"
+	short="Fake" duration="40"
 	desc="Test to test life GUI"
 	script="simple_test/test.launch" power="false"
 	type="Life Test" >

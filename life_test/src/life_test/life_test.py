@@ -101,14 +101,22 @@ class TestMonitorPanel(wx.Panel):
         self._test_bay_ctrl.SetItems(self._manager.room.get_bay_names(self._test.needs_power()))
         self._test_bay_ctrl.SetToolTip(wx.ToolTip("Select location of test"))
         
+        # Set default start time based on test
         self._end_cond_type = xrc.XRCCTRL(self._panel, 'end_cond_type')
-        self._end_cond_type.SetStringSelection('Continuous')
+        self._end_cond_type_label = xrc.XRCCTRL(self._panel, 'duration_label')
+        self._test_duration_ctrl = xrc.XRCCTRL(self._panel, 'test_duration_ctrl')
+
+        if self._test.get_duration() > 0:
+            self._end_cond_type.SetStringSelection('Hours')
+            self._test_duration_ctrl.SetRange(0, max(168, self._test.get_duration())) # Week
+            self._test_duration_ctrl.SetValue(int(self._test.get_duration()))
+        else:
+            self._end_cond_type.SetStringSelection('Continuous')
+            self._test_duration_ctrl.SetRange(0, 0) # Can't change limits
+            self._test_duration_ctrl.SetValue(0)
+
         self._end_cond_type.Bind(wx.EVT_CHOICE, self.on_end_choice)
         self._end_cond_type.SetToolTip(wx.ToolTip("Select stop time"))
-
-        self._end_cond_type_label = xrc.XRCCTRL(self._panel, 'duration_label')
-
-        self._test_duration_ctrl = xrc.XRCCTRL(self._panel, 'test_duration_ctrl')
         
         self._close_button = xrc.XRCCTRL(self._panel, 'close_button')
         self._close_button.Bind(wx.EVT_BUTTON, self.on_close)
@@ -221,7 +229,7 @@ class TestMonitorPanel(wx.Panel):
         self._invent_note_id = None
  
         self.update_controls()
-        self.on_end_choice()
+       
 
     def create_monitor(self):
         self._monitor_panel = MonitorPanel(self._notebook, 'empty_topic')
@@ -772,7 +780,7 @@ class TestMonitorPanel(wx.Panel):
         rospy.set_param(self._bay.name, {})
         self._test.set_params(self._bay.name)
         self._test_launcher = roslaunch_caller.ScriptRoslaunch(
-            self.make_launch_script(self._bay, self._test._launch_script, local_diag))
+            self.make_launch_script(self._bay, self._test.get_launch_file(), local_diag))
         try:
             self._test_launcher.start()
         except Exception, e:
@@ -913,7 +921,7 @@ class TestMonitorPanel(wx.Panel):
 
     # Dump these into test_result class of some sort
     def make_html_test_summary(self, alert_msg = ''):
-        html = '<html><head><title>Test Log: %s of %s</title>' % (self._test._name, self._serial)
+        html = '<html><head><title>Test Log: %s of %s</title>' % (self._test.get_name(), self._serial)
         html += '<style type=\"text/css\">\
 body { color: black; background: white; }\
 div.error { background: red; padding: 0.5em; border: none; }\
@@ -924,7 +932,7 @@ em { font-style:normal; font-weight: bold; }\
 </style>\
 </head>\n<body>\n'
 
-        html += '<H2 align=center>Test Log: %s of %s</H2>\n' % (self._test._name, self._serial)
+        html += '<H2 align=center>Test Log: %s of %s</H2>\n' % (self._test.get_name(), self._serial)
         
         if alert_msg != '':
             html += '<H3>Alert: %s</H3><br>\n' % alert_msg
@@ -969,7 +977,7 @@ em { font-style:normal; font-weight: bold; }\
 
     def make_test_info_table(self):
         html = '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += self.make_table_row(['Test Name', self._test._name])
+        html += self.make_table_row(['Test Name', self._test.get_name()])
         if self._bay:
             html += self.make_table_row(['Test Bay', self._bay])
             html += self.make_table_row(['Machine', self._bay.machine])
@@ -978,9 +986,8 @@ em { font-style:normal; font-weight: bold; }\
 
         
         html += self.make_table_row(['Serial', self._serial])
-        html += self.make_table_row(['Test Type', self._test._test_type])
-        html += self.make_table_row(['Launch File', self._test._launch_script])
-        html += self.make_table_row(['Trac Ticket', self._test._trac])
+        html += self.make_table_row(['Test Type', self._test.get_type()])
+        html += self.make_table_row(['Launch File', self._test.get_launch_file()])
         html += '</table>\n'
 
         return html

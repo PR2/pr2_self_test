@@ -71,6 +71,85 @@ from std_msgs.msg import Empty
 
 from roslaunch_caller import roslaunch_caller 
 
+
+##\brief Loads locations for tests
+def load_rooms_from_file():
+    filepath = os.path.join(roslib.packages.get_pkg_dir(PKG), 'wg_test_rooms.xml')
+
+    rooms = {}
+
+    try:
+        doc = minidom.parse(filepath)
+        rooms_xml = doc.getElementsByTagName('room')
+        for room_xml in rooms_xml:
+            hostname = room_xml.attributes['hostname'].value
+            room = TestRoom(hostname)
+            for bay in room_xml.getElementsByTagName('bay'):
+                room.add_bay(TestBay(bay))
+                rooms[hostname] = room
+
+        return rooms
+    except:
+        rospy.logerr('Caught exception loading rooms data. Exception: %s' % traceback.format_exc())
+
+        return {}
+  
+##\brief Loads configuration file about tests
+def load_tests_from_file(test_xml_path =os.path.join(roslib.packages.get_pkg_dir('life_test'), 'tests.xml')):
+    my_tests = {}
+
+    try:
+        doc = minidom.parse(test_xml_path)
+    except IOError:
+        rospy.logerr('Could not load tests from %s' % test_xml_path)
+        return {}
+
+    try:
+        tests = doc.getElementsByTagName('test')
+        for test in tests:
+            serial = test.attributes['serial'].value # Short serial only
+            name = test.attributes['name'].value
+            desc = test.attributes['desc'].value
+            script = test.attributes['script'].value
+            type = test.attributes['type'].value
+            short = test.attributes['short'].value
+            power = test.attributes['power'].value != 'false'
+            
+            if test.attributes.has_key('duration'):
+                duration = int(test.attributes['duration'].value)
+            else:
+                duration = 0
+            
+            # Add test parameters
+            # Make param from XML element
+            # Append to list, add to test
+            test_params = []
+            params_xml = test.getElementsByTagName('param')
+            for param_xml in params_xml:
+                p_name = param_xml.attributes['name'].value
+                p_param_name = param_xml.attributes['param_name'].value
+                p_desc = param_xml.attributes['desc'].value
+                p_val = param_xml.attributes['val'].value
+                
+                p_rate = param_xml.attributes['rate'].value == 'true'
+
+
+                test_params.append(TestParam(p_name, p_param_name, 
+                                             p_desc, p_val, p_rate))
+
+                
+            life_test = LifeTest(serial, name, short, duration, 
+                                 desc, type, script, power, test_params)
+
+            my_tests.setdefault(serial, []).append(life_test)
+                
+        return my_tests
+    except:
+        traceback.print_exc()
+        rospy.logerr('Caught exception parsing test XML. Exception: %s' % traceback.format_exc())
+        return {}
+
+
 class TestManagerFrame(wx.Frame):
     def __init__(self, parent, debug = False):
         wx.Frame.__init__(self, parent, wx.ID_ANY, "Test Manager")
@@ -399,93 +478,29 @@ class TestManagerFrame(wx.Frame):
 
     ## Loads locations for tests
     def load_rooms_from_file(self):
-        filepath = os.path.join(roslib.packages.get_pkg_dir(PKG), 'wg_test_rooms.xml')
-
-        rooms = {}
-
-        try:
-            doc = minidom.parse(filepath)
-            rooms_xml = doc.getElementsByTagName('room')
-            for room_xml in rooms_xml:
-                hostname = room_xml.attributes['hostname'].value
-                room = TestRoom(hostname)
-                for bay in room_xml.getElementsByTagName('bay'):
-                    room.add_bay(TestBay(bay))
-                rooms[hostname] = room
-
-            self._rooms = rooms
-        except:
-            traceback.print_exc()
+        my_rooms = load_rooms_from_file()
+        if len(my_rooms.items()) == 0:
             wx.MessageBox('Unable to load test rooms and bays information from %s. Check the file and try again' % filepath,
                           'Unable to load rooms', wx.OK|wx.ICON_ERROR, self)
             return
+        self._rooms = my_rooms
 
-        if len(self._rooms.keys()) == 0:
-            wx.MessageBox('No test rooms found in %s. Check the file and try again' % filepath,
-                          'Unable to load rooms', wx.OK|wx.ICON_ERROR, self)
-            return
-        
         if self._rooms.has_key(socket.gethostname()):
             self.room = self._rooms[socket.gethostname()]
         else:
             self.room = room # Last room
-            
         
 
     # Loads tests from XML file
     def load_tests_from_file(self, test_xml_path =os.path.join(roslib.packages.get_pkg_dir('life_test'), 'tests.xml')):
-        my_tests = {}
+        my_tests = load_tests_from_file(test_xml_path)
 
-        try:
-            doc = minidom.parse(test_xml_path)
-        except IOError:
-            rospy.logerr('Could not load tests from %s' % test_xml_path)
-            sys.exit()
-
-        try:
-            tests = doc.getElementsByTagName('test')
-            for test in tests:
-                serial = test.attributes['serial'].value # Short serial only
-                name = test.attributes['name'].value
-                desc = test.attributes['desc'].value
-                script = test.attributes['script'].value
-                type = test.attributes['type'].value
-                trac = test.attributes['trac'].value
-                short = test.attributes['short'].value
-                power = test.attributes['power'].value != 'false'
-                
-                # Add test parameters
-                # Make param from XML element
-                # Append to list, add to test
-                test_params = []
-                params_xml = test.getElementsByTagName('param')
-                for param_xml in params_xml:
-                    p_name = param_xml.attributes['name'].value
-                    p_param_name = param_xml.attributes['param_name'].value
-                    p_desc = param_xml.attributes['desc'].value
-                    p_val = param_xml.attributes['val'].value
-                    
-                    p_rate = param_xml.attributes['rate'].value == 'true'
-
-
-                    test_params.append(TestParam(p_name, p_param_name, 
-                                                 p_desc, p_val, p_rate))
-
-                        
-                life_test = LifeTest(serial, name, short, trac, 
-                                     desc, type, script, power, test_params)
-
-                if my_tests.has_key(serial):
-                    my_tests[serial].append(life_test)
-                else:
-                    my_tests[serial] = [ life_test ]
-                    
-            self._tests = my_tests
-        except:
-            traceback.print_exc()
-            rospy.logerr('Caught exception parsing test XML.')
+        if len(my_tests.items()) == 0:
             wx.MessageBox('Unable to load test from file %s. Check the file and try again.' % test_xml_path,
                           'Unable to load', wx.OK|wx.ICON_ERROR, self)
+            return
+        self._tests = my_tests
+        
 
     ##\brief Pop-up GUI that lets users select which test to load
     def select_string_from_list(self, msg, lst):

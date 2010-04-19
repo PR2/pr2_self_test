@@ -40,11 +40,11 @@ import rospy
 
 class LifeTest:
     def __init__(self, short_serial, test_name, short_name, 
-                 trac, desc, test_type, launch_file, need_power, params):
+                 duration, desc, test_type, launch_file, need_power, params):
         self._short_serial = short_serial
         self._name = test_name
         self._short = short_name
-        self._trac = trac
+        self._duration = duration
         self._desc = desc
         self._launch_script = launch_file
         self._test_type = test_type
@@ -64,6 +64,18 @@ class LifeTest:
                                         len(serial)])
         # Or just return the short name and the trac ticket
         return self._short
+
+    def get_duration(self):
+        return int(self._duration)
+
+    def get_name(self):
+        return self._name
+
+    def get_type(self):
+        return self._test_type
+    def get_launch_file(self):
+        return self._launch_script
+
 
     def needs_power(self):
         return self.need_power
