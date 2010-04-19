@@ -37,7 +37,7 @@
 
 ##\brief Listens to transmissions of specified joints, halts motors if error detected.
 
-
+from __future__ import with_statement
 PKG = 'life_test'
 
 import roslib
@@ -249,6 +249,11 @@ class JointTransmissionListener():
         self.message = 'OK'
         self.reading_msg = 'No data'
 
+        self._last_rising = 0
+        self._last_falling = 0
+        self._last_bad_reading = 0
+
+
     ## Mandatory params: actuator, joint, deadband
     def create(self, params):
         if not params.has_key('actuator'):
@@ -399,6 +404,8 @@ class JointTransmissionListener():
         
         if self.act_exists:
             self.cal_reading = mech_state.actuator_statistics[act_names.index(self._actuator)].calibration_reading
+            self._last_rising = mech_state.actuator_statistics[act_names.index(self._actuator)].last_calibration_rising_edge
+            self._last_falling = mech_state.actuator_statistics[act_names.index(self._actuator)].last_calibration_falling_edge
 
         joint_names = [x.name for x in mech_state.joint_statistics]
         self.joint_exists = self._joint in joint_names
@@ -419,6 +426,7 @@ class JointTransmissionListener():
         if not self.check_device(self.position, self.cal_reading, self.calibrated):
             self._broke_count += 1
             self._num_hits += 1
+            self._last_bad_reading = self.position
         else:
             self._broke_count = 0
 
@@ -475,6 +483,10 @@ class JointTransmissionListener():
         diag.values.append(KeyValue('Max Obs. Position', str(self._max_position)))
         diag.values.append(KeyValue('Min Obs. Position', str(self._min_position)))
 
+        diag.values.append(KeyValue('Last Rising Edge', str(self._last_rising)))
+        diag.values.append(KeyValue('Last Falling Edge', str(self._last_falling)))
+        diag.values.append(KeyValue('Last Bad Reading', str(self._last_bad_reading)))
+
         return diag
 
         
@@ -507,17 +519,16 @@ class TransmissionListener:
         return True
         
     def _callback(self, msg):
-        self._mutex.acquire()
-        self._last_msg_time = rospy.get_time()
-        self._diag_stats = []
-
-        was_ok = self._ok
-
-        for joint_mon in self._joint_monitors:
-            ok = joint_mon.update(msg)
-            self._ok = ok and self._ok
-
-        self._mutex.release()
+        with self._mutex:
+            self._last_msg_time = rospy.get_time()
+            self._diag_stats = []
+            
+            was_ok = self._ok
+            
+            for joint_mon in self._joint_monitors:
+                ok = joint_mon.update(msg)
+                self._ok = ok and self._ok
+                
 
         # Halt if broken
         if not self._ok and was_ok:
@@ -529,36 +540,31 @@ class TransmissionListener:
                 rospy.logerr('Caught exception trying to halt motors: %s', traceback.format_exc())
 
     def reset(self):
-        self._mutex.acquire()
-        self._ok = True
-        for joint_mon in self._joint_monitors:
-            joint_mon.reset()
-        self._mutex.release()
+        with self._mutex:
+            self._ok = True
+            for joint_mon in self._joint_monitors:
+                joint_mon.reset()
     
     def halt(self):
         pass
             
     def check_ok(self):
-        self._mutex.acquire()
-        
-        if self._last_msg_time == 0:
-            self._mutex.release()
-            return 3, "No mech state", None
-        if rospy.get_time() - self._last_msg_time > 3:
-            self._mutex.release()
-            return 3, "Mech state stale", None
+        with self._mutex:
+            if self._last_msg_time == 0:
+                return 3, "No mech state", None
+            if rospy.get_time() - self._last_msg_time > 3:
+                return 3, "Mech state stale", None
 
-        if self._ok:
-            status = 0
-            msg = ''
-        else:
-            status = 2
-            msg = 'Transmission Broken'
+            if self._ok:
+                status = 0
+                msg = ''
+            else:
+                status = 2
+                msg = 'Transmission Broken'
         
-        diag_stats = []
-        for joint_mon in self._joint_monitors:
-            diag_stats.append(joint_mon.get_status())
-        
-        self._mutex.release()
-
+            diag_stats = []
+            for joint_mon in self._joint_monitors:
+                diag_stats.append(joint_mon.get_status())
+                
+                
         return status, msg, diag_stats
