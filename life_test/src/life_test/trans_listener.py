@@ -345,6 +345,7 @@ class JointTransmissionListener():
             return True
 
         # cal_bool is True if the flag is closed
+        # cal_bool = True for "13"
         cal_bool = cal_reading % 2 == 1
         
         
