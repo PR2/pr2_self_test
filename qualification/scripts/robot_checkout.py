@@ -54,6 +54,29 @@ def level_cmp(a, b):
 
     return cmp(b._level, a._level)
 
+##\brief Wrist diagnostics summary for easy to read messages
+def _write_diag_summary(error_names, num_error, num_warn, num_stale):
+    camera = False
+    for name in error_names:
+        if name.find('wge100') > 0:
+            camera = True
+
+    hokuyo = False
+    for name in error_names:
+        if name.find('hokuyo') > 0:
+            hokuyo = True
+            
+    ethercat = error_names.count('EtherCAT Master') > 0
+        
+    if ethercat:
+        return 'EtherCAT error. Check runstop. Motors or MCB\'s may have problem. '
+    if camera:
+        return 'Error in wge100 camera. Check camera connection. '
+    if hokuyo:
+        return 'Hokuyo error. Check connections. '
+
+    return 'Diagnostics FAIL: %s errors, %s warnings, %s stale items. ' % (num_error, num_warn, num_stale)
+
 class DiagnosticItem:
     def __init__(self, name, level, message):
         self._name = name
@@ -79,6 +102,7 @@ class DiagnosticItem:
         self._level = level
         self._message = message
 
+##\brief Checks that all joints, actuators and diagnostics are OK
 class RobotCheckout:
     def __init__(self):
         rospy.init_node('robot_checkout')
@@ -157,6 +181,7 @@ class RobotCheckout:
             rospy.logdebug('Waiting for robot checkout controller')
             # Now start checking for robot data, done if we have it
             while not rospy.is_shutdown():
+                # If the visualizer fails, abort early
                 if self._has_visual_check and not self._visual_ok:
                     self.checkout_robot()
                     return
@@ -215,7 +240,7 @@ class RobotCheckout:
         self.joint_data(msg.joint_data)
         self.act_data(msg.actuator_data)
         
-
+ 
     def process_diagnostics(self):
         # Sort diagnostics by level
         my_diags = dict.values(self._name_to_diagnostic)
@@ -238,10 +263,16 @@ class RobotCheckout:
         table = '<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">\n'
         table += '<tr><td><b>Name</b></td><td><b>Level</b></td><td><b>Message</b></td></tr>\n'
 
+        error_names = []
+
         for diag in diagnostics:
             level = level_dict[diag._level]
             table += '<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n' % (diag._name, level, diag._message)
             stat_count[diag._level] = stat_count[diag._level] + 1
+
+            if level > 0:
+                error_names.append(diag._name)
+
         table += '</table>\n'
             
         if stat_count[2] == 0 and stat_count[1] == 0 and stat_count[3] == 0 and len(diagnostics) > 0:
@@ -252,7 +283,7 @@ class RobotCheckout:
                 summary = 'No diagnostics received! '
                 self._is_ok = False
             else:
-                summary = 'Diagnostics FAIL: %s errors, %s warnings, %s stale items. ' % (stat_count[2], stat_count[1], stat_count[3])
+                summary = _write_diag_summary(error_names, stat_count[2], stat_count[1], stat_count[3])
                 self._is_ok = False
         
         html = '<p><b>Diagnostic Data</b></p><p>%s</p><br>\n' % summary 
@@ -280,16 +311,17 @@ class RobotCheckout:
             else:
                 html += '<p>Time to complete check: %.3fs.</p>\n' % self._check_time
 
-            summary += 'Data: ' + self._visual_sum + self._joint_sum + self._act_sum + diag_sum
+            summary += 'Data: ' + diag_sum + self._visual_sum + self._joint_sum + self._act_sum 
 
             if self._motors_halted:
                 html += "<p>Motors halted, robot is not working.</p>\n"
-                summary = "Motors halted. " + summary
+                summary = "Motors halted. Check runstop. " + summary
 
+            html += diag_html + '<hr size="2">\n'
             html += self._visual_html + '<hr size="2">\n'
             html += self._joint_html + '<hr size="2">\n'
             html += self._act_html + '<hr size="2">\n'
-            html += diag_html + '<hr size="2">\n'
+
             
             r = TestResultRequest()
             r.html_result = html
