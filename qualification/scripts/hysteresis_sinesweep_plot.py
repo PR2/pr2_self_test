@@ -60,14 +60,16 @@ class AnalysisApp:
     self.data_sent = False
     self._motors_halted = True
     rospy.init_node("test_plotter")
-    self.data_topic = rospy.Subscriber("/test_data", HysteresisData, self.on_data)
+    self.data_topic = rospy.Subscriber("/test_data", HysteresisData, self._on_data)
     self.motors_topic = rospy.Subscriber("pr2_etherCAT/motors_halted", Bool, self.on_motor_cb)
     self.result_service = rospy.ServiceProxy('/test_result', TestResult)
-    rospy.spin()
+    self.data = None
     
-  def on_data(self, msg):
+  def _on_data(self, msg):
     self.data = msg
-    self.hysteresis_plot()
+
+  def has_data(self):
+    return self.data is not None
     
   def on_motor_cb(self, msg):
     self._motors_halted = msg.data
@@ -228,8 +230,15 @@ class AnalysisApp:
 if __name__ == "__main__":
   try:
     app = AnalysisApp()
+    my_rate = rospy.Rate(5)
+    while not rospy.is_shutdown() and not app.has_data():
+      my_rate.sleep()
+      
+    if not rospy.is_shutdown():
+      app.hysteresis_plot()
     rospy.spin()
+  except KeyboardInterrupt:
+    pass
   except Exception, e:
     traceback.print_exc()
     
-  rospy.logdebug('Quitting Hysteresis Sinesweep Plot, shutting down node.')
