@@ -33,7 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ##\author Kevin Watts
-##\brief Analysis results from counterbalance test controller
+##\brief Analyzes results from counterbalance test controller
 
 import roslib
 roslib.load_manifest('qualification')
@@ -115,8 +115,13 @@ class CounterbalanceAnalysisParams:
         self.flex_i_clamp = srv.arg_value[22]
         
         self.num_flexes   = len(srv.lift_data[0].flex_data)
-        self.num_lifts    = len(srv.lift_data[0].flex_data)
-        ##\todo Need to count len flexes, lifts
+        self.num_lifts    = len(srv.lift_data)
+        
+        self.min_lift = srv.lift_data[0].lift_position
+        self.max_lift = srv.lift_data[-1].lift_position
+
+        self.min_flex = srv.lift_data[0].flex_data[0].flex_position
+        self.max_flex = srv.lift_data[0].flex_data[-1].flex_position
 
     def get_test_params(self):
         params = []
@@ -143,6 +148,15 @@ class CounterbalanceAnalysisParams:
         params.append(TestParam(key='Flex I Gain', value=str(self.flex_i)))
         params.append(TestParam(key='Flex D Gain', value=str(self.flex_d)))
         params.append(TestParam(key='Flex I Clamp', value=str(self.flex_i_clamp)))
+
+        params.append(TestParam(key='Num Lifts', value=str(self.num_lifts)))
+        params.append(TestParam(key='Min Lift', value="%.2f" % self.min_lift))
+        params.append(TestParam(key='Max Lift', value="%.2f" % self.max_lift))
+
+        if self.flex_test:
+            params.append(TestParam(key='Num Flexes', value=str(self.num_flexes)))
+            params.append(TestParam(key='Min Flex', value="%.2f" % self.min_flex))
+            params.append(TestParam(key='Max Flex', value="%.2f" % self.max_flex))
 
         return params
 
@@ -178,9 +192,6 @@ def get_mean_effort(avg_effort_array):
 
 ##\brief Returns a list of lift positions, efforts for a given flex position (vary by lift)
 def get_const_flex_effort(data, flex_index = 0, lift_calc = True):
-    if flex_index > len(data.lift_data[0].flex_data):
-        raise "Flex index out of range"
-    
     effort_list = []
     lift_list = []
     for ld in data.lift_data:
@@ -194,12 +205,11 @@ def get_const_flex_effort(data, flex_index = 0, lift_calc = True):
     return lift_list, effort_list
     
 def get_const_lift_effort(data, lift_index = 0, lift_calc = True):
-    if lift_index > len(data.lift_data):
-        raise "Lift index out of range"
-    
+    ld = data.lift_data[lift_index]
+        
     effort_list = []
     flex_list = []
-    ld = data.lift_data[lift_index]
+
     for fd in ld.flex_data:
         flex_list.append(fd.flex_position)
         if lift_calc:
@@ -246,12 +256,20 @@ def get_flex_positions(data):
 
     return flex_list
 
+def get_lift_positions(data):
+    lifts = []
+    for ld in data.lift_data:
+        lifts.append(ld.lift_position)
+    return lifts
+
 def plot_effort_contour(params, data, lift_calc = True):
     effort_list = []
-    for i in range(0, params.num_flexes):
-        lifts, efforts = get_const_lift_effort(data, i, lift_calc)
+    for i in range(0, params.num_lifts):
+        flexes, efforts = get_const_lift_effort(data, i, lift_calc)
         effort_list.append(efforts)
     flexes = get_flex_positions(data)
+    lifts = get_lift_positions(data)
+
     flex_grid, lift_grid = numpy.meshgrid(numpy.array(flexes), numpy.array(lifts))
     effort_grid = numpy.array(effort_list)
 
@@ -290,8 +308,10 @@ def analyze_lift_efforts(params, data):
 
     if mse_ok and avg_abs_ok:
         result.summary = 'Lift efforts OK'
+    elif avg_eff < 0:
+        result.summary = 'Counterbalance is too weak. Requires adjustment'
     else:
-        result.summary = 'Lift MSE/Avg. Absolute effort too high'
+        result.summary = 'Counterbalance is too strong. Requires adjustment'
 
     html = ['<p>%s</p>' % result.summary]
     
@@ -363,6 +383,11 @@ class CounterbalanceAnalysis:
         self.data_topic = rospy.Subscriber('cb_test_data', CounterbalanceTestData, self.data_callback)
         self._result_service = rospy.ServiceProxy('test_result', TestResult)
 
+        self._data = None
+
+    def has_data(self):
+        return self._data is not None
+
     def send_results(self, r):
         if not self._sent_results:
             try:
@@ -374,9 +399,6 @@ class CounterbalanceAnalysis:
             self._result_service.call(r)
             self._sent_results = True
 
-            print r.text_summary
-            print r.html_result
-            print r.result
             return True
             
     def test_failed_service_call(self, except_str = ''):
@@ -391,9 +413,10 @@ class CounterbalanceAnalysis:
         self._motors_halted = msg.data
 
     def data_callback(self, msg):
-        self.process_results(msg)
+        self._data = msg
         
-    def process_results(self, msg):
+    def process_results(self):
+        msg = self._data
         try:
             data = CounterbalanceAnalysisData(msg)
             params = CounterbalanceAnalysisParams(msg)
@@ -469,6 +492,12 @@ class CounterbalanceAnalysis:
 if __name__ == '__main__':
     app = CounterbalanceAnalysis()
     try:
+        my_rate = rospy.Rate(5)
+        while not app.has_data():
+            my_rate.sleep()
+
+        if not rospy.is_shutdown():
+            app.process_results()
         rospy.spin()
     except KeyboardInterrupt, e:
         pass
