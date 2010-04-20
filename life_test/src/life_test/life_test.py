@@ -373,19 +373,25 @@ class TestMonitorPanel(wx.Panel):
         self._invent_note_id = self._manager._invent_client.setNote(self._serial, note + stats, self._invent_note_id)
 
     # Should also be in notifier classs
+    ##\todo Should tar this up and put both attachment together
     def record_test_log(self):
         try:
             # Adds log csv to invent
             if self._record.get_cum_time() == 0:
                 return # Don't log test that hasn't run
                         
+            hrs_str = self._record.get_active_str()
+            note = "%s finished. Total active time: %s." % (self._test.get_name(), hrs_str)
+
             f = open(self._record.csv_filename(), 'rb')
             csv_file = f.read()
-            self._manager._invent_client.add_attachment(self._serial, os.path.basename(self._record.csv_filename()), 'text/csv', csv_file)
+            self._manager._invent_client.add_attachment(self._serial, 
+                                                        os.path.basename(self._record.csv_filename()), 
+                                                        'text/csv', csv_file, note)
             f.close()
             
             summary_name = strftime("%Y%m%d_%H%M%S", localtime(self._record._start_time)) + '_summary.html'
-            self._manager._invent_client.add_attachment(self._serial, summary_name, 'text/html', self.make_html_test_summary())
+            self._manager._invent_client.add_attachment(self._serial, summary_name, 'text/html', self.make_html_test_summary(), note)
         except Exception, e:
             rospy.logerr('Unable to submit to invent. %s' % traceback.format_exc())
                                                 
