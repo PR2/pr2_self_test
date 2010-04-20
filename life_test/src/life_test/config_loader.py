@@ -44,7 +44,6 @@ from xml.dom import minidom
 import os
 import rospy
 
-from life_test import *
 from test_param import *
 from test_bay import *
 
@@ -72,7 +71,7 @@ def load_rooms_from_file():
         return {}
   
 ##\brief Loads configuration file about tests
-def load_tests_from_file(test_xml_path =os.path.join(roslib.packages.get_pkg_dir('life_test'), 'tests.xml')):
+def load_tests_from_file(test_xml_path = os.path.join(roslib.packages.get_pkg_dir(PKG), 'tests.xml')):
     my_tests = {}
 
     try:

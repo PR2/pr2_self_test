@@ -49,6 +49,10 @@ class TestManagerConfigCheck(unittest.TestCase):
     def test_tests_config(self):
         tests = load_tests_from_file()
         self.assert_(len(tests.items()) > 0, "Tests file didn't load.")
+        
+        for lst in tests.values():
+            for tst in lst:
+                self.assert_(tst.validate(), "Test %s failed to validated. Launch file may be invalid." % tst.get_name())
 
 if __name__ == '__main__':
     rostest.unitrun(PKG, 'check_config_files', TestManagerConfigCheck)

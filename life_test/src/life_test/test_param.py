@@ -33,8 +33,9 @@
 
 ##\author Kevin Watts
 
+PKG = 'life_test'
 import roslib
-roslib.load_manifest('life_test')
+roslib.load_manifest(PKG)
 
 import rospy
 
@@ -79,6 +80,21 @@ class LifeTest:
 
     def needs_power(self):
         return self.need_power
+
+    ##\brief Called during unit testing only.
+    def validate(self):
+        import os, sys
+
+        full_path = os.path.join(roslib.packages.get_pkg_dir(PKG), self._launch_script)
+
+        if not os.path.exists(full_path):
+            print >> sys.stderr, "Test %s, path %s doesn't exist" % (self._name, full_path)
+            return False
+        if not full_path.endswith('.launch'):
+            print >> sys.stderr, "Test %s, path %s is not a launch file" % (self._name, full_path)
+            return False
+
+        return True
             
         
 ## Stores parameter data for each test
