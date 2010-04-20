@@ -62,7 +62,7 @@ class QualificationApp(wx.App):
 
         from qualification.result_dir import check_qual_result_dir
         if not check_qual_result_dir():
-            wx.MessageBox("Unable to write to the temporary results directory. This will cause weird problems. Open a terminal and type, \"sudo rm /tmp/* -rf\" to remove the offending directory.", 
+            wx.MessageBox("Unable to write to the temporary results directory. This will cause weird problems. Open a terminal and type, \"sudo rm /tmp/* -rf\" to remove the offending directory. You will have to restart the qualification system.", 
                           "Unable to Write Results", wx.OK|wx.ICON_ERROR, None)
             sys.exit(1)
 
