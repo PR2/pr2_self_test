@@ -196,8 +196,8 @@ bool CounterbalanceTestController::init(pr2_mechanism_model::RobotState *robot, 
       return false;
     }
 
-    num_flexs = (int)(flex_max - flex_min)/flex_delta + 1;
-    
+    num_flexs = (int)((flex_max - flex_min)/flex_delta) + 1);
+
     // MSE, Avg. Abs. Effort
     if (!n.getParam("flex/mse", flex_mse))
     {
@@ -346,7 +346,7 @@ bool CounterbalanceTestController::init(pr2_mechanism_model::RobotState *robot, 
     cb_test_data_.lift_data[i].flex_data.resize(num_flexs);
     for (int j = 0; j < num_flexs; ++j)
     {
-      cb_test_data_.lift_data[i].flex_data[j].flex_position = (double)flex_min + flex_delta * j;
+      cb_test_data_.lift_data[i].flex_data[j].flex_position = (double)flex_min + flex_delta * ((double)j);
 
       cb_test_data_.lift_data[i].flex_data[j].lift_hold.time.resize(dither_points_);
       cb_test_data_.lift_data[i].flex_data[j].lift_hold.position.resize(dither_points_);
