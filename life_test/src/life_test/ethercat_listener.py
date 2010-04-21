@@ -50,14 +50,15 @@ import threading
 
 class EthercatListener:
     def __init__(self):
-
         self._mutex = threading.Lock()
 
         self._cal = False
         self._ok = True
         self._update_time = -1
         self._reset_motors = rospy.ServiceProxy('pr2_etherCAT/reset_motors', Empty)
-        self._halt_motors = rospy.ServiceProxy('pr2_etherCAT/halt_motors', Empty)
+
+        # Make this persistent in case the master goes down
+        self._halt_motors = rospy.ServiceProxy('pr2_etherCAT/halt_motors', Empty, persistent = True)
 
         self._diag_sub = rospy.Subscriber('pr2_etherCAT/motors_halted', Bool, self._motors_cb)
 
@@ -68,10 +69,16 @@ class EthercatListener:
         return True
 
     def halt(self):
-        self._halt_motors()
+        try:
+            self._halt_motors()
+        except:
+            rospy.logerr('Unable to halt motors. pr2_etherCAT may have died')
 
     def reset(self):
-        self._reset_motors()
+        try:
+            self._reset_motors()
+        except:
+            rospy.logerr('Unable to reset motors. pr2_etherCAT may have died')
 
     def _cal_cb(self, msg):
         with self._mutex:
