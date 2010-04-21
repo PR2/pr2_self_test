@@ -81,7 +81,7 @@ def msg_detail_prompt(msg, details):
   global prompt_click, prompt_done
   
   dialog.Layout()
-  dialog.Fit()
+  #dialog.Fit()
 
   prompt_click = (dialog.ShowModal() == wx.ID_OK)
   prompt_done = True
@@ -94,7 +94,7 @@ def check_w_user(req):
 
   while(not prompt_done and not rospy.is_shutdown()):
     rospy.loginfo("Waiting for retry prompt . . .")
-    for i in range(0, 10):
+    for i in range(0, 20):
       time.sleep(0.5) 
 
   resp = ConfirmConfResponse()
@@ -116,6 +116,8 @@ def confirm_conf():
   signal.signal(signal.SIGINT, signal.SIG_DFL)
 
   app.MainLoop()
+
+  rospy.spin()
   time.sleep(1)
   
 
