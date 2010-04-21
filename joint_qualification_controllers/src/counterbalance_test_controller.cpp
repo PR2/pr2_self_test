@@ -196,7 +196,7 @@ bool CounterbalanceTestController::init(pr2_mechanism_model::RobotState *robot, 
       return false;
     }
 
-    num_flexs = (int)((flex_max - flex_min)/flex_delta) + 1);
+    num_flexs = (int)(((flex_max - flex_min) / flex_delta) + 1);
 
     // MSE, Avg. Abs. Effort
     if (!n.getParam("flex/mse", flex_mse))
