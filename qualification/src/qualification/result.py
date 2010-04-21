@@ -406,7 +406,7 @@ em { font-style:normal; font-weight: bold; }\
     def html_header(self):
         html = ['<H4 ALIGN=CENTER>Results of %s%s</H4>\n' % (self._subtest.get_name(), self._retry_name)]
         
-        html.append("<p>Test Status:</p>\n<H4>%s</H4>\n" % self._result.get_html_msg())
+        html.append("<p><b>Test Status:</b></p>\n<H4>%s</H4>\n" % self._result.get_html_msg())
 
         if self._summary != '':
             html.append('<p><em>Summary</em></p>\n' )

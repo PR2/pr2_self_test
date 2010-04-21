@@ -51,21 +51,20 @@ from std_msgs.msg import Bool
 from joint_qualification_controllers.msg import CounterbalanceTestData
 
 from qualification.analysis.counterbalance_analysis import *
+import os
 
 class CounterbalanceAnalysis:
     def __init__(self):
         self._sent_results = False
-
-        self._hold_data_srvs = []
-
         self._motors_halted = True
+        self._data = None
 
-        rospy.init_node('cb_analysis')
         self.motors_topic = rospy.Subscriber('pr2_etherCAT/motors_halted', Bool, self._motors_cb)
         self.data_topic = rospy.Subscriber('cb_test_data', CounterbalanceTestData, self._data_callback)
         self._result_service = rospy.ServiceProxy('test_result', TestResult)
 
-        self._data = None
+        self._model_file = rospy.get_param('~model_file', None)
+
 
     def has_data(self):
         return self._data is not None
@@ -111,8 +110,19 @@ class CounterbalanceAnalysis:
                 lift_effort_contour = plot_effort_contour(params, data)
                 flex_effort_contour = plot_effort_contour(params, data, False)
 
-            html = ['<H4>Counterbalance Analysis</H4>']
+                if self._model_file and os.path.exists(self._model_file):
+                    adjust_result = check_cb_adjustment(params, data, self._model_file)
+                else:
+                    adjust_result = CounterbalanceAnalysisResult()
+                    adjust_result.result = False
+                    adjust_result.html = '<p>No model file found, unable to check counterbalance.</p>'
+                                        
+
+            html = []
             if params.flex_test:
+                html.append('<H4>CB Adjustment Recommendations and Analysis</H4>')
+                html.append(adjust_result.html)
+
                 html.append('<H4>Lift Effort Contour Plot</H4>')
                 html.append('<img src=\"IMG_PATH/%s.png\" width=\"640\" height=\"480\" />' % (lift_effort_contour.title))
                 html.append('<H4>Flex Effort Contour Plot</H4>')
@@ -142,9 +152,12 @@ class CounterbalanceAnalysis:
 
             r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
 
-            if params.flex_test and lift_effort_result.result and flex_effort_result.result:
+
+            if params.flex_test and (lift_effort_result.result and 
+                                     flex_effort_result.result and 
+                                     adjust_result.result):
                 r.result = TestResultRequest.RESULT_PASS
-            elif lift_effort_result.result:
+            elif not params.flex_test and lift_effort_result.result:
                 r.result = TestResultRequest.RESULT_PASS
 
 
@@ -156,16 +169,28 @@ class CounterbalanceAnalysis:
             r.values = lift_effort_result.values
             if params.flex_test:
                 r.values.extend(flex_effort_result.values)
+                r.values.extend(adjust_result.values)
 
+            # Adjustment required
+            if params.flex_test and not adjust_result.result:
+                r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
+                r.text_summary = adjust_result.summary
+
+            # Check motors halted
             if self._motors_halted:
                 r.text_summary = 'Fail, motors halted. Check estop and power board.'
                 r.html_result = '<H4>Motors Halted</H4>\n<p>Unable to analyze CB. Check estop and power board.</p>\n' + r.html_result
                 r.result = TestResultRequest.RESULT_FAIL
             
+            # Check timeout of controller
             if params.timeout_hit:
                 r.text_summary = 'Fail, controller timeout hit. Timeout = %.ds. Test terminated early.' % (int(params.named_params["Timeout"]))
                 r.html_result = '<H4>Timeout Hit</H4>\n<p>Unable to analyzer CB. Controller timeout hit.</p>\n' + r.html_result
                 r.result = TestResultRequest.RESULT_FAIL
+
+            if params.flex_test and not self._model_file:
+                r.result = TestResultRequest.RESULT_FAIL
+                r.text_summary = 'Fail, CB model file is missing. Set parameter \"~model_file\"'
 
             self.send_results(r)
         except Exception, e:
@@ -174,6 +199,7 @@ class CounterbalanceAnalysis:
 
             
 if __name__ == '__main__':
+    rospy.init_node('cb_analysis')
     app = CounterbalanceAnalysis()
     try:
         my_rate = rospy.Rate(5)

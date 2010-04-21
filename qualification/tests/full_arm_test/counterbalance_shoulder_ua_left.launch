@@ -15,5 +15,8 @@
         name="cb_test_spawner" />
 
   <node pkg="qualification" type="counterbalance_test.py"
-        name="cb_analysis" output="screen" />
+        name="cb_analysis" output="screen" >
+    <param name="model_file" type="string"
+           value="$(find qualification)/tests/full_arm_test/counterbalance_model.dat" />
+  </node>
 </launch>
