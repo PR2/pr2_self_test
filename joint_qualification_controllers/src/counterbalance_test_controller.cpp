@@ -60,8 +60,8 @@ CounterbalanceTestController::CounterbalanceTestController() :
   flex_index_ = 0;
   data_sent_ = false;
 
-  cb_test_data_.arg_name.resize(23);
-  cb_test_data_.arg_value.resize(23);
+  cb_test_data_.arg_name.resize(25);
+  cb_test_data_.arg_value.resize(25);
   cb_test_data_.arg_name[0] = "Settle Time";
   cb_test_data_.arg_name[1] = "Dither Points";
   cb_test_data_.arg_name[2] = "Timeout";
@@ -90,6 +90,9 @@ CounterbalanceTestController::CounterbalanceTestController() :
   cb_test_data_.arg_name[20] = "Flex I";
   cb_test_data_.arg_name[21] = "Flex D";
   cb_test_data_.arg_name[22] = "Flex I Clamp";
+
+  cb_test_data_.arg_name[23] = "Screw Tolerance";
+  cb_test_data_.arg_name[24] = "Bar Tolerance";
 
   cb_test_data_.timeout_hit = false;
   cb_test_data_.lift_joint = "None";
@@ -410,6 +413,25 @@ bool CounterbalanceTestController::init(pr2_mechanism_model::RobotState *robot, 
     cb_test_data_.arg_value[21] = 0;
     cb_test_data_.arg_value[22] = 0;
   }
+
+  // Record screw, bar tolerances
+  double screw_tol, bar_tol;
+  if (!n.getParam("screw_tol", screw_tol))
+  {
+    ROS_WARN("CounterbalanceTestController was not given parameter 'screw_tol' on namespace %s)",
+              n.getNamespace().c_str());
+    screw_tol = 2.0;
+  }  
+
+  if (!n.getParam("bar_tol", bar_tol))
+  {
+    ROS_WARN("CounterbalanceTestController was not given parameter 'screw_tol' on namespace %s)",
+              n.getNamespace().c_str());
+    bar_tol = 0.5;
+  }  
+  cb_test_data_.arg_value[23] = screw_tol;
+  cb_test_data_.arg_value[24] = bar_tol;
+
 
   cb_data_pub_.reset(new realtime_tools::RealtimePublisher<
                      joint_qualification_controllers::CounterbalanceTestData>(n, "/cb_test_data", 1, true));
