@@ -2,7 +2,7 @@ test_controller:
   type: CounterbalanceTestController
   settle_time: 2.0
   dither_points: 1000
-  timeout: 180
+  timeout: 300
   lift:
     joint: l_shoulder_lift_joint
     type: JointPositionController

@@ -17,6 +17,6 @@
         args="test_controller --wait-for=arms_held"
         name="cb_test_spawner" />
 
-  <node pkg="qualification" type="counterbalance_analysis.py"
+  <node pkg="qualification" type="counterbalance_test.py"
         name="cb_analysis" output="screen" />
 </launch>

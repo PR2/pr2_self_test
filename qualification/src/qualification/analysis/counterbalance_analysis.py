@@ -2,7 +2,7 @@
 #
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2009, Willow Garage, Inc.
+# Copyright (c) 2010, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,12 +33,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ##\author Kevin Watts
-##\brief Analyzes results from counterbalance test controller
+##\brief Analyzes counterbalance data
 
-import roslib
-roslib.load_manifest('qualification')
-
-import rospy
+PKG = 'qualification'
+import roslib; roslib.load_manifest(PKG)
 
 import numpy
 import math
@@ -47,9 +45,6 @@ import matplotlib.pyplot as plot
 from StringIO import StringIO
 
 from qualification.msg import Plot, TestValue, TestParam
-from qualification.srv import *
-
-from std_msgs.msg import Bool
 
 from joint_qualification_controllers.msg import CounterbalanceTestData
 
@@ -81,47 +76,52 @@ class CBRunAnalysisData:
             self.flex_data.append(CBPositionAnalysisData(fd))
 
 class CounterbalanceAnalysisData:
-    def __init__(self, srv):
+    ##\param msg CounterbalanceTestData : Message from controller
+    def __init__(self, msg):
         self.lift_data = []
-        for ld in srv.lift_data:
+        for ld in msg.lift_data:
             self.lift_data.append(CBRunAnalysisData(ld))
 
 class CounterbalanceAnalysisParams:
-    def __init__(self, srv):
-        self.lift_dither = srv.lift_amplitude
-        self.flex_dither = srv.flex_amplitude
+    def __init__(self, msg):
+        self.lift_dither = msg.lift_amplitude
+        self.flex_dither = msg.flex_amplitude
         
-        self.lift_joint = srv.lift_joint
-        self.flex_joint = srv.flex_joint
+        self.lift_joint = msg.lift_joint
+        self.flex_joint = msg.flex_joint
         
-        self.timeout_hit = srv.timeout_hit
-        self.flex_test = srv.flex_test
+        self.timeout_hit = msg.timeout_hit
+        self.flex_test = msg.flex_test
 
-        self.lift_mse     = srv.arg_value[9]
-        self.lift_avg_abs = srv.arg_value[10]
-        self.lift_avg_eff = srv.arg_value[11]
-        self.flex_mse     = srv.arg_value[12]
-        self.flex_avg_abs = srv.arg_value[13]
-        self.flex_avg_eff = srv.arg_value[14]
+        self.lift_mse     = msg.arg_value[9]
+        self.lift_avg_abs = msg.arg_value[10]
+        self.lift_avg_eff = msg.arg_value[11]
+        self.flex_mse     = msg.arg_value[12]
+        self.flex_avg_abs = msg.arg_value[13]
+        self.flex_avg_eff = msg.arg_value[14]
 
-        self.lift_p       = srv.arg_value[15]
-        self.lift_i       = srv.arg_value[16]
-        self.lift_d       = srv.arg_value[17]
-        self.lift_i_clamp = srv.arg_value[18]
+        self.lift_p       = msg.arg_value[15]
+        self.lift_i       = msg.arg_value[16]
+        self.lift_d       = msg.arg_value[17]
+        self.lift_i_clamp = msg.arg_value[18]
 
-        self.flex_p       = srv.arg_value[19]
-        self.flex_i       = srv.arg_value[20]
-        self.flex_d       = srv.arg_value[21]
-        self.flex_i_clamp = srv.arg_value[22]
+        self.flex_p       = msg.arg_value[19]
+        self.flex_i       = msg.arg_value[20]
+        self.flex_d       = msg.arg_value[21]
+        self.flex_i_clamp = msg.arg_value[22]
         
-        self.num_flexes   = len(srv.lift_data[0].flex_data)
-        self.num_lifts    = len(srv.lift_data)
+        self.num_flexes   = len(msg.lift_data[0].flex_data)
+        self.num_lifts    = len(msg.lift_data)
         
-        self.min_lift = srv.lift_data[0].lift_position
-        self.max_lift = srv.lift_data[-1].lift_position
+        self.min_lift = msg.lift_data[0].lift_position
+        self.max_lift = msg.lift_data[-1].lift_position
 
-        self.min_flex = srv.lift_data[0].flex_data[0].flex_position
-        self.max_flex = srv.lift_data[0].flex_data[-1].flex_position
+        self.min_flex = msg.lift_data[0].flex_data[0].flex_position
+        self.max_flex = msg.lift_data[0].flex_data[-1].flex_position
+
+        self.named_params = {}
+        for i in range(0, 9):
+            self.named_params[msg.arg_name[i]] = msg.arg_value[i]
 
     def get_test_params(self):
         params = []
@@ -158,6 +158,10 @@ class CounterbalanceAnalysisParams:
             params.append(TestParam(key='Min Flex', value="%.2f" % self.min_flex))
             params.append(TestParam(key='Max Flex', value="%.2f" % self.max_flex))
 
+        for key, val in self.named_params.iteritems():
+            params.append(TestParam(key=key, value=str(val)))
+            
+
         return params
 
 class CounterbalanceAnalysisResult:
@@ -168,7 +172,7 @@ class CounterbalanceAnalysisResult:
         self.values = []
         
 
-def get_efforts(data, lift_calc):
+def _get_efforts(data, lift_calc):
     avg_effort_list = []
     for ld in data.lift_data:
         for fd in ld.flex_data:
@@ -179,19 +183,19 @@ def get_efforts(data, lift_calc):
 
     return avg_effort_list
 
-def get_mean_sq_effort(avg_effort_array):
+def _get_mean_sq_effort(avg_effort_array):
     sq_array = avg_effort_array * avg_effort_array
     return numpy.average(sq_array)
 
-def get_mean_abs_effort(avg_effort_array):
+def _get_mean_abs_effort(avg_effort_array):
     abs_array = abs(avg_effort_array)
     return numpy.average(abs_array)
 
-def get_mean_effort(avg_effort_array):
+def _get_mean_effort(avg_effort_array):
     return numpy.average(avg_effort_array)
 
 ##\brief Returns a list of lift positions, efforts for a given flex position (vary by lift)
-def get_const_flex_effort(data, flex_index = 0, lift_calc = True):
+def _get_const_flex_effort(data, flex_index = 0, lift_calc = True):
     effort_list = []
     lift_list = []
     for ld in data.lift_data:
@@ -204,7 +208,7 @@ def get_const_flex_effort(data, flex_index = 0, lift_calc = True):
 
     return lift_list, effort_list
     
-def get_const_lift_effort(data, lift_index = 0, lift_calc = True):
+def _get_const_lift_effort(data, lift_index = 0, lift_calc = True):
     ld = data.lift_data[lift_index]
         
     effort_list = []
@@ -219,8 +223,57 @@ def get_const_lift_effort(data, lift_index = 0, lift_calc = True):
 
     return flex_list, effort_list
 
+
+
+def _get_flex_positions(data):
+    flex_list = []
+    for fd in data.lift_data[0].flex_data:
+        flex_list.append(fd.flex_position)
+
+    return flex_list
+
+def _get_lift_positions(data):
+    lifts = []
+    for ld in data.lift_data:
+        lifts.append(ld.lift_position)
+    return lifts
+
+
+
+def plot_effort_contour(params, data, lift_calc = True):
+    effort_list = []
+    for i in range(0, params.num_lifts):
+        flexes, efforts = _get_const_lift_effort(data, i, lift_calc)
+        effort_list.append(efforts)
+    flexes = _get_flex_positions(data)
+    lifts = _get_lift_positions(data)
+
+    flex_grid, lift_grid = numpy.meshgrid(numpy.array(flexes), numpy.array(lifts))
+    effort_grid = numpy.array(effort_list)
+
+    CS = plot.contour(flex_grid, lift_grid, effort_grid)
+    plot.clabel(CS, inline=0, fontsize=10)
+    
+    plot.xlabel('Flex')
+    plot.ylabel('Lift')
+        
+    stream = StringIO()
+    plot.savefig(stream, format = 'png')
+    image = stream.getvalue()
+    p = Plot()
+    if lift_calc:
+        p.title = 'lift_effort_contour'
+    else:
+        p.title = 'flex_effort_contour'
+    p.image = image
+    p.image_format = 'png'
+    
+    plot.close()
+
+    return p
+
 def plot_efforts_by_lift_position(params, data, flex_index = -1, lift_calc = True):
-    lift_position, effort = get_const_flex_effort(data, flex_index, lift_calc)
+    lift_position, effort = _get_const_flex_effort(data, flex_index, lift_calc)
     
     flex_position = data.lift_data[0].flex_data[flex_index].flex_position
 
@@ -249,58 +302,13 @@ def plot_efforts_by_lift_position(params, data, flex_index = -1, lift_calc = Tru
 
     return p
 
-def get_flex_positions(data):
-    flex_list = []
-    for fd in data.lift_data[0].flex_data:
-        flex_list.append(fd.flex_position)
-
-    return flex_list
-
-def get_lift_positions(data):
-    lifts = []
-    for ld in data.lift_data:
-        lifts.append(ld.lift_position)
-    return lifts
-
-def plot_effort_contour(params, data, lift_calc = True):
-    effort_list = []
-    for i in range(0, params.num_lifts):
-        flexes, efforts = get_const_lift_effort(data, i, lift_calc)
-        effort_list.append(efforts)
-    flexes = get_flex_positions(data)
-    lifts = get_lift_positions(data)
-
-    flex_grid, lift_grid = numpy.meshgrid(numpy.array(flexes), numpy.array(lifts))
-    effort_grid = numpy.array(effort_list)
-
-    CS = plot.contour(flex_grid, lift_grid, effort_grid)
-    plot.clabel(CS, inline=0, fontsize=10)
-    
-    plot.xlabel('Flex')
-    plot.ylabel('Lift')
-        
-    stream = StringIO()
-    plot.savefig(stream, format = 'png')
-    image = stream.getvalue()
-    p = Plot()
-    if lift_calc:
-        p.title = 'lift_effort_contour'
-    else:
-        p.title = 'flex_effort_contour'
-    p.image = image
-    p.image_format = 'png'
-    
-    plot.close()
-
-    return p
-
 def analyze_lift_efforts(params, data):
     result = CounterbalanceAnalysisResult()
     
-    avg_efforts = numpy.array(get_efforts(data, True))
-    mse = get_mean_sq_effort(avg_efforts)
-    avg_abs = get_mean_abs_effort(avg_efforts)
-    avg_eff = get_mean_effort(avg_efforts)
+    avg_efforts = numpy.array(_get_efforts(data, True))
+    mse = _get_mean_sq_effort(avg_efforts)
+    avg_abs = _get_mean_abs_effort(avg_efforts)
+    avg_eff = _get_mean_effort(avg_efforts)
 
     mse_ok = mse < params.lift_mse
     avg_abs_ok = avg_abs < params.lift_avg_abs
@@ -336,10 +344,10 @@ def analyze_lift_efforts(params, data):
 def analyze_flex_efforts(params, data):
     result = CounterbalanceAnalysisResult()
     
-    avg_efforts = numpy.array(get_efforts(data, False))
-    mse = get_mean_sq_effort(avg_efforts)
-    avg_abs = get_mean_abs_effort(avg_efforts)
-    avg_eff = get_mean_effort(avg_efforts)
+    avg_efforts = numpy.array(_get_efforts(data, False))
+    mse = _get_mean_sq_effort(avg_efforts)
+    avg_abs = _get_mean_abs_effort(avg_efforts)
+    avg_eff = _get_mean_effort(avg_efforts)
 
     mse_ok = mse < params.flex_mse
     avg_abs_ok = avg_abs < params.flex_avg_abs
@@ -369,147 +377,3 @@ def analyze_flex_efforts(params, data):
     result.values.append(TestValue('Flex Avg.  Effort', str(avg_eff), '', str(params.flex_avg_eff)))
 
     return result
-
-class CounterbalanceAnalysis:
-    def __init__(self):
-        self._sent_results = False
-
-        self._hold_data_srvs = []
-
-        self._motors_halted = True
-
-        rospy.init_node('cb_analysis')
-        self.motors_topic = rospy.Subscriber('pr2_etherCAT/motors_halted', Bool, self.motors_cb)
-        self.data_topic = rospy.Subscriber('cb_test_data', CounterbalanceTestData, self.data_callback)
-        self._result_service = rospy.ServiceProxy('test_result', TestResult)
-
-        self._data = None
-
-    def has_data(self):
-        return self._data is not None
-
-    def send_results(self, r):
-        if not self._sent_results:
-            try:
-                rospy.wait_for_service('test_result', 10)
-            except:
-                rospy.logerr('Wait for service \'test_result\' timed out! Unable to send results.')
-                return False
-                
-            self._result_service.call(r)
-            self._sent_results = True
-
-            return True
-            
-    def test_failed_service_call(self, except_str = ''):
-        rospy.logerr(except_str)
-        r = TestResultRequest()
-        r.html_result = except_str
-        r.text_summary = 'Caught exception, automated test failure.'
-        r.result = TestResultRequest.RESULT_FAIL
-        self.send_results(r)
-
-    def motors_cb(self, msg):
-        self._motors_halted = msg.data
-
-    def data_callback(self, msg):
-        self._data = msg
-        
-    def process_results(self):
-        msg = self._data
-        try:
-            data = CounterbalanceAnalysisData(msg)
-            params = CounterbalanceAnalysisParams(msg)
-
-            lift_effort_result = analyze_lift_efforts(params, data)
-            lift_effort_plot = plot_efforts_by_lift_position(params, data)
-
-            if params.flex_test:
-                flex_effort_result = analyze_flex_efforts(params, data)
-                lift_effort_contour = plot_effort_contour(params, data)
-                flex_effort_contour = plot_effort_contour(params, data, False)
-
-            html = ['<p>Counterbalance Analysis</p>']
-            if params.flex_test:
-                html.append('<H4>Lift Effort Contour Plot</H4>')
-                html.append('<img src=\"IMG_PATH/%s.png\" width=\"640\" height=\"480\" />' % (lift_effort_contour.title))
-                html.append('<H4>Flex Effort Contour Plot</H4>')
-                html.append('<img src=\"IMG_PATH/%s.png\" width=\"640\" height=\"480\" />' % (flex_effort_contour.title))
-                
-                html.append('<H4>Flex Effort Analysis</H4>')
-                html.append(flex_effort_result.html)
-
-            html.append('<H4>Lift Effort Analysis</H4>')
-            html.append(lift_effort_result.html)
-            html.append('<img src=\"IMG_PATH/%s.png\" width=\"640\" height=\"480\" />' % (lift_effort_plot.title))
-
-            html.append('<p>Test Parameters</p>')
-            html.append('<table border="1" cellpadding="2" cellspacing="0">')
-            html.append('<tr><td><b>Joint</b></td><td><b>Dither Amplitude</b></td></tr>')
-            html.append('<tr><td>%s</td><td>%s</td></tr>' % (params.lift_joint, params.lift_dither))
-            if params.flex_test:
-                html.append('<tr><td>%s</td><td>%s</td></tr>' % (params.flex_joint, params.flex_dither))
-            html.append('</table>')
-            html.append('<hr size=2>')
-           
-            ##\todo If flex test, check flex data
-
-
-            r = TestResultRequest()
-            r.html_result = '\n'.join(html)
-            r.text_summary = ' '.join([lift_effort_result.summary])
-            if params.flex_test:
-                r.text_summary = ' '.join([r.text_summary, flex_effort_result.summary])
-
-            r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
-
-            if params.flex_test and lift_effort_result.result and flex_effort_result.result:
-                r.result = TestResultRequest.RESULT_PASS
-            elif lift_effort_result.result:
-                r.result = TestResultRequest.RESULT_PASS
-
-
-            r.plots = [ lift_effort_plot ]
-            if params.flex_test:
-                r.plots.append(lift_effort_contour)
-                r.plots.append(flex_effort_contour)
-            r.params = params.get_test_params()
-            r.values = lift_effort_result.values
-            if params.flex_test:
-                r.values.extend(flex_effort_result.values)
-
-            if self._motors_halted:
-                r.text_summary = 'Fail, motors halted. Check estop and power board.'
-                r.html_result = '<H4>Motors Halted</H4>\n<p>Unable to analyze CB. Check estop and power board.</p>\n' + r.html_result
-                r.result = TestResultRequest.RESULT_FAIL
-
-            self.send_results(r)
-        except Exception, e:
-            import traceback
-            self.test_failed_service_call(traceback.format_exc());
-
-            
-if __name__ == '__main__':
-    app = CounterbalanceAnalysis()
-    try:
-        my_rate = rospy.Rate(5)
-        while not app.has_data():
-            my_rate.sleep()
-
-        if not rospy.is_shutdown():
-            app.process_results()
-        rospy.spin()
-    except KeyboardInterrupt, e:
-        pass
-    except Exception, e:
-        print 'Caught Exception in CB application'
-        import traceback
-        traceback.print_exc()
-        result_service = rospy.ServiceProxy('test_result', TestResult)        
-        
-        r = TestResultRequest()
-        r.html_result = traceback.format_exc()
-        r.text_summary = 'Caught exception, automated test failure.'
-        r.plots = []
-        r.result = TestResultRequest.RESULT_HUMAN_REQUIRED
-        result_service.call(r)
