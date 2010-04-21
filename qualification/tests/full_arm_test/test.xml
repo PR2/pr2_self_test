@@ -5,6 +5,6 @@
   <startup>full_arm.launch</startup>
   <subtest name="Full Arm Checkout">full_arm_checkout.launch</subtest>
   <subtest name="WGE100 Self Test" timeout="45">full_arm_wge100_selftest.launch</subtest>
-  <subtest name="Counterbalance Test" timeout="180">counterbalance_test_right.launch</subtest>
+  <subtest name="Counterbalance Test" timeout="360">counterbalance_test_right.launch</subtest>
   <shutdown name="Power Off">../../scripts/power_board_disable.launch</shutdown>
 </test>

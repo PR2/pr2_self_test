@@ -6,6 +6,6 @@
   <startup>shoulder_ua.launch</startup>
   <subtest name="Shoulder/UA Checkout">shoulder_ua_checkout.launch</subtest>
   <subtest name="WGE100 Self Test" timeout="45">full_arm_wge100_selftest.launch</subtest>
-  <subtest name="Counterbalance Test" timeout="180">counterbalance_shoulder_ua.launch</subtest>
+  <subtest name="Counterbalance Test" timeout="360">counterbalance_shoulder_ua.launch</subtest>
   <shutdown name="Power Off">../../scripts/power_board_disable.launch</shutdown>
 </test>
