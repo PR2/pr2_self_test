@@ -25,7 +25,7 @@ test_controller:
     pid/i: 12.0
     pid/i_clamp: 2.0
     min: -1.8
-    max: -0.39
+    max: -0.19
     delta: 0.2
     dither: 6.0
     mse: 3.0
