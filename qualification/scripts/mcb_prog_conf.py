@@ -35,11 +35,12 @@
 ##\author Kevin Watts
 ##\brief Programs and configures MCB's during component qualification
 
+PKG = "qualification"
 import roslib
-roslib.load_manifest('qualification')
+roslib.load_manifest(PKG)
 import rospy
 
-import sys
+import sys, os
 import subprocess
 from optparse import OptionParser
 from time import sleep
@@ -52,7 +53,7 @@ from qualification.srv import ConfirmConf, ConfirmConfRequest, ConfirmConfRespon
 import invent_client.invent_client
 from invent_client.invent_client import Invent
 
-prog_path = roslib.packages.get_pkg_dir("qualification", True) + "/fwprog"
+prog_path = os.path.join(roslib.packages.get_pkg_dir(PKG), "fwprog")
 
 class MCBProgramConfig:
     def __init__(self, expected):
@@ -112,6 +113,7 @@ class MCBProgramConfig:
         return resp.retry == ConfirmConfResponse.RETRY
         
     ## Counts, gets serials and verifies boards
+    ##\brief param check bool : Whether to check if boards passed EE qualification
     def verify_boards(self, check):
         if self.has_finished:
             return False
@@ -124,6 +126,10 @@ class MCBProgramConfig:
 
         if not self.count_boards():
             return False
+
+        if not self.check_link():
+            return False
+
         if not self.get_serials():
             return False
         
@@ -133,7 +139,7 @@ class MCBProgramConfig:
 
     ## Counts boards, returns true if passed
     def count_boards(self):
-        count_cmd = prog_path + "/eccount" + " -i eth0"
+        count_cmd = os.path.join(prog_path, "eccount") + " -i eth0"
 
         while not rospy.is_shutdown():
             p = subprocess.Popen(count_cmd, stdout =subprocess.PIPE,
@@ -164,9 +170,27 @@ class MCBProgramConfig:
                 self.finished(False, 'Failed to count boards. Operator canceled.\n\n%s\n%s' % (msg, details))
                 return False
 
+    def check_link(self):
+        emltest_cmd = os.path.join(prog_path, "emltest") + " -q -j8 -ieth0 -T10000,2"
+
+        p = subprocess.Popen(emltest_cmd, stdout = subprocess.PIPE, 
+                             stderr = subprocess.PIPE, shell = True)
+        o, e = p.communicate()
+        retcode = p.returncode
+
+        if retcode != 0:
+            msg = "Dropped packets to device while checking link. Cables may be damaged."
+            details = "Ran \"emltest\", found dropped packets when checking link. This is probably a cable problem from the test fixture or between some MCB\'s."
+            
+            self.finished(False, "%s\n\n%s" % (msg, details))
+            return False
+
+        return True
+
+
     def get_serials(self):
         for board in range(0, self.expected):
-            check_cmd = prog_path + '/device -i eth0 -K -p %d' % (board + 1)
+            check_cmd = os.path.join(prog_path, 'device') + ' -i eth0 -K -p %d' % (board + 1)
             try:
                 p = subprocess.Popen(check_cmd, stdout = subprocess.PIPE,
                                      stderr = subprocess.PIPE, shell = True)
@@ -202,7 +226,7 @@ class MCBProgramConfig:
     ## Programs MCB's and calls result service when finished
     def program_boards(self):
         for board in range(0, self.expected):
-            program_cmd = prog_path + "/fwprog" + " -i eth0 -p %s %s/*.bit" % ((board + 1), prog_path)
+            program_cmd = os.path.join(prog_path, "fwprog") + " -i eth0 -p %s %s/*.bit" % ((board + 1), prog_path)
 
             while not rospy.is_shutdown():
                 p = subprocess.Popen(program_cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell=True)
@@ -229,13 +253,13 @@ class MCBProgramConfig:
         return True
     
     def configure_boards(self, mcbs, assembly = False):
-        path = roslib.packages.get_pkg_dir("ethercat_hardware", True)
-        actuator_path = path + "/actuators.conf"
+        path = roslib.packages.get_pkg_dir("ethercat_hardware")
+        actuator_path = os.path.join(path, "actuators.conf")
 
         for mcb in mcbs:
             name, num = mcb.split(',')
 
-            cmd = path + "/motorconf" + " -i eth0 -p -n %s -d %s -a %s" % (name, num, actuator_path)
+            cmd = os.path.join(path, "motorconf") + " -i eth0 -p -n %s -d %s -a %s" % (name, num, actuator_path)
 
             while not rospy.is_shutdown():
                 p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
@@ -249,7 +273,7 @@ class MCBProgramConfig:
                     details += '\nSTDERR:\n' + stderr
                     
                 if retcode != 0:
-                    msg = "Programming MCB configuration failed for %s with return code %s." (name, retcoee)
+                    msg = "Programming MCB configuration failed for %s with return code %s." % (name, retcode)
                     retry = self.prompt_user("%s Retry?" % msg, details)
                     if not retry:
                         self.finished(False, '%s\n%s' % (msg, details))
