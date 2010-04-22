@@ -122,7 +122,7 @@ class CounterbalanceAnalysis:
             if params.flex_test:
                 html.append('<H4>CB Adjustment Recommendations and Analysis</H4>')
                 html.append(adjust_result.html)
-
+                html.append('<p>Further information if for debugging and analysis information only.</p><br><hr size="2" />')
                 html.append('<H4>Lift Effort Contour Plot</H4>')
                 html.append('<img src=\"IMG_PATH/%s.png\" width=\"640\" height=\"480\" />' % (lift_effort_contour.title))
                 html.append('<H4>Flex Effort Contour Plot</H4>')
