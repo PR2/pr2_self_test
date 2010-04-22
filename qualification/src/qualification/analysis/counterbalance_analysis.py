@@ -116,7 +116,7 @@ class CounterbalanceAnalysisParams:
         else:
             # For backwards compatibility
             self.screw_tol = 2.0
-            self.bar_tol   = 0.5
+            self.bar_tol   = 1.0
 
         self.num_flexes = len(msg.lift_data[0].flex_data)
         self.num_lifts  = len(msg.lift_data)
@@ -414,13 +414,13 @@ def check_cb_adjustment(params, data, model_file):
 
     # Recommended adjustments
     secondary = -X[0][0]
-    cb_bar = X[0][1]
+    cb_bar = -X[0][1] # Same as arm gimbal shaft
     
     adjust_msg = 'Please turn secondary by %.2f turns clockwise (CW) and the CB bar by %.2f turns CW' % (secondary, cb_bar)
     adjust_msg = '<table border="1" cellpadding="2" cellspacing="0">'
     adjust_msg += '<tr><td><b>Adjustment</b></td><td><b>Turns (CW)</b></td><td><b>Allowable Tolerance</b></td></tr>\n'
     adjust_msg += '<tr><td>Secondary Spring</td><td>%.1f</td><td>%.1f</td></tr>\n' % (secondary, params.screw_tol)
-    adjust_msg += '<tr><td>CB Bar</td><td>%.1f</td><td>%.1f</td></tr>\n' % (cb_bar, params.bar_tol)
+    adjust_msg += '<tr><td>Arm Gimbal Shaft</td><td>%.1f</td><td>%.1f</td></tr>\n' % (cb_bar, params.bar_tol)
     adjust_msg += '</table>\n'
 
     
