@@ -414,7 +414,7 @@ def check_cb_adjustment(params, data, model_file):
 
     # Recommended adjustments
     secondary = -X[0][0]
-    cb_bar = -X[0][1]
+    cb_bar = X[0][1]
     
     adjust_msg = 'Please turn secondary by %.2f turns clockwise (CW) and the CB bar by %.2f turns CW' % (secondary, cb_bar)
     adjust_msg = '<table border="1" cellpadding="2" cellspacing="0">'
