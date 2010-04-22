@@ -158,7 +158,7 @@ class PlotsPanel(wx.Panel):
     self._notebook.AddPage(self._monitor_panel, "Diagnostics")
 
   def _create_rxconsole(self):
-    rxtools.cppwidgets.initRoscpp("qualification_console", False)
+    rxtools.cppwidgets.initRoscpp("qualification_console", True)
 
     self._rxconsole_panel = rxtools.cppwidgets.RosoutPanel(self._notebook)
     self._rxconsole_panel.SetSize(wx.Size(400, 500))
