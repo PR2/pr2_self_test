@@ -136,7 +136,7 @@ class QualDisplayApp(wx.App):
         return True
 
 if __name__ == '__main__':
-    rospy.init_node('qual_display')
+    rospy.init_node('qual_display', anonymous=True)
     try:
         app = QualDisplayApp()
         app.MainLoop()
