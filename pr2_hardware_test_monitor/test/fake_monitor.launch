@@ -1,0 +1,16 @@
+<launch> 
+  <node pkg="pr2_hardware_test_monitor" type="fake_component.py" name="fake_component" />
+  
+  <node pkg="pr2_hardware_test_monitor" type="pr2_hw_test_monitor" name="monitor" output="screen" >
+    <rosparam command="load" file="$(find pr2_hardware_test_monitor)/test/simulators/fake_listeners.yaml" />
+  </node>
+
+  <!-- Need heartbeat in order to work -->
+  <node pkg="rostopic" type="rostopic" name="heartbeat_pub"
+        args="pub /heartbeat std_msgs/Empty -r 1" />
+
+  <!-- Asserts we are getting good data from the camera, motors, and transmissions -->
+  <test test-name="monitor_listen" pkg="pr2_hardware_test_monitor"
+        name="test_monitor"
+        type="monitor_listen_test.py" time-limit="30" />
+</launch>

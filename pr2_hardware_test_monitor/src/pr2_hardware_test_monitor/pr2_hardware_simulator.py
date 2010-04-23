@@ -35,7 +35,7 @@
 ##\author Kevin Watts
 ##\brief Simulates PR2 hardware by publishing data like diagnostics and mechanism_state
 
-PKG = 'life_test'
+PKG = 'pr2_hardware_test_monitor'
 import roslib; roslib.load_manifest(PKG)
 
 

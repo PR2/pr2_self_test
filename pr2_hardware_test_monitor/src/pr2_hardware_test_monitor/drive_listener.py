@@ -37,7 +37,7 @@
 ##\brief Listens to pr2_etherCAT/motors_halted, allows base to drive
 
 from __future__ import with_statement
-PKG = 'life_test'
+PKG = 'pr2_hardware_test_monitor'
 
 import roslib; roslib.load_manifest(PKG)
 

@@ -40,6 +40,8 @@
   <!-- Unit test -->
   <depend package="roslaunch_parse_tester" />
   <depend package="rostopic" />
+  <depend package="pr2_hardware_test_monitor" />
+  <depend package="pr2_self_test_msgs" />
   
   <!-- Arm planning stuff -->
   <depend package="planning_environment" />

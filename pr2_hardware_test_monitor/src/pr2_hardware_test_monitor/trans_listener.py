@@ -38,7 +38,7 @@
 ##\brief Listens to transmissions of specified joints, halts motors if error detected.
 
 from __future__ import with_statement
-PKG = 'life_test'
+PKG = 'pr2_hardware_test_monitor'
 
 import roslib
 roslib.load_manifest(PKG)

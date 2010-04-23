@@ -35,12 +35,10 @@
 
 ##\author Kevin Watts
 ##\brief Listens to diagnostics from wge100 camera and reports OK/FAIL
+PKG = 'pr2_hardware_test_monitor'
 
-
-from __future__ import with_statement
-
-PKG = 'life_test'
-import roslib; roslib.load_manifest(PKG)
+import roslib
+roslib.load_manifest(PKG)
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from std_srvs.srv import *
@@ -49,17 +47,22 @@ import rospy
 
 import threading
 
-
-class CameraListener:
+class HokuyoListener:
     def __init__(self):
         self._diag_sub = rospy.Subscriber('/diagnostics', DiagnosticArray, self._diag_callback)
         self._mutex = threading.Lock()
 
         self._ok = True
         self._update_time = 0
+        self.name = 'tilt_hokuyo_node'
 
     # Doesn't do anything
     def create(self, params):
+        if not params.has_key('name'):
+            rospy.logerr('Hokuyo Listener was not given param "name"')
+            return False
+        self.name = params['name']
+        
         return True
 
     def halt(self):
@@ -69,27 +72,30 @@ class CameraListener:
         pass
 
     def _diag_callback(self, msg):
-        with self._mutex:
-            for stat in msg.status:
-                if stat.name.find('wge100') >= 0:
-                    self._ok = (stat.level == 0)
-                    self._update_time = rospy.get_time()
-                    if not self._ok:
-                        break
+        self._mutex.acquire()
+        for stat in msg.status:
+            if stat.name.find(self.name) >= 0:
+                self._ok = (stat.level == 0)
+                self._update_time = rospy.get_time()
+                if not self._ok:
+                    break
+
+        self._mutex.release()
     
     def check_ok(self):
-        with self._mutex:
-            msg = ''
-            stat = 0
-            if not self._ok:
-                stat = 2
-                msg = 'Camera Error'
+        self._mutex.acquire()
+        msg = ''
+        stat = 0
+        if not self._ok:
+            stat = 2
+            msg = 'Hokuyo Error'
 
-            if rospy.get_time() - self._update_time > 3:
-                stat = 3
-                msg = 'Camera Stale'
-                if self._update_time == 0:
-                    msg = 'No Camera Data'
+        if rospy.get_time() - self._update_time > 3:
+            stat = 3
+            msg = 'Hokuyo Stale'
+            if self._update_time == 0:
+                msg = 'No Hokuyo Data'
         
+        self._mutex.release()
         return stat, msg, None
     

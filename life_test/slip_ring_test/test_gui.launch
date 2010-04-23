@@ -23,7 +23,7 @@
         machine="test_host_root" args="-j4 -ieth2" />
   
   <!-- Monitor, checks etherCAT, transmission, slip ring packets  -->
-  <node pkg="life_test" type="test_monitor.py"
+  <node pkg="pr2_hardware_test_monitor" type="pr2_hw_test_monitor"
         name="monitor" machine="test_host" > 
     <rosparam command="load"
               file="$(find life_test)/slip_ring_test/slip_ring_listeners.yaml" />

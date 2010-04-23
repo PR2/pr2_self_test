@@ -2,7 +2,7 @@
 #
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2009, Willow Garage, Inc.
+# Copyright (c) 2008, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,37 +34,62 @@
 #
 
 ##\author Kevin Watts
-##\brief Monitors status of PR2 hardware tests
+##\brief Listens to diagnostics from wge100 camera and reports OK/FAIL
 
-PKG = 'life_test'
 
-import roslib
-roslib.load_manifest(PKG)
+from __future__ import with_statement
+
+PKG = 'pr2_hardware_test_monitor'
+import roslib; roslib.load_manifest(PKG)
+
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+from std_srvs.srv import *
 
 import rospy
 
-from life_test.msg import TestStatus
-from life_test.pr2_hw_monitor import TestMonitor
+import threading
 
-import traceback
-import sys
- 
 
-if __name__ == '__main__':
-    rospy.init_node('test_monitor')
-    try:
-        tm = TestMonitor()
-        
-        rate = rospy.Rate(1.0)
-        while not rospy.is_shutdown():
-            rate.sleep()
-            tm.publish_status()
-    except KeyboardInterrupt:
+class CameraListener:
+    def __init__(self):
+        self._diag_sub = rospy.Subscriber('/diagnostics', DiagnosticArray, self._diag_callback)
+        self._mutex = threading.Lock()
+
+        self._ok = True
+        self._update_time = 0
+
+    # Doesn't do anything
+    def create(self, params):
+        return True
+
+    def halt(self):
         pass
-    except:
-        traceback.print_exc()
-        rospy.logerr(traceback.format_exc())
 
-    sys.exit()
+    def reset(self):
+        pass
 
-    main()
+    def _diag_callback(self, msg):
+        with self._mutex:
+            for stat in msg.status:
+                if stat.name.find('wge100') >= 0:
+                    self._ok = (stat.level == 0)
+                    self._update_time = rospy.get_time()
+                    if not self._ok:
+                        break
+    
+    def check_ok(self):
+        with self._mutex:
+            msg = ''
+            stat = 0
+            if not self._ok:
+                stat = 2
+                msg = 'Camera Error'
+
+            if rospy.get_time() - self._update_time > 3:
+                stat = 3
+                msg = 'Camera Stale'
+                if self._update_time == 0:
+                    msg = 'No Camera Data'
+        
+        return stat, msg, None
+    

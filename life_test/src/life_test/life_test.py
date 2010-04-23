@@ -53,7 +53,8 @@ import rospy
 from std_srvs.srv import * # Empty
 
 # Stuff from life_test package
-from msg import TestStatus, TestInfo
+from pr2_self_test_msgs.msg import TestStatus
+from msg import TestInfo
 from test_param import TestParam, LifeTest
 from test_record import TestRecord
 

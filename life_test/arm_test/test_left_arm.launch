@@ -29,7 +29,7 @@
   <include file="$(find life_test)/wge100.launch" /> 
 
   <!-- Monitor (with transmission checker) -->
-  <node pkg="life_test" type="test_monitor.py"
+  <node pkg="pr2_hardware_test_monitor" type="pr2_hw_test_monitor"
         name="monitor" machine="test_host" >
     <rosparam command="load"
               file="$(find life_test)/arm_test/arm_left_listeners.yaml" />

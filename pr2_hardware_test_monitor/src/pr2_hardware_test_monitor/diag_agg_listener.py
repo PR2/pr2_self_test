@@ -39,7 +39,7 @@
 
 from __future__ import with_statement
 
-PKG = 'life_test'
+PKG = 'pr2_hardware_test_monitor'
 import roslib; roslib.load_manifest(PKG)
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue

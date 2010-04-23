@@ -2,7 +2,7 @@
 #
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2009, Willow Garage, Inc.
+# Copyright (c) 2010, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,15 +36,14 @@
 ##\author Kevin Watts
 ##\brief Loads listeners, monitors status of PR2 hardware tests
 
-PKG = 'life_test'
+PKG = 'pr2_hardware_test_monitor'
 
 import roslib
 roslib.load_manifest(PKG)
 
 import rospy
 
-
-from msg import TestStatus
+from pr2_self_test_msgs.msg import TestStatus
 
 from diagnostic_msgs.msg import DiagnosticArray
 from std_srvs.srv import *
@@ -71,7 +70,7 @@ class PR2HWListener(object):
 
 ##\brief Loads listener from parameters
 ##
-##\param params dict : Parameters of listeners. Must have "type", "file". "pkg" is optional
+##\param params dict : Must have "type", "file". "pkg" is optional
 ##\param listeners [] : Newly created listener is appended
 ##\return bool : True if listener created successfully
 def create_listener(params, listeners):
@@ -81,7 +80,8 @@ def create_listener(params, listeners):
     
     file = params['file']
     type = params['type']
-    pkg = params['pkg'] if params.has_key('pkg') else PKG
+    #pkg = params['pkg'] if params.has_key('pkg') else PKG
+    pkg = PKG
 
     try:    
         import_str = '%s.%s' % (pkg, file)
@@ -89,7 +89,7 @@ def create_listener(params, listeners):
         pypkg = sys.modules[import_str]
         listener_type = getattr(pypkg, type)
     except:
-        rospy.logerr('Couldn\'t load listener %s from %s.\nException: %s' % (type, file, traceback.format_exc()))
+        rospy.logerr('Couldn\'t load listener MYPKG.%s.%s from %s.\n\nException: %s' % (pkg, type, file, traceback.format_exc()))
         return False
     
     try:

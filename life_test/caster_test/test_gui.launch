@@ -19,7 +19,7 @@
         name="caster_cmder" machine="test_host"/>
 
   <!-- Monitor (with transmission) -->
-  <node pkg="life_test" type="test_monitor.py"
+  <node pkg="pr2_hardware_test_monitor" type="pr2_hw_test_monitor"
         name="monitor" machine="test_host" >
     <rosparam command="load"
               file="$(find life_test)/caster_test/caster_listeners.yaml" />

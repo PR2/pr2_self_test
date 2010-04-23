@@ -40,7 +40,7 @@ from __future__ import with_statement
 
 DURATION = 20
 
-PKG = 'life_test'
+PKG = 'pr2_hardware_test_monitor'
 import roslib; roslib.load_manifest(PKG)
 
 import unittest
@@ -49,7 +49,7 @@ from time import sleep
 import sys
 from optparse import OptionParser
 
-from life_test.msg import TestStatus
+from pr2_self_test_msgs.msg import TestStatus
 import threading
 
 class TestMonitorUnit(unittest.TestCase):
@@ -86,7 +86,7 @@ class TestMonitorUnit(unittest.TestCase):
                 self._message = msg.message
                 self._level = msg.test_ok
 
-    def test_qual_unit(self):
+    def test_monitor(self):
         while not rospy.is_shutdown():
             sleep(1.0)
             if rospy.get_time() - self._start > DURATION:
