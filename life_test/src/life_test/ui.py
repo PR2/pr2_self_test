@@ -56,7 +56,7 @@ from wx import html
 
 import threading
 
-from invent_client.invent_client import Invent, is_serial_valid
+from invent_client.invent_client import Invent
 
 from life_test import *
 from test_param import *
@@ -367,17 +367,6 @@ class TestManagerFrame(wx.Frame):
             wx.MessageBox('Current component is already testing.', 'Already Testing', wx.OK|wx.ICON_ERROR, self)
             return
 
-        if (not self._debug) and (not is_serial_valid(serial)):
-            wx.MessageBox('Serial number "%s" appears to be invalid. Re-enter the serial number and try again.' % (serial), 'Invalid Serial Number', wx.OK|wx.ICON_ERROR, self)
-            return
-
-        test = self.select_test(serial)
-
-        # If test is none, display message box and return
-        if not test:
-            wx.MessageBox('No test defined for that serial number or no test selected. Please try again.', 'No test', wx.OK|wx.ICON_ERROR, self)
-            return
-        
         if not self._debug and not self.load_invent_client():
             wx.MessageBox('You cannot proceed without a valid inventory login.', 'Valid Login Required', wx.OK|wx.ICON_ERROR, self)
             return 
@@ -386,12 +375,24 @@ class TestManagerFrame(wx.Frame):
                           'No Inventory Access', wx.OK|wx.ICON_ERROR, self)
             self._invent_client = Invent('', '')
             
+        if (not self._debug) and (not self._invent_client.check_serial_valid(serial)):
+            wx.MessageBox('Serial number "%s" appears to be invalid. Re-enter the serial number and try again.' % (serial), 'Invalid Serial Number', wx.OK|wx.ICON_ERROR, self)
+            return
+
         if (not self._debug) and (not self._invent_client.get_test_status(serial)):
             wx.MessageBox('Component %s has not passed qualification. Please re-test component and try again' % serial, 
                           'Bad Component', wx.OK|wx.ICON_ERROR, self)
             return
 
 
+
+        test = self.select_test(serial)
+
+        # If test is none, display message box and return
+        if not test:
+            wx.MessageBox('No test defined for that serial number or no test selected. Please try again.', 'No test', wx.OK|wx.ICON_ERROR, self)
+            return
+        
         self._serial_text.Clear()
         self.log('Starting test %s' % test._name)
 
