@@ -427,7 +427,7 @@ bool CounterbalanceTestController::init(pr2_mechanism_model::RobotState *robot, 
   {
     ROS_WARN("CounterbalanceTestController was not given parameter 'screw_tol' on namespace %s)",
               n.getNamespace().c_str());
-    bar_tol = 0.5;
+    bar_tol = 1.0;
   }  
   cb_test_data_.arg_value[23] = screw_tol;
   cb_test_data_.arg_value[24] = bar_tol;
