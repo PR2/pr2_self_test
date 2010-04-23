@@ -18,4 +18,29 @@
   <xacro:pr2_upper_arm_roll_v0 side="r" reflect="-1" parent="base_link">
     <origin xyz="0 0 0" rpy="0 0 0" />
   </xacro:pr2_upper_arm_roll_v0>
+
+  <!-- Dummy FA used in burn in test -->
+  <joint name="r_dummy_upper_arm_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <limit effort="0" velocity="100"/>
+    <safety_controller k_velocity="10" />
+    <dynamics damping="0.0" friction="0.0" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="r_upper_arm_roll_link"/>
+    <child link="r_dummy_upper_arm_link"/>
+  </joint>
+  <link name="r_dummy_upper_arm_link">
+    <inertial>
+      <mass value="1" />
+      <origin xyz=" 0 0 0 " />
+      <inertia  ixx="1.0" ixy="0.0" ixz="0.0"
+                iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.12 0 0" rpy="0 0 0" />
+      <geometry>
+	<box size="0.10 0.06 0.15" />
+      </geometry>
+    </visual> 
+  </link> 
 </robot>

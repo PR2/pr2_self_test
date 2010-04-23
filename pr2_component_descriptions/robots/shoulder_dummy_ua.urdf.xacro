@@ -42,12 +42,4 @@
       </geometry>
     </visual> 
   </link>
-
-<!--
-  <transmission type="SimpleTransmission" name="r_dummy_upperarm_trans">
-    <actuator name="r_elbow_flex_motor" />
-    <joint name="r_dummy_upper_arm_joint" />
-    <mechanicalReduction>1</mechanicalReduction>
-  </transmission>
- -->
 </robot>
