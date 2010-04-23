@@ -5,7 +5,7 @@
   <group ns="test_controller" >
     <param name="max_expected" type="double" value="0.14" />
     <param name="min_expected" type="double" value="-0.14" />
-    <param name="tolerance" type="double" value="0.12" />
+    <param name="tolerance" type="double" value="0.20" />
     <param name="sd_max" type="double" value="0.18" />
   </group>
 </launch>
