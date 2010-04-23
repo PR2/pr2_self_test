@@ -59,9 +59,6 @@ def _is_serial_valid(reference):
 
   return True
 
-def is_serial_valid(reference):
-  print >> sys.stderr, "Warning: Using deprecated serial number check in invent_client"
-  return _is_serial_valid(reference)
 
 ## \brief Stores username and password, provides access to invent
 ##
@@ -111,8 +108,22 @@ class Invent:
     self._logged_time = time.time()
     return True
 
+  ##\brief Debug mode only. Check invent DB for serial
+  ##
+  ##\return bool : True if serial is valid, False if not
   def check_serial_valid(self, serial):
     if not _is_serial_valid(serial):
+      return False
+
+    url = self.site + "invent/api.py?Action.isItemValid=1&reference=%s" % (serial,)
+    fp = self.opener.open(url)
+    body = fp.read()
+    fp.close()
+
+    i = string.find(body, "\n<!--")
+    value = string.strip(body[:i])
+
+    if value != "True":
       return False
 
     ##\todo Need some other stuff here. #4060
