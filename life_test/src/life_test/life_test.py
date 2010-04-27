@@ -401,6 +401,9 @@ class TestMonitorPanel(wx.Panel):
         self.timer.Start(1000 * self.timeout_interval, True)
         
     def on_timer(self, event):
+        if not self.is_launched():
+            return
+
         interval = rospy.get_time() - self.last_message_time
         
         was_stale = self._is_stale
@@ -905,8 +908,8 @@ class TestMonitorPanel(wx.Panel):
 
             return True
         except Exception, e:
-            rospy.logerr('Unable to send mail! %s' % traceback.format_exc())
-            self.update_test_record('Unable to send mail! %s' % traceback.format_exc())
+            rospy.logwarn('Unable to send mail! %s' % traceback.format_exc())
+            self.update_test_record('Warning: Unable to send mail!')
             return False
 
 
@@ -978,13 +981,13 @@ em { font-style:normal; font-weight: bold; }\
         # Make results table
         html += '<hr size="3">\n'
         html += '<H4>Test Results</H4>\n'
-        html += self.make_record_table()
+        html += self.make_record_table() # Use TestRecord function
         
 
         # Make log table
         html += '<hr size="3">\n'
         html += '<H4>Test Log</H4>\n'
-        html += self.make_log_table()
+        html += self.make_log_table() # Use TestRecord function
         html += '<hr size="3">\n'
         html += '</body></html>'
 
@@ -1007,6 +1010,7 @@ em { font-style:normal; font-weight: bold; }\
 
         return html
 
+    ##\todo Move to LifeTest class
     def make_test_param_table(self):
         if len(self._test._params) == 0:
             return '<p>No test parameters defined.</p>\n'
@@ -1019,7 +1023,7 @@ em { font-style:normal; font-weight: bold; }\
 
         return html
 
-
+    ##\todo Move out of class
     def make_table_row(self, lst, bold = False):
         html = '<tr>'
         for val in lst:
@@ -1029,42 +1033,46 @@ em { font-style:normal; font-weight: bold; }\
                 html += '<td>%s</td>' % val
         html += '</tr>\n'
         return html
-    
 
     def make_record_table(self):
         if not self._record:
             return '<p>No test record, test may have been aborted.</p>\n'
             
-        html = '<table border="1" cellpadding="2" cellspacing="0">\n'
-        time_str = strftime("%m/%d/%Y %H:%M:%S", localtime(self._record._start_time))
-        html += self.make_table_row(['Start Time', time_str])
-        html += self.make_table_row(['Elapsed Time', self._record.get_elapsed_str()])
-        html += self.make_table_row(['Active Time', self._record.get_active_str()])
-        for ky in self._record.get_cum_data().keys():
-            cum_name = "Cum. %s" % ky
-            html += self.make_table_row([cum_name, self._record.get_cum_data()[ky]])        
+        return self._record.write_table()
 
-        html += self.make_table_row(['Num Halts', self._record._num_halts])
-        html += self.make_table_row(['Num Alerts', self._record._num_events])
-        html += '</table>\n'
+        #html = '<table border="1" cellpadding="2" cellspacing="0">\n'
+        #time_str = strftime("%m/%d/%Y %H:%M:%S", localtime(self._record._start_time))
+        #html += self.make_table_row(['Start Time', time_str])
+        #html += self.make_table_row(['Elapsed Time', self._record.get_elapsed_str()])
+        #html += self.make_table_row(['Active Time', self._record.get_active_str()])
+        #for ky in self._record.get_cum_data().keys():
+        #    cum_name = "Cum. %s" % ky
+        #    html += self.make_table_row([cum_name, self._record.get_cum_data()[ky]])        
 
-        return html
+        #html += self.make_table_row(['Num Halts', self._record._num_halts])
+        #html += self.make_table_row(['Num Alerts', self._record._num_events])
+        #html += '</table>\n'
+
+        #return html
 
     def make_log_table(self):
-        if self._record._log is None or len(dict.keys(self._record._log)) == 0:
-            return '<p>No test log!</p>\n'
+        return self._record.write_log()
 
-        html = '<p>CSV location: %s on machine %s.</p>\n' % (self._record.csv_filename(), gethostname())
-
-        html += '<table border="1" cellpadding="2" cellspacing="0">\n'
-        html += '<tr><td><b>Time</b></td><td><b>Entry</b></td></tr>\n'
         
-        kys = dict.keys(self._record._log)
-        kys.sort()
-        for ky in kys:
-            time_str = strftime("%m/%d/%Y %H:%M:%S", localtime(ky))
-            html += self.make_table_row([time_str, self._record._log[ky]])
-            
-        html += '</table>\n'
+        #if self._record._log is None or len(dict.keys(self._record._log)) == 0:
+        #    return '<p>No test log!</p>\n'#
 
-        return html
+        #html = '<p>CSV location: %s on machine %s.</p>\n' % (self._record.csv_filename(), gethostname())
+
+        #html += '<table border="1" cellpadding="2" cellspacing="0">\n'
+        #html += '<tr><td><b>Time</b></td><td><b>Entry</b></td></tr>\n'
+        
+        #kys = dict.keys(self._record._log)
+        #kys.sort()
+        #for ky in kys:
+        #    time_str = strftime("%m/%d/%Y %H:%M:%S", localtime(ky))
+        #    html += self.make_table_row([time_str, self._record._log[ky]])
+            
+        #html += '</table>\n'
+
+        #return html
