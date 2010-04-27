@@ -68,7 +68,7 @@ def _write_table_row(lst, bold = False):
 class TestRecord:
     ##\param test LifeTest : Test type, params
     ##\param serial str : Serial number of DUT
-    def __init__(self, test, serial):
+    def __init__(self, test, serial, file_path = None):
         self._start_time = rospy.get_time()
         self._cum_seconds = 0
         self._last_update_time = rospy.get_time()
@@ -91,9 +91,13 @@ class TestRecord:
             if param.is_rate():
                 self._cum_data[param.get_name()] = 0
 
-        csv_name = strftime("%Y%m%d_%H%M%S", localtime(self._start_time)) + '_' + str(self._serial) + '_' + self._test_name + '.csv'
+        csv_name = strftime("%Y%m%d_%H%M%S", localtime(self._start_time)) + '_' + \
+            str(self._serial) + '_' + self._test_name + '.csv'
         csv_name = csv_name.replace(' ', '_').replace('/', '__')
-        self.log_file = os.path.join(roslib.packages.get_pkg_dir('life_test'), 'logs/%s' % csv_name)
+
+        if not file_path:
+            file_path = os.path.join(roslib.packages.get_pkg_dir(PKG), 'logs')
+        self.log_file = os.path.join(file_path, csv_name)
 
         
         with open(self.log_file, 'ab') as f:
