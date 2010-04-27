@@ -82,6 +82,7 @@ class CounterbalanceAnalysisData:
         for ld in msg.lift_data:
             self.lift_data.append(CBRunAnalysisData(ld))
 
+##\brief Stores parameters from CB analysis test
 class CounterbalanceAnalysisParams:
     def __init__(self, msg):
         self.lift_dither  = msg.lift_amplitude
@@ -178,10 +179,10 @@ class CounterbalanceAnalysisResult:
         self.summary = ''
         self.result = False
         self.values = []
-        
-def _get_efforts(data, lift_calc):
-    return get_efforts(data, lift_calc)
 
+##\brief Get average efforts for CB test as a list
+##
+##\param lift_calc bool : Lift or flex efforts
 def get_efforts(data, lift_calc):
     avg_effort_list = []
     for ld in data.lift_data:
@@ -249,7 +250,11 @@ def _get_lift_positions(data):
     return lifts
 
 
-
+##\brief Gives effort contour plot of efforts by lift, flex position
+##
+##\param params CounterbalanceAnalysisParams : Input params
+##\param data CounterbalanceAnalysisData : Test Data
+##\return qualification.msg.Plot : Plot message with contour
 def plot_effort_contour(params, data, lift_calc = True):
     effort_list = []
     for i in range(0, params.num_lifts):
@@ -282,6 +287,10 @@ def plot_effort_contour(params, data, lift_calc = True):
 
     return p
 
+##\brief Plots CB efforts against shoulder lift position
+##
+##\param flex_index int : Index of flex data to plot against
+##\param lift_calc bool : Lift efforts or flex efforts
 def plot_efforts_by_lift_position(params, data, flex_index = -1, lift_calc = True):
     lift_position, effort = _get_const_flex_effort(data, flex_index, lift_calc)
     
@@ -312,10 +321,13 @@ def plot_efforts_by_lift_position(params, data, flex_index = -1, lift_calc = Tru
 
     return p
 
+##\brief Checks shoulder lift efforts against params
+##
+##\return CounterbalanceAnalysisResult
 def analyze_lift_efforts(params, data):
     result = CounterbalanceAnalysisResult()
     
-    avg_efforts = numpy.array(_get_efforts(data, True))
+    avg_efforts = numpy.array(get_efforts(data, True))
     mse = _get_mean_sq_effort(avg_efforts)
     avg_abs = _get_mean_abs_effort(avg_efforts)
     avg_eff = _get_mean_effort(avg_efforts)
@@ -351,10 +363,13 @@ def analyze_lift_efforts(params, data):
 
     return result
     
+##\brief Checks shoulder flex efforts against params
+##
+##\return CounterbalanceAnalysisResult
 def analyze_flex_efforts(params, data):
     result = CounterbalanceAnalysisResult()
     
-    avg_efforts = numpy.array(_get_efforts(data, False))
+    avg_efforts = numpy.array(get_efforts(data, False))
     mse = _get_mean_sq_effort(avg_efforts)
     avg_abs = _get_mean_abs_effort(avg_efforts)
     avg_eff = _get_mean_effort(avg_efforts)
