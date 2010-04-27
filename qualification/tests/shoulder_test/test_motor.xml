@@ -2,7 +2,7 @@
   <!-- Uses lift motor, since lift/pan/roll motors are the same -->
   <instructions>instructions_motor.html</instructions>
   <pre_startup name="Power On" timeout="30">../../scripts/power_on.launch</pre_startup>
-  <pre_startup name="Configure MCB's" timeout="30">shoulder_lift_motor_conf.launch</pre_startup>
+  <pre_startup name="Configure MCB's" timeout="180">shoulder_lift_motor_conf.launch</pre_startup>
   <startup>shoulder_motor.launch</startup>
   <subtest name="Hysteresis Motor Test" timeout="60">hysteresis_shoulder_motor.launch</subtest>
   <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
