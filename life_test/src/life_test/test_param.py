@@ -39,6 +39,17 @@ roslib.load_manifest(PKG)
 
 import rospy
 
+##\todo Move to common "notifier" or "writer" file
+def _write_table_row(lst, bold = False):
+    html = '<tr>'
+    for val in lst:
+        if bold:
+            html += '<td><b>%s</b></td>' % val
+        else:
+            html += '<td>%s</td>' % val
+        html += '</tr>\n'
+    return html
+
 class LifeTest:
     def __init__(self, short_serial, test_name, short_name, 
                  duration, desc, test_type, launch_file, need_power, params):
@@ -95,6 +106,18 @@ class LifeTest:
             return False
 
         return True
+
+    def make_param_table(self):
+        if len(self._params) == 0:
+            return '<p>No test parameters defined.</p>\n'
+
+        html = '<table border="1" cellpadding="2" cellspacing="0">\n'
+        html += _write_table_row(['Name', 'Value', 'Key', 'Description'], True)
+        for param in self._params:
+            html += _write_table_row([param._name, param._value, param._param_name, param._desc])
+        html += '</table>\n'
+
+        return html
             
         
 ## Stores parameter data for each test
