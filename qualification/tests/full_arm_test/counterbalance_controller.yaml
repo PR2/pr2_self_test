@@ -4,7 +4,7 @@ test_controller:
   dither_points: 1000
   timeout: 300
   screw_tol: 2.0
-  bar_tol: 1.0
+  bar_tol: 0.8
   lift:
     joint: r_shoulder_lift_joint
     type: JointPositionController
