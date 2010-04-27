@@ -1,8 +1,0 @@
-<test name="Gripper Drop Test">
-  <instructions>drop_instruct.html</instructions>
-  <pre_startup timeout="30" name="Power On">../../scripts/power_cycle.launch</pre_startup>
-  <startup name="Gripper Startup">gripper.launch</startup>
-  <subtest name="Gripper Checkout">gripper_checkout.launch</subtest>
-  <subtest name="Gripper Drop Test">gripper_drop.launch</subtest>
-  <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
-</test>

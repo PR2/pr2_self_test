@@ -1,9 +1,9 @@
 <test name="Forearm Roll/Slipring Test" >
   <instructions>instructions_forearm_roll.html</instructions>
   <pre_startup name="Power Standby" timeout="30">../../scripts/power_board_standby.launch</pre_startup>
-  <pre_startup name="MCB Program" timeout="30">forearm_roll_prog.launch</pre_startup>
+  <pre_startup name="MCB Program" timeout="180">forearm_roll_prog.launch</pre_startup>
   <pre_startup name="Power Cycle" timeout="30">../../scripts/power_cycle.launch</pre_startup>
-  <pre_startup name="MCB Configuration" timeout="30">forearm_roll_conf.launch</pre_startup>
+  <pre_startup name="MCB Configuration" timeout="180">forearm_roll_conf.launch</pre_startup>
   <startup>forearm_roll.launch</startup>
   <subtest name="Hysteresis Motor Test" timeout="60">hysteresis_forearm_roll.launch</subtest>
   <subtest name="Packet Drop Test" timeout="60">packet_drop_test.launch</subtest>
