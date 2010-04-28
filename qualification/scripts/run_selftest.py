@@ -126,7 +126,7 @@ def call_selftest(node_name):
     test_service = rospy.ServiceProxy(selftestname, SelfTest)
 
     try:
-        rospy.wait_for_service(selftestname, 15)
+        rospy.wait_for_service(selftestname, 30)
     except:
         rospy.logerr('Wait for service %s timed out. Unable to process self test data.' % selftestname)
         return False, None
