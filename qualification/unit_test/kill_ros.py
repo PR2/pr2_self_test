@@ -9,7 +9,7 @@ dialog = wx.MessageDialog(None, "Are you are you want to kill ROS? This will kil
 if dialog.ShowModal() != wx.ID_OK:
     sys.exit(1)
 
-cmd = ['ckill', 'kill', '--regex=.*qual.*', '--sig=9']
+cmd = ['ckill', 'kill', '--sig=9']
 
 retcode = subprocess.call(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 
