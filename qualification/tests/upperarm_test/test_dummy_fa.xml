@@ -2,6 +2,7 @@
   <instructions>instructions_dummy_fa.html</instructions>
   <pre_startup name="Power On" timeout="30">../../scripts/power_cycle.launch</pre_startup>
   <pre_startup name="Configure MCB's" timeout="180">../../config/r_upperarm_dummy_fa_conf.launch</pre_startup>
+  <pre_startup name="Check WGE100 Camera" timeout="120">../wge100_prestartup.launch</pre_startup>
   <startup>upperarm_dummy_fa.launch</startup>
   <subtest name="Upperarm Checkout">upperarm_checkout_dummy_fa.launch</subtest>
   <subtest name="WGE 100 Self Test" timeout="45">ua_wge100_selftest.launch</subtest>

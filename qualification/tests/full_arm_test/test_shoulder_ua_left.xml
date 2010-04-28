@@ -3,6 +3,7 @@
   <pre_startup name="Find Shoulder SN">add_shoulder_sn.launch</pre_startup>
   <pre_startup name="Power On">../../scripts/power_on.launch</pre_startup>
   <pre_startup name="Configure Arm" timeout="180" >../../config/l_shoulder_ua_conf.launch</pre_startup>
+  <pre_startup name="Check WGE100 Camera" timeout="120">../wge100_prestartup.launch</pre_startup>
   <startup>shoulder_ua_left.launch</startup>
   <subtest name="Shoulder/UA Left Checkout">shoulder_ua_left_checkout.launch</subtest>
   <subtest name="WGE100 Self Test" timeout="45">full_arm_wge100_selftest.launch</subtest>

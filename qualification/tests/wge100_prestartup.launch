@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="qualification" type="check_wge100_present.py" name="check_wge100" />
+</launch>
