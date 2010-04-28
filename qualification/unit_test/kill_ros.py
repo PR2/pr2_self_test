@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
-import wx
-import sys, subprocess
+PKG = 'qualification'
 
-import roslib; roslib.load_manifest('qualification')
+import wx
+import sys, subprocess, os
+
+import roslib; roslib.load_manifest(PKG)
+
+from time import sleep
 
 app = wx.PySimpleApp()
 
@@ -11,10 +15,11 @@ dialog = wx.MessageDialog(None, "Are you are you want to kill ROS? This will kil
 if dialog.ShowModal() != wx.ID_OK:
     sys.exit(1)
 
-whitelist_path = os.path.join(roslib.packages.get_pkg_dir('ckill'), 'whitelist')
-cmd = ['rosrun', 'ckill', 'ckill.py', 'kill', '--sig=9', '--whitelist=%s' % whitelist_path]
+#cmd = [ 'kkill' ]
 
-retcode = subprocess.call(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+p = subprocess.Popen('sudo kkill', stdout = subprocess.PIPE, 
+                     stderr = subprocess.PIPE, shell=True)
+retcode = p.returncode
 
 if retcode != 0:
     wx.MessageBox("Unable to kill ROS. Retry by pressing \"Kill ROS\".", "Unable to kill ROS", wx.OK)

@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+
+import sys, os
+import subprocess
+from time import sleep
+
+class SubprocessException(Exception): pass
+
+def find_processes():
+    cmd = ['ps', 'ax']
+
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    o, e = p.communicate()
+    retcode = p.returncode
+
+    my_pid = str(os.getppid())
+
+    if retcode != 0:
+       raise SubprocessException("Unable to search for processes. Returned %d" % retcode)
+       
+    processes = o.split('\n')
+    pids = []
+    for process in processes[1:]:
+        if len(process.split()) < 2:
+            continue
+
+        p_data = process.split()
+        if my_pid == p_data[0]:
+            continue
+
+        if process.find('ros') < 0 and process.find('qual') < 0:
+            #print 'Skipping:', process
+            continue
+
+        pids.append(p_data[0])
+
+    return pids
+
+def kill_processes(p_list, sig):
+    if len(p_list) == 0:
+        return
+
+    cmd = ['kill']
+    cmd += ["-%d" % sig]
+    cmd += p_list
+
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) #, shell=True)
+    o,e = p.communicate()
+    if p.returncode != 0:
+        print 'Returned %d' % p.returncode
+        for err in e.split('\n'):
+            if err.find('permitted') >= 0:
+                print 'Operation not permitted, you may have to be root'
+                continue
+            if err.find('No such process') < 0:
+                print 'Error killing process:\n\t', e
+                
+                
+
+    
+
+if __name__ == '__main__':
+   pids = find_processes()
+   kill_processes(pids, 15)
+
+   sleep(1)
+   pids = find_processes()
+   kill_processes(pids, 9)
+
+   sleep(1)
+   pids = find_processes()
+   if len(pids) > 0:
+       print >> sys.stderr, "Warning: kkill may not have killed all process"
+       sys.exit(2)
+       
+   print 'Killed all'
+   
