@@ -87,7 +87,7 @@
 	file="gripper_test/test.xml" descrip="Gripper Test (Initial)" />
   <test serial="6804015" 
 	file="gripper_test/test_post_burn.xml" descrip="Gripper Test - Post Burn-In" />
-  <test serial="6803048"
+  <test serial="6801079"
 	file="gripper_test/test_tip.xml" descrip="Tip Sensor Test" />
 
   <test serial="6802764"
