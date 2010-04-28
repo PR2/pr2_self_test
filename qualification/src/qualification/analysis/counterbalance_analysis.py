@@ -430,12 +430,16 @@ def check_cb_adjustment(params, data, model_file):
     # Recommended adjustments
     secondary = -X[0][0]
     cb_bar = -X[0][1] # Same as arm gimbal shaft
+
     
-    adjust_msg = 'Please turn secondary by %.2f turns clockwise (CW) and the CB bar by %.2f turns CW' % (secondary, cb_bar)
+    secondary_dir = 'CW' if secondary > 0 else 'CCW' # CW increases CB force
+    cb_bar_dir = 'CW' if cb_bar > 0 else 'CCW' # CCW increases CB force
+    
+    adjust_msg = 'Please turn secondary by %.2f turns %s and the arm gimbal shaft by %.2f turns %s' % (secondary, secondary_dir, cb_bar, cb_bar_dir)
     adjust_msg = '<table border="1" cellpadding="2" cellspacing="0">'
-    adjust_msg += '<tr><td><b>Adjustment</b></td><td><b>Turns (CW)</b></td><td><b>Allowable Tolerance</b></td></tr>\n'
-    adjust_msg += '<tr><td>Secondary Spring</td><td>%.1f</td><td>%.1f</td></tr>\n' % (secondary, params.screw_tol)
-    adjust_msg += '<tr><td>Arm Gimbal Shaft</td><td>%.1f</td><td>%.1f</td></tr>\n' % (cb_bar, params.bar_tol)
+    adjust_msg += '<tr><td><b>Adjustment</b></td><td><b>Turns</b></td><td><b>Direction</b></td><td><b>Allowable Tolerance</b></td></tr>\n'
+    adjust_msg += '<tr><td>Secondary Spring</td><td>%.1f</td><td>%s</td><td>%.1f</td></tr>\n' % (abs(secondary), secondary_dir, params.screw_tol)
+    adjust_msg += '<tr><td>Arm Gimbal Shaft</td><td>%.1f</td><td>%s</td><td>%.1f</td></tr>\n' % (abs(cb_bar), cb_bar_dir, params.bar_tol)
     adjust_msg += '</table>\n'
 
     
