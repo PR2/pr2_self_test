@@ -190,7 +190,7 @@ class CounterbalanceAnalysis:
                 r.html_result = '<H4>Timeout Hit</H4>\n<p>Unable to analyzer CB. Controller timeout hit.</p>\n' + r.html_result
                 r.result = TestResultRequest.RESULT_FAIL
 
-            if params.flex_test and not self._model_file:
+            if params.flex_test:
                 r.result = TestResultRequest.RESULT_FAIL
                 r.text_summary = 'Fail, CB model file is missing. Set parameter \"~model_file\"'
 
