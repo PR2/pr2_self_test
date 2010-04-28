@@ -40,6 +40,8 @@
   <depend package="robot_state_publisher" />
   <depend package="roslaunch_parse_tester" />
   <depend package="ectools" />
+  <depend package="ckill" /> <!-- Utility for killing everything -->
+
   <url>http://www.ros.org/wiki/qualification</url>
   <export>
     <cpp cflags="-I${prefix}/msg/cpp -I${prefix}/srv/cpp" />
