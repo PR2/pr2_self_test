@@ -117,14 +117,29 @@ class SerialPanel(wx.Panel):
     self._serial_text.SetFocus()
     #self._serial_text.Bind(wx.EVT_COMMAND_TEXT_ENTER, self.on_test)
 
+  ##\brief Checks that serial number is valid using invent_client
+  def _check_serial_input(self, serial):
+    if self._manager.options.debug:
+      return True
+
+    iv = self._manager.get_inventory_object()
+    if not iv:
+      wx.MessageBox("Unable to check serial number. Unable to login in Inventory system", "Error - Unable to check serial number", wx.OK|wx.ICON_ERROR, self)
+      return False
+
+    return iv.check_serial_valid(serial)
+
   ##@todo Everything
   def on_config(self, event):
     # Get selected launch file
     serial = self._serial_text_conf.GetValue()
 
-    # popup box
+    if not self._check_serial_input(serial):
+      wx.MessageBox('Invalid serial number, unable to configure. Check serial number and retry.','Error - Invalid serial number', wx.OK|wx.ICON_ERROR, self)
+      return
+
     if not self.has_conf_script(serial):
-      print 'No conf script'
+      wx.MessageBox('No configuration procedure defined for that serial number.','Error - Invalid serial number', wx.OK|wx.ICON_ERROR, self)
       return
 
     config_str = self.select_conf_to_load(serial)
@@ -149,6 +164,10 @@ class SerialPanel(wx.Panel):
     # Get the first 7 characters of the serial
     serial = self._serial_text.GetValue()
     
+    if not self._check_serial_input(serial):
+      wx.MessageBox('Invalid serial number, unable to test component. Check serial number and retry.','Error - Invalid serial number', wx.OK|wx.ICON_ERROR, self)
+      return
+
     if not self.has_test(serial):
       wx.MessageBox('No test defined for that serial number.','Error - Invalid serial number', wx.OK|wx.ICON_ERROR, self)
       return
