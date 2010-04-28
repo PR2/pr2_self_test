@@ -112,17 +112,19 @@ class CounterbalanceAnalysis:
 
                 if self._model_file and os.path.exists(self._model_file):
                     adjust_result = check_cb_adjustment(params, data, self._model_file)
-                else:
+                else: # Don't check CB adjustment
                     adjust_result = CounterbalanceAnalysisResult()
-                    adjust_result.result = False
-                    adjust_result.html = '<p>No model file found, unable to check counterbalance.</p>'
+                    adjust_result.result = True
+                    adjust_result.html = '<p>Did not check counterbalance adjustment.</p>'
                                         
 
             html = []
             if params.flex_test:
-                html.append('<H4>CB Adjustment Recommendations and Analysis</H4>')
-                html.append(adjust_result.html)
-                html.append('<p>Further information is for debugging and analysis information only.</p><br><hr size="2" />')
+                if self._model_file:
+                    html.append('<H4>CB Adjustment Recommendations and Analysis</H4>')
+                    html.append(adjust_result.html)
+                    html.append('<p>Further information is for debugging and analysis information only.</p><br><hr size="2" />')
+
                 html.append('<H4>Lift Effort Contour Plot</H4>')
                 html.append('<img src=\"IMG_PATH/%s.png\" width=\"640\" height=\"480\" />' % (lift_effort_contour.title))
                 html.append('<H4>Flex Effort Contour Plot</H4>')
