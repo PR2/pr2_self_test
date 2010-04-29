@@ -59,11 +59,16 @@ def check_camera(interface = 'eth2'):
         print >> sys.stderr, "Unable to run discover. Camera may not be present"
         return False, "Unable to run discover. Camera may not be present"
 
-    for ln in o.split('\n'):
-        if ln.find('No cameras') > -1:
+    for ln in e.split('\n'):
+        if ln.find('No cam') > -1:
             print >> sys.stderr, "No cameras found"
             return False, "No cameras found"
-        else:
+
+    for ln in o.split('\n'):
+        if ln.find('No cam') > -1:
+            print >> sys.stderr, "No cameras found"
+            return False, "No cameras found"
+        elif ln.find('Found') == 0:
             return True, ''
 
 if __name__ == '__main__':
@@ -75,7 +80,7 @@ if __name__ == '__main__':
         interface = 'eth2'
 
     val, msg = check_camera(interface)
-
+    
     r = ScriptDoneRequest()
     r.result = 0
     r.failure_msg = 'Found wge100 camera on interface %s' % interface
