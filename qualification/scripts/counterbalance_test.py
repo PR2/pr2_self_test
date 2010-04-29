@@ -112,6 +112,11 @@ class CounterbalanceAnalysis:
 
                 if self._model_file and os.path.exists(self._model_file):
                     adjust_result = check_cb_adjustment(params, data, self._model_file)
+                elif self._model_file:
+                    adjust_result = CounterbalanceAnalysisResult()
+                    adjust_result.result = False
+                    adjust_result.html = '<p>CB model file is missing. File %s does not exist. This file is used for testing the CB adjustment.</p>\n' % self._model_file
+                    adjust_result.summary = 'CB model file missing, unable to analyze'
                 else: # Don't check CB adjustment
                     adjust_result = CounterbalanceAnalysisResult()
                     adjust_result.result = True
@@ -190,9 +195,6 @@ class CounterbalanceAnalysis:
                 r.html_result = '<H4>Timeout Hit</H4>\n<p>Unable to analyzer CB. Controller timeout hit.</p>\n' + r.html_result
                 r.result = TestResultRequest.RESULT_FAIL
 
-            if params.flex_test:
-                r.result = TestResultRequest.RESULT_FAIL
-                r.text_summary = 'Fail, CB model file is missing. Set parameter \"~model_file\"'
 
             self.send_results(r)
         except Exception, e:
