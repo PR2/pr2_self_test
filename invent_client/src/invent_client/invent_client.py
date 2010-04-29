@@ -115,16 +115,17 @@ class Invent:
     if not _is_serial_valid(serial):
       return False
 
-    url = self.site + "invent/api.py?Action.isItemValid=1&reference=%s" % (serial,)
-    fp = self.opener.open(url)
-    body = fp.read()
-    fp.close()
-
-    i = string.find(body, "\n<!--")
-    value = string.strip(body[:i])
-
-    if value != "True":
-      return False
+    if 0: # Waiting for invent upgrade
+      url = self.site + "invent/api.py?Action.isItemValid=1&reference=%s" % (serial,)
+      fp = self.opener.open(url)
+      body = fp.read()
+      fp.close()
+      
+      i = string.find(body, "\n<!--")
+      value = string.strip(body[:i])
+      
+      if value != "True":
+        return False
 
     ##\todo Need some other stuff here. #4060
     return True
