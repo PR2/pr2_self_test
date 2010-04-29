@@ -45,6 +45,8 @@ RATE = 5
 
 import roslib; roslib.load_manifest('qualification')
 
+from fingertip_pressure.fingertip_panel import FingertipPressurePanel
+
 import wx
 import threading
 from wx import xrc
@@ -55,7 +57,7 @@ import rospy
 
 import sys
 
-from fingertip_pressure.fingertip_panel import FingertipPressurePanel
+
 
 
 class FingertipVerifyPanel(FingertipPressurePanel):

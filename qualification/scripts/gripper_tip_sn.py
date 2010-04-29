@@ -85,7 +85,7 @@ def add_reference(reference):
     if not iv.login() or serial == None:
         return False
     
-    iv.addItemReference(serial, 'PPS', node_id)
+    iv.addItemReference(serial, 'PPS', reference)
 
     return True
     
