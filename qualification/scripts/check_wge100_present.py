@@ -43,11 +43,13 @@ from qualification.srv import *
 
 import subprocess, sys
 
-finish = rospy.ServiceProxy('prestartup_done', ScriptDone)
+SRV_NAME = 'prestartup_done'
+finish = rospy.ServiceProxy(SRV_NAME, ScriptDone)
 
 def check_camera(interface = 'eth2'):
-    cmd = ['rosrun', 'wge100_camera', 'discover', interface]
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+    #cmd = ['rosrun', 'wge100_camera', 'discover', interface]
+    p = subprocess.Popen('rosrun wge100_camera discover %s' % interface, 
+                         stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE, shell=True)
 
     o,e = p.communicate()
@@ -80,6 +82,7 @@ if __name__ == '__main__':
     if not val:
         r.result = 1
         r.failure_msg = msg
-    
+
+    rospy.wait_for_service(SRV_NAME, 5)
     finish.call(r)
         
