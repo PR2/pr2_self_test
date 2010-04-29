@@ -144,25 +144,25 @@ class CounterbalanceAnalysisParams:
         params.append(TestParam(key='Lift MSE', value=str(self.lift_mse)))
         params.append(TestParam(key='Lift Avg Abs', value=str(self.lift_avg_abs)))
         params.append(TestParam(key='Lift Avg Effort', value=str(self.lift_avg_eff)))
-        params.append(TestParam(key='Flex MSE', value=str(self.flex_mse)))
-        params.append(TestParam(key='Flex Avg Abs', value=str(self.flex_avg_abs)))
-        params.append(TestParam(key='Flex Avg Effort', value=str(self.flex_avg_eff)))
+
 
         params.append(TestParam(key='Lift P Gain', value=str(self.lift_p)))
         params.append(TestParam(key='Lift I Gain', value=str(self.lift_i)))
         params.append(TestParam(key='Lift D Gain', value=str(self.lift_d)))
         params.append(TestParam(key='Lift I Clamp', value=str(self.lift_i_clamp)))
 
-        params.append(TestParam(key='Flex P Gain', value=str(self.flex_p)))
-        params.append(TestParam(key='Flex I Gain', value=str(self.flex_i)))
-        params.append(TestParam(key='Flex D Gain', value=str(self.flex_d)))
-        params.append(TestParam(key='Flex I Clamp', value=str(self.flex_i_clamp)))
-
         params.append(TestParam(key='Num Lifts', value=str(self.num_lifts)))
         params.append(TestParam(key='Min Lift', value="%.2f" % self.min_lift))
         params.append(TestParam(key='Max Lift', value="%.2f" % self.max_lift))
 
         if self.flex_test:
+            params.append(TestParam(key='Flex MSE', value=str(self.flex_mse)))
+            params.append(TestParam(key='Flex Avg Abs', value=str(self.flex_avg_abs)))
+            params.append(TestParam(key='Flex Avg Effort', value=str(self.flex_avg_eff)))
+            params.append(TestParam(key='Flex P Gain', value=str(self.flex_p)))
+            params.append(TestParam(key='Flex I Gain', value=str(self.flex_i)))
+            params.append(TestParam(key='Flex D Gain', value=str(self.flex_d)))
+            params.append(TestParam(key='Flex I Clamp', value=str(self.flex_i_clamp)))
             params.append(TestParam(key='Num Flexes', value=str(self.num_flexes)))
             params.append(TestParam(key='Min Flex', value="%.2f" % self.min_flex))
             params.append(TestParam(key='Max Flex', value="%.2f" % self.max_flex))
