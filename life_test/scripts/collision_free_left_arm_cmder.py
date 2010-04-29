@@ -13,12 +13,31 @@ random.seed()
 from pr2_controllers_msgs.msg import *
 from trajectory_msgs.msg import JointTrajectoryPoint
 
+FAILED_OUT = 5
+
 ranges = {
     'l_shoulder_pan_joint': (-0.4, 2.0),
     'l_shoulder_lift_joint': (-0.4, 1.25),
     'l_upper_arm_roll_joint': (-0.5, 3.7),
     'l_elbow_flex_joint': (-2.0, -0.05) 
 }
+
+##\brief Moves arms to 0 position using unsafe trajectory
+def get_recovery_goal():
+    # Send to right, left arm controllers
+    point = JointTrajectoryPoint()
+    point.time_from_start = rospy.Duration.from_sec(5)    
+    
+    goal = JointTrajectoryGoal()
+    goal.trajectory.points.append(point)
+    goal.trajectory.header.stamp = rospy.get_rostime()
+
+    for joint in ranges.keys():
+        goal.trajectory.joint_names.append(joint)
+        goal.trajectory.points[0].positions.append(0)
+        goal.trajectory.points[0].velocities.append(0)
+
+    return goal
 
 if __name__ == '__main__':
     rospy.init_node('arm_cmder_client')
@@ -30,6 +49,10 @@ if __name__ == '__main__':
     rospy.loginfo('Arm goals canceled')
     my_rate = rospy.Rate(1.0)
 
+    recovery_client = actionlib.SimpleActionClient('l_arm_controller/joint_trajectory_action',
+                                                JointTrajectoryAction)
+
+    fail_count = 0
     while not rospy.is_shutdown():
         goal = JointTrajectoryGoal()
         point = JointTrajectoryPoint()
@@ -44,5 +67,19 @@ if __name__ == '__main__':
             
         rospy.logdebug('Sending goal to arm.')
         client.send_goal(goal)
-        client.wait_for_result(rospy.Duration.from_sec(3))
+        client.wait_for_result(rospy.Duration.from_sec(5))
+        my_result = client.get_state()
+        
+        if my_result == GoalStatus.SUCCEEDED:
+            fail_count = 0
+        else:
+            fail_count += 1
+
+        if fail_count > FAILED_OUT:
+            fail_count = 0
+            client.cancel_goal()
+            recovery_goal = get_recovery_goal()
+            recovery_client.send_goal(recovery_goal)
+            recovery_client.wait_for_result(rospy.Duration.from_sec(10))
+
         my_rate.sleep()

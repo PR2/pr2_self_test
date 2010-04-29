@@ -151,7 +151,7 @@ def get_virtual_table(height = 0.42):
 def get_recovery_goal():
     # Send to right, left arm controllers
     point = JointTrajectoryPoint()
-    point.time_from_start = rospy.Duration.from_sec(0)    
+    point.time_from_start = rospy.Duration.from_sec(5)    
     
     goal = JointTrajectoryGoal()
     goal.trajectory.points.append(point)
@@ -159,7 +159,7 @@ def get_recovery_goal():
 
     positions = {}
     for joint, range in ranges.iteritems():
-        positions[joint] = 0 #random.uniform(range[0], range[1])
+        positions[joint] = 0 
     positions['r_shoulder_pan_joint'] = - math.pi / 4
     positions['l_shoulder_pan_joint'] = math.pi / 4
 
