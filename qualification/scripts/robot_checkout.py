@@ -61,6 +61,9 @@ def _write_diag_summary(error_names, num_error, num_warn, num_stale):
         if name.find('wge100') > 0:
             camera = True
 
+    if camera:
+        return 'Error in wge100 camera. Check camera connection. '
+
     hokuyo = False
     for name in error_names:
         if name.find('hokuyo') > 0:
@@ -70,8 +73,7 @@ def _write_diag_summary(error_names, num_error, num_warn, num_stale):
         
     if ethercat:
         return 'EtherCAT error. Check runstop. Motors or MCB\'s may have problem. '
-    if camera:
-        return 'Error in wge100 camera. Check camera connection. '
+
     if hokuyo:
         return 'Hokuyo error. Check connections. '
 
@@ -270,7 +272,7 @@ class RobotCheckout:
             table += '<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n' % (diag._name, level, diag._message)
             stat_count[diag._level] = stat_count[diag._level] + 1
 
-            if level > 0:
+            if diag._level > 0:
                 error_names.append(diag._name)
 
         table += '</table>\n'
@@ -311,8 +313,11 @@ class RobotCheckout:
             else:
                 html += '<p>Time to complete check: %.3fs.</p>\n' % self._check_time
 
-            summary += 'Data: ' + diag_sum + self._visual_sum + self._joint_sum + self._act_sum 
-
+            if not self._is_ok:
+                summary += diag_sum
+            else:
+                summary += 'Data: ' + diag_sum + self._visual_sum + self._joint_sum + self._act_sum 
+            
             if self._motors_halted:
                 html += "<p>Motors halted, robot is not working.</p>\n"
                 summary = "Motors halted. Check runstop. " + summary
