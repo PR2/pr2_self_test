@@ -43,17 +43,20 @@ from qualification.srv import *
 
 import subprocess, sys
 
-import wx
 
 SRV_NAME = 'prestartup_done'
 finish = rospy.ServiceProxy(SRV_NAME, ScriptDone)
 
+confirm_proxy = rospy.ServiceProxy('mcb_conf_results', ConfirmConf)
+
 ##\brief Returns True if user wants to try again
 def _report_no_cameras(interface):
-    dlg = wx.MessageDialog(None, "Did not find any cameras on %s.\n\nCheck power and link lights. If the power and link lights are on, the interface may not be running.\n\nPress \"Cancel\" to abort or OK to retry." % interface, 
-                           "No Cameras Found", wx.OK|wx.CANCEL)
-    return dlg.ShowModal() == wx.ID_OK
+    conf = ConfirmConfRequest()
+    conf.message = "No cameras found on interface %s. Check camera lights. Click OK to retry." % interface
+    conf.details = "No cameras found. This may be a problem with the cables to the camera.\nCamera light codes:\n\tGreen - Power\n\tOrange - Connection\n\nIf lights are on, unplug and plug in camera and retry."
 
+    resp = confirm_proxy.call(conf)
+    return resp.retry == ConfirmConfResponse.RETRY
 
 
 def check_camera(interface = 'eth2'):
@@ -110,7 +113,6 @@ if __name__ == '__main__':
     else:
         interface = 'eth2'
     
-    app = wx.PySimpleApp()
 
     val, msg = check_camera(interface)
     print val, msg
