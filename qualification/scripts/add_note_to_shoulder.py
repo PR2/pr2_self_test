@@ -84,7 +84,7 @@ def set_note_to_shoulder(iv, shoulder_sn):
         wx.MessageBox("Unable to recover upperarm SN or test name from qual system", "Qual System Error", wx.OK|wx.ICON_ERROR, None)
         return False
 
-    note = "Shoulder was qualified with upperarm %s usin qual test \"%s\"" % (ua_sn, ua_test_name)
+    note = "Shoulder was qualified with upperarm %s using qual test \"%s\"" % (ua_sn, ua_test_name)
     iv.setNote(shoulder_sn, note)
 
     return True
