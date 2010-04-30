@@ -28,9 +28,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ##\author Kevin Watts
+##\brief Analyzes test data from joint hysteresis tests
 
 PKG = "qualification"
-
 import roslib; roslib.load_manifest(PKG)
 
 import numpy
@@ -41,10 +41,9 @@ import os
 import string
 from time import sleep
 
-import rospy
-
 import matplotlib
-import matplotlib.pyplot as plot
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 from StringIO import StringIO
 
 from qualification.msg import Plot, TestParam, TestValue
@@ -118,8 +117,8 @@ def get_test_value(name, value, min, max):
     
 class HysteresisDirectionData:
     def __init__(self, position, effort, velocity):
-        self._range_max = max(position)
-        self._range_min = min(position)
+        self.range_max = max(position)
+        self.range_min = min(position)
 
         min_index = int(0.05 * len(position))
         max_index = int(0.95 * len(position))
@@ -133,8 +132,8 @@ class HysteresisTestData:
         self.positive = positive_data
         self.negative = negative_data
 
-        self.range_max = max(self.positive._range_max, self.negative._range_max)
-        self.range_min = min(self.positive._range_min, self.negative._range_min)
+        self.range_max = max(self.positive.range_max, self.negative.range_max)
+        self.range_min = min(self.positive.range_min, self.negative.range_min)
 
 class HysteresisAnalysisResult:
     def __init__(self):
@@ -151,8 +150,8 @@ def range_analysis(params, data):
         result.result = True
         return result
 
-    min_obs = data.range_min  #min(min(data.positive.position), min(data.negative.position))
-    max_obs = data.range_max #max(max(data.positive.position), max(data.negative.position))
+    min_obs = data.range_min 
+    max_obs = data.range_max 
 
     fail = '<div class="error">FAIL</div>'
     ok = '<div class="pass">OK</div>'
@@ -303,6 +302,7 @@ def velocity_analysis(params, data):
 
     return result
 
+##\brief Checks slope of test data (effort v. position)
 def regression_analysis(params, data):
     result = HysteresisAnalysisResult()    
 
@@ -363,7 +363,7 @@ def regression_analysis(params, data):
 
 def plot_effort(params, data):
     # Plot the analyzed data
-    fig = plot.figure(1)
+    fig = plt.figure(1)
     axes1 = fig.add_subplot(211)
     axes2 = fig.add_subplot(212)
     axes2.set_xlabel('Position (Radians or Meters)')
@@ -393,9 +393,9 @@ def plot_effort(params, data):
     #axes1.legend(shadow=True)
 
     stream = StringIO()
-    plot.savefig(stream, format = "png")
+    plt.savefig(stream, format = "png")
     image = stream.getvalue()
-    plot.close()
+    plt.close()
     
     p = Plot()
     p.title = params.joint_name + "_hysteresis1"
@@ -405,19 +405,19 @@ def plot_effort(params, data):
     return p
 
 def plot_velocity(params, data):
-    fig = plot.figure(2)
-    plot.ylabel('Velocity')
-    plot.xlabel('Position')
-    plot.plot(numpy.array(data.positive.position), numpy.array(data.positive.velocity), 'b--', label='Data')
-    plot.plot(numpy.array(data.negative.position), numpy.array(data.negative.velocity), 'b--', label='_nolegened_')
-    plot.axhline(y = params.velocity, color = 'g', label = 'Command')
-    plot.axhline(y = -1 * params.velocity, color = 'g', label = '_nolegend_')
+    fig = plt.figure(2)
+    plt.ylabel('Velocity')
+    plt.xlabel('Position')
+    plt.plot(numpy.array(data.positive.position), numpy.array(data.positive.velocity), 'b--', label='Data')
+    plt.plot(numpy.array(data.negative.position), numpy.array(data.negative.velocity), 'b--', label='_nolegened_')
+    plt.axhline(y = params.velocity, color = 'g', label = 'Command')
+    plt.axhline(y = -1 * params.velocity, color = 'g', label = '_nolegend_')
     
     fig.text(.3, .95, params.joint_name + ' Hysteresis Velocity')
-    plot.legend(shadow=True)
+    plt.legend(shadow=True)
     
     stream = StringIO()
-    plot.savefig(stream, format = "png")
+    plt.savefig(stream, format = "png")
     image = stream.getvalue()
     
     p = Plot()
@@ -425,7 +425,7 @@ def plot_velocity(params, data):
     p.image = image
     p.image_format = "png"
     
-    plot.close()
+    plt.close()
     
     return p
 
@@ -565,7 +565,7 @@ def plot_flex_effort(params, data):
     # Plot the analyzed data
     flex_max_tol = params.flex_max
     
-    fig = plot.figure(1)
+    fig = plt.figure(1)
     axes1 = fig.add_subplot(211)
     axes2 = fig.add_subplot(212)
     axes2.set_xlabel('Roll Position')
@@ -585,7 +585,7 @@ def plot_flex_effort(params, data):
     fig.text(.4, .95, 'Wrist Flex Effort')
     
     stream = StringIO()
-    plot.savefig(stream, format = "png")
+    plt.savefig(stream, format = "png")
     image = stream.getvalue()
     
     p = Plot()
@@ -593,7 +593,7 @@ def plot_flex_effort(params, data):
     p.image = image
     p.image_format = "png"
     
-    plot.close()
+    plt.close()
     
     return p
 

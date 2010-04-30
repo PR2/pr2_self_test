@@ -40,13 +40,13 @@ import roslib; roslib.load_manifest(PKG)
 
 import numpy
 import math
+
 import matplotlib
-import matplotlib.pyplot as plot
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 from StringIO import StringIO
 
 from qualification.msg import Plot, TestValue, TestParam
-
-from joint_qualification_controllers.msg import CounterbalanceTestData
 
 ok_dict = { False: 'FAIL', True: 'OK' }
 
@@ -266,14 +266,14 @@ def plot_effort_contour(params, data, lift_calc = True):
     flex_grid, lift_grid = numpy.meshgrid(numpy.array(flexes), numpy.array(lifts))
     effort_grid = numpy.array(effort_list)
 
-    CS = plot.contour(flex_grid, lift_grid, effort_grid)
-    plot.clabel(CS, inline=0, fontsize=10)
+    CS = plt.contour(flex_grid, lift_grid, effort_grid)
+    plt.clabel(CS, inline=0, fontsize=10)
     
-    plot.xlabel('Flex')
-    plot.ylabel('Lift')
+    plt.xlabel('Flex')
+    plt.ylabel('Lift')
         
     stream = StringIO()
-    plot.savefig(stream, format = 'png')
+    plt.savefig(stream, format = 'png')
     image = stream.getvalue()
     p = Plot()
     if lift_calc:
@@ -283,7 +283,7 @@ def plot_effort_contour(params, data, lift_calc = True):
     p.image = image
     p.image_format = 'png'
     
-    plot.close()
+    plt.close()
 
     return p
 
@@ -296,18 +296,18 @@ def plot_efforts_by_lift_position(params, data, flex_index = -1, lift_calc = Tru
     
     flex_position = data.lift_data[0].flex_data[flex_index].flex_position
 
-    plot.plot(numpy.array(lift_position), numpy.array(effort))
+    plt.plot(numpy.array(lift_position), numpy.array(effort))
     if lift_calc:
-        plot.title('Shoulder Lift Effort at Flex Position %.2f' % (flex_position))
+        plt.title('Shoulder Lift Effort at Flex Position %.2f' % (flex_position))
     else:
-        plot.title('Shoulder Flex Effort at Flex Position %.2f' % (flex_position))
-    plot.axes()
-    plot.xlabel('Lift Position')
-    plot.ylabel('Effort')
-    plot.axhline(y = 0, color = 'r', label='_nolegend_')
+        plt.title('Shoulder Flex Effort at Flex Position %.2f' % (flex_position))
+    plt.axes()
+    plt.xlabel('Lift Position')
+    plt.ylabel('Effort')
+    plt.axhline(y = 0, color = 'r', label='_nolegend_')
 
     stream = StringIO()
-    plot.savefig(stream, format = 'png')
+    plt.savefig(stream, format = 'png')
     image = stream.getvalue()
     p = Plot()
     if lift_calc:
@@ -317,7 +317,7 @@ def plot_efforts_by_lift_position(params, data, flex_index = -1, lift_calc = Tru
     p.image = image
     p.image_format = 'png'
     
-    plot.close()
+    plt.close()
 
     return p
 
@@ -457,5 +457,3 @@ def check_cb_adjustment(params, data, model_file):
                      TestValue('CB Bar Adjustment', str(cb_bar), '', str(params.bar_tol))]
 
     return result
-
-    

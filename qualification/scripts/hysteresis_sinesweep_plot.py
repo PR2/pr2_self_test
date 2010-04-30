@@ -33,22 +33,11 @@ PKG = "qualification"
 import roslib; roslib.load_manifest(PKG)
 
 import numpy
-import math
-
-import sys
-import os
-import string
-from time import sleep
 
 import rospy
 
-import matplotlib
-import matplotlib.pyplot as plot
-from StringIO import StringIO
-
-from qualification.msg import Plot, TestParam, TestValue
 from qualification.srv import TestResult, TestResultRequest
-from qualification.analysis import *
+from qualification.analysis.hysteresis_analysis import *
 
 from joint_qualification_controllers.msg import HysteresisData
 from std_msgs.msg import Bool

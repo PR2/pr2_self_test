@@ -40,12 +40,6 @@ roslib.load_manifest('qualification')
 
 import rospy
 
-import numpy
-import math
-import matplotlib
-import matplotlib.pyplot as plot
-from StringIO import StringIO
-
 from qualification.srv import *
 from std_msgs.msg import Bool
 from joint_qualification_controllers.msg import CounterbalanceTestData

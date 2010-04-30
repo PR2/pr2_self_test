@@ -33,22 +33,10 @@ PKG = "qualification"
 
 import roslib; roslib.load_manifest(PKG)
 
-import numpy
-import math
-
-import sys
-import os
-from time import sleep
-
 import rospy
 
-import matplotlib
-import matplotlib.pyplot as plot
-from StringIO import StringIO
-
-from qualification.msg import Plot, TestParam, TestValue
 from qualification.srv import TestResult, TestResultRequest
-from qualification.analysis import *
+from qualification.analysis.hysteresis_analysis import *
 
 from joint_qualification_controllers.msg import WristDiffData
 
@@ -56,11 +44,15 @@ import traceback
 
 class WristDiffAnalysis:
     def __init__(self):
+        self._msg = None
         self.data_sent = False
         rospy.init_node('wrist_diff_analysis')
         self.data_srv = rospy.Subscriber('/test_data', WristDiffData, self.on_wrist_data)
         self.result_service = rospy.ServiceProxy('test_result', TestResult)
         
+    def has_data(self):
+        return self._msg is not None
+
     def test_failed_service_call(self, except_str = ''):
         rospy.logerr(except_str)
         r = TestResultRequest()
@@ -77,26 +69,25 @@ class WristDiffAnalysis:
             self.data_sent = True
 
     def on_wrist_data(self, msg):
-        self._analyze_wrist_data(msg)
+        self._msg = msg
 
-
-    def _analyze_wrist_data(self, msg):
+    def analyze_wrist_data(self):
         r = TestResultRequest()
         r.html_result = ''
         r.text_summary = 'No data.'
         r.plots = []
         r.result = TestResultRequest.RESULT_FAIL
 
-        params = WristRollHysteresisParams(msg)
+        params = WristRollHysteresisParams(self._msg)
         r.params = params.get_test_params()
 
-        if msg.timeout:
+        if self._msg.timeout:
             r.text_summary = 'Wrist difference controller timed out'
             r.result = TestResultRequest.RESULT_FAIL
             self.send_results(r)
             return 
 
-        data = WristRollHysteresisTestData(msg)
+        data = WristRollHysteresisTestData(self._msg)
 
         if not wrist_hysteresis_data_present(data):
             r.text_summary = 'Wrist difference controller didn\'t generate enough data.'
@@ -142,8 +133,13 @@ class WristDiffAnalysis:
          
 if __name__ == '__main__':
     wda = WristDiffAnalysis()
+    my_rate = rospy.Rate(5)
     try:
-        rospy.spin()
+        while not rospy.is_shutdown() and not wda.has_data():
+            my_rate.sleep()
+
+        if not rospy.is_shutdown():
+            wda.analyze_wrist_data()
     except KeyboardInterrupt, e:
         pass
     except:
