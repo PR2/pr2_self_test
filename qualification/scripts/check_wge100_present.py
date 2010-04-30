@@ -43,33 +43,64 @@ from qualification.srv import *
 
 import subprocess, sys
 
+import wx
+
 SRV_NAME = 'prestartup_done'
 finish = rospy.ServiceProxy(SRV_NAME, ScriptDone)
 
+##\brief Returns True if user wants to try again
+def _report_no_cameras(interface):
+    dlg = wx.MessageDialog(None, "Did not find any cameras on %s.\n\nCheck power and link lights. If the power and link lights are on, the interface may not be running.\n\nPress \"Cancel\" to abort or OK to retry." % interface, 
+                           "No Cameras Found", wx.OK|wx.CANCEL)
+    return dlg.ShowModal() == wx.ID_OK
+
+
+
 def check_camera(interface = 'eth2'):
-    #cmd = ['rosrun', 'wge100_camera', 'discover', interface]
-    p = subprocess.Popen('rosrun wge100_camera discover %s' % interface, 
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE, shell=True)
+    while not rospy.is_shutdown():
+        p = subprocess.Popen('rosrun wge100_camera discover %s' % interface, 
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, shell=True)
 
-    o,e = p.communicate()
-    retcode = p.returncode
+        o,e = p.communicate()
+        retcode = p.returncode
 
-    if retcode != 0:
-        print >> sys.stderr, "Unable to run discover. Camera may not be present"
-        return False, "Unable to run discover. Camera may not be present"
-
-    for ln in e.split('\n'):
-        if ln.find('No cam') > -1:
-            print >> sys.stderr, "No cameras found"
-            return False, "No cameras found"
-
-    for ln in o.split('\n'):
-        if ln.find('No cam') > -1:
-            print >> sys.stderr, "No cameras found"
-            return False, "No cameras found"
-        elif ln.find('Found') == 0:
+        if retcode != 0:
+            if _report_no_cameras(interface):
+                continue
+            print >> sys.stderr, "Unable to run discover. Camera may not be present"
+            return False, "Unable to run discover. Camera may not be present"
+        
+        try_again = False
+        for ln in e.split('\n'):
+            if ln.find('No cam') > -1:
+                if not _report_no_cameras(interface):
+                    print >> sys.stderr, "No cameras found"
+                    return False, "No cameras found"
+                else:
+                    try_again = True
+                    break
+        if try_again:
+            continue
+            
+        found = 0
+        for ln in o.split('\n'):
+            if ln.find('No cam') > -1:
+                if _report_no_cameras(interface):
+                    continue
+                print >> sys.stderr, "No cameras found"
+                return False, "No cameras found"
+            elif ln.find('Found') == 0:
+                found += 1
+        if found > 0:
             return True, ''
+        if not _report_no_cameras(interface):
+           return False, "No cameras"
+
+    return False, 'Rospy shutdown'
+
+
+
 
 if __name__ == '__main__':
     rospy.init_node('check_wge100_present')
@@ -78,9 +109,12 @@ if __name__ == '__main__':
         interface = args[1]
     else:
         interface = 'eth2'
+    
+    app = wx.PySimpleApp()
 
     val, msg = check_camera(interface)
-    
+    print val, msg
+
     r = ScriptDoneRequest()
     r.result = 0
     r.failure_msg = 'Found wge100 camera on interface %s' % interface
@@ -91,3 +125,4 @@ if __name__ == '__main__':
     rospy.wait_for_service(SRV_NAME, 5)
     finish.call(r)
         
+    rospy.spin()
