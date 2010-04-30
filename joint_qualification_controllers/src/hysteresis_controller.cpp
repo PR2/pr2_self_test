@@ -34,6 +34,7 @@
 
 #include "joint_qualification_controllers/hysteresis_controller.h"
 #include "pluginlib/class_list_macros.h"
+#include "urdf/joint.h"
 
 PLUGINLIB_REGISTER_CLASS(HysteresisController, 
                          joint_qualification_controllers::HysteresisController, 

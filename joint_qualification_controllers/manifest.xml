@@ -15,6 +15,7 @@ Controllers used in PR2 hardware testing. Meant for internal WG use.
   <depend package="std_msgs" />
   <depend package="sensor_msgs" />
   <depend package="realtime_tools" />
+  <depend package="urdf" />
   <url>http://www.ros.org/wiki/joint_qualification_controllers</url>
   <export>
     <cpp cflags="-I${prefix}/include -I${prefix}/msg/cpp -I${prefix}/srv/cpp"

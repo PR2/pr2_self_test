@@ -33,6 +33,7 @@
  *********************************************************************/
 
 #include "joint_qualification_controllers/wrist_difference_controller.h"
+#include "urdf/joint.h"
 
 PLUGINLIB_REGISTER_CLASS(WristDifferenceController, 
                          joint_qualification_controllers::WristDifferenceController, 
@@ -120,8 +121,12 @@ bool WristDifferenceController::init(pr2_mechanism_model::RobotState *robot, ros
     ROS_ERROR("WristDifferenceController could not find joint named \"%s\"\n", roll_name.c_str());
     return false;
   }
-  ROS_INFO("Roll joint: %s", roll_name.c_str());
-  ///\todo Make sure roll joint is continuous, abort if not
+  ROS_DEBUG("Roll joint: %s", roll_name.c_str());
+  if (roll_joint_->joint_->type != urdf::Joint::CONTINUOUS)
+  {
+    ROS_ERROR("Wrist roll joint must be continuous. Unable to check wrist symmetry. Roll joint: %s", roll_name.c_str());
+    return false;
+  }
 
   if (!n.getParam("roll_velocity", roll_velocity_)){
     ROS_ERROR("Hysteresis Controller: No velocity found on parameter namespace: %s)",
@@ -385,7 +390,6 @@ bool WristDifferenceController::sendData()
     out->timeout    = wrist_test_data_.timeout;
 
     wrist_data_pub_->unlockAndPublish();
-    ROS_INFO("Data sent");
     return true;
   }
   return false;
