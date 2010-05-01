@@ -158,11 +158,15 @@ class MCBProgramConfig:
             elif count == 0:
                 msg = "Found no MCB's! Check cables and power. Retry?"
             elif count == 200:
-                msg = "Unable to initialize interface. Make sure you have root access and the link is connected. Retry?"
+                msg = "Unable to initialize interface. Make sure you have root access and the link is connected. Check power to the device. Retry?"
             elif count == 203:
                 msg = "No response through link, check connection. Retry?"
             elif count > 199:
                 msg = "Error counting MCB's. eccount gave error code: %s. Retry?" % count
+            elif count < self.expected:
+                msg = "Did not find all MCB's. Found %s, expected %s. Check cables after MCB %s. Click OK to retry." % (count, self.expected, count)
+            elif count > self.expected:
+                msg = "Found more MCB's than expected. Found %s, expected %s. Did you scan the right part? Click OK to retry." % (count, self.expected)
             else:
                 msg = "MCB counts don't match. Found %s, expected %s. Retry?" % (count, self.expected)
                 
