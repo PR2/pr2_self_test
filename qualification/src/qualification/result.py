@@ -680,6 +680,8 @@ em { font-style: normal; font-weight: bold; }\
             html += '</body></html>'
             return html
 
+        html += '<H3 align=center>%s</H3>\n' % self._qual_test.getName()
+
         if self.get_pass_bool():
             result_header = '<H3>Test Result: <em>%s</em></H3>\n' % self.get_test_result_str()
         else:
