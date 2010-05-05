@@ -22,7 +22,7 @@ trans:
     joint: r_upper_arm_roll_joint
     actuator: r_upper_arm_roll_motor
     min: -4.05
-    max: 0.85
+    max: 0.90
     up_ref: -1.5708
     deadband: 0.1
   flex_trans:
