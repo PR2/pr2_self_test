@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-PKG = 'base_life_test'
+PKG = 'pr2_drive_life_test'
 
 import roslib; roslib.load_manifest(PKG)
 

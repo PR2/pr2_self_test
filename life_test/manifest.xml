@@ -33,7 +33,7 @@
   <depend package="joint_qualification_controllers" />
   <depend package="ectools" />
   <depend package="pr2_camera_synchronizer" />
-  <depend package="base_life_test" />
+  <depend package="pr2_drive_life_test" />
   <depend package="robot_monitor" />
   <depend package="pr2_teleop" />
   <depend package="joy" />

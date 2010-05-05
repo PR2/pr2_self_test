@@ -9,7 +9,7 @@
   <include file="$(find life_test)/pr2_test/pr2_arm_controllers.launch" />
 
   <!-- Base driving around -->
-  <include file="$(find base_life_test)/base_life_test.launch" /> 
+  <include file="$(find pr2_drive_life_test)/pr2_drive_life_test.launch" /> 
 
   <!-- Joystick for teleoping safely -->
   <include file="$(find life_test)/pr2_test/teleop_pr2_burn.launch" />

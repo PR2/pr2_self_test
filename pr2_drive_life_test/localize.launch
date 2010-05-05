@@ -1,5 +1,6 @@
 <launch>
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find base_life_test)/life_test_map.pgm 0.05" />
+   <node name="map_server" pkg="map_server" type="map_server" args="$(find pr2_drive_life_test)/life_test_map.pgm 0.05" />
+ 
  <node pkg="amcl" type="amcl" name="amcl" output="screen">
   <remap from="scan" to="base_scan"/>
   <param name="odom_model_type" value="omni"/>

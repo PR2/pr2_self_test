@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-#BSD goes here
 
-import roslib; roslib.load_manifest('base_life_test')
+##\author Kevin Watts                                                                                                                           
+##\brief Drives PR2 base for a burn-in test.
+
+import roslib; roslib.load_manifest('pr2_drive_life_test')
 import tf
 import rospy
 from std_msgs.msg import Bool
