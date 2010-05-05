@@ -50,6 +50,8 @@ def _write_table_row(lst, bold = False):
         html += '</tr>\n'
     return html
 
+##\brief Holds parameters, info for each life test
+##\todo Make some of these parameters optional
 class LifeTest:
     def __init__(self, short_serial, test_name, short_name, 
                  duration, desc, test_type, launch_file, need_power, params):
