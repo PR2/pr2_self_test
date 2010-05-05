@@ -2,8 +2,11 @@
   <!-- Projector on -->
   <include file="$(find pr2_camera_synchronizer)/projector_on.launch" />
 
-  <!-- Arms and head -->
-  <include file="$(find life_test)/pr2_test/pr2_controllers.launch" />
+  <!-- Head and body controllers -->
+  <include file="$(find life_test)/pr2_test/pr2_body_controllers.launch" />
+
+  <!-- Arm controllers -->
+  <include file="$(find life_test)/pr2_test/pr2_arm_controllers.launch" />
 
   <!-- Base driving around -->
   <include file="$(find base_life_test)/base_life_test.launch" /> 

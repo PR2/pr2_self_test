@@ -118,11 +118,11 @@ trans:
     up_ref: 4.7123889803846897
     wrap: 6.2831853071795862
     deadband: 0.15
-  #l_gripper_trans:
-  #  joint: l_gripper_joint
-  #  actuator: l_gripper_motor
-  #  max: 0.09
-  #  min: -0.002
+  l_gripper_trans:
+    joint: l_gripper_joint
+    actuator: l_gripper_motor
+    max: 0.09
+    min: -0.002
   torso_trans:
     joint: torso_lift_joint
     actuator: torso_lift_motor

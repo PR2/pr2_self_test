@@ -4,6 +4,7 @@
 import roslib; roslib.load_manifest('base_life_test')
 import tf
 import rospy
+from std_msgs.msg import Bool
 from std_srvs.srv import Empty, EmptyResponse
 from geometry_msgs.msg import *
 from visualization_msgs.msg import Marker
@@ -29,6 +30,7 @@ drive_halted = False
 
 pose_pub = rospy.Publisher('initialpose', PoseWithCovarianceStamped)
 
+
 def halt_drive(srv):
   global drive_halted
   drive_halted = True
@@ -41,6 +43,13 @@ def reset_drive(srv):
   drive_halted = False
 
   return EmptyResponse()
+
+def motors_cb(msg):
+  global drive_halted
+  
+  if msg.data:
+    drive_halted = True
+  
 
 def send_initial_pose():
   global pose_pub
@@ -64,7 +73,10 @@ def main():
   halt_sub = rospy.Service('pr2_base/halt_drive', Empty, halt_drive)
   reset_sub = rospy.Service('pr2_base/reset_drive', Empty, reset_drive)
 
+  motors_sub = rospy.Subscriber('pr2_etherCAT/motors_halted', Bool, motors_cb)
 
+
+  drive_pub = rospy.Publisher('base_driving', Bool, latch = True)
 
   marker_pub = rospy.Publisher('visualization_markers', Marker)
   cmd_pub = rospy.Publisher('cmd_vel', Twist)
@@ -73,6 +85,9 @@ def main():
 
   t_start = rospy.Time.now().to_sec()
   started = time.asctime()
+
+  last_drive_update = rospy.get_time()
+
   global drive_halted
   while not rospy.is_shutdown():
     #Update target location (sinusoids over the side length - buffer)
@@ -83,6 +98,11 @@ def main():
     if not drive_halted:
       command_base_towards(x, y, th, listener, marker_pub, cmd_pub)
     rate.sleep()
+
+    if rospy.get_time() - last_drive_update > 0.5:
+      last_drive_update = rospy.get_time()
+      drive_pub.publish(drive_halted)
+
   print "ran from %s to %s"%(started, time.asctime())
 
 

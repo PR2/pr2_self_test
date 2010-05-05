@@ -8,7 +8,6 @@
   <license>BSD</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/pr2_self_test</url>
-  <depend stack="calibration_experimental" /> <!-- auto_arm_commander -->
   <depend stack="camera_drivers" /> <!-- prosilica_camera, wge100_camera -->
   <depend stack="common" /> <!-- xacro -->
   <depend stack="common_msgs" /> <!-- sensor_msgs, geometry_msgs, diagnostic_msgs -->
@@ -23,11 +22,13 @@
   <depend stack="pr2_mechanism" /> <!-- pr2_mechanism_msgs, pr2_controller_manager -->
   <depend stack="pr2_power_drivers" /> <!-- pr2_power_board, power_monitor -->
   <depend stack="pr2_robot" /> <!-- pr2_controller_configuration, pr2_camera_synchronizer, pr2_bringup, pr2_etherCAT -->
-  <depend stack="pr2_simulator" /> <!-- pr2_gazebo -->
   <depend stack="robot_model" /> <!-- robot_state_publisher, urdf -->
   <depend stack="ros" /> <!-- roslaunch, rxtools, std_srvs, roscpp, roslib, std_msgs, rospy -->
-  <depend stack="simulator_gazebo" /> <!-- gazebo -->
   <depend stack="vision_opencv" /> <!-- opencv2, cv_bridge -->
   <depend stack="visualization" /> <!-- rviz -->
-
+  <depend stack="motion_planning_environment" />
+  <depend stack="motion_planning_common" />
+  <depend stack="trajectory_filters" />
+  <depend stack="arm_navigation" />
+  <depend stack="pr2_arm_navigation" />
 </stack>
