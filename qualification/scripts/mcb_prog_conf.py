@@ -155,16 +155,21 @@ class MCBProgramConfig:
             if count == self.expected:
                 rospy.logdebug("Found %s MCB's, programming" % count)
                 return True
+
             elif count == 0:
                 msg = "Found no MCB's! Check cables and power. Retry?"
             elif count == 200:
                 msg = "Unable to initialize interface. Make sure you have root access and the link is connected. Check power to the device. Retry?"
             elif count == 203:
-                msg = "No response through link, check connection. Retry?"
+                msg = "Ethernet interface is not UP. Run \"sudo ifconfig eth0 up\" and click OK to retry."
+            elif count == 204:
+                msg = "Ethernet interface is up, but has no link to device. Check device cable and power. Retry?"
+            elif count == 205:
+                msg = "Ethernet interface has link, but no packets are returning. This could mean the etherCAT cable is not plugged into an MCB. Check etherCAT cable. Retry?"
             elif count > 199:
                 msg = "Error counting MCB's. eccount gave error code: %s. Retry?" % count
             elif count < self.expected:
-                msg = "Did not find all MCB's. Found %s, expected %s. Check cables after MCB %s. Click OK to retry." % (count, self.expected, count)
+                msg = "Did not find all MCB's. Found %s, expected %s. Check cables to all MCB's after MCB %s. Click OK to retry." % (count, self.expected, count)
             elif count > self.expected:
                 msg = "Found more MCB's than expected. Found %s, expected %s. Did you scan the right part? Click OK to retry." % (count, self.expected)
             else:
