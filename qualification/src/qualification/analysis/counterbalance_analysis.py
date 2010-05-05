@@ -433,7 +433,7 @@ def check_cb_adjustment(params, data, model_file):
 
     
     secondary_dir = 'CW' if secondary > 0 else 'CCW' # CW increases CB force
-    cb_bar_dir = 'CW' if cb_bar > 0 else 'CCW' # CCW increases CB force
+    cb_bar_dir = 'CCW' if cb_bar > 0 else 'CW' # CCW increases CB force
     
     adjust_msg = 'Please turn secondary by %.2f turns %s and the arm gimbal shaft by %.2f turns %s' % (secondary, secondary_dir, cb_bar, cb_bar_dir)
     adjust_msg = '<table border="1" cellpadding="2" cellspacing="0">'
