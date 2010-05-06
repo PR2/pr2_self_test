@@ -146,7 +146,7 @@ class MCBProgramConfig:
                                  stderr = subprocess.PIPE, shell=True)
             stdout, stderr = p.communicate()
             count = p.returncode
-            details = 'Ran eccount. Expected %s MCB\'s, got return code %s.\n\n' % (self.expected, count)
+            details = 'Ran eccount. Expected %s MCB\'s. Return code %s.\n\n' % (self.expected, count)
             details += 'STDOUT:\n' + stdout
             if len(stderr) > 3:
                 details += '\nSTDERR:\n' + stderr
@@ -161,11 +161,11 @@ class MCBProgramConfig:
             elif count == 200:
                 msg = "Unable to initialize interface. Make sure you have root access and the link is connected. Check power to the device. Retry?"
             elif count == 203:
-                msg = "Ethernet interface is not UP. Run \"sudo ifconfig eth0 up\" and click OK to retry."
+                msg = "Ethernet interface has link, but no packets are returning. This could mean the etherCAT cable is not plugged into an MCB. Check etherCAT cable. To debug, check that the first device is good. Retry?"
             elif count == 204:
-                msg = "Ethernet interface is up, but has no link to device. Check device cable and power. Retry?"
+                msg = "Has no link to device. Check device cable and power. Retry?"
             elif count == 205:
-                msg = "Ethernet interface has link, but no packets are returning. This could mean the etherCAT cable is not plugged into an MCB. Check etherCAT cable. Retry?"
+                msg = "Ethernet interface is not UP. The computer needs to be configured. Run \"sudo ifconfig eth0 up\" and click OK to retry."
             elif count > 199:
                 msg = "Error counting MCB's. eccount gave error code: %s. Retry?" % count
             elif count < self.expected:
