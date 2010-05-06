@@ -41,7 +41,7 @@ from std_srvs.srv import Empty
 DEADMAN = 10
 RESUME = 9
 
-_start_driving = rospy.ServiceProxy('start_driving', Empty)
+_start_driving = rospy.ServiceProxy('reset_test', Empty)
 
 last_restart = 0
 

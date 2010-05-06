@@ -61,9 +61,6 @@ class DriveListener:
         self._is_driving = True
         self._drive_sub = rospy.Subscriber('base_driving', Bool, self._drive_cb)
 
-        # This restarts the driving. Driving is NOT reset by the "reset_test" service
-        self._reset_drive_state = rospy.Service('start_driving', Empty, self.restart_driving)
-
     def create(self, params):
         return True
 
@@ -71,12 +68,7 @@ class DriveListener:
         self._halt_driving()
 
     def reset(self):
-        pass
-
-    def restart_driving(self, srv):
         self._reset_driving()
-
-        return EmptyResponse()
 
     def _drive_cb(self, msg):
         with self._mutex:
