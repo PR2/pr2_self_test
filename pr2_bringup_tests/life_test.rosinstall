@@ -76,7 +76,7 @@
 - svn:
     uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_arm_navigation/trunk
     local-name: stacks/pr2_arm_navigation
-    version: r34884
+    version: -r34884
 - svn:
     uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_arm_navigation_apps/tags/latest
     local-name: stacks/pr2_arm_navigation_apps
