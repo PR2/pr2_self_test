@@ -1,0 +1,6 @@
+<launch> 
+  <node pkg="dynamic_reconfigure" type="dynparam" name="$(anon dynparam)"
+        args="set_from_parameters prosilica_driver" >
+    <param name="trigger_mode" type="string" value="polled" />
+  </node>
+</launch>
