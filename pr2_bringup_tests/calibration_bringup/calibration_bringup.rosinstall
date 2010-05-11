@@ -2,5 +2,5 @@
     uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_calibration/tags/boxturtle
     local-name: stacks/pr2_calibration
 - svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/trunk/stacks/pr2_self_test
-    local-name: stacks/pr2_self_test
+    uri: https://code.ros.org/svn/wg-ros-pkg/trunk/stacks/pr2_self_test/pr2_bringup_tests/
+    local-name: stacks/pr2_bringup_tests
