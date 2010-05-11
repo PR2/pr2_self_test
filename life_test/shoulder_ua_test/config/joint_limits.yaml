@@ -20,12 +20,12 @@ joint_limits:
     angle_wraparound: false
   r_upper_arm_roll_joint:
     has_position_limits: true
-    min_position: -3.9
-    max_position: 1.0
+    min_position: -3.5
+    max_position: 0.3
     has_velocity_limits: true
-    max_velocity: 2.5
+    max_velocity: 1.5
     has_acceleration_limits: true
-    max_acceleration: 2.0
+    max_acceleration: 1.0
     angle_wraparound: false
   r_elbow_flex_joint:
     has_position_limits: true
@@ -84,12 +84,12 @@ joint_limits:
     angle_wraparound: false
   l_upper_arm_roll_joint:
     has_position_limits: true
-    max_position: 3.9
-    min_position: -1.0
+    max_position: 3.5
+    min_position: -0.3
     has_velocity_limits: true
-    max_velocity: 2.5
+    max_velocity: 1.5
     has_acceleration_limits: true
-    max_acceleration: 2.0
+    max_acceleration: 1.0
     angle_wraparound: false
   l_elbow_flex_joint:
     has_position_limits: true
