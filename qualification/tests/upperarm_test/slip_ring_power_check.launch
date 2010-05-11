@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="qualification" type="slip_ring_power_check.py" name="slip_ring_power_check" />
+</launch>
