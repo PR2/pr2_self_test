@@ -1,6 +1,6 @@
 <launch>
 
-  <include file="$(find pr2_bringup_tests)/calibration_bringup/post_burn/only_cb_pose_params.launch" />
+  <include file="$(find pr2_bringup_tests)/calibration_bringup/postburn/only_cb_pose_params.launch" />
 
   <node pkg="pr2_calibration_estimation" type="multi_step_cov_estimator.py" name="cal_cov_estimator" output="screen"
         args="/u/pr2admin/postburn/cal_measurements.bag /u/pr2admin/postburn" respawn="False"/>

@@ -9,7 +9,7 @@
     <group ns="cal_steps">
 
       <group ns="A - 00 - Estimating Checkerboard Locations With 3D Sensors">
-        <param name="free_params" textfile="$(find pr2_bringup_tests)/calibration_bringup/free_cb_poses.yaml" />
+        <param name="free_params" textfile="$(find pr2_bringup_tests)/calibration_bringup/postburn/free_cb_poses.yaml" />
         <param name="use_cov" type="bool" value="False" />
         <rosparam>
           sensors:
@@ -21,7 +21,7 @@
       </group>
 
       <group ns="A - 01 - Estimating Checkerboard Locations With All Sensors">
-        <param name="free_params" textfile="$(find pr2_bringup_tests)/calibration_bringup/free_cb_poses.yaml" />
+        <param name="free_params" textfile="$(find pr2_bringup_tests)/calibration_bringup/postburn/free_cb_poses.yaml" />
         <param name="use_cov" type="bool" value="True" />
         <rosparam>
           sensors:
@@ -40,7 +40,7 @@
 
     </group>
 
-    <param name="initial_system" textfile="$(find pr2_calibration_launch)/estimate_params/config_pr2_beta/system.yaml" />
+    <param name="initial_system" textfile="/u/pr2admin/preburn/system_calibrated.yaml" />
 
   </group>
 
