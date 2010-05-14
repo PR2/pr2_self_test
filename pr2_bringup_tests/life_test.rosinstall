@@ -1,181 +1,119 @@
-- svn:
-    uri: https://code.ros.org/svn/ros/stacks/ros/tags/latest
-    local-name: ros
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/arm_navigation/tags/latest
-    local-name: stacks/arm_navigation
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/camera_drivers/tags/latest
-    local-name: stacks/camera_drivers
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/collision_environment/tags/latest
-    local-name: stacks/collision_environment
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/common/tags/latest
-    local-name: stacks/common
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/common_msgs/tags/latest
-    local-name: stacks/common_msgs
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/diagnostics/tags/latest
-    local-name: stacks/diagnostics
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/driver_common/tags/latest
-    local-name: stacks/driver_common
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/geometry/tags/latest
-    local-name: stacks/geometry
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/image_common/tags/latest
-    local-name: stacks/image_common
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/image_pipeline/tags/latest
-    local-name: stacks/image_pipeline
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/image_transport_plugins/tags/latest
-    local-name: stacks/image_transport_plugins
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/imu_drivers/tags/latest
-    local-name: stacks/imu_drivers
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/joystick_drivers/tags/latest
-    local-name: stacks/joystick_drivers
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/kinematics/tags/latest
-    local-name: stacks/kinematics
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/laser_drivers/tags/latest
-    local-name: stacks/laser_drivers
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/laser_pipeline/tags/latest
-    local-name: stacks/laser_pipeline
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/motion_planners/tags/latest
-    local-name: stacks/motion_planners
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/motion_planning_common/tags/latest
-    local-name: stacks/motion_planning_common
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/motion_planning_environment/tags/latest
-    local-name: stacks/motion_planning_environment
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/motion_planning_visualization/tags/latest
-    local-name: stacks/motion_planning_visualization
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/navigation/tags/latest
-    local-name: stacks/navigation
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/physics_ode/tags/latest
-    local-name: stacks/physics_ode
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/point_cloud_perception/tags/latest
-    local-name: stacks/point_cloud_perception
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_apps/tags/latest
-    local-name: stacks/pr2_apps
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_arm_navigation/trunk
-    local-name: stacks/pr2_arm_navigation
-    version: -r34884
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_arm_navigation_apps/tags/latest
-    local-name: stacks/pr2_arm_navigation_apps
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_arm_navigation_tests/tags/latest
-    local-name: stacks/pr2_arm_navigation_tests
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_calibration/tags/latest
-    local-name: stacks/pr2_calibration
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_common/tags/latest
-    local-name: stacks/pr2_common
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_common_actions/tags/latest
-    local-name: stacks/pr2_common_actions
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_controllers/tags/latest
-    local-name: stacks/pr2_controllers
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_doors/tags/latest
-    local-name: stacks/pr2_doors
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_ethercat_drivers/tags/latest
-    local-name: stacks/pr2_ethercat_drivers
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_gui/tags/latest
-    local-name: stacks/pr2_gui
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_kinematics/tags/latest
-    local-name: stacks/pr2_kinematics
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_kinematics_with_constraints/tags/latest
-    local-name: stacks/pr2_kinematics_with_constraints
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_mechanism/tags/latest
-    local-name: stacks/pr2_mechanism
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_navigation/tags/latest
-    local-name: stacks/pr2_navigation
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_navigation_apps/tags/latest
-    local-name: stacks/pr2_navigation_apps
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_plugs/tags/latest
-    local-name: stacks/pr2_plugs
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_power_drivers/tags/latest
-    local-name: stacks/pr2_power_drivers
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_robot/trunk/
-    local-name: stacks/pr2_robot
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_simulator/tags/latest
-    local-name: stacks/pr2_simulator
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_web_apps/tags/latest
-    local-name: stacks/pr2_web_apps
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/robot_calibration/tags/latest
-    local-name: stacks/robot_calibration
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/robot_model/tags/latest
-    local-name: stacks/robot_model
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/simulator_gazebo/tags/latest
-    local-name: stacks/simulator_gazebo
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/simulator_stage/tags/latest
-    local-name: stacks/simulator_stage
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/slam_gmapping/tags/latest
-    local-name: stacks/slam_gmapping
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/sound_drivers/tags/latest
-    local-name: stacks/sound_drivers
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/trajectory_filters/trunk
-    local-name: stacks/trajectory_filters
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/vision_opencv/tags/latest
-    local-name: stacks/vision_opencv
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/visualization/tags/latest
-    local-name: stacks/visualization
-- svn:
-    uri: https://code.ros.org/svn/ros-pkg/stacks/visualization_common/tags/latest
-    local-name: stacks/visualization_common
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/web_interface/tags/latest
-    local-name: stacks/web_interface
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/wg_common/tags/latest
-    local-name: stacks/wg_common
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/wg_pr2_apps/tags/latest
-    local-name: stacks/wg_pr2_apps
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/stacks/wifi_drivers/tags/latest
-    local-name: stacks/wifi_drivers
-- svn:
-    uri: https://code.ros.org/svn/wg-ros-pkg/trunk/stacks/pr2_self_test
-    local-name: stacks/pr2_self_test
+- svn: {local-name: /u/wgtest/ros/ros, uri: 'https://code.ros.org/svn/ros/stacks/ros/tags/latest',
+    version: -r9631}
+- svn: {local-name: /u/wgtest/ros/stacks/arm_navigation, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/arm_navigation/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/camera_drivers, uri: 'https://code.ros.org/svn/ros-pkg/stacks/camera_drivers/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/collision_environment, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/collision_environment/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/common, uri: 'https://code.ros.org/svn/ros-pkg/stacks/common/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/common_msgs, uri: 'https://code.ros.org/svn/ros-pkg/stacks/common_msgs/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/diagnostics, uri: 'https://code.ros.org/svn/ros-pkg/stacks/diagnostics/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/driver_common, uri: 'https://code.ros.org/svn/ros-pkg/stacks/driver_common/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/geometry, uri: 'https://code.ros.org/svn/ros-pkg/stacks/geometry/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/image_common, uri: 'https://code.ros.org/svn/ros-pkg/stacks/image_common/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/image_pipeline, uri: 'https://code.ros.org/svn/ros-pkg/stacks/image_pipeline/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/image_transport_plugins, uri: 'https://code.ros.org/svn/ros-pkg/stacks/image_transport_plugins/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/imu_drivers, uri: 'https://code.ros.org/svn/ros-pkg/stacks/imu_drivers/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/joystick_drivers, uri: 'https://code.ros.org/svn/ros-pkg/stacks/joystick_drivers/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/kinematics, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/kinematics/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/laser_drivers, uri: 'https://code.ros.org/svn/ros-pkg/stacks/laser_drivers/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/laser_pipeline, uri: 'https://code.ros.org/svn/ros-pkg/stacks/laser_pipeline/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/motion_planners, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/motion_planners/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/motion_planning_common, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/motion_planning_common/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/motion_planning_environment, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/motion_planning_environment/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/motion_planning_visualization, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/motion_planning_visualization/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/navigation, uri: 'https://code.ros.org/svn/ros-pkg/stacks/navigation/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/physics_ode, uri: 'https://code.ros.org/svn/ros-pkg/stacks/physics_ode/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/point_cloud_perception, uri: 'https://code.ros.org/svn/ros-pkg/stacks/point_cloud_perception/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_apps, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_apps/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_arm_navigation, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_arm_navigation/trunk',
+    version: -r34884}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_arm_navigation_apps, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_arm_navigation_apps/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_arm_navigation_tests, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_arm_navigation_tests/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_calibration, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_calibration/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_common, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_common/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_common_actions, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_common_actions/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_controllers, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_controllers/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_doors, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_doors/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_ethercat_drivers, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_ethercat_drivers/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_gui, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_gui/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_kinematics, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_kinematics/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_kinematics_with_constraints, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_kinematics_with_constraints/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_mechanism, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_mechanism/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_navigation, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_navigation/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_navigation_apps, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_navigation_apps/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_plugs, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_plugs/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_power_drivers, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_power_drivers/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_robot, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_robot/trunk/',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_simulator, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_simulator/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_web_apps, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_web_apps/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/robot_calibration, uri: 'https://code.ros.org/svn/ros-pkg/stacks/robot_calibration/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/robot_model, uri: 'https://code.ros.org/svn/ros-pkg/stacks/robot_model/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/simulator_gazebo, uri: 'https://code.ros.org/svn/ros-pkg/stacks/simulator_gazebo/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/simulator_stage, uri: 'https://code.ros.org/svn/ros-pkg/stacks/simulator_stage/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/slam_gmapping, uri: 'https://code.ros.org/svn/ros-pkg/stacks/slam_gmapping/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/sound_drivers, uri: 'https://code.ros.org/svn/ros-pkg/stacks/sound_drivers/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/trajectory_filters, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/trajectory_filters/trunk',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/vision_opencv, uri: 'https://code.ros.org/svn/ros-pkg/stacks/vision_opencv/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/visualization, uri: 'https://code.ros.org/svn/ros-pkg/stacks/visualization/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/visualization_common, uri: 'https://code.ros.org/svn/ros-pkg/stacks/visualization_common/tags/latest',
+    version: -r29408}
+- svn: {local-name: /u/wgtest/ros/stacks/web_interface, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/web_interface/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/wg_common, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/wg_common/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/wg_pr2_apps, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/wg_pr2_apps/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/wifi_drivers, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/wifi_drivers/tags/latest',
+    version: -r36542}
+- svn: {local-name: /u/wgtest/ros/stacks/pr2_self_test, uri: 'https://code.ros.org/svn/wg-ros-pkg/trunk/stacks/pr2_self_test' }
