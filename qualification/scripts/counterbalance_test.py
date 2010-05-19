@@ -201,7 +201,7 @@ if __name__ == '__main__':
     app = CounterbalanceAnalysis()
     try:
         my_rate = rospy.Rate(5)
-        while not app.has_data():
+        while not app.has_data() and not rospy.is_shutdown():
             my_rate.sleep()
 
         if not rospy.is_shutdown():
