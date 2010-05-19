@@ -9,6 +9,9 @@ Roslaunch parse tester can check a launch file, package with launch files, or co
   <depend package="roslaunch"/>
   <depend package="rostest" />
 
+  <platform os="ubuntu" version="9.04"/>
+  <platform os="ubuntu" version="9.10"/>
+  <platform os="ubuntu" version="10.04"/>
 </package>
 
 

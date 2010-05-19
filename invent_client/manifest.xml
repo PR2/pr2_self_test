@@ -7,4 +7,7 @@ Provides an interface for the Willow Garage Inventory system, used by the life_t
   <license>BSD</license>
   <url>http://ros.org/wiki/invent_client</url>
   <rosdep name="python-clearsilver" />
+  <platform os="ubuntu" version="9.04"/>
+  <platform os="ubuntu" version="9.10"/>
+  <platform os="ubuntu" version="10.04"/>
 </package>

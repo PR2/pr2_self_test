@@ -9,6 +9,9 @@ Robot descriptions in this package are used in PR2 hardware testing. This packag
   <depend package="urdf"/>
   <depend package="xacro"/>
   <depend package="pr2_description"/>
+  <platform os="ubuntu" version="9.04"/>
+  <platform os="ubuntu" version="9.10"/>
+  <platform os="ubuntu" version="10.04"/>
 </package>
 
 
