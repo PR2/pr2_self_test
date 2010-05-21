@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="qualification" type="prestartup_caller.py" name="wge100_cam_config"
+        args="wge100_camera set_name any://#eth2 forearm_r 10.68.0.42" />
+</launch>
