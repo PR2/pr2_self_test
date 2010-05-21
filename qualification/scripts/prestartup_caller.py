@@ -69,7 +69,7 @@ if __name__ == '__main__':
     rospy.wait_for_service('prestartup_done', 10)
     r = ScriptDoneRequest()
     r.result = 1
-    r.failure_msg = 'CMD: %s\n%s\n%s' % (cmd, stdout, stderr)
+    r.failure_msg = 'CMD: %s\nReturned: %d\n%s\n%s' % (cmd, retcode, stdout, stderr)
     if retcode == 0:
         r.result = 0
         r.failure_msg = 'CMD: %s' % cmd
