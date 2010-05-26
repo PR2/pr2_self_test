@@ -44,7 +44,7 @@ from qualification.test import Test
 
 from roslaunch_parse_tester.package_parse import ROSLaunchPackageParser
 
-import os
+import os, sys
 
 ##\brief Parses launch, tests.xml and configs.xml files in qualification
 class QualificationTestParser(unittest.TestCase):
@@ -67,7 +67,7 @@ class QualificationTestParser(unittest.TestCase):
                                                     quiet = False, config_err_check = True, depend_check = True)
         
         launches_ok = launch_file_parser.check_package()
-        self.assert_(launches_ok, "Launch files failed to parse. Run roslaunch_parse_tester to check output")
+        self.assert_(launches_ok, "Launch files failed to parse. Run in verbose mode to check output")
 
     ##\brief All test.xml files must load properly
     def test_check_tests_parsed(self):
@@ -112,9 +112,7 @@ class QualificationTestParser(unittest.TestCase):
         pass
 
 if __name__ == '__main__':
-    if True:
-        rostest.unitrun(PKG, 'check_test_files', QualificationTestParser)
-    else:
+    if len(sys.argv) > 1 and sys.argv[1] == '-v':
         # Use to run tests verbosly
         suite = unittest.TestSuite()
         suite.addTest(QualificationTestParser('test_launch_file_parse'))
@@ -123,3 +121,7 @@ if __name__ == '__main__':
         suite.addTest(QualificationTestParser('test_check_configs_parsed'))
         
         unittest.TextTestRunner(verbosity = 2).run(suite)
+    else:
+        rostest.unitrun(PKG, 'check_test_files', QualificationTestParser)
+
+
