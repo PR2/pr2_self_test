@@ -5,17 +5,5 @@
   <node machine="test_host_root" pkg="pr2_etherCAT" name="pr2_etherCAT"
         type="pr2_etherCAT" args="-i eth0 -x robot_description"/>
 
-  <!-- Robot state publisher -->
-  <node pkg="robot_state_publisher" type="state_publisher"
-        name="robot_state_publisher">
-    <param name="publish_frequency" type="double" value="50.0" />
-    <param name="tf_prefix" type="string" value="" />
-  </node>
-
-  <!-- Joints to diagnostics -->
-  <node pkg="pr2_controller_manager" type="joints_to_diagnostics.py"
-        name="joint_to_diag" />
-
-  <node pkg="pr2_controller_manager" type="controllers_to_diagnostics.py"
-        name="ctrl_to_diag" />
+  <include file="$(find pr2_controller_manager)/controller_manager.launch" />
 </launch>
