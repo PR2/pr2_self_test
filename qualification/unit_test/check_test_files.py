@@ -67,7 +67,7 @@ class QualificationTestParser(unittest.TestCase):
                                                     quiet = False, config_err_check = True, depend_check = True)
         
         launches_ok = launch_file_parser.check_package()
-        self.assert_(launches_ok, "Launch files failed to parse. Run in verbose mode to check output")
+        self.assert_(launches_ok, "Launch files failed to parse. Run in verbose mode (-v) to check output")
 
     ##\brief All test.xml files must load properly
     def test_check_tests_parsed(self):
