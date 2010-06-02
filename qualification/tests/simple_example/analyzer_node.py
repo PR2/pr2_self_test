@@ -38,8 +38,8 @@ roslib.load_manifest('qualification')
 import sys
 import rospy
 from std_srvs.srv import Empty
-from qualification.srv import TestResult, TestResultRequest
-from qualification.msg import Plot, TestParam, TestValue
+from pr2_self_test_msgs.srv import TestResult, TestResultRequest
+from pr2_self_test_msgs.msg import Plot, TestParam, TestValue
 import time
 
 import rospy

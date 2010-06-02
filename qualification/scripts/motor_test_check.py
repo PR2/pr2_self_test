@@ -39,7 +39,7 @@ roslib.load_manifest('qualification')
 import rospy
 
 from invent_client.invent_client import Invent
-from qualification.srv import ScriptDone, ScriptDoneRequest
+from pr2_self_test_msgs.srv import ScriptDone, ScriptDoneRequest
 
 class MotorStatusVerifier:
     def __init__(self):

@@ -39,7 +39,8 @@ import roslib; roslib.load_manifest(PKG)
 
 import rospy
 
-from qualification.srv import *
+from pr2_self_test_msgs.srv import ScriptDone, ScriptDoneRequest
+from pr2_self_test_msgs.srv import ConfirmConf, ConfirmConfResponse, ConfirmConfRequest
 
 import subprocess, sys
 

@@ -49,7 +49,7 @@ from wx import html
 import os
 import rospy
 
-from qualification.srv import TestResult, TestResultResponse
+from pr2_self_test_msgs.srv import TestResult, TestResultResponse
 
 ##\brief Makes waiting page for subtests
 def make_waiting_page():

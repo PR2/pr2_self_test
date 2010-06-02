@@ -48,7 +48,7 @@ import string
 
 import traceback
 
-from qualification.srv import ConfirmConf, ConfirmConfRequest, ConfirmConfResponse, ScriptDone, ScriptDoneRequest
+from pr2_self_test_msgs.srv import ConfirmConf, ConfirmConfRequest, ConfirmConfResponse, ScriptDone, ScriptDoneRequest
 
 import invent_client.invent_client
 from invent_client.invent_client import Invent

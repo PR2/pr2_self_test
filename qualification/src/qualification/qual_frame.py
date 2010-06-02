@@ -35,9 +35,10 @@
 ##\author Kevin Watts
 ##\brief Contains main functionality for qualification system. 
 
+PKG = 'qualification'
 import roslib
 import roslib.packages
-roslib.load_manifest('qualification')
+roslib.load_manifest(PKG)
 
 import rospy
 
@@ -53,8 +54,9 @@ from wx import html
 
 from xml.dom import minidom
 
-from qualification.msg import Plot
-from qualification.srv import ScriptDone, TestResult
+from pr2_self_test_msgs.srv import ScriptDone, ScriptDoneRequest, ScriptDoneResponse
+from pr2_self_test_msgs.srv import TestResult, TestResultRequest, TestResultResponse
+
 from qualification.test import *
 from qualification.result import *
 

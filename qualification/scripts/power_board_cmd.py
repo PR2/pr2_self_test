@@ -39,7 +39,7 @@ roslib.load_manifest('qualification')
 import rospy, sys,time
 import subprocess
 from optparse import OptionParser
-from qualification.srv import *
+from pr2_self_test_msgs.srv import ScriptDone, ScriptDoneRequest
 from pr2_power_board.srv import PowerBoardCommand
 import traceback
 import socket

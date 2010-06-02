@@ -41,7 +41,7 @@ import roslib; roslib.load_manifest(PKG)
 import rospy
 import subprocess
 
-from qualification.srv import ScriptDone, ScriptDoneRequest
+from pr2_self_test_msgs.srv import ScriptDone, ScriptDoneRequest
 
 import sys
 

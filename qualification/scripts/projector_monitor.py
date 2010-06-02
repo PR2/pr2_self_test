@@ -43,7 +43,7 @@ roslib.load_manifest(PKG)
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from std_srvs.srv import *
 
-from qualification.srv import TestResult, TestResultRequest
+from pr2_self_test_msgs.srv import TestResult, TestResultRequest
 
 import rospy
 import threading

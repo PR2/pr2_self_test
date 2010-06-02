@@ -36,7 +36,7 @@ import numpy
 
 import rospy
 
-from qualification.srv import TestResult, TestResultRequest
+from pr2_self_test_msgs.srv import TestResult, TestResultRequest
 from qualification.analysis.hysteresis_analysis import *
 
 from joint_qualification_controllers.msg import HysteresisData

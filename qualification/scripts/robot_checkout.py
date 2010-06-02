@@ -39,7 +39,9 @@ from time import sleep
 
 
 from diagnostic_msgs.msg import DiagnosticArray
-from qualification.srv import *
+
+from pr2_self_test_msgs.srv import TestResult, TestResultRequest
+from pr2_self_test_msgs.srv import ScriptDone, ScriptDoneRequest, ScriptDoneResponse
 
 from joint_qualification_controllers.msg import RobotData
 from std_msgs.msg import Bool

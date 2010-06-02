@@ -33,14 +33,16 @@
 #*  POSSIBILITY OF SUCH DAMAGE.
 #***********************************************************
 
-import roslib; roslib.load_manifest('qualification')
+PKG = 'qualification' 
+
+import roslib; roslib.load_manifest(PKG)
 import rospy
 import serial
 import random              
 import threading
 import traceback
 
-from qualification.srv import TestResult, TestResultRequest
+from pr2_self_test_msgs.srv import TestResult, TestResultRequest
 
 
 def index_to_msg(lst, i):

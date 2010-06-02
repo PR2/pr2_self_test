@@ -32,11 +32,12 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+PKG = 'qualification'
 import roslib
-roslib.load_manifest('qualification')
+roslib.load_manifest(PKG)
 
 import rospy
-from qualification.srv import TestResult, TestResultRequest
+from pr2_self_test_msgs.srv import TestResult, TestResultRequest
 from diagnostic_msgs.srv import SelfTest, SelfTestRequest
 
 import sys

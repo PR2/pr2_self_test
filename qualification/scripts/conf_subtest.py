@@ -42,7 +42,7 @@ import rospy
 
 import sys, time, os
 
-from qualification.srv import *
+from pr2_self_test_msgs.srv import TestResult, TestResultRequest
 
 rospy.init_node('configuration_subtest')
 result_proxy = rospy.ServiceProxy('test_result', TestResult)

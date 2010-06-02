@@ -40,7 +40,7 @@ roslib.load_manifest('qualification')
 import wx
 import sys
 
-from qualification.srv import ScriptDone, ScriptDoneRequest
+from pr2_self_test_msgs.srv import ScriptDone, ScriptDoneRequest
 
 import rospy
 

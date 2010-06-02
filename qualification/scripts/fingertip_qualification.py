@@ -52,8 +52,8 @@ import threading
 import os
 
 import rospy
-from qualification.srv import TestResult, TestResultRequest
-from qualification.msg import Plot
+from pr2_self_test_msgs.srv import TestResult, TestResultRequest
+from pr2_self_test_msgs.msg import Plot
 from std_msgs.msg import Float64
 from pr2_msgs.msg import PressureState
 

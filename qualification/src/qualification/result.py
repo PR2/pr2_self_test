@@ -41,9 +41,7 @@ roslib.load_manifest(PKG)
 
 import sys, os
 
-from qualification.msg import *
-from srv import *
-from test import *
+from qualification.test import *
 
 import time
 from time import strftime

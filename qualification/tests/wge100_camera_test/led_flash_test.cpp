@@ -40,7 +40,7 @@
 #include <ethercat_trigger_controllers/SetWaveform.h>
 #include <ethercat_trigger_controllers/trigger_controller.h>
 #include <algorithm>
-#include <qualification/TestResult.h>
+#include <pr2_self_test_msgs/TestResult.h>
 #include <boost/format.hpp>
 
 class LedFlashTest
@@ -187,22 +187,22 @@ public:
       	report += "<p>More than a third of the frames did not match a rule.</p>";
       }
       
-      qualification::TestResult::Request result;
+      pr2_self_test_msgs::TestResult::Request result;
       result.html_result = report;
       if (fail > tolerance_)
       {
         ROS_INFO("LED test failed.");
         result.text_summary = "Test failed.";
-        result.result = qualification::TestResult::Request::RESULT_FAIL;
+        result.result = pr2_self_test_msgs::TestResult::Request::RESULT_FAIL;
       }
       else
       {
         ROS_INFO("LED test passed.");
       	result.text_summary = "Test passed.";
-        result.result = qualification::TestResult::Request::RESULT_PASS;
+        result.result = pr2_self_test_msgs::TestResult::Request::RESULT_PASS;
       }
 
-      qualification::TestResult::Response dummy_response;
+      pr2_self_test_msgs::TestResult::Response dummy_response;
       if (!ros::service::call("test_result", result, dummy_response))
       {
         ROS_ERROR("Error sending test result message.");

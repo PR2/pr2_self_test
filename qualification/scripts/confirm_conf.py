@@ -43,7 +43,7 @@ import roslib
 roslib.load_manifest(PKG) 
 import wx 
 from wx import xrc
-from qualification.srv import ConfirmConf, ConfirmConfRequest, ConfirmConfResponse
+from pr2_self_test_msgs.srv import ConfirmConf, ConfirmConfRequest, ConfirmConfResponse
 import rospy 
 import time
 import os

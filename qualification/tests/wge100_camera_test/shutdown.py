@@ -37,7 +37,7 @@ roslib.load_manifest('qualification')
 import wx
 
 import rospy
-from qualification.srv import * 
+from pr2_self_test_msgs.srv import * 
 
 app = wx.PySimpleApp()
 ret = wx.MessageBox("The test is done. Please turn off the power supply.", "Power Supply", wx.OK)

@@ -57,7 +57,7 @@ import rospy
 import rviz
 import ogre_tools
 
-from qualification.srv import *
+from pr2_self_test_msgs.srv import ScriptDone, ScriptDoneRequest
 
 from time import sleep
 

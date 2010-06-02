@@ -40,7 +40,7 @@ roslib.load_manifest('qualification')
 
 import rospy
 
-from qualification.srv import *
+from pr2_self_test_msgs.srv import *
 from std_msgs.msg import Bool
 from joint_qualification_controllers.msg import CounterbalanceTestData
 

@@ -34,7 +34,7 @@
 
 ##\author Blaise Gassend
 ##\brief Displays prosilica focus on gnuplot window
-
+##\TODO Move to camera_focus
 
 import roslib
 roslib.load_manifest('camera_focus')

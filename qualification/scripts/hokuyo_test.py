@@ -44,8 +44,8 @@ import threading
 import time
 
 from sensor_msgs.msg import LaserScan
-from qualification.srv import TestResult, TestResultRequest
-from qualification.msg import Plot
+from pr2_self_test_msgs.srv import TestResult, TestResultRequest
+from pr2_self_test_msgs.msg import Plot
 
 from optparse import OptionParser
 

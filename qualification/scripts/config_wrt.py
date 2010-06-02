@@ -33,11 +33,12 @@
 
 ##\author Jeremy Leibs
 
-import roslib
-roslib.load_manifest('qualification')
+PKG = 'qualification'
 
-from qualification.msg import *
-from qualification.srv import *
+import roslib
+roslib.load_manifest(PKG)
+
+from pr2_self_test_msgs.srv import TestResult, TestResultRequest
 
 import rospy 
 
