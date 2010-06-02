@@ -63,13 +63,18 @@ from time import sleep
 
 import threading
 
+SRV_NAME = 'visual_check'
 def call_done_service(result, msg):
-  result_service = rospy.ServiceProxy('visual_check', ScriptDone)
+  result_service = rospy.ServiceProxy(SRV_NAME, ScriptDone)
   r = ScriptDoneRequest()
   r.result = result
   r.failure_msg = msg
-  rospy.wait_for_service('visual_check', 5)
-  result_service.call(r)
+  try:
+    rospy.wait_for_service(SRV_NAME, 5)
+    result_service.call(r)
+  except Exception, e:
+    print >> sys.stderr, "Unable to call %s service. Make sure the service is up" % SRV_NAME
+    
 
 # Calls the "OK" service after a timeout
 class VisualRunner(threading.Thread):
@@ -83,7 +88,7 @@ class VisualRunner(threading.Thread):
       return
     while not rospy.is_shutdown():
       if rospy.get_time() - start > timeout:
-        app.frame.Close()
+        wx.CallAfter(self.app.frame.Close)
         call_done_service(ScriptDoneRequest.RESULT_OK, 'Visual check passed by automatic runner.')
         break
       sleep(1.0)
@@ -184,7 +189,12 @@ class VisualizerApp(wx.App):
 if __name__ == "__main__":
   if (len(sys.argv) < 2):
     call_done_service(ScriptDoneRequest.RESULT_ERROR, "Visual verifier not given path to config file.\nusage: visual_verifier.py 'path to config file'")
-    print 'Usage: visual_verifier.py \'path to config file\''
+    print >> sys.stderr, 'Usage: visual_verifier.py \'path to config file\''
+    sys.exit(1)
+
+  if not os.path.exists(sys.argv[1]):
+    call_done_service(ScriptDoneRequest.RESULT_ERROR, "Visual verifier not given path to actual config file.\nusage: visual_verifier.py 'path to config file'\nFile %s does not exist" % sys.argv[1])
+    print >> sys.stderr, 'Usage: visual_verifier.py \'path to config file\'.\nGiven file does not exist'
     sys.exit(1)
   
   rospy.init_node('visual_verifier')
@@ -200,6 +210,8 @@ if __name__ == "__main__":
       runner.start()
 
     app.MainLoop()
+
+    rospy.spin()
   except:
     call_done_service(ScriptDoneRequest.RESULT_ERROR, 'Visual check recorded error: %s' % traceback.format_exc())
     rospy.logerr(traceback.format_exc())
