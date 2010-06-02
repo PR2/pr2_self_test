@@ -408,7 +408,7 @@ class TestMonitorPanel(wx.Panel):
         
         was_stale = self._is_stale
 
-        if interval > self.timeout_interval: 
+        if interval > 300:  # 300 second timeout
             # Make EtherCAT status stale
             self._is_running = False
             self._is_stale = True
@@ -416,8 +416,8 @@ class TestMonitorPanel(wx.Panel):
             # Halt test if it goes stale, #4007
             if not was_stale:
                 self.on_halt_motors()
-                rospy.logerr('Halting test %s. Data is stale' % self._bay.name)
-                self.update_test_record('Halted test after received stale data')
+                rospy.logerr('Halting test on machine %s. Update is stale for %d seconds' % (self._bay.name, int(interval)))
+                self.update_test_record('Halted test after no data received.')
 
             self.update_controls(4)
             self.update_test_record()
