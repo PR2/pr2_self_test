@@ -39,7 +39,6 @@ from time import sleep
 
 
 from diagnostic_msgs.msg import DiagnosticArray
-from qualification.msg import Plot
 from qualification.srv import *
 
 from joint_qualification_controllers.msg import RobotData

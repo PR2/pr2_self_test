@@ -53,7 +53,6 @@ from qualification.test import *
 from qualification.qual_frame import *
 
 from roslaunch_caller import roslaunch_caller 
-#from roslaunch.core import RLException
 
 from qualification.test_loader import load_configs_from_map, load_tests_from_map
 
