@@ -46,7 +46,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from StringIO import StringIO
 
-from qualification.msg import Plot, TestParam, TestValue
+from pr2_self_test_msgs.msg import Plot, TestParam, TestValue
 
 class HysteresisParameters:
     def __init__(self):
