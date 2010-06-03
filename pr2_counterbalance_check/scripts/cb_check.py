@@ -106,9 +106,9 @@ class CounterbalanceCheck(object):
             print >> sys.stderr, "Unable to calculate CB adjustment. This could mean the counterbalance is extremely out of adjustment, or your training data is invalid."
             return
 
-        print 'Calculated counterbalance adjustment:'
-        print '\tSecondary Spring: %.1f (%s)' % (secondary, dir(secondary))
-        print '\tArm Gimbal Shaft: %.1f (%s)' % (cb_bar, dir(cb_bar))
+        print 'Calculated counterbalance adjustment recommendations:'
+        print '\tSecondary Spring: %.1f (%s)' % (abs(secondary), dir(secondary))
+        print '\tArm Gimbal Shaft: %.1f (%s)' % (abs(cb_bar), dir(cb_bar))
         print 'Make sure to follow proper adjustment procedures if you choose to make an adjustment.\n'
         print 'Your counterbalance state is up to you, these adjustments are only recommendations.\n'
 

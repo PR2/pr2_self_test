@@ -44,7 +44,7 @@ from optparse import OptionParser
 from std_msgs.msg import Bool, Float64
 
 import actionlib
-from pr2_controllers_msgs import *
+from pr2_controllers_msgs.msg import *
 
 
 class SendMessageOnSubscribe(rospy.SubscribeListener):
@@ -63,7 +63,7 @@ def set_controller(controller, command):
 
 def hold_arm(side, pan_angle):
     set_controller("%s_wrist_roll_position_controller" % side, float(0.0))
-    set_controller("%s_wrist_flex_position_controller" % side, float(-1.0))
+    set_controller("%s_wrist_flex_position_controller" % side, float(0.0))
     set_controller("%s_forearm_roll_position_controller" % side, float(0.0))
     set_controller("%s_elbow_flex_position_controller" % side, float(-0.5))
     set_controller("%s_upper_arm_roll_position_controller" % side, float(0.0))

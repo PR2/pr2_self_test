@@ -1,3 +1,35 @@
+# Lift joint data
+lift: &lift_data
+  joint: r_shoulder_lift_joint
+  type: JointPositionController
+  pid/p: 80.0
+  pid/i: 8.0
+  pid/d: 6.0
+  pid/i_clamp: 3.0
+  min: -0.2
+  max: 1.21
+  delta: 0.2
+  dither: 8.0
+  mse: 3.0
+  avg_abs: 2.0
+  avg_eff: 1.5
+
+# Flex joint data
+flex: &flex_data
+  joint: r_elbow_flex_joint
+  type: JointPositionController
+  pid/p: 70.0
+  pid/d: 12.0
+  pid/i: 12.0
+  pid/i_clamp: 2.0
+  min: -1.8
+  max: -0.19
+  delta: 0.2
+  dither: 6.0
+  mse: 3.0
+  avg_abs: 2.0
+  avg_eff: 1.5
+
 # Counterbalance check controller moves arm to different positions
 cb_check_controller: &cb_check_controller_base
   type: CounterbalanceTestController
@@ -6,47 +38,25 @@ cb_check_controller: &cb_check_controller_base
   timeout: 300
   screw_tol: 2.0
   bar_tol: 0.8
-  lift:
-    joint: r_shoulder_lift_joint
-    type: JointPositionController
-    pid/p: 80.0
-    pid/i: 8.0
-    pid/d: 6.0
-    pid/i_clamp: 3.0
-    min: -0.2
-    max: 1.21
-    delta: 0.2
-    dither: 8.0
-    mse: 3.0
-    avg_abs: 2.0
-    avg_eff: 1.5
-  flex:
-    joint: r_elbow_flex_joint
-    type: JointPositionController
-    pid/p: 70.0
-    pid/d: 12.0
-    pid/i: 12.0
-    pid/i_clamp: 2.0
-    min: -1.8
-    max: -0.19
-    delta: 0.2
-    dither: 6.0
-    mse: 3.0
-    avg_abs: 2.0
-    avg_eff: 1.5
 
 # Right side
 cb_right_controller: 
   <<: *cb_check_controller_base
   lift:
+    <<: *lift_data
     joint: r_shoulder_lift_joint
   flex:
+    <<: *flex_data
     joint: r_elbow_flex_joint
 
 # Left side
 cb_left_controller: 
   <<: *cb_check_controller_base
   lift:
+    <<: *lift_data
     joint: l_shoulder_lift_joint
   flex:
+    <<: *flex_data
     joint: l_elbow_flex_joint
+
+
