@@ -1,9 +1,0 @@
-<launch>
-  <include file="$(find qualification)/tests/init.machine" />
-
-  <!-- pr2_etherCAT -->
-  <node machine="test_host_root" pkg="pr2_etherCAT" name="pr2_etherCAT"
-        type="pr2_etherCAT" args="-i eth0 -x robot_description"/>
-
-  <include file="$(find pr2_controller_manager)/controller_manager.launch" />
-</launch>

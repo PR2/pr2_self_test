@@ -1,8 +1,0 @@
-/**
-\mainpage
-\htmlinclude manifest.html
-
-\b qualification is designed to test, configure and qualify PR2's and PR2 components. The backbone is a Qualification Frame or GUI that loads, runs and logs tests and test results. The qualification tests themselves are located in the "tests", "configs" and "onboard" directory and can test almost any part of the PR2.
-
-
-*/

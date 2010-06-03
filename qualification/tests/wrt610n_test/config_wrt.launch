@@ -1,3 +1,0 @@
-<launch>
-  <node name="config_wrt" pkg="qualification" type="config_wrt.py"/>
-</launch>

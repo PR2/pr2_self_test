@@ -1,4 +1,0 @@
-motors: [
-  'r_shoulder_pan_motor',
-  'r_shoulder_lift_motor',
-  'r_upper_arm_roll_motor']

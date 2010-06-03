@@ -1,6 +1,0 @@
-<launch>
-  <node name="prosilica_inhibition" pkg="qualification"
-        type="prestartup_caller.py"
-        args="prosilica_camera set_inhibition 10.68.0.20" output="screen"/>
-  
-</launch>

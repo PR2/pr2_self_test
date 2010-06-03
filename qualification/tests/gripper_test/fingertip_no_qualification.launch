@@ -1,9 +1,0 @@
-<launch>
-  <include file="$(find qualification)/tests/gripper_test/fingertip_qualification.launch" />
-
-  <!-- Put params into tip analysis node ns -->
-  <group ns="tip_analysis" >
-    <param name="check_connect_only" type="bool" value="true" />
-    <param name="not_connected" type="bool" value="true" />    
-  </group>
-</launch>

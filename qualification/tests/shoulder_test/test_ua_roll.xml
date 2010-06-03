@@ -1,9 +1,0 @@
-<test name="Upperarm Roll Test" >
-  <instructions>instructions_ua_roll.html</instructions>
-  <pre_startup name="Power On" timeout="30">../../scripts/power_on.launch</pre_startup>
-  <pre_startup name="Configure MCB's" timeout="180">../../config/r_upper_arm_roll_conf.launch</pre_startup>
-  <startup>upper_arm_roll.launch</startup>
-  <subtest name="Shoulder Checkout">upper_arm_roll_checkout.launch</subtest>
-  <subtest name="Upperarm Roll Hysteresis" timeout="30">hysteresis_upper_arm_roll.launch</subtest>
-  <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
-</test>

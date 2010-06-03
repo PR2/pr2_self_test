@@ -1,5 +1,0 @@
-<launch>
-  <include file="$(find qualification)/tests/wrist_test/wrist.launch" />
-
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/wrist_gripper.urdf.xacro'" />
-</launch>

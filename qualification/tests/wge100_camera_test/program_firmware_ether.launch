@@ -1,7 +1,0 @@
-<launch>
-  <node pkg="qualification" type="load_firmware_ether.py"> 
-    <param name="impactdir" value="$(find qualification)/tests/wge100_camera_test/impact"/>
-    <param name="url" type="str" value="any://@192.168.202.2#eth2"/>
-  </node>
-</launch>
-

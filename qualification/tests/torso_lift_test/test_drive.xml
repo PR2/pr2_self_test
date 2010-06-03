@@ -1,9 +1,0 @@
-<test name="Torso Drivetrain Test" > 
-  <instructions>instructions_drive.html</instructions>
-  <pre_startup name="Power On" timeout="30">../../scripts/power_on.launch</pre_startup>
-  <pre_startup name="Torso Conf" timeout="30">../../config/torso_conf.launch</pre_startup>
-  <startup>torso_drive.launch</startup>
-  <subtest name="Torso Checkout">torso_checkout.launch</subtest>
-  <subtest name="Torso Hysteresis" timeout="180">hysteresis_torso_lift_drive.launch</subtest>
-  <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
-</test>

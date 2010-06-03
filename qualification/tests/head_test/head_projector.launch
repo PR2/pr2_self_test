@@ -1,8 +1,0 @@
-<launch>
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/led_projector.urdf.xacro'" />
-
-  <!-- Loads realtime machine and PR2_etherCAT -->
-  <include file="$(find qualification)/tests/init.machine" />
-  <include file="$(find qualification)/tests/pr2_etherCAT.launch" />
-
-</launch>

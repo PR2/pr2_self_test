@@ -1,3 +1,0 @@
-<launch>
-  <node pkg="qualification" type="add_note_to_shoulder.py" name="add_shoulder_note" />
-</launch>

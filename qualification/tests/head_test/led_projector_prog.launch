@@ -1,9 +1,0 @@
-<launch>
-  <include file="$(find qualification)/tests/init.machine" />
-
-  <node machine="realtime" pkg="qualification" name="led_projector_prog"
-        type="mcb_prog_conf.py" args="-p -n 1" />
-
-  <node pkg="qualification" type="confirm_conf.py"
-        name="confirm_prog" output="screen"/>
-</launch>

@@ -1,7 +1,0 @@
-<launch>
-  <include file="$(find qualification)/tests/shoulder_test/shoulder.launch" />
-  <param name="robot_description"
-         command="$(find xacro)/xacro.py '$(find pr2_component_descriptions)/robots/shoulder_dummy_ua.urdf.xacro'" />
-    
-  <include file="$(find qualification)/tests/wge100_component.launch" />
-</launch>

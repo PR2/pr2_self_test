@@ -1,4 +1,0 @@
-#!/bin/bash
-source /opt/Xilinx/11.1/settings32.sh
-export DISPLAY=:0
-exec impact $*

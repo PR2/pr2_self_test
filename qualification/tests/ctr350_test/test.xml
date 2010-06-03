@@ -1,7 +1,0 @@
-<test name="CTR 350" >
-  <instructions>instructions.html</instructions>
-  <pre_startup name="Check for IPs">check_for_ips.launch</pre_startup>
-  <subtest name="Config CTR350 QUAL" timeout="60">config_ctr_qual.launch</subtest>
-  <subtest name="Check Connectivity QUAL" timeout="200">ping_qual.launch</subtest>
-  <subtest name="Rebrand CTR350 PRLAN" timeout="60">rebrand_ctr_prlan.launch</subtest>-->
-</test>

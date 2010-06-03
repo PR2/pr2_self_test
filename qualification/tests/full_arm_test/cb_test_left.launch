@@ -1,9 +1,0 @@
-<launch>
-  <include file="$(find pr2_counterbalance_check)/launch/counterbalance_test_left.launch" />
-
-  <!-- Analyzes CB results -->
-  <node pkg="pr2_counterbalance_check" type="cb_qual_test.py"
-        name="cb_qual_test" >
-    <param name="model_file" value="$(find pr2_counterbalance_check)/cb_data/counterbalance_model.dat" />
-  </node>
-</launch>

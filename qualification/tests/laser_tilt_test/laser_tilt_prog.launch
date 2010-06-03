@@ -1,8 +1,0 @@
-<launch>
-  <include file="$(find qualification)/tests/init.machine" />
-
-  <node machine="realtime" pkg="qualification" type="mcb_prog_conf.py" args="-p -n 1" name="laser_tilt_prog" />
-
-  <!-- Confirm configuation -->
-  <node pkg="qualification" type="confirm_conf.py" name="confirm_conf" />
-</launch>

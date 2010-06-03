@@ -1,9 +1,0 @@
-<launch>
-  <include file="$(find qualification)/tests/init.machine" />
-  
-  <node pkg="qualification" type="check_wge100_present.py"
-        name="check_wge100" machine="test_host" />
-
-  <node pkg="qualification" type="confirm_conf.py"
-        name="confirm_camera" machine="localhost" />
-</launch>

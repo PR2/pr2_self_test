@@ -1,3 +1,0 @@
-<launch>
-  <node pkg="qualification" type="shutdown.py" name="wge100_shutdown" />
-</launch>

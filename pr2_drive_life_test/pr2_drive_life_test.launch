@@ -1,7 +1,0 @@
-<launch>
-  <include file="$(find pr2_drive_life_test)/localize.launch"/>
-
-  <node pkg="pr2_drive_life_test" type="pr2_drive_life_test.py" name="pr2_drive_life_test" output="screen" >
-    <remap from="cmd_vel" to="base_controller/command" />
-  </node>	
-</launch>

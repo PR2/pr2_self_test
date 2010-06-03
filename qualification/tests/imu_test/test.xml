@@ -1,5 +1,0 @@
-<test name="IMU Test" >
-  <startup>imu.launch</startup>
-  <instructions>instructions.html</instructions>
-  <subtest name="IMU Selftest" timeout="120">selftest.launch</subtest>
-</test>

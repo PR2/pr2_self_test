@@ -1,8 +1,0 @@
-<test name="WRT Test" >
-  <instructions>instructions.html</instructions>
-  <pre_startup name="Check for IPs">check_for_ips.launch</pre_startup>
-  <pre_startup name="Check Routes">check_routes.launch</pre_startup>
-  <subtest name="Firmware WRT610n" timeout="500">firmware_wrt.launch</subtest>
-  <subtest name="Configure WRT610n" timeout="500">config_wrt.launch</subtest>
-  <subtest name="Check Connectivity" timeout="200">ping_willow.launch</subtest>
-</test>

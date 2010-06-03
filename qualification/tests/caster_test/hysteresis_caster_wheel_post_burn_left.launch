@@ -1,6 +1,0 @@
-<launch>
-  <include file="$(find qualification)/tests/caster_test/hysteresis_caster_wheel_post_burn.launch" />
-
-  <param name="test_controller/velocity_controller/joint"
-         type="string" value="fl_caster_l_wheel_joint" />
-</launch>

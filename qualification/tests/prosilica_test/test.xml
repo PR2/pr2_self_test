@@ -1,8 +1,0 @@
-<test name="Prosilica Test" >
-  <instructions>instructions.html</instructions>
-  <pre_startup name="Set IP" timeout="60">set_prosilica_ip.launch</pre_startup>
-  <pre_startup name="Set Projector Inhibition" timeout="60">set_prosilica_inhibition.launch</pre_startup>
-  <startup>prosilica.launch</startup>
-  <subtest name="Prosilica Self Test" timeout="60">prosilica_selftest.launch</subtest>
-  <subtest name="Focus Camera">prosilica_focus_test.launch</subtest>
-</test>

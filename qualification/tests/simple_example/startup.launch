@@ -1,5 +1,0 @@
-<launch>
-  <include file="$(find qualification)/tests/init.machine" />
-  <node machine="test_host" pkg="qualification"
-        type="test_node.py" name="startup" />
-</launch>

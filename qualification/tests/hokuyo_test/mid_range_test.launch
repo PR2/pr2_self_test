@@ -1,4 +1,0 @@
-<launch>
-  <node pkg="qualification" type="hokuyo_test.py" args="--mid"
-        name="range_test"  />
-</launch>

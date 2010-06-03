@@ -1,4 +1,0 @@
-<launch>
-  <node pkg="qualification" name="fail_test"
-        type="analyzer_node.py" args="fail"/>
-</launch>

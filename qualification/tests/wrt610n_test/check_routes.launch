@@ -1,3 +1,0 @@
-<launch>
-  <node name="check_routes" pkg="qualification" type="check_routes.py" args="157.22.19.22 10.68.0.5"/>
-</launch>

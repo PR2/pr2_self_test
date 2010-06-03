@@ -1,9 +1,0 @@
-<test name="Head Test (Post Burn)" >
-  <instructions>instructions_post_burn.html</instructions>
-  <pre_startup name="Power On" timeout="30">../../scripts/power_on.launch</pre_startup>
-  <startup>head.launch</startup>
-  <subtest name="Head Checkout">head_checkout.launch</subtest>
-  <subtest name="Pan Hysteresis" timeout="45">hysteresis_head_pan_post_burn.launch</subtest>
-  <subtest name="Tilt Hysteresis" timeout="45">hysteresis_head_tilt_post_burn.launch</subtest>
-  <shutdown name="Power Off" timeout="30">../../scripts/power_board_disable.launch</shutdown>
-</test>

@@ -1,9 +1,0 @@
-<test name="Caster Drivetrain Test" >
-  <instructions>instructions_motor.html</instructions>
-  <pre_startup timeout="30" name="Power On">../../scripts/power_cycle.launch</pre_startup>
-  <pre_startup name="Configure MCB's" timeout="30"
-               >fl_caster_motor_conf.launch</pre_startup>
-  <startup>caster_motor.launch</startup>
-  <subtest timeout="90" name="Motor Hysteresis">hysteresis_caster_motor.launch</subtest>
-  <shutdown timeout="30" name="Power Off">../../scripts/power_board_disable.launch</shutdown>
-</test>
