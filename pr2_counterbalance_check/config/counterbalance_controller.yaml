@@ -1,4 +1,5 @@
-test_controller:
+# Counterbalance check controller moves arm to different positions
+cb_check_controller: &cb_check_controller_base
   type: CounterbalanceTestController
   settle_time: 2.0
   dither_points: 1000
@@ -6,7 +7,7 @@ test_controller:
   screw_tol: 2.0
   bar_tol: 0.8
   lift:
-    joint: l_shoulder_lift_joint
+    joint: r_shoulder_lift_joint
     type: JointPositionController
     pid/p: 80.0
     pid/i: 8.0
@@ -20,7 +21,7 @@ test_controller:
     avg_abs: 2.0
     avg_eff: 1.5
   flex:
-    joint: l_elbow_flex_joint
+    joint: r_elbow_flex_joint
     type: JointPositionController
     pid/p: 70.0
     pid/d: 12.0
@@ -33,3 +34,19 @@ test_controller:
     mse: 3.0
     avg_abs: 2.0
     avg_eff: 1.5
+
+# Right side
+cb_right_controller: 
+  <<: *cb_check_controller_base
+  lift:
+    joint: r_shoulder_lift_joint
+  flex:
+    joint: r_elbow_flex_joint
+
+# Left side
+cb_left_controller: 
+  <<: *cb_check_controller_base
+  lift:
+    joint: l_shoulder_lift_joint
+  flex:
+    joint: l_elbow_flex_joint

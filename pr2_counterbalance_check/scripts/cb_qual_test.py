@@ -35,19 +35,21 @@
 ##\author Kevin Watts
 ##\brief Analyzes results from counterbalance test controller
 
+PKG = 'pr2_counterbalance_check'
 import roslib
-roslib.load_manifest('qualification')
+roslib.load_manifest(PKG)
 
+import os
 import rospy
 
-from pr2_self_test_msgs.srv import *
+from pr2_self_test_msgs.srv import TestResult, TestResultRequest
 from std_msgs.msg import Bool
 from joint_qualification_controllers.msg import CounterbalanceTestData
 
-from qualification.analysis.counterbalance_analysis import *
-import os
+from pr2_counterbalance_check.counterbalance_analysis import *
 
-class CounterbalanceAnalysis:
+
+class CounterbalanceAnalyzer:
     def __init__(self):
         self._sent_results = False
         self._motors_halted = True
@@ -197,8 +199,8 @@ class CounterbalanceAnalysis:
 
             
 if __name__ == '__main__':
-    rospy.init_node('cb_analysis')
-    app = CounterbalanceAnalysis()
+    rospy.init_node('cb_analyzer')
+    app = CounterbalanceAnalyzer()
     try:
         my_rate = rospy.Rate(5)
         while not app.has_data() and not rospy.is_shutdown():
@@ -206,6 +208,7 @@ if __name__ == '__main__':
 
         if not rospy.is_shutdown():
             app.process_results()
+
         rospy.spin()
     except KeyboardInterrupt, e:
         pass

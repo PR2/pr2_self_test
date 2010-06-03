@@ -35,11 +35,12 @@
 ##\author Kevin Watts
 ##\brief Analyzes counterbalance data
 
-PKG = 'qualification'
+PKG = 'pr2_counterbalance_check'
 import roslib; roslib.load_manifest(PKG)
 
 import numpy
 import math
+
 
 import matplotlib
 matplotlib.use('Agg')
@@ -117,7 +118,7 @@ class CounterbalanceAnalysisParams:
         else:
             # For backwards compatibility
             self.screw_tol = 2.0
-            self.bar_tol   = 1.0
+            self.bar_tol   = 0.8
 
         self.num_flexes = len(msg.lift_data[0].flex_data)
         self.num_lifts  = len(msg.lift_data)
@@ -403,6 +404,30 @@ def analyze_flex_efforts(params, data):
 
     return result
 
+##\brief Calculates CB adjustment 
+##
+##\return (secondary, arm_gimbal) : Turns CW
+def calc_cb_adjust(data, model_file):
+    try:
+        # Use this to tune to last known "good" position
+        # A = numpy.load(model_file).transpose()
+        
+        # This uses minimum of total torque
+        A = numpy.load(model_file)[:-1].transpose() 
+        B = numpy.array(get_efforts(data, True) + get_efforts(data, False))
+        X = numpy.linalg.lstsq(A,B)
+    except:
+        print >> sys.stderr, "Unable to calculate CB adjustment. May have incorrect model data"
+        import traceback
+        traceback.print_exc()
+        return (100, 100)
+
+    # Recommended adjustments
+    secondary = -X[0][0]
+    cb_bar = X[0][1] # CCW increases force
+
+    return (secondary, cb_bar)
+
 ##\brief Return CB adjustments to minimize total torque
 ##
 ## Uses CB adjustment/torque value from the model file. 
@@ -413,29 +438,17 @@ def analyze_flex_efforts(params, data):
 def check_cb_adjustment(params, data, model_file):
     result = CounterbalanceAnalysisResult()
 
-    try:
-        # Use this to tune to last known "good" position
-        # A = numpy.load(model_file).transpose()
-        
-        # This uses minimum of total torque
-        A = numpy.load(model_file)[:-1].transpose() 
-        B = numpy.array(get_efforts(data, True) + get_efforts(data, False))
-        X = numpy.linalg.lstsq(A,B)
-    except:
+    (secondary, cb_bar) = calc_cb_adjust(data, model_file)
+
+    if (abs(secondary) > 25 or abs(cb_bar) > 25):
         result.result = False
         result.summary = 'Unable to calculate CB adjustment. Data may be corrupt or CB may be too far off'
-        result.html = '<p>Unable to calculate CB adjustment.\nException:\n%s</p>\n' % traceback.format_exc()
+        result.html = '<p>Unable to calculate CB adjustment.</p>' 
         return result
 
-    # Recommended adjustments
-    secondary = -X[0][0]
-    cb_bar = -X[0][1] # Same as arm gimbal shaft
-
+    secondary_dir = 'CW' if secondary > 0 else 'CCW' 
+    cb_bar_dir = 'CW' if cb_bar > 0 else 'CCW'
     
-    secondary_dir = 'CW' if secondary > 0 else 'CCW' # CW increases CB force
-    cb_bar_dir = 'CCW' if cb_bar > 0 else 'CW' # CCW increases CB force
-    
-    adjust_msg = 'Please turn secondary by %.2f turns %s and the arm gimbal shaft by %.2f turns %s' % (secondary, secondary_dir, cb_bar, cb_bar_dir)
     adjust_msg = '<table border="1" cellpadding="2" cellspacing="0">'
     adjust_msg += '<tr><td><b>Adjustment</b></td><td><b>Turns</b></td><td><b>Direction</b></td><td><b>Allowable Tolerance</b></td></tr>\n'
     adjust_msg += '<tr><td>Secondary Spring</td><td>%.1f</td><td>%s</td><td>%.1f</td></tr>\n' % (abs(secondary), secondary_dir, params.screw_tol)
