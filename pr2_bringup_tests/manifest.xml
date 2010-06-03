@@ -1,8 +1,6 @@
 <package>
-  <description brief="pr2_bringup_tests">
-
-     pr2_bringup_tests
-
+  <description brief="Tests for verifying functionality of complete PR2" >
+Complete functionality tests for PR2. Contains utilities designed to test and verify devices, mechanicals and sensors.
   </description>
   <author>Kevin Watts</author>
   <license>BSD</license>

@@ -24,4 +24,5 @@ Packages for running PR2 self-tests and bringup checks onboard robot.
   <depend stack="ros" /> <!-- roslaunch, rxtools, std_srvs, roscpp, roslib, std_msgs, rospy -->
   <depend stack="vision_opencv" /> <!-- opencv2, cv_bridge -->
   <depend stack="visualization" /> <!-- rviz -->
+  <depend stack="pr2_calibration" />
 </stack>

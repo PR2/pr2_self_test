@@ -1,8 +1,8 @@
 <package>
-  <description brief='Joint Qualification Controllers'>
-Controllers used in PR2 hardware testing. Meant for internal WG use.
+  <description brief="Joint Qualification Controllers">
+Controllers used in PR2 hardware testing. For testing counterbalance of PR2, and for internal WG use.
   </description>
-  <author>Melonee Wise, Kevin Watts</author>
+  <author>Kevin Watts, Melonee Wise</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <depend package="pr2_controller_interface" />
