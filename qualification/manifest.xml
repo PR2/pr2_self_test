@@ -38,7 +38,6 @@
   <depend package="pr2_controller_configuration" />
   <depend package="pr2_bringup" />
   <depend package="robot_state_publisher" />
-  <depend package="roslaunch_parse_tester" />
   <depend package="ectools" />
   <depend package="pr2_self_test_msgs" />
   <depend package="pr2_counterbalance_check" />

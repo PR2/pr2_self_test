@@ -5,6 +5,5 @@ rosbuild_genmsg()
 #rosbuild_gensrv()
 
 
-# Parse launch files except in arm_life_test
-rosbuild_add_pyunit(unit_test/check_launch_files.py)
+# Parse config files except in arm_life_test
 rosbuild_add_pyunit(unit_test/check_config_files.py)

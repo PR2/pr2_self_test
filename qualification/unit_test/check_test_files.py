@@ -42,8 +42,6 @@ import rostest, unittest
 from qualification.test_loader import load_tests_from_map, load_configs_from_map
 from qualification.test import Test
 
-from roslaunch_parse_tester.package_parse import ROSLaunchPackageParser
-
 import os, sys
 
 ##\brief Parses launch, tests.xml and configs.xml files in qualification
@@ -55,19 +53,6 @@ class QualificationTestParser(unittest.TestCase):
 
         self.config_files = {}
         self.configs_ok = load_configs_from_map(self.config_files, descs)
-
-    ##\brief All .launch files must pass roslaunch_parse_tester
-    def test_launch_file_parse(self):
-        env = {'ROS_TEST_HOST': 'localhost'}
-        black_dirs = ['config/wge100_camera', 'onboard', 'tests/wge100_camera_test']
-
-        
-        launch_file_parser = ROSLaunchPackageParser(PKG, environment = env, black_dirs = black_dirs,
-                                                    assign_machines = True, node_check = True, 
-                                                    quiet = False, config_err_check = True, depend_check = True)
-        
-        launches_ok = launch_file_parser.check_package()
-        self.assert_(launches_ok, "Launch files failed to parse. Run in verbose mode (-v) to check output")
 
     ##\brief All test.xml files must load properly
     def test_check_tests_parsed(self):
@@ -115,10 +100,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == '-v':
         # Use to run tests verbosly
         suite = unittest.TestSuite()
-        suite.addTest(QualificationTestParser('test_launch_file_parse'))
         suite.addTest(QualificationTestParser('test_check_tests_parsed'))
         suite.addTest(QualificationTestParser('test_load_qual_tests'))
         suite.addTest(QualificationTestParser('test_check_configs_parsed'))
+        suite.addTest(QualificationTestParser('test_load_qual_configs'))
         
         unittest.TextTestRunner(verbosity = 2).run(suite)
     else:
