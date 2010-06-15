@@ -6,23 +6,15 @@ Packages for running PR2 self-tests and bringup checks onboard robot.
   <license>BSD</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/pr2_self_test</url>
-  <depend stack="camera_drivers" /> <!-- prosilica_camera, wge100_camera -->
-  <depend stack="common" /> <!-- xacro -->
-  <depend stack="common_msgs" /> <!-- sensor_msgs, geometry_msgs, diagnostic_msgs -->
-  <depend stack="diagnostics" /> <!-- runtime_monitor, self_test -->
-  <depend stack="image_pipeline" /> <!-- image_proc, image_view -->
-  <depend stack="imu_drivers" /> <!-- microstrain_3dmgx2_imu -->
-  <depend stack="joystick_drivers" /> <!-- joy, spacenav_node -->
-  <depend stack="laser_drivers" /> <!-- hokuyo_node -->
-  <depend stack="pr2_common" /> <!-- pr2_description, pr2_msgs -->
-  <depend stack="pr2_controllers" /> <!-- trajectory_msgs, pr2_mechanism_controllers, ethercat_trigger_controllers, robot_mechanism_controllers -->
-  <depend stack="pr2_ethercat_drivers" /> <!-- fingertip_pressure, ethercat_hardware -->
-  <depend stack="pr2_mechanism" /> <!-- pr2_mechanism_msgs, pr2_controller_manager -->
-  <depend stack="pr2_power_drivers" /> <!-- pr2_power_board, power_monitor -->
-  <depend stack="pr2_robot" /> <!-- pr2_controller_configuration, pr2_camera_synchronizer, pr2_bringup, pr2_etherCAT -->
-  <depend stack="robot_model" /> <!-- robot_state_publisher, urdf -->
-  <depend stack="ros" /> <!-- roslaunch, rxtools, std_srvs, roscpp, roslib, std_msgs, rospy -->
-  <depend stack="vision_opencv" /> <!-- opencv2, cv_bridge -->
-  <depend stack="visualization" /> <!-- rviz -->
-  <depend stack="pr2_calibration" />
+  <depend stack="common" /> <!-- actionlib, pluginlib -->
+  <depend stack="common_msgs" /> <!-- sensor_msgs -->
+  <depend stack="image_pipeline" /> <!-- camera_calibration, image_view -->
+  <depend stack="image_transport_plugins" /> <!-- compressed_image_transport -->
+  <depend stack="pr2_apps" /> <!-- pr2_mannequin_mode -->
+  <depend stack="pr2_controllers" /> <!-- robot_mechanism_controllers, control_toolbox, pr2_controllers_msgs, ethercat_trigger_controllers -->
+  <depend stack="pr2_mechanism" /> <!-- pr2_controller_manager, pr2_mechanism_model, realtime_tools, pr2_hardware_interface, pr2_controller_interface -->
+  <depend stack="pr2_robot" /> <!-- pr2_controller_configuration, pr2_bringup -->
+  <depend stack="robot_model" /> <!-- urdf -->
+  <depend stack="ros" /> <!-- rospy, std_msgs, roscpp -->
+
 </stack>
