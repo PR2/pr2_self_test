@@ -37,11 +37,12 @@
 #include "pluginlib/class_list_macros.h"
 
 
-PLUGINLIB_REGISTER_CLASS(MotorJointCalibrationController, controller::MotorJointCalibrationController, pr2_controller_interface::Controller)
+PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, MotorJointCalibrationController, 
+                        joint_qualification_controllers::MotorJointCalibrationController, pr2_controller_interface::Controller)
 
 using namespace std;
+using namespace joint_qualification_controllers;
 
-namespace controller {
 
 MotorJointCalibrationController::MotorJointCalibrationController()
 : robot_(NULL), last_publish_time_(0), joint_(NULL)
@@ -101,6 +102,4 @@ void MotorJointCalibrationController::update()
   }
 
 }
-
-} // namespace
 

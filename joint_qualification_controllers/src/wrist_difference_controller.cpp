@@ -35,9 +35,9 @@
 #include "joint_qualification_controllers/wrist_difference_controller.h"
 #include "urdf/joint.h"
 
-PLUGINLIB_REGISTER_CLASS(WristDifferenceController, 
-                         joint_qualification_controllers::WristDifferenceController, 
-                         pr2_controller_interface::Controller)
+PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, WristDifferenceController, 
+                        joint_qualification_controllers::WristDifferenceController, 
+                        pr2_controller_interface::Controller)
 
 #define MAX_DATA_POINTS 120000
 

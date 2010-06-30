@@ -36,11 +36,14 @@
 #include "joint_qualification_controllers/head_position_controller.h"
 #include "pluginlib/class_list_macros.h"
 
+
+
+PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, HeadPositionController, 
+                        joint_qualification_controllers::HeadPositionController, 
+                        pr2_controller_interface::Controller)
+
 using namespace std;
-
-PLUGINLIB_REGISTER_CLASS(HeadPositionController, controller::HeadPositionController, pr2_controller_interface::Controller)
-
-namespace controller {
+using namespace joint_qualification_controllers;
 
 HeadPositionController::HeadPositionController()
   : robot_state_(NULL)
@@ -49,7 +52,6 @@ HeadPositionController::HeadPositionController()
 HeadPositionController::~HeadPositionController()
 {
   sub_command_.shutdown();
-
 }
 
 bool HeadPositionController::init(pr2_mechanism_model::RobotState *robot_state, ros::NodeHandle &n)
@@ -130,5 +132,4 @@ void HeadPositionController::command(const sensor_msgs::JointStateConstPtr& comm
 }
 
 
-}//namespace
 

@@ -36,9 +36,9 @@
 #include "pluginlib/class_list_macros.h"
 #include "urdf/joint.h"
 
-PLUGINLIB_REGISTER_CLASS(HysteresisController, 
-                         joint_qualification_controllers::HysteresisController, 
-                         pr2_controller_interface::Controller)
+PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, HysteresisController, 
+                        joint_qualification_controllers::HysteresisController, 
+                        pr2_controller_interface::Controller)
 
 #define MAX_DATA_POINTS 120000
 

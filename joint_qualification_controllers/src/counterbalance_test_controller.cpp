@@ -38,9 +38,9 @@
 #include <joint_qualification_controllers/counterbalance_test_controller.h>
 #include "pluginlib/class_list_macros.h"
 
-PLUGINLIB_REGISTER_CLASS(CounterbalanceTestController, 
-                         joint_qualification_controllers::CounterbalanceTestController, 
-                         pr2_controller_interface::Controller)
+PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, CounterbalanceTestController, 
+                        joint_qualification_controllers::CounterbalanceTestController, 
+                        pr2_controller_interface::Controller)
 
 using namespace std;
 using namespace joint_qualification_controllers;
