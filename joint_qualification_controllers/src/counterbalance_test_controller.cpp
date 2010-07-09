@@ -38,9 +38,9 @@
 #include <joint_qualification_controllers/counterbalance_test_controller.h>
 #include "pluginlib/class_list_macros.h"
 
-PLUGINLIB_REGISTER_CLASS(CounterbalanceTestController, 
-                         joint_qualification_controllers::CounterbalanceTestController, 
-                         pr2_controller_interface::Controller)
+PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, CounterbalanceTestController, 
+                        joint_qualification_controllers::CounterbalanceTestController, 
+                        pr2_controller_interface::Controller)
 
 using namespace std;
 using namespace joint_qualification_controllers;
@@ -418,16 +418,16 @@ bool CounterbalanceTestController::init(pr2_mechanism_model::RobotState *robot, 
   double screw_tol, bar_tol;
   if (!n.getParam("screw_tol", screw_tol))
   {
-    ROS_WARN("CounterbalanceTestController was not given parameter 'screw_tol' on namespace %s)",
+    ROS_INFO("CounterbalanceTestController was not given parameter 'screw_tol' on namespace %s. Using default 2.0",
               n.getNamespace().c_str());
     screw_tol = 2.0;
   }  
 
   if (!n.getParam("bar_tol", bar_tol))
   {
-    ROS_WARN("CounterbalanceTestController was not given parameter 'screw_tol' on namespace %s)",
+    ROS_INFO("CounterbalanceTestController was not given parameter 'bar_tol' on namespace %s. Using default 0.8",
               n.getNamespace().c_str());
-    bar_tol = 1.0;
+    bar_tol = 0.8;
   }  
   cb_test_data_.arg_value[23] = screw_tol;
   cb_test_data_.arg_value[24] = bar_tol;

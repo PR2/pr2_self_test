@@ -42,7 +42,7 @@
 #include <boost/scoped_ptr.hpp>
 #include "pr2_controller_interface/controller.h"
 
-namespace controller
+namespace joint_qualification_controllers
 {
 
 class MotorJointCalibrationController : public pr2_controller_interface::Controller

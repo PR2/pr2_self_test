@@ -37,9 +37,10 @@
 #include "pluginlib/class_list_macros.h"
 
 using namespace std;
-using namespace controller;
+using namespace joint_qualification_controllers;
 
-PLUGINLIB_REGISTER_CLASS(JointLimitCalibrationController, controller::JointLimitCalibrationController, pr2_controller_interface::Controller)
+PLUGINLIB_DECLARE_CLASS(joint_qualfication_controllers, JointLimitCalibrationController, 
+                        joint_qualification_controllers::JointLimitCalibrationController, pr2_controller_interface::Controller)
 
 JointLimitCalibrationController::JointLimitCalibrationController()
 : robot_(NULL), last_publish_time_(0), state_(INITIALIZED), 

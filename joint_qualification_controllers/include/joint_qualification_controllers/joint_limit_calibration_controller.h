@@ -43,7 +43,7 @@
 #include "realtime_tools/realtime_publisher.h"
 #include "std_msgs/Empty.h"
 
-namespace controller
+namespace joint_qualification_controllers
 {
 
 class JointLimitCalibrationController : public pr2_controller_interface::Controller

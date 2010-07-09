@@ -45,7 +45,7 @@
 #include <sensor_msgs/JointState.h>
 #include <boost/scoped_ptr.hpp>
 
-namespace controller {
+namespace joint_qualification_controllers {
 
 class HeadPositionController : public pr2_controller_interface::Controller
 {
@@ -71,8 +71,8 @@ private:
   void command(const sensor_msgs::JointStateConstPtr& command_msg);
 
   // position controller
-  JointPositionController head_pan_controller_;
-  JointPositionController head_tilt_controller_;
+  controller::JointPositionController head_pan_controller_;
+  controller::JointPositionController head_tilt_controller_;
 
 
 };
