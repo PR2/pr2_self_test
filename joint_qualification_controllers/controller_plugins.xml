@@ -12,12 +12,12 @@
          type="joint_qualification_controllers::HysteresisController"
          base_class_type="pr2_controller_interface::Controller" />
   <class name="joint_qualification_controllers/MotorJointCalibrationController"
-         type="controller::MotorJointCalibrationController"
+         type="joint_qualification_controllers::MotorJointCalibrationController"
          base_class_type="pr2_controller_interface::Controller" />
   <class name="joint_qualification_controllers/JointLimitCalibrationController"
-         type="controller::JointLimitCalibrationController"
+         type="joint_qualification_controllers::JointLimitCalibrationController"
          base_class_type="pr2_controller_interface::Controller" />
   <class name="joint_qualification_controllers/HeadPositionController"
-         type="controller::HeadPositionController"
+         type="joint_qualification_controllers::HeadPositionController"
          base_class_type="pr2_controller_interface::Controller" />
 </library>
