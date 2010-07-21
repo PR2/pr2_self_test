@@ -4,7 +4,7 @@
 
   <!-- Turn on left LED -->
   <group ns="l_gripper_led" >
-    <param name="type" type="str" value="TriggerController" />
+    <param name="type" type="str" value="ethercat_trigger_controllers/TriggerController" />
     <param name="actuator" type="str" value="l_gripper_motor" />
     <param name="running" type="bool" value="True" />
     <param name="active_low" type="bool" value="True" />
@@ -18,7 +18,7 @@
 
   <!-- Turn on right LED -->
   <group ns="r_gripper_led" >
-    <param name="type" type="str" value="TriggerController" />
+    <param name="type" type="str" value="ethercat_trigger_controllers/TriggerController" />
     <param name="actuator" type="str" value="r_gripper_motor" />
     <param name="running" type="bool" value="True" />
     <param name="active_low" type="bool" value="True" />
