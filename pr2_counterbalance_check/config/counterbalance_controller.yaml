@@ -1,7 +1,6 @@
 # Lift joint data
 lift: &lift_data
   joint: r_shoulder_lift_joint
-  type: JointPositionController
   pid/p: 80.0
   pid/i: 8.0
   pid/d: 6.0
@@ -17,7 +16,6 @@ lift: &lift_data
 # Flex joint data
 flex: &flex_data
   joint: r_elbow_flex_joint
-  type: JointPositionController
   pid/p: 70.0
   pid/d: 12.0
   pid/i: 12.0
@@ -32,7 +30,7 @@ flex: &flex_data
 
 # Counterbalance check controller moves arm to different positions
 cb_check_controller: &cb_check_controller_base
-  type: CounterbalanceTestController
+  type: joint_qualification_controllers/CounterbalanceTestController
   settle_time: 2.0
   dither_points: 1000
   timeout: 300
