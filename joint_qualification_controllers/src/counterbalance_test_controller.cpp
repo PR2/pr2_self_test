@@ -148,18 +148,10 @@ bool CounterbalanceTestController::init(pr2_mechanism_model::RobotState *robot, 
   cb_test_data_.flex_test = false;
 
   // Flex joint
-  string flex_ctrl_type;
-  if (n.getParam("flex/type", flex_ctrl_type))
+  string flex_joint;
+  if (n.getParam("flex/joint", flex_joint))
   {
     cb_test_data_.flex_test = true;
-
-    std::string flex_joint;
-    if (!n.getParam("flex/joint", flex_joint))
-    {
-      ROS_ERROR("CounterbalanceTestController is starting without a flex joint, but told to flex. Node namespace: %s",
-               n.getNamespace().c_str());
-      return false;
-    }
 
     if (!(flex_state_ = robot->getJointState(flex_joint)))
     {
