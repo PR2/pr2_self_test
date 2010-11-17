@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2008, Willow Garage, Inc.
+ *  Copyright (c) 2009, Willow Garage, Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,15 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-#ifndef WRIST_DIFFERENCE_CONTROLLER_H
-#define WRIST_DIFFERENCE_CONTROLLER_H
+#ifndef _JOINT_QUALIFICATION_CONTROLLERS_WRIST_DIFFERENCE_CONTROLLER_H_
+#define _JOINT_QUALIFICATION_CONTROLLERS_WRIST_DIFFERENCE_CONTROLLER_H_
 
 /***************************************************/
 /*! \class controller::HysteresisController
     \brief Hystersis Controller
 
-    This tests the hysteresis of a joint using a
-    velocity controller.
+    This tests the symmetry of a wrist joint by comparing the 
+    flex and roll efforts.
 
 */
 /***************************************************/
