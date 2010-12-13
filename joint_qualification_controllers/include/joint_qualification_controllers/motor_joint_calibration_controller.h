@@ -27,8 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * Author: Kevin Watts
+/*!
+ * \author Kevin Watts
+ *
+ * This controllers sets the "calibrated" flag of a joint to "true", allowing
+ * it to force calibrate. 
  */
 
 #ifndef MOTOR_JOINT_CALIBRATION_CONTROLLER_H
