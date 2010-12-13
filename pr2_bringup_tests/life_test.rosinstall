@@ -1,2 +1,4 @@
-- svn: {local-name: ~/ros/stacks/pr2_self_test, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_self_test/trunk' }
-- svn: {local-name: ~/ros/stacks/wg_hardware_test, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/wg_hardware_test/trunk' }
+# This installs necessary tools and utilities to run the PR2 bringup tests during production.
+- svn: {local-name: pr2_self_test, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_self_test/trunk' }
+- svn: {local-name: wg_hardware_test, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/wg_hardware_test/trunk' }
+- svn: {local-name: camera_calibration, uri: 'https://code.ros.org/svn/ros-pkg/stacks/image_pipeline/trunk/camera_calibration' }

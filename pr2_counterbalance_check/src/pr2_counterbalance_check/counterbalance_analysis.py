@@ -40,6 +40,7 @@ import roslib; roslib.load_manifest(PKG)
 
 import numpy
 import math
+import sys
 
 
 import matplotlib
@@ -51,7 +52,7 @@ from pr2_self_test_msgs.msg import Plot, TestValue, TestParam
 
 ok_dict = { False: 'FAIL', True: 'OK' }
 
-class JointPositionAnalysisData:
+class JointPositionAnalysisData(object):
     def __init__(self, msg):
         self.time     = numpy.array(msg.time)
         self.position = numpy.array(msg.position)
@@ -63,20 +64,20 @@ class JointPositionAnalysisData:
         self.effort_avg   = numpy.average(self.effort)
         self.effort_sd    = numpy.std(self.effort)
 
-class CBPositionAnalysisData:
+class CBPositionAnalysisData(object):
     def __init__(self, msg):
         self.flex_position = msg.flex_position
         self.lift_hold = JointPositionAnalysisData(msg.lift_hold)
         self.flex_hold = JointPositionAnalysisData(msg.flex_hold)
 
-class CBRunAnalysisData:
+class CBRunAnalysisData(object):
     def __init__(self, msg):
         self.lift_position = msg.lift_position
         self.flex_data = []
         for fd in msg.flex_data:
             self.flex_data.append(CBPositionAnalysisData(fd))
 
-class CounterbalanceAnalysisData:
+class CounterbalanceAnalysisData(object):
     ##\param msg CounterbalanceTestData : Message from controller
     def __init__(self, msg):
         self.lift_data = []
@@ -84,7 +85,7 @@ class CounterbalanceAnalysisData:
             self.lift_data.append(CBRunAnalysisData(ld))
 
 ##\brief Stores parameters from CB analysis test
-class CounterbalanceAnalysisParams:
+class CounterbalanceAnalysisParams(object):
     def __init__(self, msg):
         self.lift_dither  = msg.lift_amplitude
         self.flex_dither  = msg.flex_amplitude
@@ -175,6 +176,7 @@ class CounterbalanceAnalysisParams:
         return params
 
 class CounterbalanceAnalysisResult:
+    __slots__ = ['html', 'summary', 'result', 'values']
     def __init__(self):
         self.html = ''
         self.summary = ''

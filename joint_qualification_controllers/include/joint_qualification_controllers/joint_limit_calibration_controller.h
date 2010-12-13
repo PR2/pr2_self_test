@@ -32,7 +32,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-///\author Kevin Watts
+/*!
+ * \author Kevin Watts
+ *
+ * This calibrates a joint by moving it to its positive or negative joint
+ * limit, instead of using the calibration flag.
+ */
 
 #ifndef JOINT_LIMIT_CALIBRATION_CONTROLLER
 #define JOINT_LIMIT_CALIBRATION_CONTROLLER

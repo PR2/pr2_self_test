@@ -33,7 +33,10 @@
  *********************************************************************/
 
 /*
- * Author: Melonee Wise
+ * \author Melonee Wise
+ * 
+ * This controls the PR2 head using a position controller on the pan and
+ * tilt joints.
  */
 
 #ifndef HEAD_POSITION_CONTROLLER_H
