@@ -9,7 +9,6 @@ Packages for running PR2 self-tests and bringup checks onboard robot.
   <depend stack="common" /> <!-- actionlib, pluginlib -->
   <depend stack="common_msgs" /> <!-- sensor_msgs -->
   <depend stack="image_pipeline" /> <!-- camera_calibration, image_view -->
-  <depend stack="image_transport_plugins" /> <!-- compressed_image_transport -->
   <depend stack="pr2_apps" /> <!-- pr2_mannequin_mode -->
   <depend stack="pr2_controllers" /> <!-- robot_mechanism_controllers, control_toolbox, pr2_controllers_msgs, ethercat_trigger_controllers -->
   <depend stack="pr2_mechanism" /> <!-- pr2_controller_manager, pr2_mechanism_model, realtime_tools, pr2_hardware_interface, pr2_controller_interface -->

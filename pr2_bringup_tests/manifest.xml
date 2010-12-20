@@ -11,7 +11,6 @@ Complete functionality tests for PR2. Contains utilities designed to test and ve
   <depend package="ethercat_trigger_controllers" />
   <depend package="pr2_mannequin_mode" />
   <depend package="image_view" />
-  <depend package="compressed_image_transport" />
   <depend package="camera_calibration" />
   <platform os="ubuntu" version="9.04"/>
   <platform os="ubuntu" version="9.10"/>
