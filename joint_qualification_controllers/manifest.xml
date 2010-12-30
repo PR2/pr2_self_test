@@ -18,7 +18,7 @@ Controllers used in PR2 hardware testing. For testing counterbalance of PR2, and
   <depend package="urdf" />
   <url>http://www.ros.org/wiki/joint_qualification_controllers</url>
   <export>
-    <cpp cflags="-I${prefix}/include -I${prefix}/msg/cpp -I${prefix}/srv/cpp"
+    <cpp cflags="-I${prefix}/include"
          lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -ljoint_qualification_controllers"/>
     <pr2_controller_interface plugin="${prefix}/controller_plugins.xml" />
   </export>
