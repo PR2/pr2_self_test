@@ -6,9 +6,6 @@ Messages used in PR2 hardware testing.
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/pr2_self_test_msgs</url>
-  <export>
-    <cpp cflags="-I${prefix}/msg/cpp -I${prefix}/srv/cpp" />
-  </export>
 
   <platform os="ubuntu" version="9.04"/>
   <platform os="ubuntu" version="9.10"/>
