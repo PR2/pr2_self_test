@@ -2,4 +2,4 @@
 - svn: {local-name: pr2_self_test, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/pr2_self_test/trunk' }
 - svn: {local-name: wg_hardware_test, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/wg_hardware_test/trunk' }
 - svn: {local-name: camera_calibration, uri: 'https://code.ros.org/svn/ros-pkg/stacks/image_pipeline/trunk/camera_calibration' }
-- svn: {local-name: camera_drivers, uri: 'https://code.ros.org/svn/ros-pkg/stacks/camera_drivers/trunk' }
+- svn: {local-name: wge100_camera, uri: 'https://code.ros.org/svn/ros-pkg/stacks/camera_drivers/trunk/wge100_camera' }
