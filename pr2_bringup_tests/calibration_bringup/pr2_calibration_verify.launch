@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="rviz" type="rviz" name="$(anon calibration_verify)"
+        args="-d $(find pr2_bringup_tests)/calibration_bringup/pr2_calibration_check.vcg" />
+</launch>
