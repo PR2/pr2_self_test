@@ -1,8 +1,0 @@
-<launch>
-
-  <include file="$(find pr2_calibration_launch)/estimate_params/head_then_arms_params.launch" />
-
-  <node pkg="pr2_calibration_estimation" type="multi_step_cov_estimator.py" name="cal_cov_estimator" output="screen"
-        args="/u/pr2admin/preburn/cal_measurements.bag /u/pr2admin/preburn" respawn="False"/>
-
-</launch>
