@@ -32,9 +32,9 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-#include "joint_qualification_controllers/hysteresis_controller.h"
+#include "joint_qualification_controllers/hysteresis_controller2.h"
 #include "pluginlib/class_list_macros.h"
-#include "urdf/joint.h"
+#include "urdf_interface/joint.h"
 
 PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, HysteresisController2, 
                         joint_qualification_controllers::HysteresisController2, 
@@ -52,6 +52,9 @@ HysteresisController2::HysteresisController2() :
   hyst_pub_(NULL)
 {
   test_data_.joint_name = "default joint";
+
+  /* TODO: figure out if I need to update this or just remove it
+     I _think_ I can just remove this; it's done in init() instead
   test_data_.time_up.resize(MAX_DATA_POINTS);
   test_data_.effort_up.resize(MAX_DATA_POINTS);
   test_data_.position_up.resize(MAX_DATA_POINTS);
@@ -61,6 +64,7 @@ HysteresisController2::HysteresisController2() :
   test_data_.effort_down.resize(MAX_DATA_POINTS);
   test_data_.position_down.resize(MAX_DATA_POINTS);
   test_data_.velocity_down.resize(MAX_DATA_POINTS);
+  */
 
   test_data_.arg_name.resize(14);
   test_data_.arg_value.resize(14);
@@ -87,6 +91,8 @@ HysteresisController2::HysteresisController2() :
   complete       = false;
   up_count_      = 0;
   down_count_    = 0;
+  repeat_count_  = 0;
+  repeat_        = 0;
 }
 
 HysteresisController2::~HysteresisController2()
@@ -156,6 +162,10 @@ bool HysteresisController2::init( pr2_mechanism_model::RobotState *robot, ros::N
     return false;
   }
 
+  if (!n.getParam("repeat_count", repeat_count_)){
+    repeat_count_ = 1;
+  }
+
   double tolerance, sd_max;
   if (!n.getParam("tolerance", tolerance)){
     ROS_WARN("Parameter 'tolerance' is not set on namespace: %s. Default is 0.20.", 
@@ -204,7 +214,25 @@ bool HysteresisController2::init( pr2_mechanism_model::RobotState *robot, ros::N
   test_data_.arg_value[12] = d;
   test_data_.arg_value[13] = iClamp;
 
-  hyst_pub_.reset(new realtime_tools::RealtimePublisher<joint_qualification_controllers::HysteresisData>(n, "/test_data", 1, true));
+  // repeat count is the number of up+down movements. we have one run for each
+  // direction
+  test_data_.runs.resize(repeat_count_ * 2);
+  move_count_.resize(repeat_count_ * 2);
+  for( int i=0; i < 2*repeat_count_; ++i ) {
+    test_data_.runs[i].time.resize(MAX_DATA_POINTS);
+    test_data_.runs[i].effort.resize(MAX_DATA_POINTS);
+    test_data_.runs[i].position.resize(MAX_DATA_POINTS);
+    test_data_.runs[i].velocity.resize(MAX_DATA_POINTS);
+    if( i % 2 ) {
+      // odd-numbered runs are down
+      test_data_.runs[i].dir = HysteresisRun::DOWN;
+    } else {
+      test_data_.runs[i].dir = HysteresisRun::UP;
+    }
+    move_count_[i] = 0;
+  }
+
+  hyst_pub_.reset(new realtime_tools::RealtimePublisher<joint_qualification_controllers::HysteresisData2>(n, "/test_data", 1, true));
 
   return true;
 }
@@ -253,15 +281,16 @@ void HysteresisController2::update()
     starting_count_++;
     if (up_count_ < MAX_DATA_POINTS)
     {
-      test_data_.time_up[up_count_] = time.toSec();
-      test_data_.effort_up[up_count_] = joint_->measured_effort_;
-      test_data_.position_up[up_count_] = joint_->position_;
-      test_data_.velocity_up[up_count_] = joint_->velocity_;
+      test_data_.runs[repeat_*2].time[up_count_] = time.toSec();
+      test_data_.runs[repeat_*2].effort[up_count_] = joint_->measured_effort_;
+      test_data_.runs[repeat_*2].position[up_count_] = joint_->position_;
+      test_data_.runs[repeat_*2].velocity[up_count_] = joint_->velocity_;
       up_count_++;
     }
     
     if ((turn() and starting_count_ > 100) or up_count_ >= MAX_DATA_POINTS)
     {
+      move_count_[repeat_*2] = up_count_;
       velocity_controller_->setCommand(-1.0 * velocity_);
       state_ = MOVING_DOWN;
       starting_count_ = 0;
@@ -271,17 +300,27 @@ void HysteresisController2::update()
     starting_count_++;
     if (down_count_ < MAX_DATA_POINTS)
     {
-      test_data_.time_down[down_count_] = time.toSec();
-      test_data_.effort_down[down_count_] = joint_->measured_effort_;
-      test_data_.position_down[down_count_] = joint_->position_;
-      test_data_.velocity_down[down_count_] = joint_->velocity_;
+      test_data_.runs[repeat_*2 + 1].time[down_count_] = time.toSec();
+      test_data_.runs[repeat_*2 + 1].effort[down_count_] = joint_->measured_effort_;
+      test_data_.runs[repeat_*2 + 1].position[down_count_] = joint_->position_;
+      test_data_.runs[repeat_*2 + 1].velocity[down_count_] = joint_->velocity_;
       down_count_++;
     }
     if ((turn() and starting_count_ > 100) or down_count_ >= MAX_DATA_POINTS)
     {
-      velocity_controller_->setCommand(0.0);
-      state_ = ANALYZING;
+      move_count_[repeat_*2 + 1] = down_count_;
       starting_count_ = 0;
+      ++repeat_;
+
+      // if we still have more repeats
+      if(repeat_ < repeat_count_ ) {
+        velocity_controller_->setCommand(velocity_);
+        state_ = MOVING_UP;
+      } else {
+        // done. Analyze data
+        velocity_controller_->setCommand(0.0);
+        state_ = ANALYZING;
+      }
     }
     break;
   case ANALYZING:
@@ -318,6 +357,7 @@ bool HysteresisController2::turn()
 void HysteresisController2::analysis()
 {
   // Resize if no points
+  /* TODO: update
   if (up_count_ == 0)
     up_count_ = 1; 
   if (down_count_ == 0)
@@ -332,6 +372,15 @@ void HysteresisController2::analysis()
   test_data_.effort_down.resize(down_count_);
   test_data_.position_down.resize(down_count_);
   test_data_.velocity_down.resize(down_count_);
+  */
+  for( int i=0; i < repeat_count_ * 2; ++i ) {
+    int count = move_count_[i];
+    if( count < 1 ) count = 1;
+    test_data_.runs[i].time.resize(count);
+    test_data_.runs[i].effort.resize(count);
+    test_data_.runs[i].position.resize(count);
+    test_data_.runs[i].velocity.resize(count);
+  }
 
   return;
 }
@@ -340,9 +389,10 @@ bool HysteresisController2::sendData()
 {
   if (hyst_pub_->trylock())
   {
-    joint_qualification_controllers::HysteresisData *out = &hyst_pub_->msg_;
+    joint_qualification_controllers::HysteresisData2 *out = &hyst_pub_->msg_;
     out->joint_name = test_data_.joint_name;
 
+    /* TODO: update 
     out->time_up = test_data_.time_up;
     out->effort_up = test_data_.effort_up;
     out->position_up = test_data_.position_up;
@@ -352,6 +402,8 @@ bool HysteresisController2::sendData()
     out->effort_down = test_data_.effort_down;
     out->position_down = test_data_.position_down;
     out->velocity_down = test_data_.velocity_down;
+    */
+    out->runs = test_data_.runs;
 
 
     out->arg_name = test_data_.arg_name;

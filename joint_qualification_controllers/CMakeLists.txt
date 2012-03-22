@@ -5,6 +5,7 @@ rosbuild_genmsg()
 rosbuild_add_library(joint_qualification_controllers 
 src/head_position_controller.cpp
 src/hysteresis_controller.cpp
+src/hysteresis_controller2.cpp
 src/checkout_controller.cpp
 src/counterbalance_test_controller.cpp
 src/wrist_difference_controller.cpp

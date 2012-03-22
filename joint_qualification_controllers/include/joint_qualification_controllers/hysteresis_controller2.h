@@ -48,7 +48,7 @@
 #include <ros/ros.h>
 #include <string>
 #include <math.h>
-#include <joint_qualification_controllers/HysteresisData.h>
+#include <joint_qualification_controllers/HysteresisData2.h>
 #include "realtime_tools/realtime_publisher.h"
 #include <pr2_controller_interface/controller.h>
 #include <robot_mechanism_controllers/joint_velocity_controller.h>
@@ -97,7 +97,7 @@ public:
   
 
 private:
-  joint_qualification_controllers::HysteresisData test_data_;
+  joint_qualification_controllers::HysteresisData2 test_data_;
 
   pr2_mechanism_model::JointState *joint_;     /**< Joint we're controlling. */
   pr2_mechanism_model::RobotState *robot_;     /**< Pointer to robot structure. */
@@ -107,6 +107,9 @@ private:
   ros::Time initial_time_;             /**< Start time of the test. */
   double initial_position_;
   int up_count_, down_count_;
+  std::vector<int> move_count_;
+  int repeat_count_; // the number of repeats we'll do
+  int repeat_;       // the current repeat
   bool complete;
 
   double timeout_;
@@ -119,7 +122,7 @@ private:
   double last_publish_time_;
 
   // RT service call
-  boost::scoped_ptr<realtime_tools::RealtimePublisher<joint_qualification_controllers::HysteresisData> > hyst_pub_;
+  boost::scoped_ptr<realtime_tools::RealtimePublisher<joint_qualification_controllers::HysteresisData2> > hyst_pub_;
 
   bool turn();
 
