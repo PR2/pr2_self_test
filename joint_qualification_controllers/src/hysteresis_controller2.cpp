@@ -291,6 +291,7 @@ void HysteresisController2::update()
     if ((turn() and starting_count_ > 100) or up_count_ >= MAX_DATA_POINTS)
     {
       move_count_[repeat_*2] = up_count_;
+      up_count_ = 0;
       velocity_controller_->setCommand(-1.0 * velocity_);
       state_ = MOVING_DOWN;
       starting_count_ = 0;
@@ -309,6 +310,7 @@ void HysteresisController2::update()
     if ((turn() and starting_count_ > 100) or down_count_ >= MAX_DATA_POINTS)
     {
       move_count_[repeat_*2 + 1] = down_count_;
+      down_count_ = 0;
       starting_count_ = 0;
       ++repeat_;
 
@@ -357,22 +359,6 @@ bool HysteresisController2::turn()
 void HysteresisController2::analysis()
 {
   // Resize if no points
-  /* TODO: update
-  if (up_count_ == 0)
-    up_count_ = 1; 
-  if (down_count_ == 0)
-    down_count_ = 1;
-
-  test_data_.time_up.resize(up_count_);
-  test_data_.effort_up.resize(up_count_);
-  test_data_.position_up.resize(up_count_);
-  test_data_.velocity_up.resize(up_count_);
-
-  test_data_.time_down.resize(down_count_);
-  test_data_.effort_down.resize(down_count_);
-  test_data_.position_down.resize(down_count_);
-  test_data_.velocity_down.resize(down_count_);
-  */
   for( int i=0; i < repeat_count_ * 2; ++i ) {
     int count = move_count_[i];
     if( count < 1 ) count = 1;
@@ -392,19 +378,7 @@ bool HysteresisController2::sendData()
     joint_qualification_controllers::HysteresisData2 *out = &hyst_pub_->msg_;
     out->joint_name = test_data_.joint_name;
 
-    /* TODO: update 
-    out->time_up = test_data_.time_up;
-    out->effort_up = test_data_.effort_up;
-    out->position_up = test_data_.position_up;
-    out->velocity_up = test_data_.velocity_up;
-
-    out->time_down = test_data_.time_down;
-    out->effort_down = test_data_.effort_down;
-    out->position_down = test_data_.position_down;
-    out->velocity_down = test_data_.velocity_down;
-    */
     out->runs = test_data_.runs;
-
 
     out->arg_name = test_data_.arg_name;
     out->arg_value = test_data_.arg_value;
