@@ -1,3 +1,3 @@
 # This installs necessary tools and utilities to run the PR2 bringup tests during production.
 - svn: {local-name: wg_hardware_test, uri: 'https://code.ros.org/svn/wg-ros-pkg/stacks/wg_hardware_test/trunk',
-        version: -r52464 }
+        version: -r53066 }

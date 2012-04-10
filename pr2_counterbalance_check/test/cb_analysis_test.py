@@ -71,13 +71,13 @@ def generate_data(params):
             fd.lift_hold = DummyJointPositionAnalysisData()
             fd.lift_hold.position_avg = lift_data.lift_position
             fd.lift_hold.position_sd  = 0.0
-            fd.lift_hold.effort_avg   = 0.0
+            fd.lift_hold.effort_avg   = j / 100.0 - params.num_flexes/200.0
             fd.lift_hold.effort_sd    = 0.0
 
             fd.flex_hold = DummyJointPositionAnalysisData()
             fd.flex_hold.position_avg = fd.flex_position
             fd.flex_hold.position_sd  = 0.0
-            fd.flex_hold.effort_avg   = 0.0
+            fd.flex_hold.effort_avg   = j / 100.0 - params.num_flexes/200.0
             fd.flex_hold.effort_sd    = 0.0
             
             lift_data.flex_data.append(fd)
@@ -127,7 +127,7 @@ class TestCounterbalanceAnalysis(unittest.TestCase):
 
     def test_flex_effort(self):
         result = analyze_flex_efforts(self.params, self.data)
-        self.assert_(result.result, "Lift effort result wasn't OK. %s\n%s" % (result.summary, result.html))
+        self.assert_(result.result, "Flex effort result wasn't OK. %s\n%s" % (result.summary, result.html))
 
 
     

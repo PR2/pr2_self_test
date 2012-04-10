@@ -11,6 +11,9 @@
   <class name="joint_qualification_controllers/HysteresisController"
          type="joint_qualification_controllers::HysteresisController"
          base_class_type="pr2_controller_interface::Controller" />
+  <class name="joint_qualification_controllers/HysteresisController2"
+         type="joint_qualification_controllers::HysteresisController2"
+         base_class_type="pr2_controller_interface::Controller" />
   <class name="joint_qualification_controllers/MotorJointCalibrationController"
          type="joint_qualification_controllers::MotorJointCalibrationController"
          base_class_type="pr2_controller_interface::Controller" />
