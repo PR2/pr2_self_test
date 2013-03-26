@@ -1,262 +1,535 @@
-Background\ ColorR=0
-Background\ ColorG=0
-Background\ ColorB=0
-Fixed\ Frame=/base_link
-Target\ Frame=<Fixed Frame>
-Camera.Alpha=0.5
-Camera.Enabled=0
-Camera.Image\ Topic=/l_forearm_cam/image_rect
-Camera.Transport\ Hint=raw
-Camera2.Alpha=0.5
-Camera2.Enabled=0
-Camera2.Image\ Topic=/r_forearm_cam/image_rect
-Camera2.Transport\ Hint=raw
-Camera3.Alpha=0.5
-Camera3.Enabled=0
-Camera3.Image\ Topic=/wide_stereo/left/image_rect
-Camera3.Transport\ Hint=raw
-Camera4.Alpha=0.5
-Camera4.Enabled=0
-Camera4.Image\ Topic=/narrow_stereo/left/image_rect
-Camera4.Transport\ Hint=raw
-Laser\ Scan.Alpha=1
-Laser\ Scan.Billboard\ Size=0.01
-Laser\ Scan.Color\ Transformer=Intensity
-Laser\ Scan.Decay\ Time=10
-Laser\ Scan.Enabled=0
-Laser\ Scan.Position\ Transformer=XYZ
-Laser\ Scan.Selectable=1
-Laser\ Scan.Style=1
-Laser\ Scan.Topic=/tilt_scan
-Laser\ Scan..Flat\ ColorColorR=1
-Laser\ Scan..Flat\ ColorColorG=1
-Laser\ Scan..Flat\ ColorColorB=1
-Laser\ Scan..IntensityAutocompute\ Intensity\ Bounds=1
-Laser\ Scan..IntensityMax\ ColorR=1
-Laser\ Scan..IntensityMax\ ColorG=1
-Laser\ Scan..IntensityMax\ ColorB=1
-Laser\ Scan..IntensityMax\ Intensity=3185
-Laser\ Scan..IntensityMin\ ColorR=0
-Laser\ Scan..IntensityMin\ ColorG=0
-Laser\ Scan..IntensityMin\ ColorB=0
-Laser\ Scan..IntensityMin\ Intensity=193
-Point\ Cloud.Alpha=1
-Point\ Cloud.Billboard\ Size=0.01
-Point\ Cloud.Color\ Transformer=RGB8
-Point\ Cloud.Decay\ Time=0
-Point\ Cloud.Enabled=0
-Point\ Cloud.Position\ Transformer=XYZ
-Point\ Cloud.Selectable=1
-Point\ Cloud.Style=1
-Point\ Cloud.Topic=/wide_stereo/points
-Point\ Cloud..Flat\ ColorColorR=1
-Point\ Cloud..Flat\ ColorColorG=1
-Point\ Cloud..Flat\ ColorColorB=1
-Point\ Cloud..IntensityAutocompute\ Intensity\ Bounds=1
-Point\ Cloud..IntensityMax\ ColorR=1
-Point\ Cloud..IntensityMax\ ColorG=1
-Point\ Cloud..IntensityMax\ ColorB=1
-Point\ Cloud..IntensityMax\ Intensity=4096
-Point\ Cloud..IntensityMin\ ColorR=0
-Point\ Cloud..IntensityMin\ ColorG=0
-Point\ Cloud..IntensityMin\ ColorB=0
-Point\ Cloud..IntensityMin\ Intensity=0
-Point\ Cloud2.Alpha=1
-Point\ Cloud2.Billboard\ Size=0.01
-Point\ Cloud2.Color\ Transformer=RGB8
-Point\ Cloud2.Decay\ Time=0
-Point\ Cloud2.Enabled=0
-Point\ Cloud2.Position\ Transformer=XYZ
-Point\ Cloud2.Selectable=1
-Point\ Cloud2.Style=1
-Point\ Cloud2.Topic=/narrow_stereo/points
-Point\ Cloud2..Flat\ ColorColorR=1
-Point\ Cloud2..Flat\ ColorColorG=1
-Point\ Cloud2..Flat\ ColorColorB=1
-Point\ Cloud2..IntensityAutocompute\ Intensity\ Bounds=1
-Point\ Cloud2..IntensityMax\ ColorR=1
-Point\ Cloud2..IntensityMax\ ColorG=1
-Point\ Cloud2..IntensityMax\ ColorB=1
-Point\ Cloud2..IntensityMax\ Intensity=4096
-Point\ Cloud2..IntensityMin\ ColorR=0
-Point\ Cloud2..IntensityMin\ ColorG=0
-Point\ Cloud2..IntensityMin\ ColorB=0
-Point\ Cloud2..IntensityMin\ Intensity=0
-Robot\ Model.Alpha=1
-Robot\ Model.Collision\ Enabled=0
-Robot\ Model.Enabled=1
-Robot\ Model.Robot\ Description=robot_description
-Robot\ Model.TF\ Prefix=
-Robot\ Model.Update\ Interval=0
-Robot\ Model.Visual\ Enabled=1
-Robot\:\ Robot\ Model\ Link\ base_bellow_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ base_bellow_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ base_footprintShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ base_footprintShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ base_laser_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ base_laser_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ base_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ base_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ bl_caster_l_wheel_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ bl_caster_l_wheel_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ bl_caster_r_wheel_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ bl_caster_r_wheel_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ bl_caster_rotation_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ bl_caster_rotation_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ br_caster_l_wheel_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ br_caster_l_wheel_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ br_caster_r_wheel_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ br_caster_r_wheel_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ br_caster_rotation_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ br_caster_rotation_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ double_stereo_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ double_stereo_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ fl_caster_l_wheel_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ fl_caster_l_wheel_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ fl_caster_r_wheel_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ fl_caster_r_wheel_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ fl_caster_rotation_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ fl_caster_rotation_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ fr_caster_l_wheel_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ fr_caster_l_wheel_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ fr_caster_r_wheel_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ fr_caster_r_wheel_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ fr_caster_rotation_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ fr_caster_rotation_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ head_pan_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ head_pan_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ head_plate_frameShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ head_plate_frameShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ head_tilt_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ head_tilt_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ high_def_frameShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ high_def_frameShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ high_def_optical_frameShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ high_def_optical_frameShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ imu_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ imu_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_elbow_flex_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_elbow_flex_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_forearm_cam_frameShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_forearm_cam_frameShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_forearm_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_forearm_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_forearm_roll_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_forearm_roll_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_gripper_l_finger_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_gripper_l_finger_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_gripper_l_finger_tip_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_gripper_l_finger_tip_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_gripper_motor_accelerometer_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_gripper_motor_accelerometer_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_gripper_palm_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_gripper_palm_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_gripper_r_finger_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_gripper_r_finger_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_gripper_r_finger_tip_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_gripper_r_finger_tip_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_shoulder_lift_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_shoulder_lift_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_shoulder_pan_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_shoulder_pan_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_upper_arm_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_upper_arm_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_upper_arm_roll_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_upper_arm_roll_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_wrist_flex_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_wrist_flex_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ l_wrist_roll_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ l_wrist_roll_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ laser_tilt_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ laser_tilt_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ laser_tilt_mount_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ laser_tilt_mount_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ narrow_stereo_gazebo_l_stereo_camera_frameShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ narrow_stereo_gazebo_l_stereo_camera_frameShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ narrow_stereo_gazebo_r_stereo_camera_frameShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ narrow_stereo_gazebo_r_stereo_camera_frameShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ narrow_stereo_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ narrow_stereo_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ projector_wg6802418_child_frameShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ projector_wg6802418_child_frameShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ projector_wg6802418_frameShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ projector_wg6802418_frameShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_elbow_flex_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_elbow_flex_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_forearm_cam_frameShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_forearm_cam_frameShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_forearm_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_forearm_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_forearm_roll_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_forearm_roll_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_gripper_l_finger_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_gripper_l_finger_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_gripper_l_finger_tip_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_gripper_l_finger_tip_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_gripper_motor_accelerometer_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_gripper_motor_accelerometer_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_gripper_palm_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_gripper_palm_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_gripper_r_finger_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_gripper_r_finger_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_gripper_r_finger_tip_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_gripper_r_finger_tip_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_shoulder_lift_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_shoulder_lift_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_shoulder_pan_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_shoulder_pan_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_upper_arm_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_upper_arm_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_upper_arm_roll_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_upper_arm_roll_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_wrist_flex_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_wrist_flex_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ r_wrist_roll_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ r_wrist_roll_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ sensor_mount_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ sensor_mount_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ torso_lift_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ torso_lift_linkShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ wide_stereo_gazebo_l_stereo_camera_frameShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ wide_stereo_gazebo_l_stereo_camera_frameShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ wide_stereo_gazebo_r_stereo_camera_frameShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ wide_stereo_gazebo_r_stereo_camera_frameShow\ Trail=0
-Robot\:\ Robot\ Model\ Link\ wide_stereo_linkShow\ Axes=0
-Robot\:\ Robot\ Model\ Link\ wide_stereo_linkShow\ Trail=0
-Tool\ 2D\ Nav\ GoalTopic=goal
-Tool\ 2D\ Pose\ EstimateTopic=initialpose
-Camera\ Type=rviz::OrbitViewController
-Camera\ Config=1.32279 3.17583 2.24665 0.0987366 0.418482 -0.629557
-Property\ Grid\ State=selection=Camera4.Enabled;expanded=.Global Options,Robot Model.Enabled,Point Cloud.Enabled,Point Cloud2.Enabled,Camera.Enabled,Camera2.Enabled,Laser Scan.Enabled,Camera3.Enabled,Camera4.Enabled;scrollpos=0,49;splitterpos=144,273;ispageselected=1
-[Display0]
-Name=Robot Model
-Package=rviz
-ClassName=rviz::RobotModelDisplay
-[Display1]
-Name=Point Cloud
-Package=rviz
-ClassName=rviz::PointCloudDisplay
-[Display2]
-Name=Point Cloud2
-Package=rviz
-ClassName=rviz::PointCloudDisplay
-[Display3]
-Name=Camera
-Package=rviz
-ClassName=rviz::CameraDisplay
-[Display4]
-Name=Camera2
-Package=rviz
-ClassName=rviz::CameraDisplay
-[Display5]
-Name=Laser Scan
-Package=rviz
-ClassName=rviz::LaserScanDisplay
-[Display6]
-Name=Camera3
-Package=rviz
-ClassName=rviz::CameraDisplay
-[Display7]
-Name=Camera4
-Package=rviz
-ClassName=rviz::CameraDisplay
+Panels:
+  - Class: rviz/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: rviz/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Status1
+      Splitter Ratio: 0.5
+    Tree Height: 614
+  - Class: rviz/Selection
+    Name: Selection
+  - Class: rviz/Tool Properties
+    Expanded: ~
+    Name: Tool Properties
+    Splitter Ratio: 0.5
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        base_bellow_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base_footprint:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bl_caster_l_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bl_caster_r_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bl_caster_rotation_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        br_caster_l_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        br_caster_r_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        br_caster_rotation_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        double_stereo_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fl_caster_l_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fl_caster_r_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fl_caster_rotation_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fr_caster_l_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fr_caster_r_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fr_caster_rotation_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_mount_kinect_ir_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_mount_kinect_rgb_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_mount_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_mount_prosilica_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_pan_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_plate_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_tilt_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_elbow_flex_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_forearm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_forearm_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_gripper_l_finger_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_gripper_l_finger_tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_gripper_motor_accelerometer_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_gripper_palm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_gripper_r_finger_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_gripper_r_finger_tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_shoulder_lift_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_shoulder_pan_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_upper_arm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_upper_arm_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_wrist_flex_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        l_wrist_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        laser_tilt_mount_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_elbow_flex_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_forearm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_forearm_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_gripper_l_finger_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_gripper_l_finger_tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_gripper_motor_accelerometer_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_gripper_palm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_gripper_r_finger_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_gripper_r_finger_tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_shoulder_lift_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_shoulder_pan_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_upper_arm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_upper_arm_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_wrist_flex_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        r_wrist_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        sensor_mount_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        torso_lift_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: RobotModel
+      Robot Description: robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.01
+      Style: Flat Squares
+      Topic: /wide_stereo/points2
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.01
+      Style: Flat Squares
+      Topic: /narrow_stereo/points2
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Class: rviz/Camera
+      Enabled: false
+      Image Rendering: background and overlay
+      Image Topic: /l_forearm_cam/image_rect_color
+      Name: Camera
+      Overlay Alpha: 0.5
+      Queue Size: 2
+      Transport Hint: raw
+      Value: false
+      Visibility:
+        "": true
+        Camera: true
+        PointCloud2: true
+        RobotModel: true
+        Value: true
+      Zoom Factor: 1
+    - Class: rviz/Camera
+      Enabled: false
+      Image Rendering: background and overlay
+      Image Topic: /r_forearm_cam/image_rect_color
+      Name: Camera
+      Overlay Alpha: 0.5
+      Queue Size: 2
+      Transport Hint: raw
+      Value: false
+      Visibility:
+        "": true
+        Camera: true
+        PointCloud2: true
+        RobotModel: true
+        Value: true
+      Zoom Factor: 1
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/LaserScan
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 10
+      Enabled: false
+      Max Color: 255; 255; 255
+      Max Intensity: 3429
+      Min Color: 0; 0; 0
+      Min Intensity: 61
+      Name: LaserScan
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.01
+      Style: Flat Squares
+      Topic: /tilt_scan
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Class: rviz/Camera
+      Enabled: false
+      Image Rendering: background and overlay
+      Image Topic: /wide_stereo/left/image_rect_color
+      Name: Camera
+      Overlay Alpha: 0.5
+      Queue Size: 2
+      Transport Hint: raw
+      Value: false
+      Visibility:
+        "": true
+        Camera: true
+        LaserScan: true
+        PointCloud2: true
+        RobotModel: true
+        Value: true
+      Zoom Factor: 1
+    - Class: rviz/Camera
+      Enabled: false
+      Image Rendering: background and overlay
+      Image Topic: /narrow_stereo/left/image_rect
+      Name: Camera
+      Overlay Alpha: 0.5
+      Queue Size: 2
+      Transport Hint: raw
+      Value: false
+      Visibility:
+        "": true
+        Camera: true
+        LaserScan: true
+        PointCloud2: true
+        RobotModel: true
+        Value: true
+      Zoom Factor: 1
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.01
+      Style: Flat Squares
+      Topic: /kinect_head/depth_registered/points
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: /base_link
+  Name: root
+  Tools:
+    - Class: rviz/MoveCamera
+    - Class: rviz/FocusCamera
+  Value: true
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 2.17207
+      Focal Point:
+        X: 0.0381242
+        Y: 0.0240268
+        Z: 0.999807
+      Name: Current View
+      Near Clip Distance: 0.01
+      Pitch: 1.1798
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 3.13575
+    Saved: ~
+Window Geometry:
+  Camera:
+    collapsed: false
+  Displays:
+    collapsed: false
+  Height: 882
+  Hide Left Dock: false
+  Hide Right Dock: false
+  QMainWindow State: 000000ff00000000fd00000002000000000000010f000002f5fc0200000007fb000000100044006900730070006c0061007900730100000041000002f5000000dd00fffffffb0000000c00430061006d00650072006100000001e10000008e0000001600fffffffb0000000c00430061006d0065007200610000000246000000f00000001600fffffffb0000000c00430061006d0065007200610000000275000000c10000001600fffffffb0000000c00430061006d0065007200610000000275000000c10000001600fffffffb0000001200530065006c0065006300740069006f006e000000028f000000a70000006400fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073000000028f000000a70000006400ffffff0000000100000112000002f5fc0200000001fb0000000a005600690065007700730100000041000002f5000000b000ffffff000002d3000002f500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Selection:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Views:
+    collapsed: false
+  Width: 1282
+  X: 444
+  Y: 289
