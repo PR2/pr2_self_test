@@ -52,6 +52,9 @@ from pr2_self_test_msgs.msg import Plot, TestValue, TestParam
 
 ok_dict = { False: 'FAIL', True: 'OK' }
 
+def str_to_bytes(s):
+       return map(lambda x: x if x < 128 else x-256, map(ord, s))
+
 class JointPositionAnalysisData(object):
     def __init__(self, msg):
         self.time     = numpy.array(msg.time)
@@ -283,7 +286,7 @@ def plot_effort_contour(params, data, lift_calc = True):
         p.title = 'lift_effort_contour'
     else:
         p.title = 'flex_effort_contour'
-    p.image = image
+    p.image = str_to_bytes(image)
     p.image_format = 'png'
     
     plt.close()
@@ -317,7 +320,7 @@ def plot_efforts_by_lift_position(params, data, flex_index = -1, lift_calc = Tru
         p.title = 'lift_effort_const_flex_%d' % flex_index
     else:
         p.title = 'flex_effort_const_flex_%d' % flex_index
-    p.image = image
+    p.image = str_to_bytes(image)
     p.image_format = 'png'
     
     plt.close()
