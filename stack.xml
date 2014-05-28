@@ -2,7 +2,7 @@
   <description brief="Runs PR2 self-checks on robot.">
 Packages for running PR2 self-tests and bringup checks onboard robot.
   </description>
-  <author>Kevin Watts</author>
+  <author>Kevin Watts, Maintainer=Devon Ash</author>
   <license>BSD</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/pr2_self_test</url>
