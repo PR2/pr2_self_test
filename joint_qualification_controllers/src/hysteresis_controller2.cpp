@@ -34,7 +34,7 @@
 
 #include "joint_qualification_controllers/hysteresis_controller2.h"
 #include "pluginlib/class_list_macros.h"
-#include "urdf_interface/joint.h"
+#include "urdf_model/joint.h"
 
 PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, HysteresisController2, 
                         joint_qualification_controllers::HysteresisController2, 

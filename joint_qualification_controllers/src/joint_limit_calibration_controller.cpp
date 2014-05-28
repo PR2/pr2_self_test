@@ -95,7 +95,7 @@ bool JointLimitCalibrationController::init(pr2_mechanism_model::RobotState *robo
     ROS_ERROR("No transmission given (namespace: %s)", node_.getNamespace().c_str());
     return false;
   }
-  if (!(transmission_ = robot->model_->getTransmission(transmission_name)))
+  if (!(transmission_ = robot->model_->getTransmission(transmission_name).get()))
   {
     ROS_ERROR("Could not find transmission %s (namespace: %s)",
               transmission_name.c_str(), node_.getNamespace().c_str());

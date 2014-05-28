@@ -33,7 +33,7 @@
  *********************************************************************/
 
 #include "joint_qualification_controllers/wrist_difference_controller.h"
-#include "urdf/joint.h"
+#include "urdf_model/joint.h"
 
 PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, WristDifferenceController, 
                         joint_qualification_controllers::WristDifferenceController, 
