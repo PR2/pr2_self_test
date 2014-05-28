@@ -1,0 +1,41 @@
+<package>
+  <name>pr2_bringup_tests</name>
+  <version>1.0.0</version>
+  <description>Complete functionality tests for PR2. Contains utilities designed to test and verify devices, mechanicals and sensors.</description>
+  <maintainer email="dash@clearpathrobotics.com">Devon Ash</maintainer>
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/pr2_bringup_tests</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Kevin Watts</author>
+
+  <!-- Dependencies which this package needs to build itself. -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Dependencies needed to compile this package. -->
+  <build_depend>pr2_bringup</build_depend>
+  <build_depend>pr2_controller_manager</build_depend>
+  <build_depend>ethercat_trigger_controllers</build_depend>
+  <build_depend>pr2_mannequin_mode</build_depend>
+  <build_depend>image_view</build_depend>
+  <build_depend>camera_calibration</build_depend>
+
+  <!-- Dependencies needed after this package is compiled. -->
+  <run_depend>pr2_bringup</run_depend>
+  <run_depend>pr2_controller_manager</run_depend>
+  <run_depend>ethercat_trigger_controllers</run_depend>
+  <run_depend>pr2_mannequin_mode</run_depend>
+  <run_depend>image_view</run_depend>
+  <run_depend>camera_calibration</run_depend>
+
+  <!-- Dependencies needed only for running tests. -->
+  <!-- <test_depend>pr2_bringup</test_depend> -->
+  <!-- <test_depend>pr2_controller_manager</test_depend> -->
+  <!-- <test_depend>ethercat_trigger_controllers</test_depend> -->
+  <!-- <test_depend>pr2_mannequin_mode</test_depend> -->
+  <!-- <test_depend>image_view</test_depend> -->
+  <!-- <test_depend>camera_calibration</test_depend> -->
+
+</package>
+
