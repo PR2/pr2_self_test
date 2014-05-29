@@ -1,28 +1,58 @@
-cmake_minimum_required(VERSION 2.4.6)
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+# Catkin User Guide: http://www.ros.org/doc/groovy/api/catkin/html/user_guide/user_guide.html
+# Catkin CMake Standard: http://www.ros.org/doc/groovy/api/catkin/html/user_guide/standards.html
+cmake_minimum_required(VERSION 2.8.3)
+project(pr2_self_test_msgs)
+# Load catkin and all dependencies required for this package
+# TODO: remove all from COMPONENTS that are not catkin packages.
+find_package(catkin REQUIRED COMPONENTS message_generation)
 
-# Set the build type.  Options are:
-#  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
-#  Debug          : w/ debug symbols, w/o optimization
-#  Release        : w/o debug symbols, w/ optimization
-#  RelWithDebInfo : w/ debug symbols, w/ optimization
-#  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-#set(ROS_BUILD_TYPE RelWithDebInfo)
+# include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS})
+# CATKIN_MIGRATION: removed during catkin migration
+# cmake_minimum_required(VERSION 2.4.6)
 
-rosbuild_init()
+# CATKIN_MIGRATION: removed during catkin migration
+# include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
-#set the default path for built executables to the "bin" directory
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-#set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+set(ROSPACK_MAKEDIST true)
 
-rosbuild_genmsg()
-rosbuild_gensrv()
+# Append to CPACK_SOURCE_IGNORE_FILES a semicolon-separated list of
+# directories (or patterns, but directories should suffice) that should
+# be excluded from the distro.  This is not the place to put things that
+# should be ignored everywhere, like "build" directories; that happens in
+# rosbuild/rosbuild.cmake.  Here should be listed packages that aren't
+# ready for inclusion in a distro.
+#
+# This list is combined with the list in rosbuild/rosbuild.cmake.  Note
+# that CMake 2.6 may be required to ensure that the two lists are combined
+# properly.  CMake 2.4 seems to have unpredictable scoping rules for such
+# variables.
+#list(APPEND CPACK_SOURCE_IGNORE_FILES /core/experimental)
 
-#common commands for building c++ executables and libraries
-#rosbuild_add_library(${PROJECT_NAME} src/example.cpp)
-#target_link_libraries(${PROJECT_NAME} another_library)
-#rosbuild_add_boost_directories()
-#rosbuild_link_boost(${PROJECT_NAME} thread)
-#rosbuild_add_executable(example examples/example.cpp)
-#target_link_libraries(example ${PROJECT_NAME})
+add_message_files(
+  FILES
+  Plot.msg
+  TestInfoArray.msg
+  TestInfo.msg
+  TestParam.msg
+  TestStatus.msg
+  TestValue.msg
+)
+
+generate_messages()
+# CATKIN_MIGRATION
+# use bloom tool
+# rosbuild_make_distribution(0.4.2)
+## Generate added messages and services with any dependencies listed here
+#generate_messages(
+#    #TODO DEPENDENCIES geometry_msgs std_msgs
+#)
+
+# catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
+# TODO: fill in what other packages will need to use this package
+catkin_package(
+    DEPENDS # TODO add dependencies
+    CATKIN_DEPENDS # TODO
+    INCLUDE_DIRS # TODO include
+    LIBRARIES # TODO
+)
+
