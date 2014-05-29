@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(pr2_counterbalance_check)
 # Load catkin and all dependencies required for this package
 # TODO: remove all from COMPONENTS that are not catkin packages.
-find_package(catkin REQUIRED COMPONENTS joint_qualification_controllers rospy std_msgs pr2_self_test_msgs pr2_controller_configuration actionlib pr2_controllers_msgs pr2_controller_manager python-matplotlib)
+find_package(catkin REQUIRED COMPONENTS joint_qualification_controllers rospy std_msgs pr2_self_test_msgs pr2_controller_configuration actionlib pr2_controllers_msgs pr2_controller_manager)
 
 # include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS})
 # CATKIN_MIGRATION: removed during catkin migration
@@ -27,7 +27,7 @@ set(ROSPACK_MAKEDIST true)
 # properly.  CMake 2.4 seems to have unpredictable scoping rules for such
 # variables.
 #list(APPEND CPACK_SOURCE_IGNORE_FILES /core/experimental)
-
+include_directories(${PYTHON_MATPLOT_DIRS})
 
 # CATKIN_MIGRATION
 # use bloom tool
@@ -36,11 +36,11 @@ set(ROSPACK_MAKEDIST true)
 #generate_messages(
 #    #TODO DEPENDENCIES geometry_msgs std_msgs
 #)
-
+catkin_add_nosetests(test/cb_analysis_test.py)
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 # TODO: fill in what other packages will need to use this package
 catkin_package(
-    DEPENDS joint_qualification_controllers rospy std_msgs pr2_self_test_msgs pr2_controller_configuration actionlib pr2_controllers_msgs pr2_controller_manager python-matplotlib
+    DEPENDS joint_qualification_controllers rospy std_msgs pr2_self_test_msgs pr2_controller_configuration actionlib pr2_controllers_msgs pr2_controller_manager
     CATKIN_DEPENDS # TODO
     INCLUDE_DIRS # TODO include
     LIBRARIES # TODO
