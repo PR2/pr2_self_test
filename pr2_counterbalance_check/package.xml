@@ -1,0 +1,47 @@
+<package>
+  <name>pr2_counterbalance_check</name>
+  <version>1.0.0</version>
+  <description></description>
+  <maintainer email="dash@clearpathrobotics.com">Devon Ash</maintainer>
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/pr2_counterbalance_check</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Kevin Watts</author>
+
+  <!-- Dependencies which this package needs to build itself. -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Dependencies needed to compile this package. -->
+  <build_depend>joint_qualification_controllers</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>pr2_self_test_msgs</build_depend>
+  <build_depend>pr2_controller_configuration</build_depend>
+  <build_depend>actionlib</build_depend>
+  <build_depend>pr2_controllers_msgs</build_depend>
+  <build_depend>pr2_controller_manager</build_depend>
+
+  <!-- Dependencies needed after this package is compiled. -->
+  <run_depend>joint_qualification_controllers</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>pr2_self_test_msgs</run_depend>
+  <run_depend>pr2_controller_configuration</run_depend>
+  <run_depend>actionlib</run_depend>
+  <run_depend>pr2_controllers_msgs</run_depend>
+  <run_depend>pr2_controller_manager</run_depend>
+
+  <!-- Dependencies needed only for running tests. -->
+  <!-- <test_depend>joint_qualification_controllers</test_depend> -->
+  <!-- <test_depend>rospy</test_depend> -->
+  <!-- <test_depend>std_msgs</test_depend> -->
+  <!-- <test_depend>pr2_self_test_msgs</test_depend> -->
+  <!-- <test_depend>pr2_controller_configuration</test_depend> -->
+  <!-- <test_depend>actionlib</test_depend> -->
+  <!-- <test_depend>pr2_controllers_msgs</test_depend> -->
+  <!-- <test_depend>pr2_controller_manager</test_depend> -->
+
+</package>
+
