@@ -56,7 +56,7 @@ src/joint_limit_calibration_controller.cpp)
 catkin_package(
     DEPENDS pr2_controller_interface pr2_mechanism_model pr2_hardware_interface control_toolbox roscpp robot_mechanism_controllers pluginlib std_msgs sensor_msgs realtime_tools urdf
     CATKIN_DEPENDS message_runtime# TODO
-    INCLUDE_DIRS # TODO include
+    INCLUDE_DIRS include # TODO include
     LIBRARIES # TODO
 )
 
