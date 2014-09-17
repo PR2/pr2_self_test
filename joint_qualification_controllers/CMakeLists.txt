@@ -27,17 +27,28 @@ src/counterbalance_test_controller.cpp
 src/wrist_difference_controller.cpp
 src/motor_joint_calibration_controller.cpp
 src/joint_limit_calibration_controller.cpp)
+
 generate_messages(
     DEPENDENCIES geometry_msgs std_msgs
 )
+
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp ${catkin_EXPORTED_TARGETS} joint_qualification_controllers_gencpp)
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 # TODO: fill in what other packages will need to use this package
 catkin_package(
     DEPENDS pr2_controller_interface pr2_mechanism_model pr2_hardware_interface control_toolbox roscpp robot_mechanism_controllers pluginlib std_msgs sensor_msgs realtime_tools urdf
     CATKIN_DEPENDS # TODO
-    INCLUDE_DIRS # TODO include
-    LIBRARIES # TODO
+    INCLUDE_DIRS include # TODO include
+    LIBRARIES ${PROJECT_NAME}# TODO
 )
 
-install(DIRECTORY include/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+
+install(TARGETS ${PROJECT_NAME}
+ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
+
+
+
+install(DIRECTORY include/${PROJECT_NAME} DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
