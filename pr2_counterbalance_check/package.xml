@@ -1,6 +1,6 @@
 <package>
   <name>pr2_counterbalance_check</name>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <description>pr2_counterbalance_check</description>
   <maintainer email="dash@clearpathrobotics.com">Devon Ash</maintainer>
   <license>BSD</license>
