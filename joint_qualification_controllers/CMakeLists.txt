@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8.3)
 project(joint_qualification_controllers)
 find_package(catkin REQUIRED COMPONENTS pr2_controller_interface pr2_mechanism_model pr2_hardware_interface control_toolbox roscpp robot_mechanism_controllers pluginlib std_msgs sensor_msgs realtime_tools urdf)
 
+
+include_directories(include ${catkin_INCLUDE_DIRS})
+
 add_message_files(
   FILES
   ActuatorData.msg
