@@ -2,8 +2,8 @@
 Changelog for package pr2_counterbalance_check
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2014-09-16)
+------------------
 * Catkinization of pr2_counterbalance_check and compiles in hydro
 * Added CMakeLists.txt
 * Added package.xml

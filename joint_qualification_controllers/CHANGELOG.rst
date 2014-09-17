@@ -2,8 +2,8 @@
 Changelog for package joint_qualification_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2014-09-16)
+------------------
 * Added install targets
 * Removed unneceesary packagexml and cmake
 * Added include statement in CMakeList

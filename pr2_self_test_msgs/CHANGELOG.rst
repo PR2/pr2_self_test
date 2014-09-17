@@ -2,8 +2,8 @@
 Changelog for package pr2_self_test_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2014-09-16)
+------------------
 * Catkinization of pr2_self_test_msgs
 * Removed manifest.xml
 * Removing unneeded msg/srv exports in pr2_self_test_msgs exports

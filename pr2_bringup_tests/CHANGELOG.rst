@@ -2,8 +2,8 @@
 Changelog for package pr2_bringup_tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2014-09-16)
+------------------
 * Added install targets to pr2_bringup_tests
 * Removed unneceesary packagexml and cmake
 * Catkinizes and compiles in hydro if you have the hydro-devel of pr2_apps/pr2_mannequin_mode
