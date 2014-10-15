@@ -1,9 +1,0 @@
-/**
-\mainpage
-\htmlinclude manifest.html
-
-\b pr2_bringup_tests contains utilities designed to test the PR2's devices, cameras and mechanical systems.
-
-
-
-*/
