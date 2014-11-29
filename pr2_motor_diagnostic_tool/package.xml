@@ -1,0 +1,51 @@
+<package>
+  <name>pr2_motor_diagnostic_tool</name>
+  <version>1.0.0</version>
+  <description>pr2_motor_diagnostic_tool</description>
+  <maintainer email="dash@clearpathrobotics.com">Dash</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/pr2_motor_diagnostic_tool</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Rahul Udasi</author>
+
+  <!-- Dependencies which this package needs to build itself. -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Dependencies needed to compile this package. -->
+  <build_depend>rospy</build_depend>
+  <build_depend>rqt_gui</build_depend>
+  <build_depend>rqt_gui_py</build_depend>
+  <build_depend>pr2_controller_interface</build_depend>
+  <build_depend>pr2_mechanism_model</build_depend>
+  <build_depend>pr2_mechanism_msgs</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>ethercat_hardware</build_depend>
+
+  <!-- Dependencies needed after this package is compiled. -->
+  <run_depend>rospy</run_depend>
+  <run_depend>rqt_gui</run_depend>
+  <run_depend>rqt_gui_py</run_depend>
+  <run_depend>pr2_controller_interface</run_depend>
+  <run_depend>pr2_mechanism_model</run_depend>
+  <run_depend>pr2_mechanism_msgs</run_depend>
+  <run_depend>pluginlib</run_depend>
+  <run_depend>ethercat_hardware</run_depend>
+
+  <!-- Dependencies needed only for running tests. -->
+  <!-- <test_depend>rospy</test_depend> -->
+  <!-- <test_depend>rqt_gui</test_depend> -->
+  <!-- <test_depend>rqt_gui_py</test_depend> -->
+  <!-- <test_depend>pr2_controller_interface</test_depend> -->
+  <!-- <test_depend>pr2_mechanism_model</test_depend> -->
+  <!-- <test_depend>pr2_mechanism_msgs</test_depend> -->
+  <!-- <test_depend>pluginlib</test_depend> -->
+  <!-- <test_depend>ethercat_hardware</test_depend> -->
+
+<export>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
+</export>
+
+</package>

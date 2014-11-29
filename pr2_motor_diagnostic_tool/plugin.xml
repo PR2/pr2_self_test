@@ -1,0 +1,21 @@
+<library path="src">
+  <class name="MyPlugin" type="my_module.MyPlugin" base_class_type="rqt_gui_py::Plugin">
+    <description>
+	PR2 Actuator diagnostic tool.
+    </description>
+    <qtgui>
+      <!-- optional grouping...
+      <group>
+        <label>Group</label>
+      </group>
+      <group>
+        <label>Subgroup</label>
+      </group>
+      -->
+      <label>PR2 Actuator Diagnostic Tool Plugin</label>
+      <icon type="theme">applications-development</icon>
+
+      <statustip>Great user interface to provide real value.</statustip>
+    </qtgui>
+  </class>
+</library>

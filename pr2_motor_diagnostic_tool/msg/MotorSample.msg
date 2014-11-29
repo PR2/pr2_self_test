@@ -1,0 +1,10 @@
+float64 timestamp
+bool enabled
+float64 supply_voltage
+float64 measured_motor_voltage
+float64 programmed_pwm
+float64 executed_current
+float64 measured_current
+float64 velocity
+float64 encoder_position
+uint64 encoder_error_count
