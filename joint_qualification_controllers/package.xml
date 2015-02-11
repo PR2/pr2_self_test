@@ -1,6 +1,6 @@
 <package>
   <name>joint_qualification_controllers</name>
-  <version>1.0.8</version>
+  <version>1.0.9</version>
   <description>Controllers used in PR2 hardware testing. For testing counterbalance of PR2, and for internal WG use.</description>
   <maintainer email="dash@clearpathrobotics.com">Devon Ash</maintainer>
 
