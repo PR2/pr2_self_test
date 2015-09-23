@@ -1,6 +1,6 @@
 <package>
   <name>pr2_motor_diagnostic_tool</name>
-  <version>1.0.10</version>
+  <version>1.0.11</version>
   <description>pr2_motor_diagnostic_tool</description>
   <maintainer email="dash@clearpathrobotics.com">Dash</maintainer>
 
@@ -23,8 +23,10 @@
   <build_depend>pr2_mechanism_msgs</build_depend>
   <build_depend>pluginlib</build_depend>
   <build_depend>ethercat_hardware</build_depend>
+  <build_depend>actionlib</build_depend>
 
   <!-- Dependencies needed after this package is compiled. -->
+  <run_depend>actionlib</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>rqt_gui</run_depend>
   <run_depend>rqt_gui_py</run_depend>
