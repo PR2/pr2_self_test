@@ -47,8 +47,7 @@ add_service_files(
 
 
 generate_messages(
-    DEPENDENCIES    pr2_mechanism_msgs actionlib
-)
+    DEPENDENCIES pr2_mechanism_msgs)
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 # TODO: fill in what other packages will need to use this package
