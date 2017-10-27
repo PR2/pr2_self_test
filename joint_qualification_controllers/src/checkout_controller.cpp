@@ -35,9 +35,8 @@
 #include "joint_qualification_controllers/checkout_controller.h"
 #include "pluginlib/class_list_macros.h"
 
-PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, CheckoutController, 
-                        joint_qualification_controllers::CheckoutController, 
-                        pr2_controller_interface::Controller)
+PLUGINLIB_EXPORT_CLASS(joint_qualification_controllers::CheckoutController,
+                       pr2_controller_interface::Controller)
 
 using namespace std;
 using namespace joint_qualification_controllers;

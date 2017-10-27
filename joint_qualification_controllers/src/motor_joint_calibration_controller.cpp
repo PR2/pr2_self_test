@@ -36,9 +36,7 @@
 #include "ros/time.h"
 #include "pluginlib/class_list_macros.h"
 
-
-PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, MotorJointCalibrationController, 
-                        joint_qualification_controllers::MotorJointCalibrationController, pr2_controller_interface::Controller)
+PLUGINLIB_EXPORT_CLASS(joint_qualification_controllers::MotorJointCalibrationController, pr2_controller_interface::Controller)
 
 using namespace std;
 using namespace joint_qualification_controllers;
