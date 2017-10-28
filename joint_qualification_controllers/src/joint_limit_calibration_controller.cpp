@@ -39,9 +39,8 @@
 using namespace std;
 using namespace joint_qualification_controllers;
 
-PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, JointLimitCalibrationController, 
-                        joint_qualification_controllers::JointLimitCalibrationController, 
-                        pr2_controller_interface::Controller)
+PLUGINLIB_EXPORT_CLASS(joint_qualification_controllers::JointLimitCalibrationController,
+                       pr2_controller_interface::Controller)
 
 JointLimitCalibrationController::JointLimitCalibrationController()
 : robot_(NULL), last_publish_time_(0), state_(INITIALIZED), 

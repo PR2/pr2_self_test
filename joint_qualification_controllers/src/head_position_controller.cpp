@@ -37,10 +37,8 @@
 #include "pluginlib/class_list_macros.h"
 
 
-
-PLUGINLIB_DECLARE_CLASS(joint_qualification_controllers, HeadPositionController, 
-                        joint_qualification_controllers::HeadPositionController, 
-                        pr2_controller_interface::Controller)
+PLUGINLIB_EXPORT_CLASS(joint_qualification_controllers::HeadPositionController,
+                       pr2_controller_interface::Controller)
 
 using namespace std;
 using namespace joint_qualification_controllers;
