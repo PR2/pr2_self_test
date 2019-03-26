@@ -2,7 +2,7 @@
   <name>joint_qualification_controllers</name>
   <version>1.0.12</version>
   <description>Controllers used in PR2 hardware testing. For testing counterbalance of PR2, and for internal WG use.</description>
-  <maintainer email="dash@clearpathrobotics.com">Devon Ash</maintainer>
+  <maintainer email="dave@cse.unr.edu">David Feil-Seifer</maintainer>
 
   <license>BSD</license>
 

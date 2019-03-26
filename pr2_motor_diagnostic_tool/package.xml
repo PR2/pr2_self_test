@@ -2,7 +2,7 @@
   <name>pr2_motor_diagnostic_tool</name>
   <version>1.0.12</version>
   <description>pr2_motor_diagnostic_tool</description>
-  <maintainer email="dash@clearpathrobotics.com">Dash</maintainer>
+  <maintainer email="dave@cse.unr.edu">David Feil-Seifer</maintainer>
 
   <license>BSD</license>
 
