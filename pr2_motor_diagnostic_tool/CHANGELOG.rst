@@ -2,8 +2,8 @@
 Changelog for package pr2_motor_diagnostic_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.13 (2019-03-26)
+-------------------
 * updated maintainer status
 * removed unnecessary dependency on actionlib for pr2_motor_diagnostic_tool package
 * Merge pull request `#5 <https://github.com/PR2/pr2_self_test/issues/5>`_ from UNR-RoboticsResearchLab/indigo-devel

@@ -2,8 +2,8 @@
 Changelog for package joint_qualification_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.13 (2019-03-26)
+-------------------
 * updated maintainer status
 * Merge pull request `#4 <https://github.com/PR2/pr2_self_test/issues/4>`_ from mikaelarguedas/update_pluginlib_macros
   update to use non deprecated pluginlib macro

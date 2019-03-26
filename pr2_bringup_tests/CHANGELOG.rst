@@ -2,8 +2,8 @@
 Changelog for package pr2_bringup_tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.13 (2019-03-26)
+-------------------
 * updated maintainer status
 * Contributors: David Feil-Seifer
 
