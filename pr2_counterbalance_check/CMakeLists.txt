@@ -36,7 +36,10 @@ include_directories(${PYTHON_MATPLOT_DIRS})
 #generate_messages(
 #    #TODO DEPENDENCIES geometry_msgs std_msgs
 #)
-catkin_add_nosetests(test/cb_analysis_test.py)
+if(CATKIN_ENABLE_TESTING)
+	catkin_add_nosetests(test/cb_analysis_test.py)
+endif()
+
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
 # TODO: fill in what other packages will need to use this package
 catkin_package(
