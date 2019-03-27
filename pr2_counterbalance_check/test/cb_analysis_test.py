@@ -37,14 +37,13 @@
 from __future__ import division
 
 PKG = 'pr2_counterbalance_check'
-import roslib; roslib.load_manifest(PKG)
+import roslib
 
-from pr2_counterbalance_check.counterbalance_analysis import *
-
-import rostest, unittest
+from pr2_counterbalance_check import *
 
 import copy
 import os, sys
+import rostest, unittest
 
 # Dummy classes to store data
 class DummyCBAnalysisParams(object): pass

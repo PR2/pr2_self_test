@@ -36,7 +36,8 @@
 ##\brief Analyzes counterbalance data
 
 PKG = 'pr2_counterbalance_check'
-import roslib; roslib.load_manifest(PKG)
+import roslib
+#import roslib; roslib.load_manifest(PKG)
 
 import numpy
 import math

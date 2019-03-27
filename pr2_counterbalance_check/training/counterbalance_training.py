@@ -36,9 +36,8 @@
 ##\brief Determines counterbalance adjustments based on CB data
 
 PKG = 'pr2_counterbalance_check'
-import roslib; roslib.load_manifest(PKG)
+from pr2_counterbalance_check import *
 
-from pr2_counterbalance_check.counterbalance_analysis import *
 
 from joint_qualification_controllers.msg import CounterbalanceTestData
 

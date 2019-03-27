@@ -36,8 +36,6 @@
 ##\brief Raises torso and moves arms of PR2 for counterbalance check
 
 PKG='pr2_counterbalance_check'
-import roslib
-roslib.load_manifest(PKG)
 import rospy, sys, time
 import subprocess
 from optparse import OptionParser
