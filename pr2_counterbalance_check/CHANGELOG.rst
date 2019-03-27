@@ -2,8 +2,8 @@
 Changelog for package pr2_counterbalance_check
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.14 (2019-03-27)
+-------------------
 * added some additional python build support
 * temporarily removed nosetest due to build interference
 * nosetest is now in conditional block (pr2_counterbalance_check)
