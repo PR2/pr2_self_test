@@ -1,0 +1,3 @@
+<launch>
+    <test test-name="cb_analysis_test" pkg="pr2_counterbalance_check" type="cb_analysis_test.py" />
+</launch>
