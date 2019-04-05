@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(joint_qualification_controllers)
-find_package(catkin REQUIRED COMPONENTS pr2_controller_interface pr2_mechanism_model pr2_hardware_interface control_toolbox roscpp robot_mechanism_controllers pluginlib std_msgs sensor_msgs realtime_tools urdf)
+find_package(catkin REQUIRED COMPONENTS pr2_controller_interface pr2_mechanism_model pr2_hardware_interface control_toolbox roscpp robot_mechanism_controllers pluginlib std_msgs sensor_msgs realtime_tools urdf message_generation)
 
 
 include_directories(include ${catkin_INCLUDE_DIRS})
@@ -41,7 +41,7 @@ add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp ${catkin_EXPORTED_TARGET
 # TODO: fill in what other packages will need to use this package
 catkin_package(
     DEPENDS pr2_controller_interface pr2_mechanism_model pr2_hardware_interface control_toolbox roscpp robot_mechanism_controllers pluginlib std_msgs sensor_msgs realtime_tools urdf
-    CATKIN_DEPENDS # TODO
+    CATKIN_DEPENDS message_runtime # TODO
     INCLUDE_DIRS include # TODO include
     LIBRARIES ${PROJECT_NAME}# TODO
 )
