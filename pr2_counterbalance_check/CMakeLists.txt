@@ -56,3 +56,7 @@ catkin_package(
 
 catkin_python_setup()
 
+install(DIRECTORY cb_data config launch scripts test training util
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  USE_SOURCE_PERMISSIONS
+)
