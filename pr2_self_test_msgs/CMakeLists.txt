@@ -38,6 +38,13 @@ add_message_files(
   TestValue.msg
 )
 
+add_service_files(
+  FILES
+  ConfirmConf.srv
+  ScriptDone.srv
+  TestResult.srv
+)
+
 generate_messages()
 # CATKIN_MIGRATION
 # use bloom tool
@@ -51,7 +58,7 @@ generate_messages()
 # TODO: fill in what other packages will need to use this package
 catkin_package(
     DEPENDS # TODO add dependencies
-    CATKIN_DEPENDS # TODO
+    CATKIN_DEPENDS message_runtime # TODO
     INCLUDE_DIRS # TODO include
     LIBRARIES # TODO
 )
