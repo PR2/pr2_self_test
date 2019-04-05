@@ -54,3 +54,5 @@ catkin_package(
     LIBRARIES # TODO
 )
 
+catkin_python_setup()
+
