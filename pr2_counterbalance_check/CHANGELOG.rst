@@ -2,8 +2,8 @@
 Changelog for package pr2_counterbalance_check
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.15 (2019-04-24)
+-------------------
 * Merge pull request `#8 <https://github.com/PR2/pr2_self_test/issues/8>`_ from knorth55/indigo-fix
   Fixed bugs to run PR2 couter balance adjustment on Indigo
 * Merge pull request `#1 <https://github.com/PR2/pr2_self_test/issues/1>`_ from k-okada/indigo-fix

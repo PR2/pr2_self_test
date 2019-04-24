@@ -1,6 +1,6 @@
 <package>
   <name>pr2_bringup_tests</name>
-  <version>1.0.14</version>
+  <version>1.0.15</version>
   <description>Complete functionality tests for PR2. Contains utilities designed to test and verify devices, mechanicals and sensors.</description>
   <maintainer email="dave@cse.unr.edu">David Feil-Seifer</maintainer>
 

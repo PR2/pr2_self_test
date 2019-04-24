@@ -1,6 +1,6 @@
 <package>
   <name>pr2_self_test_msgs</name>
-  <version>1.0.14</version>
+  <version>1.0.15</version>
   <description>Messages used in PR2 hardware testing.</description>
   <maintainer email="dave@cse.unr.edu">David Feil-Seifer</maintainer>
   <license>BSD</license>
