@@ -2,6 +2,13 @@
 Changelog for package joint_qualification_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#8 <https://github.com/PR2/pr2_self_test/issues/8>`_ from knorth55/indigo-fix
+  Fixed bugs to run PR2 couter balance adjustment on Indigo
+* add message_generation and message_runtime
+* Contributors: Kei Okada, Shingo Kitagawa
+
 1.0.14 (2019-03-27)
 -------------------
 

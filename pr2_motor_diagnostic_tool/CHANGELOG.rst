@@ -2,6 +2,9 @@
 Changelog for package pr2_motor_diagnostic_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.0.14 (2019-03-27)
 -------------------
 

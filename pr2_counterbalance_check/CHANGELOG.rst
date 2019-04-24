@@ -2,6 +2,18 @@
 Changelog for package pr2_counterbalance_check
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#8 <https://github.com/PR2/pr2_self_test/issues/8>`_ from knorth55/indigo-fix
+  Fixed bugs to run PR2 couter balance adjustment on Indigo
+* Merge pull request `#1 <https://github.com/PR2/pr2_self_test/issues/1>`_ from k-okada/indigo-fix
+  remove duplicated -catkin_python_setup
+* to import functions, need to import pr2_counterbalance_check.counterbalance_analysis
+* remove ROSPACK_MAKEDIST and wrong catkin_python_setup placement
+* add install to CMakeLists.txt in pr2_counterbalance_check
+* add python setup in pr2_counterbalance_check
+* Contributors: Kei Okada, Shingo Kitagawa
+
 1.0.14 (2019-03-27)
 -------------------
 * added some additional python build support
