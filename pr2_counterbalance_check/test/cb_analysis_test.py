@@ -39,7 +39,7 @@ from __future__ import division
 PKG = 'pr2_counterbalance_check'
 import roslib
 
-from pr2_counterbalance_check import *
+from pr2_counterbalance_check.counterbalance_analysis import *
 
 import copy
 import os, sys
