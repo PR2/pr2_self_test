@@ -13,9 +13,6 @@ find_package(catkin REQUIRED COMPONENTS joint_qualification_controllers rospy st
 # CATKIN_MIGRATION: removed during catkin migration
 # include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
-catkin_python_setup()
-set(ROSPACK_MAKEDIST true)
-
 # Append to CPACK_SOURCE_IGNORE_FILES a semicolon-separated list of
 # directories (or patterns, but directories should suffice) that should
 # be excluded from the distro.  This is not the place to put things that
@@ -54,3 +51,9 @@ catkin_package(
     LIBRARIES # TODO
 )
 
+catkin_python_setup()
+
+install(DIRECTORY cb_data config launch scripts test training util
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  USE_SOURCE_PERMISSIONS
+)
