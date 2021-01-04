@@ -68,7 +68,7 @@ class CounterbalanceCheck(object):
         self._motors_halted = True
         self._data = None
 
-        self.motors_topic = rospy.Subscriber('pr2_etherCAT/motors_halted', Bool, self._motors_cb)
+        self.motors_topic = rospy.Subscriber('pr2_ethercat/motors_halted', Bool, self._motors_cb)
         self.data_topic = rospy.Subscriber('cb_test_data', CounterbalanceTestData, self._data_callback)
 
         self._model_file = model_file
