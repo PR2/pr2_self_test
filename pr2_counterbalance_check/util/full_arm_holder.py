@@ -48,7 +48,7 @@ from pr2_controllers_msgs.msg import *
 class SendMessageOnSubscribe(rospy.SubscribeListener):
     def __init__(self, msg):
         self.msg = msg
-        print "Waiting for subscriber..."
+        print("Waiting for subscriber...")
 
     def peer_subscribe(self, topic_name, topic_publish, peer_publish):
         peer_publish(self.msg)

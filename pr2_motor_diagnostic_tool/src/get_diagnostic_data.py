@@ -90,19 +90,19 @@ def main():
   elif (args.parts == 'head'):
     actuator_list = head
   else:
-    print "Bad arguments, exiting"
+    print("Bad arguments, exiting")
     sys.exit()
 
   switch_controller([],['diagnostic_controller'],SwitchControllerRequest.STRICT)
   unload_controller('diagnostic_controller')
 
   for actuator_name in actuator_list:
-    print "Press X to start or for next joint"
+    print("Press X to start or for next joint")
     wait_for_X() 
     start_diag_controller(actuator_name)
-    print "start moving %s for about 5 seconds" %(actuator_name)
+    print("start moving %s for about 5 seconds" %(actuator_name))
     rospy.sleep(5.0)
-    print "press circle when your done"
+    print("press circle when your done")
     #rospy.loginfo("move %s for about 5 seconds and then press circle when done", joint_name)
     wait_for_circle()
     get_diag_data(actuator_name)

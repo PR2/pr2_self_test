@@ -58,7 +58,7 @@ BAR_TOL = 0.8
 
 def _check_valid(params):
     if params.timeout_hit:
-        print >> sys.stderr, "Counterbalance controller timeout hit. Increase teh timeout and retry."
+        print("Counterbalance controller timeout hit. Increase the timeout and retry.", file=sys.stderr)
         return False
     
     return True
@@ -82,7 +82,7 @@ class CounterbalanceCheck(object):
         self._motors_halted = msg.data
         
         if self._motors_halted:
-            print >> sys.stderr, "Motors halted. Adjustment data will be invalid."
+            print("Motors halted. Adjustment data will be invalid.", file=sys.stderr)
 
         self._ok = self._ok and not self._motors_halted
 
@@ -97,20 +97,20 @@ class CounterbalanceCheck(object):
         params = CounterbalanceAnalysisParams(self._data)
 
         if not _check_valid(params):
-            print >> sys.stderr, "Unable to calculate adjustment, invalid data"
+            print("Unable to calculate adjustment, invalid data", file=sys.stderr)
             return
 
         (secondary, cb_bar) = calc_cb_adjust(data, self._model_file)
 
         if (abs(secondary) > 25 or abs(cb_bar) > 25):
-            print >> sys.stderr, "Unable to calculate CB adjustment. This could mean the counterbalance is extremely out of adjustment, or your training data is invalid."
+            print("Unable to calculate CB adjustment. This could mean the counterbalance is extremely out of adjustment, or your training data is invalid.", file=sys.stderr)
             return
 
-        print 'Calculated counterbalance adjustment recommendations:'
-        print '\tSecondary Spring: %.1f (%s)' % (abs(secondary), dir(secondary))
-        print '\tArm Gimbal Shaft: %.1f (%s)' % (abs(cb_bar), dir(cb_bar))
-        print 'Make sure to follow proper adjustment procedures if you choose to make an adjustment.\n'
-        print 'Your counterbalance state is up to you, these adjustments are only recommendations.\n'
+        print('Calculated counterbalance adjustment recommendations:')
+        print('\tSecondary Spring: %.1f (%s)' % (abs(secondary), dir(secondary)))
+        print('\tArm Gimbal Shaft: %.1f (%s)' % (abs(cb_bar), dir(cb_bar)))
+        print('Make sure to follow proper adjustment procedures if you choose to make an adjustment.\n')
+        print('Your counterbalance state is up to you, these adjustments are only recommendations.\n')
 
             
 if __name__ == '__main__':
@@ -122,10 +122,10 @@ if __name__ == '__main__':
     options, args = parser.parse_args(rospy.myargv())
     
     if options.tolerance:
-        print 'Recommended CB tolerances for secondary spring, arm gimbal shaft'
-        print '\tSecondary spring: +/-%.1f' % SPRING_TOL
-        print '\tArm Gimbal Shaft: +/-%.1f' % BAR_TOL
-        print 'If your recommended adjustment is less than this many turns, do not adjust your CB'
+        print('Recommended CB tolerances for secondary spring, arm gimbal shaft')
+        print('\tSecondary spring: +/-%.1f' % SPRING_TOL)
+        print('\tArm Gimbal Shaft: +/-%.1f' % BAR_TOL)
+        print('If your recommended adjustment is less than this many turns, do not adjust your CB')
         sys.exit()
 
     if len(args) < 2:
@@ -144,7 +144,7 @@ if __name__ == '__main__':
             my_rate.sleep()
 
         if not app.ok:
-            print >> sys.stderr, "Unable to calculate adjustment. Check motors halted. Please retry."
+            print("Unable to calculate adjustment. Check motors halted. Please retry.", file=sys.stderr)
             sys.exit(2)
 
         if not rospy.is_shutdown():
@@ -152,6 +152,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt, e:
         pass
     except Exception, e:
-        print 'Caught Exception in CB application check'
+        print('Caught Exception in CB application check')
         import traceback
         traceback.print_exc()
