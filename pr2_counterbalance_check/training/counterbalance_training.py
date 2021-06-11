@@ -56,9 +56,9 @@ def get_data(bag):
         return CounterbalanceAnalysisData(msg)
 
 def print_usage(code = 0):
-    print "./counterbalance_training cb_bag1 cb_bag2 cb_bag3 ..."
-    print "Determines counterbalance adjustments necessary to tune CB"
-    print "Bags must have one message of type %s" % CB_MSG_TYPE
+    print("./counterbalance_training cb_bag1 cb_bag2 cb_bag3 ...")
+    print("Determines counterbalance adjustments necessary to tune CB")
+    print("Bags must have one message of type %s" % CB_MSG_TYPE)
     sys.exit(code)
 
 if __name__ == '__main__':
@@ -69,10 +69,10 @@ if __name__ == '__main__':
 
     adjustments = {}
     efforts = {}
-    print 'Enter CB adjustments from "zero" in turns CW for each bag'
+    print('Enter CB adjustments from "zero" in turns CW for each bag')
     for b in bags:
         if not os.path.exists(b):
-            print >> sys.stderr, "Bag %s does not exist. Check filename and retry" % b
+            print("Bag %s does not exist. Check filename and retry" % b, file=sys.stderr)
             print_usage(1)
 
         #Ask for adjustments when this bag was taken
@@ -81,7 +81,7 @@ if __name__ == '__main__':
             adj_cb_bar = float(raw_input("Please enter CB bar adjustment (turns CW) for bag %s: "%b))
             adjustments[b] = (adj_secondary, adj_cb_bar, 1)
         except:
-            print "Invalid input for adjustment.  Floating point values expected."
+            print("Invalid input for adjustment.  Floating point values expected.")
             sys.exit(1)
 
         data = get_data(b)
@@ -92,4 +92,4 @@ if __name__ == '__main__':
     X = numpy.linalg.lstsq(A, B)
     model = X[0]
     model.dump('counterbalance_model.dat')
-    print '\"counterbalance_model.dat\" contains CB adjustment values'
+    print('\"counterbalance_model.dat\" contains CB adjustment values')

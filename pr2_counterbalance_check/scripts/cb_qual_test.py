@@ -213,7 +213,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt, e:
         pass
     except Exception, e:
-        print 'Caught Exception in CB application'
+        print('Caught Exception in CB application')
         import traceback
         traceback.print_exc()
         result_service = rospy.ServiceProxy('test_result', TestResult)        

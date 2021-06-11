@@ -423,7 +423,7 @@ def calc_cb_adjust(data, model_file):
         B = numpy.array(get_efforts(data, True) + get_efforts(data, False))
         X = numpy.linalg.lstsq(A,B)
     except:
-        print >> sys.stderr, "Unable to calculate CB adjustment. May have incorrect model data"
+        print("Unable to calculate CB adjustment. May have incorrect model data", file=sys.stderr)
         import traceback
         traceback.print_exc()
         return (100, 100)

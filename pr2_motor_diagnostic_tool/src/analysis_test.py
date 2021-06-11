@@ -18,7 +18,7 @@ class Diagnostic():
      check for unplugged, check for open circuit and plot graphs"""
   
   def show(self):
-    print "gello"
+    print("gello")
 
   def get_acceleration(self, velocity, timestamp):
     acceleration = (numpy.array(velocity[1:]) - numpy.array(velocity[:-1])) / (numpy.array(timestamp[1:]) - numpy.array(timestamp[:-1]))
@@ -47,21 +47,21 @@ class Diagnostic():
 
     if debug_info:  
       if (len(neg) > 1):
-	print "neg mean",neg.mean()
-	print "neg outlier limit",outlier_limit_neg
+	print("neg mean",neg.mean())
+	print("neg outlier limit",outlier_limit_neg)
       
       if (len(pos) > 1):
-	print "pos mean",pos.mean()
-	print "pos outlier limit",outlier_limit_pos
+	print("pos mean",pos.mean())
+	print("pos outlier limit",outlier_limit_pos)
 
     outliers_neg = [val for val in neg if val < outlier_limit_neg]
     outliers_pos = [val for val in pos if val > outlier_limit_pos]
 
     if debug_info: 
-      print "outliers in filtered data", outliers_neg, outliers_pos
+      print("outliers in filtered data", outliers_neg, outliers_pos)
 
     if (len(outliers_neg) + len(outliers_pos)) > 4:
-      print "Encoder could be spoilt for,", actuator_name
+      print("Encoder could be spoilt for,", actuator_name)
       return (True, outlier_limit_neg, outlier_limit_pos)
 
     return (False, outlier_limit_neg, outlier_limit_pos)
@@ -72,11 +72,11 @@ class Diagnostic():
     zero_velocity = len(zero_velocity) / (len(velocity) + 0.0)
     zero_voltage = len(zero_voltage) / (len(measured_motor_voltage) + 0.0)
     if debug_info:
-      print "percentage of zero velocity is", zero_velocity
-      print "percentage of zero voltage is", zero_voltage
+      print("percentage of zero velocity is", zero_velocity)
+      print("percentage of zero voltage is", zero_voltage)
 
     if zero_velocity > 2 and zero_voltage < 0.5:
-      print "Encoder could be unplugged for, ", actuator_name
+      print("Encoder could be unplugged for, ", actuator_name)
       return True
     return False
 
@@ -86,12 +86,12 @@ class Diagnostic():
     mean_voltage = measured_motor_voltage.mean()
     mean_velocity = velocity.mean()
     if debug_info:
-      print "mean_voltage is ",mean_voltage
-      print "mean_velocity is ",mean_velocity
+      print("mean_voltage is ",mean_voltage)
+      print("mean_velocity is ",mean_velocity)
 
     if mean_voltage < 0.05:
       if mean_velocity > 0.3:
-	print "Motor wires could be cut causing open circuit, ", actuator_name
+	print("Motor wires could be cut causing open circuit, ", actuator_name)
 	return True
     return False
 
@@ -157,16 +157,16 @@ if __name__ == '__main__':
     os.chdir(dirpath)
 
   debug_info = args.verbose
-  print filelist
+  print(filelist)
   ppr = 1200.0
   delay = 1 
 
   for filename in filelist:
-    print "\n"
+    print("\n")
     actuator_name = filename[:-13]
 
     if debug_info:
-      print actuator_name
+      print(actuator_name)
 
     stream = file(filename, 'r')
     samples = load(stream)

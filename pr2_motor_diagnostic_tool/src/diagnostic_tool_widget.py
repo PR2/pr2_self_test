@@ -144,16 +144,16 @@ class DiagnosticToolWidget(QWidget):
         unload_controller('diagnostic_controller')
 
         for actuator_name in self.joint_list:
-            print "Press X to start or for next joint"
+            print("Press X to start or for next joint")
             wait_for_X()
             start_diag_controller(actuator_name)
-            print "start moving %s for about 5 seconds" %(actuator_name)
+            print("start moving %s for about 5 seconds" %(actuator_name))
             rospy.sleep(5.0)
-            print "press circle when your done"
+            print("press circle when your done")
             #rospy.loginfo("move %s for about 5 seconds and then press circle when done", joint_name)
             wait_for_circle()
             get_diag_data(actuator_name)
-        print "Finshed getting data"
+        print("Finshed getting data")
 
     def close_all(self):
         for fig_name in self.plots: 
@@ -168,7 +168,7 @@ class DiagnosticToolWidget(QWidget):
         for filename in self.filelist:
 	    actuator_name  = os.path.basename(filename) 
 	    if debug_info:
-	        print "\n" + str(actuator_name)
+	        print("\n" + str(actuator_name))
 	    stream = file(filename, 'r')
 	    samples = load(stream)
 	    velocity = []
