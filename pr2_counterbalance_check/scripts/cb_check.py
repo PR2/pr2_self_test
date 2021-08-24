@@ -151,9 +151,9 @@ if __name__ == '__main__':
 
         if not rospy.is_shutdown():
             app.process_results()
-    except KeyboardInterrupt, e:
+    except KeyboardInterrupt:
         pass
-    except Exception, e:
+    except Exception:
         print('Caught Exception in CB application check')
         import traceback
         traceback.print_exc()
