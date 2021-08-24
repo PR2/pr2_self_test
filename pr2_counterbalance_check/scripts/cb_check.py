@@ -35,6 +35,8 @@
 ##\author Kevin Watts
 ##\brief Prints output of PR2 counterbalance check
 
+from __future__ import print_function
+
 PKG = 'pr2_counterbalance_check'
 import roslib
 roslib.load_manifest(PKG)
