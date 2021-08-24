@@ -47,12 +47,12 @@ class Diagnostic():
 
     if debug_info:  
       if (len(neg) > 1):
-	print("neg mean",neg.mean())
-	print("neg outlier limit",outlier_limit_neg)
+        print("neg mean",neg.mean())
+        print("neg outlier limit",outlier_limit_neg)
       
       if (len(pos) > 1):
-	print("pos mean",pos.mean())
-	print("pos outlier limit",outlier_limit_pos)
+        print("pos mean",pos.mean())
+        print("pos outlier limit",outlier_limit_pos)
 
     outliers_neg = [val for val in neg if val < outlier_limit_neg]
     outliers_pos = [val for val in pos if val > outlier_limit_pos]
@@ -91,8 +91,8 @@ class Diagnostic():
 
     if mean_voltage < 0.05:
       if mean_velocity > 0.3:
-	print("Motor wires could be cut causing open circuit, ", actuator_name)
-	return True
+        print("Motor wires could be cut causing open circuit, ", actuator_name)
+        return True
     return False
 
   def plot(self, param):
