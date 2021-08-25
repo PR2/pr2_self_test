@@ -69,7 +69,7 @@ class CounterbalanceAnalyzer:
         if not self._sent_results:
             try:
                 rospy.wait_for_service('test_result', 10)
-            except:
+            except Exception:
                 rospy.logerr('Wait for service \'test_result\' timed out! Unable to send results.')
                 return False
                 
@@ -193,7 +193,7 @@ class CounterbalanceAnalyzer:
 
 
             self.send_results(r)
-        except Exception, e:
+        except Exception:
             import traceback
             self.test_failed_service_call(traceback.format_exc());
 
@@ -210,9 +210,9 @@ if __name__ == '__main__':
             app.process_results()
 
         rospy.spin()
-    except KeyboardInterrupt, e:
+    except KeyboardInterrupt:
         pass
-    except Exception, e:
+    except Exception:
         print('Caught Exception in CB application')
         import traceback
         traceback.print_exc()

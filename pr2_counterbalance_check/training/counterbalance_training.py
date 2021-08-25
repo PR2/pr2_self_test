@@ -35,6 +35,8 @@
 ##\author Eric Berger, Kevin Watts
 ##\brief Determines counterbalance adjustments based on CB data
 
+from __future__ import print_function
+
 PKG = 'pr2_counterbalance_check'
 from pr2_counterbalance_check import *
 
