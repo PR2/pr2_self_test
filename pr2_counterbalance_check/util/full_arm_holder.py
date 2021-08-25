@@ -133,7 +133,7 @@ def main():
         rospy.spin()
     except KeyboardInterrupt:
         pass
-    except Exception, e:
+    except Exception:
         import traceback
         traceback.print_exc()
 

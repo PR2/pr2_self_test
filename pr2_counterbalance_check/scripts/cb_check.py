@@ -35,6 +35,8 @@
 ##\author Kevin Watts
 ##\brief Prints output of PR2 counterbalance check
 
+from __future__ import print_function
+
 PKG = 'pr2_counterbalance_check'
 import roslib
 roslib.load_manifest(PKG)
@@ -149,9 +151,9 @@ if __name__ == '__main__':
 
         if not rospy.is_shutdown():
             app.process_results()
-    except KeyboardInterrupt, e:
+    except KeyboardInterrupt:
         pass
-    except Exception, e:
+    except Exception:
         print('Caught Exception in CB application check')
         import traceback
         traceback.print_exc()
