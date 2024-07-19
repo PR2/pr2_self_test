@@ -2,8 +2,8 @@
 Changelog for package pr2_motor_diagnostic_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.16 (2024-07-19)
+-------------------
 * Merge pull request `#19 <https://github.com/PR2/pr2_self_test/issues/19>`_ from knorth55/fix-travis
 * change tab to 8 spaces for python3 compileall
 * Merge pull request `#17 <https://github.com/PR2/pr2_self_test/issues/17>`_ from k-okada/kinetic-devel

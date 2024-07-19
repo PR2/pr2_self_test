@@ -2,8 +2,8 @@
 Changelog for package joint_qualification_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.16 (2024-07-19)
+-------------------
 * Merge pull request `#17 <https://github.com/PR2/pr2_self_test/issues/17>`_ from k-okada/kinetic-devel
 * fixed cmake version for focal compile
 * updated for python3 compatibility for focal/noetic compile

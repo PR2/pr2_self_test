@@ -2,8 +2,8 @@
 Changelog for package pr2_counterbalance_check
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.16 (2024-07-19)
+-------------------
 * Fix version error (`#21 <https://github.com/PR2/pr2_self_test/issues/21>`_)
   Co-authored-by: Naoya Yamaguchi <708yamaguchi@gmail.com>
 * Merge pull request `#19 <https://github.com/PR2/pr2_self_test/issues/19>`_ from knorth55/fix-travis
