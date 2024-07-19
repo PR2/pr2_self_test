@@ -49,7 +49,10 @@ import sys
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from StringIO import StringIO
+try:
+    from StringIO import StringIO ## for Python 2
+except ImportError:
+    from io import StringIO ## for Python 3
 
 from pr2_self_test_msgs.msg import Plot, TestValue, TestParam
 
@@ -421,7 +424,18 @@ def calc_cb_adjust(data, model_file):
         # A = numpy.load(model_file).transpose()
         
         # This uses minimum of total torque
-        A = numpy.load(model_file)[:-1].transpose() 
+        try:
+            A = numpy.load(model_file)[:-1].transpose()
+        except ValueError:
+            try:
+                A = numpy.load(model_file, allow_pickle=True)[:-1].transpose()
+            except OSError:
+                A = numpy.load(model_file, allow_pickle=True, encoding="bytes")[:-1].transpose()
+        except OSError:
+            try:
+                A = numpy.load(model_file, encoding="bytes")[:-1].transpose()
+            except ValueError:
+                A = numpy.load(model_file, allow_pickle=True, encoding="bytes")[:-1].transpose()
         B = numpy.array(get_efforts(data, True) + get_efforts(data, False))
         X = numpy.linalg.lstsq(A,B)
     except:
