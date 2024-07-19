@@ -2,6 +2,18 @@
 Changelog for package pr2_counterbalance_check
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix version error (`#21 <https://github.com/PR2/pr2_self_test/issues/21>`_)
+  Co-authored-by: Naoya Yamaguchi <708yamaguchi@gmail.com>
+* Merge pull request `#19 <https://github.com/PR2/pr2_self_test/issues/19>`_ from knorth55/fix-travis
+* fix except error for python3
+* fix print functions for python2
+* Merge pull request `#17 <https://github.com/PR2/pr2_self_test/issues/17>`_ from k-okada/kinetic-devel
+* updated for python3 compatibility for focal/noetic compile
+* fix type pr2_etherCAT -> pr2_ethercat (`#12 <https://github.com/PR2/pr2_self_test/issues/12>`_)
+* Contributors: Dave Feil-Seifer, Kei Okada, Shingo Kitagawa, Yoshiki Obinata
+
 1.0.15 (2019-04-24)
 -------------------
 * Merge pull request `#8 <https://github.com/PR2/pr2_self_test/issues/8>`_ from knorth55/indigo-fix

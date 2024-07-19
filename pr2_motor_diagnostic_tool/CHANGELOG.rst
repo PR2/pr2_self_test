@@ -2,6 +2,15 @@
 Changelog for package pr2_motor_diagnostic_tool
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#19 <https://github.com/PR2/pr2_self_test/issues/19>`_ from knorth55/fix-travis
+* change tab to 8 spaces for python3 compileall
+* Merge pull request `#17 <https://github.com/PR2/pr2_self_test/issues/17>`_ from k-okada/kinetic-devel
+* updated for python3 compatibility for focal/noetic compile
+* fix package.xml in pr2_motor_diagnostic_tool (`#10 <https://github.com/PR2/pr2_self_test/issues/10>`_)
+* Contributors: Dave Feil-Seifer, Kei Okada, Shingo Kitagawa
+
 1.0.15 (2019-04-24)
 -------------------
 

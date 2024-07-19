@@ -2,6 +2,9 @@
 Changelog for package pr2_self_test_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.0.15 (2019-04-24)
 -------------------
 * Merge pull request `#8 <https://github.com/PR2/pr2_self_test/issues/8>`_ from knorth55/indigo-fix

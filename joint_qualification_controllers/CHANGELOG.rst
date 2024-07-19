@@ -2,6 +2,13 @@
 Changelog for package joint_qualification_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#17 <https://github.com/PR2/pr2_self_test/issues/17>`_ from k-okada/kinetic-devel
+* fixed cmake version for focal compile
+* updated for python3 compatibility for focal/noetic compile
+* Contributors: Dave Feil-Seifer, Kei Okada
+
 1.0.15 (2019-04-24)
 -------------------
 * Merge pull request `#8 <https://github.com/PR2/pr2_self_test/issues/8>`_ from knorth55/indigo-fix
